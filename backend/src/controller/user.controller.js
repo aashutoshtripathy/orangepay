@@ -6,31 +6,35 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import bcrypt from "bcrypt"
 
 const registerUser = asyncHandler(async (req, res) => {
-    try {
+    const {
+        name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+        gender, maritalStatus, education, address, salaryBasis, email, division,
+        subDivision, section, sectionType, photograph, aadharCard, panCard,
+        educationCertificate, cheque
+    } = req.body;
+    console.log(req.body)
 
-        const {name,fatherOrHusbandName,dob,aadharNumber,panNumber,mobileNumber,gender,maritalStatus,education,address,salaryBasis,email,division,subDivision,section,sectionType,photograph,aadharCard,panCard,educationCertificate,cheque} = req.body
-        // console.log(firstname,lastname,email,password,username)
+    // Check for existing user
+    // const existedUser = await Register.findOne({
+    //     $or: [{ mobileNumber }, { aadharNumber }]
+    // });
 
-        // const existedUser = await Signup.findOne({
-        //     $or: [{mobileNumber},{aadharNumber}]
-        // })
+    // if (existedUser) {
+    //     throw new ApiError(400, "Mobile number or Aadhar number already exists");
+    // }
 
-        // if(existedUser){
-        //     throw new ApiError(400,"username or email is already exist")
-        // }
+    // Create new user
+    const user = await Register.create({
+        name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+        gender, maritalStatus, education, address, salaryBasis, email, division,
+        subDivision, section, sectionType, photograph, aadharCard, panCard,
+        educationCertificate, cheque
+    });
 
-        const user = await Register.create({
-            name,fatherOrHusbandName,dob,aadharNumber,panNumber,mobileNumber,gender,maritalStatus,education,address,salaryBasis,email,division,subDivision,section,sectionType,photograph,aadharCard,panCard,educationCertificate,chequ
-        })
-    //     const createdUser = await Signup.findById(user._id).select("-password -refreshToken")
-    //     return res.status(200).json(
-    //         new ApiResponse(200,createdUser, "User Registered Successfully")
-    // )
-    } catch (error) {
-        // Handle any errors that might occur during response sending
-        console.error("Error sending response:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
+    // Send success response
+    return res.status(201).json(
+        new ApiResponse(201, user, "User Registered Successfully")
+    );
 });
 
 
