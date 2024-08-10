@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { registerUser } from "../../../api/apiservice.js";
+import axios from "axios";
 import {
   CButton,
   CCard,
@@ -67,43 +67,44 @@ const Register = () => {
     }));
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log('Form data:', formData);
+  
     try {
-      const response = await registerUser(formData);
-      console.log('User registered successfully:', response);
-
-      setFormData({
-        name: "",
-        fatherOrHusbandName: "",
-        dob: "",
-        aadharNumber: "",
-        panNumber: "",
-        mobileNumber: "",
-        gender: "",
-        maritalStatus: "",
-        education: [],
-        address: "",
-        salaryBasis: "",
-        email: "",
-        division: "",
-        subDivision: "",
-        section: "",
-        sectionType: "",
-        photograph: null,
-        aadharCard: null,
-        panCard: null,
-        educationCertificate: null,
-        cheque: null,
-      });
-
+      const response = await axios.post('register', formData);
+      console.log(response.data);
     } catch (error) {
-      console.error('Error registering user:', error);
+      console.error("Error in posting the data:", error);
     }
 
-   
+    setFormData({
+      name: "",
+      fatherOrHusbandName: "",
+      dob: "",
+      aadharNumber: "",
+      panNumber: "",
+      mobileNumber: "",
+      gender: "",
+      maritalStatus: "",
+      education: [],
+      address: "",
+      salaryBasis: "",
+      email: "",
+      division: "",
+      subDivision: "",
+      section: "",
+      sectionType: "",
+      photograph: null,
+      aadharCard: null,
+      panCard: null,
+      educationCertificate: null,
+      cheque: null,
+    });
   };
+
+  
+
 
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
