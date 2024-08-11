@@ -1,11 +1,13 @@
 import { Register } from "../model/Register.model.js";
-// import { User } from "../model/User.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+// import upload from "../middleware/filehandle.middleware.js";
 import bcrypt from "bcrypt"
 
 const registerUser = asyncHandler(async (req, res) => {
+
+
     const {
         name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
         gender, maritalStatus, education, address, salaryBasis, email, division,
@@ -36,6 +38,90 @@ const registerUser = asyncHandler(async (req, res) => {
         new ApiResponse(201, user, "User Registered Successfully")
     );
 });
+
+
+// const registerUser = asyncHandler(async (req, res) => {
+    // Single file uploads for each field
+
+
+    // app.post('/api/v1/users', upload.fields([
+    //     { name: 'photograph', maxCount: 1 },
+    //     { name: 'aadharCard', maxCount: 1 },
+    //     { name: 'panCard', maxCount: 1 },
+    //     { name: 'educationCertificate', maxCount: 1 },
+    //     { name: 'cheque', maxCount: 1 }
+    //   ]), registerUser);
+
+
+
+    // upload.fields([
+    //   { name: 'photograph', maxCount: 1 },
+    //   { name: 'aadharCard', maxCount: 1 },
+    //   { name: 'panCard', maxCount: 1 },
+    //   { name: 'educationCertificate', maxCount: 1 },
+    //   { name: 'cheque', maxCount: 1 }
+    // ])(req, res, async (err) => {
+    //   if (err) {
+    //     return res.status(400).json({ message: err });
+    //   }
+  
+//       const {
+//         name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+//         gender, maritalStatus, education, address, salaryBasis, email, division,
+//         subDivision, section, sectionType
+//       } = req.body;
+  
+//       const user = await Register.create({
+//         name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+//         gender, maritalStatus, education, address, salaryBasis, email, division,
+//         subDivision, section, sectionType,
+//         photograph: req.files['photograph'] ? req.files['photograph'][0].path : null,
+//         aadharCard: req.files['aadharCard'] ? req.files['aadharCard'][0].path : null,
+//         panCard: req.files['panCard'] ? req.files['panCard'][0].path : null,
+//         educationCertificate: req.files['educationCertificate'] ? req.files['educationCertificate'][0].path : null,
+//         cheque: req.files['cheque'] ? req.files['cheque'][0].path : null
+//       });
+//       console.log(req.files)
+  
+//       return res.status(201).json(
+//         new ApiResponse(201, user, "User Registered Successfully")
+//       );
+//     }
+// );
+//   });
+
+
+
+// const registerUser = asyncHandler(async (req, res) => {
+//     console.log('Files received:', req.files);
+//     console.log('Body received:', req.body);
+
+//     const {
+//         name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+//         gender, maritalStatus, education, address, salaryBasis, email, division,
+//         subDivision, section, sectionType
+//     } = req.body;
+
+//     // Check if files are present
+//     const photograph = req.files['photograph'] ? req.files['photograph'][0].path : null;
+//     const aadharCard = req.files['aadharCard'] ? req.files['aadharCard'][0].path : null;
+//     const panCard = req.files['panCard'] ? req.files['panCard'][0].path : null;
+//     const educationCertificate = req.files['educationCertificate'] ? req.files['educationCertificate'][0].path : null;
+//     const cheque = req.files['cheque'] ? req.files['cheque'][0].path : null;
+
+//     const user = await Register.create({
+//         name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+//         gender, maritalStatus, education, address, salaryBasis, email, division,
+//         subDivision, section, sectionType,
+//         photograph, aadharCard, panCard, educationCertificate, cheque
+//     });
+
+//     return res.status(201).json(
+//         new ApiResponse(201, user, "User Registered Successfully")
+//     );
+// });
+
+
 
 
 const loginUser = asyncHandler(async (req, res) => {

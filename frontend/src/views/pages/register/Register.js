@@ -4,6 +4,8 @@ import {
   CButton,
   CCard,
   CCardBody,
+  CCardHeader,
+  CCardFooter,
   CCol,
   CContainer,
   CForm,
@@ -67,12 +69,25 @@ const Register = () => {
     }));
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
+    const formDataToSend = new FormData();
+
+    for (const key in formData) {
+      if (formData.hasOwnProperty(key) && formData[key] !== null) {
+        if (Array.isArray(formData[key])) {
+          formData[key].forEach((value) =>
+            formDataToSend.append(key, value)
+          );
+        } else {
+          formDataToSend.append(key, formData[key]);
+        }
+      }
+    }
+
     try {
-      const response = await axios.post('register', formData);
+      const response = await axios.post("register", formData);
       console.log(response.data);
     } catch (error) {
       console.error("Error in posting the data:", error);
@@ -103,23 +118,20 @@ const Register = () => {
     });
   };
 
-  
-
-
   return (
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
+    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
           <CCol md={10} lg={8} xl={7}>
-            <CCard className="mx-4">
+            <CCard className="shadow-lg">
+              <CCardHeader className="text-center">
+                <h2>Register</h2>
+                <p className="text-muted">Fill in the details below</p>
+              </CCardHeader>
               <CCardBody className="p-4">
                 <CForm onSubmit={handleSubmit}>
-                  <h1>Register</h1>
-                  <p className="text-body-secondary">Request to create your account</p>
-
                   <CRow>
-                    <CCol md={6}>
-                      {/* Name Field */}
+                    <CCol md={12} className="mb-3">
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilUser} />
@@ -134,7 +146,6 @@ const Register = () => {
                         />
                       </CInputGroup>
 
-                      {/* Father's/Husband Name Field */}
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilUser} />
@@ -144,11 +155,11 @@ const Register = () => {
                           placeholder="Father's/Husband Name"
                           value={formData.fatherOrHusbandName}
                           onChange={handleChange}
+                          style={{ textTransform: "capitalize" }}
                           autoComplete="family-name"
                         />
                       </CInputGroup>
 
-                      {/* Date of Birth Field */}
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilCalendar} />
@@ -162,12 +173,39 @@ const Register = () => {
                           autoComplete="bday"
                         />
                       </CInputGroup>
+                    </CCol>
 
-                      {/* Aadhar Number Field */}
+                    <CCol md={6}>
+
+                    <CInputGroup className="mb-3">
+                        <CInputGroupText>Job Type</CInputGroupText>
+                        <div className="d-flex m-2 align-items-center">
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="salaryBasis"
+                            id="salaryBased"
+                            label="Salary Based"
+                            value="salary based"
+                            checked={formData.salaryBasis === "salary based"}
+                            onChange={handleChange}
+                          />
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="salaryBasis"
+                            id="comissionbased"
+                            label="Commission Based"
+                            value="commission based"
+                            checked={formData.salaryBasis === "commission based"}
+                            onChange={handleChange}
+                          />
+                        </div>
+                      </CInputGroup>
+
+
                       <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          Aadhar
-                        </CInputGroupText>
+                        <CInputGroupText>Aadhar</CInputGroupText>
                         <CFormInput
                           name="aadharNumber"
                           placeholder="Aadhar Number"
@@ -178,11 +216,8 @@ const Register = () => {
                         />
                       </CInputGroup>
 
-                      {/* Pan Number Field */}
                       <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          PAN
-                        </CInputGroupText>
+                        <CInputGroupText>PAN</CInputGroupText>
                         <CFormInput
                           name="panNumber"
                           placeholder="Pan Number"
@@ -193,7 +228,6 @@ const Register = () => {
                         />
                       </CInputGroup>
 
-                      {/* Mobile Number Field */}
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilPhone} />
@@ -208,17 +242,32 @@ const Register = () => {
                         />
                       </CInputGroup>
 
-                      {/* Gender Field */}
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          <CIcon icon={cilEnvelopeClosed} />
+                        </CInputGroupText>
+                        <CFormInput
+                          name="email"
+                          placeholder="Email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          autoComplete="email"
+                        />
+                      </CInputGroup>
+                    </CCol>
+
+                    <CCol md={6}>
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Gender</CInputGroupText>
-                        <div className="d-flex align-items-center">
+                        <div className="d-flex m-2 align-items-center">
                           <CFormCheck
                             variant="inline"
                             type="radio"
                             name="gender"
                             id="genderMale"
                             label="Male"
-                            value="Male"
+                            value="Male"  
                             checked={formData.gender === "Male"}
                             onChange={handleChange}
                           />
@@ -245,25 +294,60 @@ const Register = () => {
                         </div>
                       </CInputGroup>
 
-                      {/* Marital Status Field */}
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>Section Type</CInputGroupText>
+                        <div className="d-flex m-2 align-items-center">
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="sectionType"
+                            id="sectionRural"
+                            label="Rural"
+                            value="Rural"
+                            checked={formData.sectionType === "Rural"}
+                            onChange={handleChange}
+                          />
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="sectionType"
+                            id="sectionUrban"
+                            label="Urban"
+                            value="Urban"
+                            checked={formData.sectionType === "Urban"}
+                            onChange={handleChange}
+                          />
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="sectionType"
+                            id="sectionBoth"
+                            label="Both"
+                            value="Both"
+                            checked={formData.sectionType === "Both"}
+                            onChange={handleChange}
+                          />
+                        </div>
+                      </CInputGroup>
+
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Marital Status</CInputGroupText>
-                        <div className="d-flex align-items-center">
+                        <div className="d-flex m-2 align-items-center">
                           <CFormCheck
                             variant="inline"
                             type="radio"
                             name="maritalStatus"
-                            id="statusSingle"
+                            id="maritalSingle"
                             label="Single"
-                            value="Single"
+                            value="Single"  
                             checked={formData.maritalStatus === "Single"}
                             onChange={handleChange}
                           />
                           <CFormCheck
                             variant="inline"
                             type="radio"
-                            name="maritalStatus"
-                            id="statusMarried"
+                            name="maritalMarried"
+                            id="genderFemale"
                             label="Married"
                             value="Married"
                             checked={formData.maritalStatus === "Married"}
@@ -273,67 +357,40 @@ const Register = () => {
                             variant="inline"
                             type="radio"
                             name="maritalStatus"
-                            id="statusOther"
-                            label="Other"
-                            value="Other"
-                            checked={formData.maritalStatus === "Other"}
+                            id="maritalDivorced"
+                            label="Divorced"
+                            value="Divorced"
+                            checked={formData.maritalStatus === "Divorced"}
                             onChange={handleChange}
                           />
                         </div>
                       </CInputGroup>
 
-                      {/* Education Field */}
+
                       <CInputGroup className="mb-3">
-                        <CInputGroupText>Education</CInputGroupText>
-                        <div className="d-flex flex-wrap">
-                          <CFormCheck
-                            variant="inline"
-                            type="checkbox"
-                            name="education"
-                            id="educationHighSchool"
-                            label="Graduate & Above"
-                            value="Graduate & Above"
-                            checked={formData.education.includes("Graduate & Above")}
-                            onChange={handleCheckboxChange}
-                          />
-                          <CFormCheck
-                            variant="inline"
-                            type="checkbox"
-                            name="education"
-                            id="educationBachelors"
-                            label="Class 12th"
-                            value="Class 12th"
-                            checked={formData.education.includes("Class 12th")}
-                            onChange={handleCheckboxChange}
-                          />
-                          <CFormCheck
-                            variant="inline"
-                            type="checkbox"
-                            name="education"
-                            id="educationMasters"
-                            label="Other"
-                            value="Other"
-                            checked={formData.education.includes("Other")}
-                            onChange={handleCheckboxChange}
-                          />
-                        </div>
+                        <CInputGroupText>
+                          <CIcon icon={cilImage} />
+                        </CInputGroupText>
+                        <CFormInput
+                          name="photograph"
+                          type="file"
+                          onChange={handleFileChange}
+                        />
                       </CInputGroup>
                     </CCol>
 
-                    <CCol md={6}>
-                      {/* Address Field */}
+                    <CCol md={12} className="mb-3">
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Address</CInputGroupText>
                         <CFormInput
                           name="address"
-                          placeholder="Address"
+                          placeholder="Full Address"
                           value={formData.address}
                           onChange={handleChange}
-                          autoComplete="address"
+                          autoComplete="street-address"
                         />
                       </CInputGroup>
 
-                      {/* Salary Basis Field */}
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Salary Basis</CInputGroupText>
                         <CFormInput
@@ -345,22 +402,6 @@ const Register = () => {
                         />
                       </CInputGroup>
 
-                      {/* Email Field */}
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          <CIcon icon={cilEnvelopeClosed} />
-                        </CInputGroupText>
-                        <CFormInput
-                          name="email"
-                          placeholder="Email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          autoComplete="email"
-                        />
-                      </CInputGroup>
-
-                      {/* Division Field */}
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Division</CInputGroupText>
                         <CFormInput
@@ -368,23 +409,21 @@ const Register = () => {
                           placeholder="Division"
                           value={formData.division}
                           onChange={handleChange}
-                          autoComplete="division"
+                          autoComplete="off"
                         />
                       </CInputGroup>
 
-                      {/* Sub-Division Field */}
                       <CInputGroup className="mb-3">
-                        <CInputGroupText>Sub-Division</CInputGroupText>
+                        <CInputGroupText>Sub Division</CInputGroupText>
                         <CFormInput
                           name="subDivision"
-                          placeholder="Sub-Division"
+                          placeholder="Sub Division"
                           value={formData.subDivision}
                           onChange={handleChange}
-                          autoComplete="subdivision"
+                          autoComplete="off"
                         />
                       </CInputGroup>
 
-                      {/* Section Field */}
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Section</CInputGroupText>
                         <CFormInput
@@ -392,11 +431,10 @@ const Register = () => {
                           placeholder="Section"
                           value={formData.section}
                           onChange={handleChange}
-                          autoComplete="section"
+                          autoComplete="off"
                         />
                       </CInputGroup>
 
-                      {/* Section Type Field */}
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Section Type</CInputGroupText>
                         <CFormInput
@@ -404,72 +442,76 @@ const Register = () => {
                           placeholder="Section Type"
                           value={formData.sectionType}
                           onChange={handleChange}
-                          autoComplete="sectionType"
+                          autoComplete="off"
                         />
                       </CInputGroup>
+                    </CCol>
 
-                      {/* File Upload Fields */}
+                    <CCol md={6}>
+
+                   
+                      
+
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                          name="photograph"
-                          type="file"
-                          onChange={handleFileChange}
-                          autoComplete="off"
-                        />
-                      </CInputGroup>
-
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>Aadhar Card</CInputGroupText>
-                        <CFormInput
                           name="aadharCard"
                           type="file"
                           onChange={handleFileChange}
-                          autoComplete="off"
                         />
                       </CInputGroup>
 
                       <CInputGroup className="mb-3">
-                        <CInputGroupText>PAN Card</CInputGroupText>
+                        <CInputGroupText>
+                          <CIcon icon={cilImage} />
+                        </CInputGroupText>
                         <CFormInput
                           name="panCard"
                           type="file"
                           onChange={handleFileChange}
-                          autoComplete="off"
                         />
                       </CInputGroup>
+                    </CCol>
+
+                    <CCol md={6}>
+                      
 
                       <CInputGroup className="mb-3">
-                        <CInputGroupText>Education Certificate</CInputGroupText>
+                        <CInputGroupText>
+                          <CIcon icon={cilImage} />
+                        </CInputGroupText>
                         <CFormInput
                           name="educationCertificate"
                           type="file"
                           onChange={handleFileChange}
-                          autoComplete="off"
                         />
                       </CInputGroup>
 
                       <CInputGroup className="mb-3">
-                        <CInputGroupText>Cheque</CInputGroupText>
+                        <CInputGroupText>
+                          <CIcon icon={cilImage} />
+                        </CInputGroupText>
                         <CFormInput
                           name="cheque"
                           type="file"
                           onChange={handleFileChange}
-                          autoComplete="off"
                         />
                       </CInputGroup>
                     </CCol>
                   </CRow>
 
-                  <div className="d-flex justify-content-center mt-4">
-                    <CButton type="submit" color="success">
-                      Request
+                  <div className="d-grid">
+                    <CButton color="primary" type="submit" size="lg">
+                      Submit
                     </CButton>
                   </div>
                 </CForm>
               </CCardBody>
+              <CCardFooter className="text-center">
+                <p className="text-muted">All fields are mandatory</p>
+              </CCardFooter>
             </CCard>
           </CCol>
         </CRow>
