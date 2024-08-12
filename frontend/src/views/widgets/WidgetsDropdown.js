@@ -57,10 +57,16 @@ const WidgetsDropdown = (props) => {
                 <CIcon icon={cilOptions} />
               </CDropdownToggle>
               <CDropdownMenu>
-                <CDropdownItem>Action</CDropdownItem>
-                <CDropdownItem>Another action</CDropdownItem>
-                <CDropdownItem>Something else here...</CDropdownItem>
-                <CDropdownItem disabled>Disabled action</CDropdownItem>
+                <CDropdownItem>Add User</CDropdownItem>
+                <CDropdownItem>View User</CDropdownItem>
+                <CDropdownItem>Manage User</CDropdownItem>
+                <CDropdownItem>Manage User Service</CDropdownItem>
+                <CDropdownItem>Manage RePosting Bill</CDropdownItem>
+                <CDropdownItem>Manage Bill Fetch Mode</CDropdownItem>
+                <CDropdownItem>Manage RRF Mobile No.</CDropdownItem>
+                <CDropdownItem>View Consumer Details</CDropdownItem>
+                <CDropdownItem>Manage RRF Limit</CDropdownItem>
+                <CDropdownItem>Manage Unclaimed Txn</CDropdownItem>
               </CDropdownMenu>
             </CDropdown>
           }
@@ -147,10 +153,13 @@ const WidgetsDropdown = (props) => {
                 <CIcon icon={cilOptions} />
               </CDropdownToggle>
               <CDropdownMenu>
-                <CDropdownItem>Action</CDropdownItem>
-                <CDropdownItem>Another action</CDropdownItem>
-                <CDropdownItem>Something else here...</CDropdownItem>
-                <CDropdownItem disabled>Disabled action</CDropdownItem>
+                <CDropdownItem>Limit Enhancement</CDropdownItem>
+                <CDropdownItem>Fund Request</CDropdownItem>
+                <CDropdownItem>Search Transaction</CDropdownItem>
+                <CDropdownItem>Manage IMIE Detail</CDropdownItem>
+                <CDropdownItem>Manage Service</CDropdownItem>
+                <CDropdownItem>Manage Txn Cancellation</CDropdownItem>
+                <CDropdownItem>Manage SMS Vendor</CDropdownItem>
               </CDropdownMenu>
             </CDropdown>
           }
@@ -236,10 +245,7 @@ const WidgetsDropdown = (props) => {
                 <CIcon icon={cilOptions} />
               </CDropdownToggle>
               <CDropdownMenu>
-                <CDropdownItem>Action</CDropdownItem>
-                <CDropdownItem>Another action</CDropdownItem>
-                <CDropdownItem>Something else here...</CDropdownItem>
-                <CDropdownItem disabled>Disabled action</CDropdownItem>
+                <CDropdownItem>Monthly Billing Master</CDropdownItem>
               </CDropdownMenu>
             </CDropdown>
           }
@@ -308,10 +314,7 @@ const WidgetsDropdown = (props) => {
                 <CIcon icon={cilOptions} />
               </CDropdownToggle>
               <CDropdownMenu>
-                <CDropdownItem>Action</CDropdownItem>
-                <CDropdownItem>Another action</CDropdownItem>
-                <CDropdownItem>Something else here...</CDropdownItem>
-                <CDropdownItem disabled>Disabled action</CDropdownItem>
+                <CDropdownItem>Reports</CDropdownItem>
               </CDropdownMenu>
             </CDropdown>
           }

@@ -69,54 +69,85 @@ const Register = () => {
     }));
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   const formDataToSend = new FormData();
+
+  //   for (const key in formData) {
+  //     if (formData.hasOwnProperty(key) && formData[key] !== null) {
+  //       if (Array.isArray(formData[key])) {
+  //         formData[key].forEach((value) =>
+  //           formDataToSend.append(key, value)
+  //         );
+  //       } else {
+  //         formDataToSend.append(key, formData[key]);
+  //       }
+  //     }
+  //   }
+
+  //   try {
+  //     const response = await axios.post("register", formData);
+  //     console.log(response.data);
+  //   } catch (error) {
+  //     console.error("Error in posting the data:", error);
+  //   }
+
+  //   setFormData({
+  //     name: "",
+  //     fatherOrHusbandName: "",
+  //     dob: "",
+  //     aadharNumber: "",
+  //     panNumber: "",
+  //     mobileNumber: "",
+  //     gender: "",
+  //     maritalStatus: "",
+  //     education: [],
+  //     address: "",
+  //     salaryBasis: "",
+  //     email: "",
+  //     division: "",
+  //     subDivision: "",
+  //     section: "",
+  //     sectionType: "",
+  //     photograph: null,
+  //     aadharCard: null,
+  //     panCard: null,
+  //     educationCertificate: null,
+  //     cheque: null,
+  //   });
+  // };
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formDataToSend = new FormData();
 
     for (const key in formData) {
-      if (formData.hasOwnProperty(key) && formData[key] !== null) {
-        if (Array.isArray(formData[key])) {
-          formData[key].forEach((value) =>
-            formDataToSend.append(key, value)
-          );
-        } else {
-          formDataToSend.append(key, formData[key]);
+        if (formData.hasOwnProperty(key) && formData[key] !== null) {
+            if (Array.isArray(formData[key])) {
+                formData[key].forEach((value) =>
+                    formDataToSend.append(key, value)
+                );
+            } else {
+                formDataToSend.append(key, formData[key]);
+            }
         }
-      }
     }
 
     try {
-      const response = await axios.post("register", formData);
-      console.log(response.data);
+        const response = await axios.post("/register", formDataToSend, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        console.log(response.data);
     } catch (error) {
-      console.error("Error in posting the data:", error);
+        console.error("Error in posting the data:", error);
     }
-
-    setFormData({
-      name: "",
-      fatherOrHusbandName: "",
-      dob: "",
-      aadharNumber: "",
-      panNumber: "",
-      mobileNumber: "",
-      gender: "",
-      maritalStatus: "",
-      education: [],
-      address: "",
-      salaryBasis: "",
-      email: "",
-      division: "",
-      subDivision: "",
-      section: "",
-      sectionType: "",
-      photograph: null,
-      aadharCard: null,
-      panCard: null,
-      educationCertificate: null,
-      cheque: null,
-    });
-  };
+};
 
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
