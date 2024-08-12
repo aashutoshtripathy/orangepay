@@ -1,6 +1,11 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+// import upload from "./middleware/filehandle.middleware.js";
+import { registerUser } from "./controller/user.controller.js";
+import path from "path";
+import multer from "multer";
+import { fileURLToPath } from "url";
 
 
 
@@ -23,8 +28,42 @@ app.use(bodyParser.json())
 import userRouter from "./routes/user.routes.js"
 import bodyParser from "body-parser";
 
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//         cb(null, 'uploads/');
+//     },
+//     filename: function (req, file, cb) {
+//         cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+//     }
+// });
+
+// // Initialize Multer upload
+// const multerUpload = multer({ storage: storage });
+
+// // Serve the "uploads" folder statically
+// app.use('/uploads', express.static('uploads'));
+
+// // Define route to handle file upload
+// app.post('/upload', multerUpload.single('photograph'), (req, res) => {
+//     try {
+//         if (!req.file) {
+//             return res.status(400).send('No file uploaded.');
+//         }
+
+//         res.status(200).json({
+//             message: 'File uploaded successfully',
+//             file: req.file
+//         });
+//     } catch (error) {
+//         res.status(500).send(error.message);
+//     }
+// });
+
+
 
 app.use("/api/v1/users", userRouter)
+
+
 
 
 export { app };
