@@ -56,11 +56,11 @@ import MainChart from './MainChart'
 
 const Dashboard = () => {
   const progressExample = [
-    { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
-    { title: 'Unique', value: '24.093 Users', percent: 20, color: 'info' },
-    { title: 'Pageviews', value: '78.706 Views', percent: 60, color: 'warning' },
-    { title: 'New Users', value: '22.123 Users', percent: 80, color: 'danger' },
-    { title: 'Bounce Rate', value: 'Average Rate', percent: 40.15, color: 'primary' },
+    { title: 'users', value: '29.703 Users', percent: 40, color: 'success' },
+    { title: 'Distributers', value: '24.093 Users', percent: 20, color: 'info' },
+    { title: 'Agents', value: '78.706 Views', percent: 60, color: 'warning' },
+    { title: 'New User', value: '22.123 Users', percent: 80, color: 'danger' },
+    { title: 'New Request', value: 'Average Rate', percent: 40.15, color: 'primary' },
   ]
 
   const progressGroupExample1 = [
@@ -227,21 +227,24 @@ const Dashboard = () => {
                 <div className="fw-semibold text-truncate">
                   {item.value} ({item.percent}%)
                 </div>
-                <CProgress thin className="mt-2" color={item.color} value={item.percent} />
+                <CProgress thin className="</CCardBody>
+          </CCard>
+        </CCol>
+      </CRow>mt-2" color={item.color} value={item.percent} />
               </CCol>
             ))}
           </CRow>
         </CCardFooter>
       </CCard>
-      <WidgetsBrand className="mb-4" withCharts />
-      <CRow>
+      {/* <WidgetsBrand className="mb-4" withCharts /> */}
+      {/* <CRow>
         <CCol xs>
           <CCard className="mb-4">
             <CCardHeader>Traffic {' & '} Sales</CCardHeader>
             <CCardBody>
               <CRow>
-                <CCol xs={12} md={6} xl={6}>
-                  <CRow>
+                <CCol xs={12} md={6} xl={6}> */}
+                  {/* <CRow>
                     <CCol xs={6}>
                       <div className="border-start border-start-4 border-start-info py-1 px-3">
                         <div className="text-body-secondary text-truncate small">New Clients</div>
@@ -256,8 +259,8 @@ const Dashboard = () => {
                         <div className="fs-5 fw-semibold">22,643</div>
                       </div>
                     </CCol>
-                  </CRow>
-                  <hr className="mt-0" />
+                  </CRow> */}
+                  {/* <hr className="mt-0" />
                   {progressGroupExample1.map((item, index) => (
                     <div className="progress-group mb-4" key={index}>
                       <div className="progress-group-prepend">
@@ -268,8 +271,8 @@ const Dashboard = () => {
                         <CProgress thin color="danger" value={item.value2} />
                       </div>
                     </div>
-                  ))}
-                </CCol>
+                  ))} */}
+                {/* </CCol>
                 <CCol xs={12} md={6} xl={6}>
                   <CRow>
                     <CCol xs={6}>
@@ -284,9 +287,9 @@ const Dashboard = () => {
                         <div className="fs-5 fw-semibold">49,123</div>
                       </div>
                     </CCol>
-                  </CRow>
+                  </CRow> */}
 
-                  <hr className="mt-0" />
+                  {/* <hr className="mt-0" />
 
                   {progressGroupExample2.map((item, index) => (
                     <div className="progress-group mb-4" key={index}>
@@ -299,9 +302,9 @@ const Dashboard = () => {
                         <CProgress thin color="warning" value={item.value} />
                       </div>
                     </div>
-                  ))}
+                  ))} */}
 
-                  <div className="mb-5"></div>
+                  {/* <div className="mb-5"></div>
 
                   {progressGroupExample3.map((item, index) => (
                     <div className="progress-group" key={index}>
@@ -319,9 +322,9 @@ const Dashboard = () => {
                     </div>
                   ))}
                 </CCol>
-              </CRow>
+              </CRow> */}
 
-              <br />
+              {/* <br />
 
               <CTable align="middle" className="mb-0 border" hover responsive>
                 <CTableHead className="text-nowrap">
@@ -340,12 +343,12 @@ const Dashboard = () => {
                     <CTableHeaderCell className="bg-body-tertiary">Activity</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
-                <CTableBody>
-                  {tableExample.map((item, index) => (
+                <CTableBody> */}
+                  {/* {tableExample.map((item, index) => (
                     <CTableRow v-for="item in tableItems" key={index}>
-                      <CTableDataCell className="text-center">
+                      <CTableDataCell className="text-center"> */}
                         {/* <CAvatar size="md" src={item.avatar.src} status={item.avatar.status} /> */}
-                      </CTableDataCell>
+                      {/* </CTableDataCell>
                       <CTableDataCell>
                         <div>{item.user.name}</div>
                         <div className="small text-body-secondary text-nowrap">
@@ -372,14 +375,14 @@ const Dashboard = () => {
                         <div className="small text-body-secondary text-nowrap">Last login</div>
                         <div className="fw-semibold text-nowrap">{item.activity}</div>
                       </CTableDataCell>
-                    </CTableRow>
-                  ))}
+                    </CTableRow> */}
+                  {/* ))}
                 </CTableBody>
-              </CTable>
-            </CCardBody>
+              </CTable> */}
+            {/* </CCardBody>
           </CCard>
         </CCol>
-      </CRow>
+      </CRow> */}
     </>
   )
 }
