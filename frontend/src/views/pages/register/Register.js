@@ -23,6 +23,7 @@ import {
   cilEnvelopeClosed,
   cilImage,
 } from "@coreui/icons";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -534,14 +535,16 @@ const Register = () => {
                   </CRow>
 
                   <div className="d-grid">
-                    <CButton color="primary" type="submit" size="lg">
+                    <CButton color="warning" type="submit" size="lg">
                       Submit
                     </CButton>
                   </div>
                 </CForm>
               </CCardBody>
               <CCardFooter className="text-center">
-                <p className="text-muted">All fields are mandatory</p>
+                <p className="text-muted">Allready have Account? <Link to={`/login`}><CButton color="link"  className="px-0">
+                        Login
+                        </CButton></Link></p>
               </CCardFooter>
             </CCard>
           </CCol>

@@ -13,16 +13,39 @@ import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
 
+
 // import { logo } from 'src/assets/brand/logo'
 // import { sygnet } from 'src/assets/brand/sygnet'
 
 // sidebar nav config
 import navigation from '../_nav'
+// import { _nav as navigation } from '../_nav';
+import { adminNavItems, distributorNavItems, agentNavItems } from '../_nav'; // Adjust import as necessary
+
+
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
+
+  const role = useSelector((state) => state.userRole); // Access the correct property
+  let navigation;
+
+  switch (role) {
+    case 'dummy':   
+      navigation = adminNavItems;
+      break;
+    case 'tester':
+      navigation = distributorNavItems;
+      break;
+    case 'agent':
+      navigation = agentNavItems;
+      break;
+    default:
+      navigation = []; // Default or empty navigation
+      break;
+  }   
 
   return (
     <CSidebar

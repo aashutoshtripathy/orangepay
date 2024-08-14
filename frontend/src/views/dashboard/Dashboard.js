@@ -1,4 +1,7 @@
 import React from 'react'
+import { useState } from 'react'
+import { useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux';
 import classNames from 'classnames'
 
 import {
@@ -55,6 +58,45 @@ import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import MainChart from './MainChart'
 
 const Dashboard = () => {
+
+  //  const [userRole, setUserRole] = useState('');
+
+  // useEffect(() => {
+  //   const fetchUserRole = async () => {
+  //     try {
+  //       const response = await axios.get('/fetch_data');
+  //       setUserRole(response.data.name);
+  //     } catch (error) {
+  //       console.error('Failed to fetch user role:', error);
+  //     }
+  //   };
+
+  //   fetchUserRole();
+  // }, []);
+
+
+  // useEffect(() => {
+  //   // Retrieve the username from local storage
+  //   const username = localStorage.getItem('username')
+  //   setUserRole(username)
+  // }, [])
+
+
+  const dispatch = useDispatch();
+  const userRole = useSelector((state) => state.userRole);
+
+  useEffect(() => {
+    // Retrieve the user role from localStorage and set it in Redux
+    const role = localStorage.getItem('userRole');
+    if (role) {
+      dispatch(setUserRole(role));
+    }
+  }, [dispatch]);
+
+ 
+
+
+
   const progressExample = [
     { title: 'users', value: '29.703 Users', percent: 40, color: 'success' },
     { title: 'Distributers', value: '24.093 Users', percent: 20, color: 'info' },
@@ -178,7 +220,9 @@ const Dashboard = () => {
 
   return (
     <>
-      <WidgetsDropdown className="mb-4" />
+      {userRole === 'dummy' && (
+        <>
+        <WidgetsDropdown className="mb-4" />
       <CCard className="mb-4">
         <CCardBody>
           <CRow>
@@ -236,6 +280,91 @@ const Dashboard = () => {
           </CRow>
         </CCardFooter>
       </CCard>
+      </>
+      )}
+
+
+
+
+            {userRole === 'tester' && (
+        <>
+        <WidgetsDropdown className="mb-4" />
+      <CCard className="mb-4">
+        <CCardBody>
+          <CRow>
+            <CCol sm={5}>
+              <h4 id="traffic" className="card-title mb-0">
+                Traffic
+              </h4>
+              <div className="small text-body-secondary">January - July 2023</div>
+            </CCol>
+            <CCol sm={7} className="d-none d-md-block">
+              <CButton color="primary" className="float-end">
+                <CIcon icon={cilCloudDownload} />
+              </CButton>
+              <CButtonGroup className="float-end me-3">
+                {['Day', 'Month', 'Year'].map((value) => (
+                  <CButton
+                    color="outline-secondary"
+                    key={value}
+                    className="mx-0"
+                    active={value === 'Month'}
+                  >
+                    {value}
+                  </CButton>
+                ))}
+              </CButtonGroup>
+            </CCol>
+          </CRow>
+          <MainChart />
+        </CCardBody>
+        <CCardFooter>
+          <CRow
+            xs={{ cols: 1, gutter: 4 }}
+            sm={{ cols: 2 }}
+            lg={{ cols: 4 }}
+            xl={{ cols: 5 }}
+            className="mb-2 text-center"
+          >
+            {progressExample.map((item, index, items) => (
+              <CCol
+                className={classNames({
+                  'd-none d-xl-block': index + 1 === items.length,
+                })}
+                key={index}
+              >
+                <div className="text-body-secondary">{item.title}</div>
+                <div className="fw-semibold text-truncate">
+                  {item.value} ({item.percent}%)
+                </div>
+                <CProgress thin className="</CCardBody>
+          </CCard>
+        </CCol>
+      </CRow>mt-2" color={item.color} value={item.percent} />
+              </CCol>
+            ))}
+          </CRow>
+        </CCardFooter>
+      </CCard>
+      </>
+      )}
+
+
+
+
+            {userRole === 'distributor' && (
+        <CCard className="mb-4">
+          <CCardBody>
+            <div>Distributor-specific content goes here</div>
+            {/* Add content specific to distributor */}
+          </CCardBody>
+        </CCard>
+      )}
+
+
+
+
+
       {/* <WidgetsBrand className="mb-4" withCharts /> */}
       {/* <CRow>
         <CCol xs>

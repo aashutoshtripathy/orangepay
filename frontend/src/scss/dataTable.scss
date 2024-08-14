@@ -1,8 +1,16 @@
 .button-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.button-containerr {
+  display: flex;
+  gap: 10px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 410px;
+}
 
   .button-reject,
   .button-search, 
@@ -22,6 +30,7 @@
     transition: background-color 0.3s ease;
     text-decoration: none;
   }
+  
   
   .button-search:hover, 
   .button-download:hover, 
