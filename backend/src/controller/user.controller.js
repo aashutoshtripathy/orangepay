@@ -225,29 +225,31 @@ const fetchData = asyncHandler(async(req,res)  => {
 const loginUser = asyncHandler(async (req, res) => {
    try {
     console.log(req.body)
-     const {usernameEmail,password} = req.body
+     const {username,password} = req.body
  
-     if(!usernameEmail){
-         throw new ApiError(400,"username email is required")
-     }
+    //  if(!usernameEmail){
+    //      throw new ApiError(400,"username email is required")
+    //  }
  
-     const user = await Signup.findOne({
-         $or: [{username:usernameEmail},{email:usernameEmail}]
+     const user = await Register.findOne({
+        name:username
      })
+    //      $or: [{username:usernameEmail},{email:usernameEmail}]
+    //  })
      console.log(user)
      
  
-     if(!user){
-         throw new ApiError(400,"user does not exist")
-     }
+    //  if(!user){
+    //      throw new ApiError(400,"user does not exist")
+    //  }
         // console.log(user)
     //  const isPasswordValid = await bcrypt.compare(password, user.password);
     // const isPasswordValid = await user.isPasswordCorrect(password);
      
 
-    if (user.password !== password) {
-        throw new ApiError(400, "Invalid User Credentials")
-    }   
+    // if (user.password !== password) {
+    //     throw new ApiError(400, "Invalid User Credentials")
+    // }   
  
     //  if(!isPasswordValid){
     //      throw new ApiError(400,"Invalid User Credential")

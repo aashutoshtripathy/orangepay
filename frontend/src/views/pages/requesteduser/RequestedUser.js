@@ -163,6 +163,7 @@ const DataTableComponent = () => {
 
   const handleReject = (row) => {
     console.log('Rejected:', row);
+    setData(prevData => prevData.filter(item => item._id !== row._id));
     // Implement reject logic here
   };
 
@@ -199,7 +200,7 @@ const DataTableComponent = () => {
     {
       name: 'Actions',
       cell: (row) => (
-        <div className="button-container">
+        <div className="button-containerr">
           <button 
             className="button-search" 
             onClick={() => handleAccept(row)}
