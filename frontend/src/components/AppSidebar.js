@@ -36,7 +36,7 @@ const AppSidebar = () => {
     case 'dummy':   
       navigation = adminNavItems;
       break;
-    case 'tester':
+    case 'TEST7982':
       navigation = distributorNavItems;
       break;
     case 'agent':

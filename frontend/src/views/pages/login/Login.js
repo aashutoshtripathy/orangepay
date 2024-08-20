@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import { useEffect } from 'react'
 
@@ -25,6 +25,8 @@ const Login = () => {
   const [password, setPassword] = useState('')
   // const history = useHistory()
 
+  // const {_id} = useParams();
+
 
   const navigate = useNavigate();
 
@@ -45,23 +47,29 @@ const Login = () => {
       })  
 
 
-      
+      const { user } = response.data.data;
+
+      const { id } = user; 
 
 
 
 
+
+      console.log(response.data); // Add this to check the response structure
 
       // If the login is successful, you might receive a token or user data
-      const {data} = response.data
+      // const {data} = response.data
 
       // localStorage.setItem('username', username)
       // dispatch(setUserRole(data.role)); // Use the action to set user role
 
       localStorage.setItem('username', username);
+      localStorage.setItem('userId', id);
+
       // dispatch(setUserRole(data.role)); // Set user role
 
       // Redirect to the dashboard
-      navigate('/dashboard');
+      navigate(`/dashboard/${id}`);
 
       // Example: Store the token or user data as needed
       // localStorage.setItem('token', data.token)
@@ -99,7 +107,7 @@ const Login = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <CForm onSubmit={handleSubmit}>
-                    <h1>Distributor Login</h1>
+                    <h1>Login</h1>
                     <p className="text-body-secondary">Sign In to your account</p>
                     <CInputGroup className="mb-3">
                       <CInputGroupText>

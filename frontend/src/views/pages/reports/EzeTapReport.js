@@ -134,7 +134,7 @@ const downloadExcel = (data) => {
   XLSX.writeFile(wb, 'table_data.xlsx'); // Write and download Excel file
 };
 
-const DataTableComponent = () => {
+const EzeTapReport = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -156,22 +156,9 @@ const DataTableComponent = () => {
     fetchData();
   }, []);
 
-  const handleAccept = async (row) => {
+  const handleAccept = (row) => {
     console.log('Accepted:', row);
-
-    try {
-      const response = await axios.post(`/registered/${row._id}`);
-      console.log('Accept response:', response.data);
-      // Optional: Update UI or give feedback to the user
-      if (response.status === 200) {
-        // Update UI: Remove the accepted row from the data
-        setData(prevData => prevData.filter(item => item._id !== row._id));
-      } else {
-        console.error('Failed to accept:', response.data);
-      }
-    } catch (error) {
-      console.error('Error accepting:', error);
-    }
+    // Implement accept logic here
   };
 
   const handleReject = (row) => {
@@ -289,4 +276,4 @@ const DataTableComponent = () => {
   );
 };
 
-export default DataTableComponent;
+export default EzeTapReport;

@@ -45,6 +45,8 @@ import {
   cilUser,
   cilUserFemale,
 } from '@coreui/icons'
+import { useParams } from 'react-router-dom';
+
 
 // import avatar1 from 'src/assets/images/avatars/1.jpg'
 // import avatar2 from 'src/assets/images/avatars/2.jpg'
@@ -58,6 +60,9 @@ import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import MainChart from './MainChart'
 
 const Dashboard = () => {
+  // const { user } = response.data.data;
+
+  // const { id } = user; 
 
   //  const [userRole, setUserRole] = useState('');
 
@@ -286,7 +291,7 @@ const Dashboard = () => {
 
 
 
-            {userRole === 'tester' && (
+            {userRole === 'TEST7982' && (
         <>
         <WidgetsDropdown className="mb-4" />
       <CCard className="mb-4">

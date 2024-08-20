@@ -411,7 +411,7 @@ const WidgetsDropdown = (props) => {
     </>
   )}
 
-  {userRole === 'tester' && (
+  {userRole === 'TEST7982' && (
     <>
     <CRow className={props.className} xs={{ gutter: 4 }}>
     <CCol sm={6} xl={4} xxl={3}>
@@ -425,7 +425,7 @@ const WidgetsDropdown = (props) => {
             </span>
           </>
         }
-        title="MY NETWORK"
+        title="My Network"
         action={
           <CDropdown alignment="end">
             <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -513,7 +513,7 @@ const WidgetsDropdown = (props) => {
             </span>
           </>
         }
-        title="MY ACCOUNT"
+        title="My Account"
         action={
           <CDropdown alignment="end">
             <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -605,7 +605,7 @@ const WidgetsDropdown = (props) => {
             </span>
           </>
         }
-        title="MY PROFILE"
+        title="My Profile"
         action={
           <CDropdown alignment="end">
             <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -675,7 +675,7 @@ const WidgetsDropdown = (props) => {
             </span>
           </>
         }
-        title="SUPPORT DESK"
+        title="Support Desk"
         action={
           <CDropdown alignment="end">
             <CDropdownToggle color="transparent" caret={false} className="text-white p-0">

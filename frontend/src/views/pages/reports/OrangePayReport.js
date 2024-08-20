@@ -47,22 +47,23 @@ const downloadPDF = (data) => {
   // Define the columns and their widths
   const columns = [
     { header: 'ID', dataKey: '_id' },
-    { header: 'Name', dataKey: 'name' },
-    { header: 'Father/Husband Name', dataKey: 'fatherorHusbandName' },
-    { header: 'DOB', dataKey: 'dob' },
-    { header: 'Aadhar No.', dataKey: 'aadharNumber' },
-    { header: 'Pan No.', dataKey: 'panNumber' },
-    { header: 'Mobile No.', dataKey: 'mobileNumber' },
-    { header: 'Gender', dataKey: 'gender' },
-    { header: 'Marital Status', dataKey: 'maritalStatus' },
-    { header: 'Education', dataKey: 'education' },
-    { header: 'Address', dataKey: 'address' },
-    { header: 'Job Type', dataKey: 'salaryBasis' },
-    { header: 'Email', dataKey: 'email' },
-    { header: 'Division', dataKey: 'division' },
-    { header: 'Sub-Division', dataKey: 'subDivision' },
-    { header: 'Section', dataKey: 'section' },
-    { header: 'Section Type', dataKey: 'sectionType' },
+    { header: 'transaction_id', dataKey: 'transaction_id' },
+    { header: 'Father/Husband Name', dataKey: 'reference_number' },
+    { header: 'lower_level', dataKey: 'lower_level' },
+    { header: 'upper_level', dataKey: 'upper_level' },
+    { header: 'Pan No.', dataKey: 'transaction_datetime' },
+    { header: 'Mobile No.', dataKey: 'service_name' },
+    { header: 'Mobile No.', dataKey: 'amount_before_due_date' },
+    { header: 'request_amount', dataKey: 'request_amount' },
+    { header: 'total_service_charge', dataKey: 'total_service_charge' },
+    { header: 'total_commission', dataKey: 'total_commission' },
+    { header: 'net_amount', dataKey: 'net_amount' },
+    { header: 'action_on_amount', dataKey: 'action_on_amount' },
+    { header: 'status', dataKey: 'status' },
+    { header: 'final_bal_amount', dataKey: 'final_bal_amount' },
+    { header: 'update_date', dataKey: 'update_date' },
+    { header: 'portal_name', dataKey: 'portal_name' },
+    { header: 'gst_charge', dataKey: 'gst_charge' },
     { header: 'Created At', dataKey: 'createdAt' },
     { header: 'Updated At', dataKey: 'updatedAt' },
   ];
@@ -134,7 +135,7 @@ const downloadExcel = (data) => {
   XLSX.writeFile(wb, 'table_data.xlsx'); // Write and download Excel file
 };
 
-const DataTableComponent = () => {
+const OrangePayReport = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -143,7 +144,7 @@ const DataTableComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/fetch_data'); 
+        const response = await axios.get('/reports'); 
         const result = response.data.data || []; // Access the data array from the nested data object
         setData(result);
       } catch (error) {
@@ -156,34 +157,7 @@ const DataTableComponent = () => {
     fetchData();
   }, []);
 
-  const handleAccept = async (row) => {
-    console.log('Accepted:', row);
-
-    try {
-      const response = await axios.post(`/registered/${row._id}`);
-      console.log('Accept response:', response.data);
-      // Optional: Update UI or give feedback to the user
-      if (response.status === 200) {
-        // Update UI: Remove the accepted row from the data
-        setData(prevData => prevData.filter(item => item._id !== row._id));
-      } else {
-        console.error('Failed to accept:', response.data);
-      }
-    } catch (error) {
-      console.error('Error accepting:', error);
-    }
-  };
-
-  const handleReject = (row) => {
-    console.log('Rejected:', row);
-    setData(prevData => prevData.filter(item => item._id !== row._id));
-    // Implement reject logic here
-  };
-
-  const handleDownload = (row) => {
-    console.log('Downloading file for:', row);
-    // Implement download logic here
-  };
+ 
 
   const handleSearch = () => {
     // Search logic is already implemented with the filter, just trigger re-render
@@ -192,49 +166,26 @@ const DataTableComponent = () => {
 
   const columns = [
     { name: 'ID', selector: '_id', sortable: true },
-    { name: 'Name', selector: 'name', sortable: true },
-    { name: 'Father or Husband Name', selector: 'fatherorHusbandName', sortable: true },
-    { name: 'Date Of Birth', selector: 'dob', sortable: true },
-    { name: 'Aadhar No.', selector: 'aadharNumber', sortable: true },
-    { name: 'Pan No.', selector: 'panNumber', sortable: true },
-    { name: 'Mobile No.', selector: 'mobileNumber', sortable: true },
-    { name: 'Gender', selector: 'gender', sortable: true },
-    { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
-    { name: 'Education', selector: 'education', sortable: true },
-    { name: 'Address', selector: 'address', sortable: true },
-    { name: 'Job Type', selector: 'salaryBasis', sortable: true },
-    { name: 'Email', selector: 'email', sortable: true },
-    { name: 'Division', selector: 'division', sortable: true },
-    { name: 'Sub-Division', selector: 'subDivision', sortable: true },
-    { name: 'Section', selector: 'section', sortable: true },
-    { name: 'Section Type', selector: 'sectionType', sortable: true },
+    { name: 'transaction_id', selector: 'transaction_id', sortable: true },
+    { name: 'reference_number', selector: 'reference_number', sortable: true },
+    { name: 'lower_level', selector: 'lower_level', sortable: true },
+    { name: 'upper_level', selector: 'upper_level', sortable: true },
+    { name: 'transaction_datetime', selector: 'transaction_datetime', sortable: true },
+    { name: 'service_name', selector: 'service_name', sortable: true },
+    { name: 'amount_before_due_date', selector: 'amount_before_due_date', sortable: true },
+    { name: 'request_amount', selector: 'request_amount', sortable: true },
+    { name: 'total_service_charge', selector: 'total_service_charge', sortable: true },
+    { name: 'total_commission', selector: 'total_commission', sortable: true },
+    { name: 'net_amount', selector: 'net_amount', sortable: true },
+    { name: 'action_on_amount', selector: 'action_on_amount', sortable: true },
+    { name: 'status', selector: 'status', sortable: true },
+    { name: 'final_bal_amount', selector: 'final_bal_amount', sortable: true },
+    { name: 'update_date', selector: 'update_date', sortable: true },
+    { name: 'portal_name', selector: 'portal_name', sortable: true },
+    { name: 'gst_charge', selector: 'gst_charge', sortable: true },
     { name: 'Created At', selector: 'createdAt', sortable: true },
     { name: 'Updated At', selector: 'updatedAt', sortable: true },
-    {
-      name: 'Actions',
-      cell: (row) => (
-        <div className="button-containerr">
-          <button 
-            className="button-search" 
-            onClick={() => handleAccept(row)}
-          >
-            <FontAwesomeIcon icon={faCheckCircle} /> Accept
-          </button>
-          <button 
-            className="button-reject" 
-            onClick={() => handleReject(row)}
-          >
-            <FontAwesomeIcon icon={faTimesCircle} /> Reject
-          </button>
-          <button 
-            className="button-download" 
-            onClick={() => handleDownload(row)}
-          >
-            <FontAwesomeIcon icon={faDownload} /> Download File
-          </button>
-        </div>
-      ),
-    },
+    
   ];
 
   const filteredItems = data.filter(item => 
@@ -289,4 +240,4 @@ const DataTableComponent = () => {
   );
 };
 
-export default DataTableComponent;
+export default OrangePayReport;

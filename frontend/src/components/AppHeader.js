@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   CContainer,
@@ -22,15 +22,25 @@ import {
   cilMenu,
   cilMoon,
   cilSun,
+  cilDollar,
 } from '@coreui/icons'
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios'
 
 
 const AppHeader = () => {
   const headerRef = useRef()
+  const [balance, setBalance] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+
+  
+
+
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
 
   const dispatch = useDispatch()
@@ -46,12 +56,53 @@ const AppHeader = () => {
     }
   }, [dispatch]);
 
+
+
+
+
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+  
+    if (!userId) {
+      console.error('Invalid userId format:', userId);
+      return;
+    }
+  
+    const fetchBalance = async () => {
+      setLoading(true);
+      try {
+        console.log('Fetching balance for userId:', userId); // Add this line
+        const response = await axios.get(`/balance/${userId}`);
+        console.log('Balance response:', response.data); // Add this line
+        setBalance(response.data.balance);
+      } catch (err) {
+        console.error('Error fetching balance:', err.message); // Modify this line
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchBalance();
+  }, []);
+  
+
+
+
+
+
+
   useEffect(() => {
     document.addEventListener('scroll', () => {
       headerRef.current &&
         headerRef.current.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0)
     })
   }, [])
+
+  // let balance = 10;
+  {loading && <p>Loading...</p>}
+  {error && <p>Error: {error}</p>}
+
 
   return (
     <>
@@ -67,8 +118,8 @@ const AppHeader = () => {
         </CHeaderToggler>
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
-            <CNavLink to="/dashboard" as={NavLink}>
-              OrangePay
+            <CNavLink to="/dashboard" as={NavLink}> 
+              Welcome `${}`
             </CNavLink>
           </CNavItem>
           <CNavItem>
@@ -151,7 +202,7 @@ const AppHeader = () => {
     </CHeader>
       </>
     )}
-    {userRole === 'tester' && (
+    {userRole === 'TEST7982' && (
       <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
       <CContainer className="border-bottom px-4" fluid>
         <CHeaderToggler
@@ -163,11 +214,11 @@ const AppHeader = () => {
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
             <CNavLink to="/dashboard" as={NavLink}>
-              OrangePay
+              Welcome `${}`
             </CNavLink>
           </CNavItem>
           <CNavItem>
-            <CNavLink href="#">Distributers</CNavLink>
+            <CNavLink href="#">Agent</CNavLink>
           </CNavItem>
           {/* <CNavItem>
             <CNavLink to='/requests' as={NavLink}>Requests</CNavLink>
@@ -181,7 +232,8 @@ const AppHeader = () => {
           </CNavItem>
           <CNavItem>
             <CNavLink href="#">
-              <CIcon icon={cilList} size="lg" />
+              {/* <CIcon icon={cilDollar} size="lg" /> */}
+              <span style={{ marginLeft: '10px' }}>Balance: ${balance}</span>
             </CNavLink>
           </CNavItem>
           <CNavItem>

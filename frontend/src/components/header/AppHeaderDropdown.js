@@ -1,5 +1,6 @@
-import React from 'react'
-import { useEffect } from 'react'             
+import React, { useState } from 'react'
+import { useEffect } from 'react'
+import { Link } from 'react-router-dom'          
 import {        
   CAvatar,
   CBadge,
@@ -26,14 +27,57 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 const AppHeaderDropdown = () => {
 
   const navigate = useNavigate();
 
+  // const [balance, setBalance] = useState(null);
 
   const dispatch = useDispatch();
   const userRole = useSelector((state) => state.userRole);
+
+
+  const [userId, setUserId] = useState(null)
+  // const navigate = useNavigate()
+
+
+  // useEffect(() => {
+  //   if (!id) {
+  //     console.error('Invalid userId format:', id);
+  //     return;
+  //   }
+
+  //   const fetchBalance = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const response = await axios.get(`/balance/${id}`);
+  //       setBalance(response.data.balance);
+  //     } catch (err) {
+  //       setError(err.message);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchBalance();
+  // }, [id]);
+
+
+
+
+  // Fetch user details including user ID
+  useEffect(() => {
+    // Get user ID from localStorage
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      // Handle the case where the user ID is not available (e.g., redirect to login)
+      console.log('No user ID found in localStorage');
+    }
+  }, []);
 
   // useEffect(() => {
   //   // Retrieve the user role from localStorage and set it in Redux
@@ -54,6 +98,7 @@ const AppHeaderDropdown = () => {
 
     const handleLogout = () => {
       localStorage.removeItem('username')
+      localStorage.removeItem('userId')
       // dispatch(setUserRole(null)); // Reset user role in Redux state if applicable
       navigate('/login'); // Redirect to login page
     };
@@ -133,14 +178,14 @@ const AppHeaderDropdown = () => {
     </CDropdown>
     </>
   )}
-  {userRole === 'tester' &&(
+  {userRole === 'TEST7982' &&(
       <>
       <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
         <CAvatar src={avatar8} size="md" />
       </CDropdownToggle>
-      <CDropdownMenu className="pt-0" placement="bottom-end">
-        <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
+       <CDropdownMenu className="pt-0" placement="bottom-end">
+      {/*  <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
         <CDropdownItem href="#">
           <CIcon icon={cilBell} className="me-2" />
           Updates
@@ -168,12 +213,14 @@ const AppHeaderDropdown = () => {
           <CBadge color="warning" className="ms-2">
             42
           </CBadge>
-        </CDropdownItem>
+        </CDropdownItem> */}
         <CDropdownHeader className="bg-body-secondary fw-semibold my-2">Settings</CDropdownHeader>
-        <CDropdownItem href="#">
-          <CIcon icon={cilUser} className="me-2" />
-          Profile
-        </CDropdownItem>
+        <Link to={`/profile/${userId}`} style={{ textDecoration: 'none' }}>
+          <CDropdownItem>
+            <CIcon icon={cilUser} className="me-2" />
+            Profile
+          </CDropdownItem>
+          </Link>
         <CDropdownItem href="#">
           <CIcon icon={cilSettings} className="me-2" />
           Settings

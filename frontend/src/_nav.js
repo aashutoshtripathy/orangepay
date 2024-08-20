@@ -578,7 +578,8 @@ export const adminNavItems = [
   {
     component: CNavItem,  
     name: 'OrangePay',
-    to: '/dashboard',
+    // to: `/dashboard/${_id}`,
+    to:`/dashboard`,
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
   {
@@ -632,7 +633,8 @@ export const distributorNavItems = [
   {
     component: CNavItem,  
     name: 'OrangePay',
-    to: '/dashboard',
+    // to: '/dashboard',
+     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
   {
@@ -641,7 +643,7 @@ export const distributorNavItems = [
   },
   {
     component: CNavGroup,
-    name: 'MY NETWORK',
+    name: 'My Network',
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
@@ -651,12 +653,12 @@ export const distributorNavItems = [
   },
   {
     component: CNavGroup,
-    name: 'MY ACCOUNTS',
+    name: 'My Accounts',
     to: '/buttons',
     icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
     items: [
       { component: CNavItem, name: 'Transactions Report-Ezetap' },
-      { component: CNavItem, name: 'Transactions Report-OrangePay' },
+      { component: CNavItem, name: 'Transactions Report-OrangePay', to: '/report-OrangePay' },
       { component: CNavItem, name: 'Fund Request' },
       { component: CNavItem, name: 'Fund Transfer' },
       { component: CNavItem, name: 'Fund Report' },
@@ -666,16 +668,16 @@ export const distributorNavItems = [
   },
   {
     component: CNavGroup,
-    name: 'MY PROFILE',
+    name: 'My Profile',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'View Profile' },
+      { component: CNavItem,  to: `/profile`, name: 'View Profile' },
       { component: CNavItem, name: 'Change Password' },
     ],
   },
   {
     component: CNavGroup,
-    name: 'SUPPORT DESK',
+    name: 'Support Desk',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
       { component: CNavItem, name: 'Query' },
