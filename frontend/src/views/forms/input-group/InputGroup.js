@@ -20,6 +20,7 @@ import {
   CRow,
 } from '@coreui/react'
 // import { DocsExample } from 'src/components'
+import { DocsExample } from '../../../components'
 
 const InputGroup = () => {
   return (

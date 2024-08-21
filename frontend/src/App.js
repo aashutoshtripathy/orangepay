@@ -26,6 +26,7 @@ const App = () => {
     if (theme) {
       setColorMode(theme)
     }
+    
 
     if (isColorModeSet()) {
       return

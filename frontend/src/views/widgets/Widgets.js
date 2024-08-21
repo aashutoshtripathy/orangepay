@@ -30,6 +30,7 @@ import {
 } from '@coreui/icons'
 import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 // import { DocsExample } from 'src/components'
+import { DocsExample } from '../../components'
 
 import WidgetsBrand from './WidgetsBrand'
 import WidgetsDropdown from './WidgetsDropdown'

@@ -27,6 +27,7 @@
     "redux": "^5.0.1",
     "simplebar-react": "^3.2.6",
     "web-vitals": "^4.2.3",
+    "webpack": "^5.93.0",
     "xlsx": "^0.18.5"
   },
   "scripts": {
@@ -58,7 +59,7 @@
     "@craco/craco": "^5.9.0",
     "css-loader": "^7.1.2",
     "postcss-loader": "^8.1.1",
-    "react-scripts": "^4.0.3",
+    "react-scripts": "^5.0.0",
     "resolve-url-loader": "^5.0.0",
     "sass": "^1.77.8"
   }
