@@ -657,13 +657,13 @@ export const distributorNavItems = [
     to: '/buttons',
     icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Transactions Report-Ezetap' },
+      { component: CNavItem, name: 'Transactions Report-Ezetap', to: '/report-Ezetap' },
       { component: CNavItem, name: 'Transactions Report-OrangePay', to: '/report-OrangePay' },
-      { component: CNavItem, name: 'Fund Request' },
-      { component: CNavItem, name: 'Fund Transfer' },
-      { component: CNavItem, name: 'Fund Report' },
-      { component: CNavItem, name: 'Reports' },
-      { component: CNavItem, name: 'Top-Up Report' },
+      { component: CNavItem, name: 'Fund Request', to: '/fundrequest' },
+      { component: CNavItem, name: 'Fund Transfer', to: '/report-OrangePay' },
+      { component: CNavItem, name: 'Fund Report', to: '/report-OrangePay' },
+      { component: CNavItem, name: 'Reports', to: '/report-OrangePay' },
+      { component: CNavItem, name: 'Top-Up Report', to: '/report-OrangePay' },
     ],
   },
   {
@@ -671,7 +671,7 @@ export const distributorNavItems = [
     name: 'My Profile',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem,  to: `/profile`, name: 'View Profile' },
+      { component: CNavItem, name: 'View Profile', to: '/profile' },
       { component: CNavItem, name: 'Change Password' },
     ],
   },
