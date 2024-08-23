@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 // import upload from "../middleware/filehandle.middleware.js";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
 import mongoose from "mongoose";
 import multer from "multer";
@@ -488,29 +489,29 @@ const loginUser = asyncHandler(async (req, res) => {
     console.log(req.body)
      const {username,password} = req.body
  
-    //  if(!usernameEmail){
-    //      throw new ApiError(400,"username email is required")
-    //  }
+     if (!username || !password) {
+        throw new ApiError(400, "Username and password are required");
+      }
  
      const user = await Registered.findOne({
-        userId:username
+        userId:username,
      })
     //      $or: [{username:usernameEmail},{email:usernameEmail}]
     //  })
      console.log(user)
      
  
-     if(!user){
-         throw new ApiError(400,"user does not exist")
-     }
+     if (!user) {
+        throw new ApiError(400, "User does not exist");
+      }
         // console.log(user)
     //  const isPasswordValid = await bcrypt.compare(password, user.password);
     // const isPasswordValid = await user.isPasswordCorrect(password);
      
 
-    // if (user.password !== password) {
-    //     throw new ApiError(400, "Invalid User Credentials")
-    // }   
+    if (user.password !== password) {
+        throw new ApiError(400, "Invalid User Credentials");
+      } 
  
     //  if(!isPasswordValid){
     //      throw new ApiError(400,"Invalid User Credential")
@@ -518,25 +519,34 @@ const loginUser = asyncHandler(async (req, res) => {
 
 
       // Generate access token
-    //   const accessToken = jwt.sign(
-    //     { _id: user._id, username: user.username, email: user.email },
-    //     process.env.ACCESS_TOKEN_SECRET,
-    //     { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
-    // );
+      const accessToken = jwt.sign(
+        { _id: user._id, username: user.username, email: user.email },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+      );
 
  
-     return res.status(200).json(
-         new ApiResponse(200,{success: true,message: "User Logged in Successfully",user: {
+      return res.status(200).json(
+        new ApiResponse(200, {
+          success: true,
+          message: "User Logged in Successfully",
+          user: {
             id: user._id, // Send the user ID here
             username: user.username,
             email: user.email, // Optional, send any other required user fields
-          }})
-     )
-   } catch (error) {
-    console.error("Error in sending the response",error)
-    return res.status(500).json(new ApiError(500,"error","Internal Server Error"))
-   }
-})
+          },
+          token: accessToken, // Include the access token in the response
+        })
+      );
+    } catch (error) {
+        console.error("Error in loginUser function:", error); // Log the error for debugging
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error); // Return custom API error
+        } else {
+          return res.status(500).json(new ApiError(500, "Internal Server Error"));
+        }
+      }
+    });
 
     const user = asyncHandler(async(req,res) => {
         try {

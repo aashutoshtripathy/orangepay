@@ -99,6 +99,8 @@ const AppHeaderDropdown = () => {
     const handleLogout = () => {
       localStorage.removeItem('username')
       localStorage.removeItem('userId')
+      localStorage.removeItem('token');
+      localStorage.removeItem('expirationTime');
       // dispatch(setUserRole(null)); // Reset user role in Redux state if applicable
       navigate('/login'); // Redirect to login page
     };

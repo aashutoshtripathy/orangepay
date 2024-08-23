@@ -55,19 +55,33 @@ const Login = () => {
         password,
       })  
 
-      const { user } = response.data.data;
-      const { id } = user; 
+      // const { user } = response.data.data;
+      // const { id } = user;
+      
+      const { token, user } = response.data.data;
+
+
+      const expirationTime = new Date().getTime() + 60 * 60 * 1000; // 1 hour from now
+
+
+      // Save token and user data in localStorage
+      localStorage.setItem('token', token);
+      // localStorage.setItem('userId', user.id)
 
       // Save user info in localStorage
       localStorage.setItem('username', username);
-      localStorage.setItem('userId', id);
+      localStorage.setItem('userId', user.id);
+
+      localStorage.setItem('expirationTime', expirationTime);
+
 
       // Redirect to the dashboard
-      navigate(`/dashboard/${id}`);
+      navigate(`/dashboard/${user.id}`);
+      // navigate(`/dashboard/${id}`);
 
     } catch (err) {
       // Handle the error, show it to the user
-      setGeneralError('Login failed: ' + (err.response?.data?.message || err.message))
+      setGeneralError('Login failed: '  + 'Something Went Wrong')
     }
   }
 
