@@ -7,6 +7,7 @@ const EzetapReports = React.lazy(() => import('./views/pages/reports/EzeTapRepor
 const Profile = React.lazy(() => import('./views/pages/profile/Profile'))
 const RequestedUser = React.lazy(() => import('./views/pages/requesteduser/RequestedUser'))
 const FundRequest = React.lazy(() => import('./views/pages/fundrequest/FundRequest'))
+const FundRequests = React.lazy(() => import('./views/pages/fundrequest/fundRequests'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
@@ -63,9 +64,10 @@ const routes = [
   { path: '/report-OrangePay', name: 'OrangePay Reports', element: OrangePayReports },
   { path: '/report-Ezetap', name: 'Ezetap Reports', element: EzetapReports },
   { path: '/profile/:userId', name: 'Profile Page', element: Profile },
-  { path: '/dashboard/:id', name: 'Dashboard', element: Dashboard },
-  { path: '/fundrequest', name: 'Fund Request', element: FundRequest },
+  { path: '/dashboard/:id',  name: 'Dashboard', element: Dashboard },
+  { path: '/fundrequest/:userId', name: 'Fund Request', element: FundRequest },
   { path: '/requests', name: 'RequestedUser', element: RequestedUser },
+  { path: '/fundrequests', name: 'Fund Request', element: FundRequests },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

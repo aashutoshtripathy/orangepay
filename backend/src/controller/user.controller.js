@@ -14,6 +14,7 @@ import fs from 'fs';
 import { Registered } from "../model/Registered.model.js";
 import { Transaction } from "../model/Transaction.model.js";
 import { Wallet } from "../model/Wallet.model.js";
+import { FundRequest } from "../model/FundRequest.model.js";
 
 
 
@@ -244,6 +245,144 @@ const fetchWalletBalance = asyncHandler(async (req, res) => {
         return res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 });
+
+
+
+
+const fundRequest = asyncHandler(async (req, res) => {
+    // Destructure the fields from the request body
+    const { userId, fundAmount, bankReference, paymentMethod } = req.body;
+
+    try {
+        // Validate required fields
+        if (!userId || !fundAmount || !bankReference || !paymentMethod) {
+            throw new Error('All fields are required');
+        }
+
+        // Create a new fund request
+        const newFundRequest = new FundRequest({
+            userId,
+            fundAmount,
+            bankReference,
+            paymentMethod,
+        });
+
+        // Save the document to the database
+        const savedFundRequest = await newFundRequest.save();
+
+        // Return the created transaction
+        return res.status(201).json(new ApiResponse(201, savedFundRequest, 'Fund request created successfully'));
+    } catch (error) {
+        // Catch any errors and send error response
+        return res.status(400).json(new ApiError(400, error.message));
+    }
+});
+
+
+
+
+
+
+const fetchFundRequest = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+
+    // Validate that the userId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        console.log("Invalid userId format:", userId);
+        return res.status(400).json({ success: false, message: 'Invalid userId' });
+    }
+
+    try {
+        const fundRequest = await FundRequest.find({ userId }).exec();
+        
+        if (!fundRequest) {
+            return res.status(404).json({ success: false, message: 'fund request not found from this id' });
+        }
+
+        console.log("fund request: ", fundRequest);
+
+        return res.status(200).json({ success: true, fundRequest });
+        
+    } catch (error) {
+        console.error("Error fetching wallet balance:", error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+});
+
+
+const fetchFundRequests = asyncHandler(async (req, res) => {
+    try {
+        // Find all fund requests from the database
+        const fundRequests = await FundRequest.find({}).exec();
+
+        console.log("Fund Requests: ", fundRequests);
+
+        // If no fund requests are found, return a message indicating no requests
+        if (fundRequests.length === 0) {
+            return res.status(404).json({ success: false, message: 'No fund requests found' });
+        }
+
+        // Return the list of all fund requests
+        return res.status(200).json({ success: true, fundRequests });
+        
+    } catch (error) {
+        console.error("Error fetching fund requests:", error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+});
+
+
+
+const approveFundRequest = asyncHandler(async (req, res) => {
+    try {
+      // Find the fund request by ID and update the status to "approved"
+      const updatedFundRequest = await FundRequest.findByIdAndUpdate(
+        req.params.id,
+        { status: 'approved' },
+        { new: true }
+      ).exec();
+  
+      // If the fund request is not found, return a 404 error
+      if (!updatedFundRequest) {
+        return res.status(404).json({ success: false, message: 'Fund request not found' });
+      }
+  
+      // Return the updated fund request
+      return res.status(200).json({ success: true, fundRequest: updatedFundRequest });
+  
+    } catch (error) {
+      console.error("Error approving fund request:", error);
+      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+  });
+
+  
+
+
+  const rejectFundRequest = asyncHandler(async (req, res) => {
+    try {
+      // Find the fund request by ID and update the status to "rejected"
+      const updatedFundRequest = await FundRequest.findByIdAndUpdate(
+        req.params.id,
+        { status: 'rejected' },
+        { new: true }
+      ).exec();
+  
+      // If the fund request is not found, return a 404 error
+      if (!updatedFundRequest) {
+        return res.status(404).json({ success: false, message: 'Fund request not found' });
+      }
+  
+      // Return the updated fund request
+      return res.status(200).json({ success: true, fundRequest: updatedFundRequest });
+  
+    } catch (error) {
+      console.error("Error rejecting fund request:", error);
+      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+  });
+  
+
 
 
 
@@ -637,5 +776,5 @@ const deleteUser = asyncHandler(async(req,res) => {
     }
 })
 
-export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser };
+export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest };
 

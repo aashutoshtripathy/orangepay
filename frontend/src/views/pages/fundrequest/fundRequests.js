@@ -144,8 +144,8 @@ const DataTableComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fund-request/${userId}`); 
-        const result = response.data.fundRequest || []; // Access the data array from the nested data object
+        const response = await axios.get(`/fundrequests`); 
+        const result = response.data.fundRequests || []; // Access the data array from the nested data object
         setData(result);
       } catch (error) {
         setError(error);
@@ -159,13 +159,41 @@ const DataTableComponent = () => {
 
 
 
- 
 
-  const handleReject = (row) => {
-    console.log('Rejected:', row);
-    setData(prevData => prevData.filter(item => item._id !== row._id));
-    // Implement reject logic here
+
+
+   // Handle Accept Fund Request
+   const handleAccept = async (row) => {
+    try {
+      const response = await axios.patch(`/fundrequests/${row._id}/approve`);
+      const updatedFundRequest = response.data;
+      setData((prevData) =>
+        prevData.map((item) =>
+          item._id === updatedFundRequest._id ? updatedFundRequest : item
+        )
+      );
+    } catch (error) {
+      console.error("Error approving fund request", error);
+    }
   };
+
+  // Handle Reject Fund Request
+  const handleReject = async (row) => {
+    try {
+      const response = await axios.patch(`/fundrequests/${row._id}/reject`);
+      const updatedFundRequest = response.data;
+      setData((prevData) =>
+        prevData.map((item) =>
+          item._id === updatedFundRequest._id ? updatedFundRequest : item
+        )
+      );
+    } catch (error) {
+      console.error("Error rejecting fund request", error);
+    }
+  };
+
+
+
 
   const handleDownload = (row) => {
     console.log('Downloading file for:', row);
@@ -185,12 +213,31 @@ const DataTableComponent = () => {
     { name: 'status', selector: 'status', sortable: true },
     { name: 'createdAt', selector: 'createdAt', sortable: true },
     { name: 'updatedAt', selector: 'updatedAt', sortable: true },
-   
+    {
+      name: 'Actions',
+      cell: (row) => (
+        <div className="button-containerr">
+          <button 
+            className="button-search" 
+            onClick={() => handleAccept(row)}
+          >
+            <FontAwesomeIcon icon={faCheckCircle} /> Accept
+          </button>
+          <button 
+            className="button-reject" 
+            onClick={() => handleReject(row)}
+          >
+            <FontAwesomeIcon icon={faTimesCircle} /> Reject
+          </button>
+        </div>
+      ),
+    },
   ];
 
-  const filteredItems = data.filter(item => 
-    item.userId && item.userId.toLowerCase().includes(filterText.toLowerCase())
+  const filteredItems = data.filter(
+    (item) => item.status === 'pending' && item.userId && item.userId.toLowerCase().includes(filterText.toLowerCase())
   );
+  
 
   if (loading) {
     return <div>Loading...</div>;
