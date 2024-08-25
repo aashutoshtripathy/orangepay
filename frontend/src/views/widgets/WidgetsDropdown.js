@@ -411,7 +411,7 @@ const WidgetsDropdown = (props) => {
     </>
   )}
 
-  {userRole === 'TEST7982' && (
+  {userRole !== 'dummy' && (
     <>
     <CRow className={props.className} xs={{ gutter: 4 }}>
     <CCol sm={6} xl={4} xxl={3}>

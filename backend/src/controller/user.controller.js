@@ -347,14 +347,34 @@ const approveFundRequest = asyncHandler(async (req, res) => {
         return res.status(404).json({ success: false, message: 'Fund request not found' });
       }
   
-      // Return the updated fund request
-      return res.status(200).json({ success: true, fundRequest: updatedFundRequest });
+      // Retrieve the user's wallet associated with the fund request
+      const userWallet = await Wallet.findOne({ userId: updatedFundRequest.userId });
+  
+      // If the wallet is not found, return a 404 error
+      if (!userWallet) {
+        return res.status(404).json({ success: false, message: 'Wallet not found' });
+      }
+  
+      // Add the fund amount to the wallet balance
+      userWallet.balance += updatedFundRequest.fundAmount;
+  
+      // Save the updated wallet
+      await userWallet.save();
+  
+      // Return the updated fund request and wallet balance
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Fund request approved and wallet updated', 
+        fundRequest: updatedFundRequest,
+        wallet: userWallet 
+      });
   
     } catch (error) {
       console.error("Error approving fund request:", error);
       return res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
   });
+  
 
   
 
