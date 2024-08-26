@@ -29,6 +29,7 @@ import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios'
+// import { setUserRole } from '../store'
 
 
 const AppHeader = () => {
@@ -36,6 +37,8 @@ const AppHeader = () => {
   const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [userRole, setUserRole] = useState('');
+
 
 
   
@@ -46,15 +49,18 @@ const AppHeader = () => {
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
 
-  const userRole = useSelector((state) => state.userRole);
+  // const userRole = useSelector((state) => state.userRole);
+
+
+  // const setUserRole = useSelector((state) => state.userRole)
 
   useEffect(() => {
-    // Retrieve the user role from localStorage and set it in Redux
-    const role = localStorage.getItem('userRole');
+    // Retrieve the user role from localStorage and set it in local state
+    const role = localStorage.getItem('username');
     if (role) {
-      dispatch(setUserRole(role));
+      setUserRole(role);
     }
-  }, [dispatch]);
+  }, []);
 
 
 
@@ -202,7 +208,7 @@ const AppHeader = () => {
     </CHeader>
       </>
     )}
-    {userRole !== 'dummy' && (
+    {userRole === 'TEST7982' && (
       <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
       <CContainer className="border-bottom px-4" fluid>
         <CHeaderToggler

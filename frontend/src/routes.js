@@ -8,6 +8,23 @@ const Profile = React.lazy(() => import('./views/pages/profile/Profile'))
 const RequestedUser = React.lazy(() => import('./views/pages/requesteduser/RequestedUser'))
 const FundRequest = React.lazy(() => import('./views/pages/fundrequest/FundRequest'))
 const FundRequests = React.lazy(() => import('./views/pages/fundrequest/fundRequests'))
+const ViewUser = React.lazy(() => import('./views/pages/reports/ViewUser'))
+const CallMe = React.lazy(() => import('./views/pages/supportdesk/CallMe'))
+const Query = React.lazy(() => import('./views/pages/supportdesk/Query'))
+const Active = React.lazy(() => import('./views/pages/mynetwork/ActiveAgent'))
+const InActive = React.lazy(() => import('./views/pages/mynetwork/InActiveAgent'))
+const ChangePassword = React.lazy(() => import('./views/pages/profile/ChangePassword'))
+const MonthlyBill = React.lazy(() => import('./views/pages/databasemanagement/MonthlyBilling'))
+const Reports = React.lazy(() => import('./views/pages/reports/Reports'))
+const AddUser = React.lazy(() => import('./views/pages/usermangement/AddUser'))
+const ManageUser = React.lazy(() => import('./views/pages/usermangement/ManageUser'))
+const ConsumerDetails = React.lazy(() => import('./views/pages/usermangement/ConsumerDetails'))
+const ManageRePosting = React.lazy(() => import('./views/pages/usermangement/ManageRePosting'))
+const ManageRRFLimit = React.lazy(() => import('./views/pages/usermangement/ManageRRFLimit'))
+const ManageUserService = React.lazy(() => import('./views/pages/usermangement/ManageUserService'))
+const ManageUnclaimedTXN = React.lazy(() => import('./views/pages/usermangement/ManageUnclaimedTXN'))
+const ManageRRF = React.lazy(() => import('./views/pages/usermangement/ManageRRF'))
+const ManageBillFetch = React.lazy(() => import('./views/pages/usermangement/ManageBillFetch'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
@@ -68,6 +85,23 @@ const routes = [
   { path: '/fundrequest/:userId', name: 'Fund Request', element: FundRequest },
   { path: '/requests', name: 'RequestedUser', element: RequestedUser },
   { path: '/fundrequests', name: 'Fund Request', element: FundRequests },
+  { path: '/view-user', name: 'VIEW USER', element: ViewUser },
+  { path: '/call-me', name: 'CALL ME', element: CallMe },
+  { path: '/query', name: 'QUERY', element: Query },
+  { path: '/active', name: 'ACTIVE', element: Active },
+  { path: '/inactive', name: 'IN-ACTIVE', element: InActive },
+  { path: '/change-password', name: 'CHANGE PASSWORD', element: ChangePassword },
+  { path: '/monthly-billing', name: 'Monthly Billing Master', element: MonthlyBill },
+  { path: '/report', name: 'Report', element: Reports },
+  { path: '/add-user', name: 'Add User', element: AddUser },
+  { path: '/manage-user', name: 'Report', element: ManageUser },
+  { path: '/manage-user-service', name: 'Report', element: ManageUserService },
+  { path: '/manage-reposting-bill', name: 'Report', element: ManageRePosting },
+  { path: '/manage-bill-fetch', name: 'Report', element: ManageBillFetch },
+  { path: '/manage-rrf-mobile', name: 'Report', element: ManageRRF },
+  { path: '/view-consumer-details', name: 'Report', element: ConsumerDetails },
+  { path: '/manage-rrf-limit', name: 'Report', element: ManageRRFLimit },
+  { path: '/manage-unclaimed-txn', name: 'Report', element: ManageUnclaimedTXN },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

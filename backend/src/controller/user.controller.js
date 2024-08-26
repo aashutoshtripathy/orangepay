@@ -332,6 +332,28 @@ const fetchFundRequests = asyncHandler(async (req, res) => {
 });
 
 
+const fetchUserList = asyncHandler(async (req, res) => {
+    try {
+        // Find all fund requests from the database
+        const fetchUser = await Registered.find({}).exec();
+
+        console.log("Fund Requests: ", fetchUser);
+
+        // If no fund requests are found, return a message indicating no requests
+        if (fetchUser.length === 0) {
+            return res.status(404).json({ success: false, message: 'No fund requests found' });
+        }
+
+        // Return the list of all fund requests
+        return res.status(200).json({ success: true, fetchUser });
+        
+    } catch (error) {
+        console.error("Error fetching fund requests:", error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+});
+
+
 
 const approveFundRequest = asyncHandler(async (req, res) => {
     try {
@@ -796,5 +818,5 @@ const deleteUser = asyncHandler(async(req,res) => {
     }
 })
 
-export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest };
+export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList };
 

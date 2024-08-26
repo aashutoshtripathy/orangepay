@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+
 
 import {
   CCloseButton,
@@ -24,19 +25,49 @@ import { adminNavItems, distributorNavItems, agentNavItems } from '../_nav'; // 
 
 
 
+
+
+
+
+
 const AppSidebar = () => {
   const dispatch = useDispatch()
-  const unfoldable = useSelector((state) => state.sidebarUnfoldable)
-  const sidebarShow = useSelector((state) => state.sidebarShow)
+  // const unfoldable = useSelector((state) => state.sidebarUnfoldable)
+  // const sidebarShow = useSelector((state) => state.sidebarShow)
 
-  const role = useSelector((state) => state.userRole); // Access the correct property
+  const [sidebarShow, setSidebarShow] = useState(true);
+  const [unfoldable, setUnfoldable] = useState(false);
+  const [role, setRole] = useState(null);
+
+
+  useEffect(() => {
+    // Retrieve the user role from localStorage
+    const storedRole = localStorage.getItem('username');
+    if (storedRole) {
+      setRole(storedRole);
+    }
+
+    // Retrieve sidebar visibility and unfoldable state from localStorage (optional)
+    const storedSidebarShow = localStorage.getItem('sidebarShow') === 'true';
+    const storedUnfoldable = localStorage.getItem('sidebarUnfoldable') === 'true';
+    setSidebarShow(storedSidebarShow || true);
+    setUnfoldable(storedUnfoldable || false);
+  }, []);
+
+  useEffect(() => {
+    // Store sidebar visibility and unfoldable state in localStorage
+    localStorage.setItem('sidebarShow', sidebarShow);
+    localStorage.setItem('sidebarUnfoldable', unfoldable);
+  }, [sidebarShow, unfoldable]);
+
+  // const role = useSelector((state) => state.userRole); // Access the correct property
   let navigation;
 
   switch (role) {
     case 'dummy':   
       navigation = adminNavItems;
       break;
-    case '!dummy':
+    case 'TEST7982':
       navigation = distributorNavItems;
       break;
     case 'agent':

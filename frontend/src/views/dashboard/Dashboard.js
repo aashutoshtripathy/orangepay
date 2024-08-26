@@ -313,7 +313,7 @@ const Dashboard = () => {
 
 
 
-      {userRole !== 'dummy' && (
+      {userRole === 'TEST7982' && (
         <>
           <WidgetsDropdown className="mb-4" />
           <CCard className="mb-4">

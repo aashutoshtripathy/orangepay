@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef , useState } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -15,23 +15,29 @@ import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import { useSelector, useDispatch } from 'react-redux';
 import CIcon from '@coreui/icons-react'
 import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
+// import { setUserRole } from '../../store'
 
 const WidgetsDropdown = (props) => {
   const widgetChartRef1 = useRef(null)
   const widgetChartRef2 = useRef(null)
+  const [userRole, setUserRole] = useState('');
+
 
 
 
   const dispatch = useDispatch();
-  const userRole = useSelector((state) => state.userRole);
+  // const userRole = useSelector((state) => state.userRole);
+
+
+  // const setUserRole = useSelector((state) => state.userRole)
 
   useEffect(() => {
-    // Retrieve the user role from localStorage and set it in Redux
-    const role = localStorage.getItem('userRole');
+    // Retrieve the user role from localStorage and set it in local state
+    const role = localStorage.getItem('username');
     if (role) {
-      dispatch(setUserRole(role));
+      setUserRole(role);
     }
-  }, [dispatch]);
+  }, []);
 
 
 
@@ -411,7 +417,7 @@ const WidgetsDropdown = (props) => {
     </>
   )}
 
-  {userRole !== 'dummy' && (
+  {userRole === 'TEST7982' && (
     <>
     <CRow className={props.className} xs={{ gutter: 4 }}>
     <CCol sm={6} xl={4} xxl={3}>

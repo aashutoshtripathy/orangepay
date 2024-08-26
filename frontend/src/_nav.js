@@ -596,16 +596,16 @@ export const adminNavItems = [
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
       { component: CNavItem, name: 'Fund Request', to: `/fundrequests` },
-      { component: CNavItem, name: 'Add User' },
-      { component: CNavItem, name: 'View User' },
-      { component: CNavItem, name: 'Manage User' },
-      { component: CNavItem, name: 'Manage User Service' },
-      { component: CNavItem, name: 'Manage RePosting Bill' },
-      { component: CNavItem, name: 'Manage Bill Fetch' },
-      { component: CNavItem, name: 'Manage RRF Mobile No.' },
-      { component: CNavItem, name: 'View Consumer Details' },
-      { component: CNavItem, name: 'Manage RRF Limit' },
-      { component: CNavItem, name: 'Manage Unclaimed Txn' },
+      { component: CNavItem, name: 'Add User' , to: '/add-user' },
+      { component: CNavItem, name: 'View User',  to: '/view-user' },
+      { component: CNavItem, name: 'Manage User', to: '/manage-user' },
+      { component: CNavItem, name: 'Manage User Service', to: '/manage-user-service' },
+      { component: CNavItem, name: 'Manage RePosting Bill', to: '/manage-reposting-bill' },
+      { component: CNavItem, name: 'Manage Bill Fetch', to: '/manage-bill-fetch' },
+      { component: CNavItem, name: 'Manage RRF Mobile No.', to: '/manage-rrf-mobile' },
+      { component: CNavItem, name: 'View Consumer Details', to: '/view-consumer-details' },
+      { component: CNavItem, name: 'Manage RRF Limit' , to: '/manage-rrf-limit' },
+      { component: CNavItem, name: 'Manage Unclaimed Txn', to: '/manage-unclaimed-txn'  },
     ],
   },
   {
@@ -619,7 +619,7 @@ export const adminNavItems = [
     name: 'Database Management',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Monthly Billing Master' },
+      { component: CNavItem, name: 'Monthly Billing Master' , to: '/monthly-billing' },
     ],
   },
   {
@@ -627,7 +627,7 @@ export const adminNavItems = [
     name: 'Reports',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Reports' },
+      { component: CNavItem, name: 'Reports' , to: '/report' },
     ],
   },
 ];
@@ -651,8 +651,8 @@ export const distributorNavItems = [
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Active Agent' },
-      { component: CNavItem, name: 'Inactive Agent' },
+      { component: CNavItem, name: 'Active Agent', to: '/active' },
+      { component: CNavItem, name: 'Inactive Agent', to: '/inactive' },
     ],
   },
   {
@@ -676,7 +676,7 @@ export const distributorNavItems = [
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
       { component: CNavItem,  to: `/profile/${userId}` , name: 'View Profile',},
-      { component: CNavItem, name: 'Change Password' },
+      { component: CNavItem, name: 'Change Password' , to: '/change-password' },
     ],
   },
   {
@@ -684,8 +684,8 @@ export const distributorNavItems = [
     name: 'Support Desk',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Query' },
-      { component: CNavItem, name: 'Call Me' },
+      { component: CNavItem, name: 'Query' , to: '/query'  },
+      { component: CNavItem, name: 'Call Me' , to: '/call-me'  },
     ],
   },
 ];

@@ -36,10 +36,12 @@ const AppHeaderDropdown = () => {
   // const [balance, setBalance] = useState(null);
 
   const dispatch = useDispatch();
-  const userRole = useSelector((state) => state.userRole);
+  // const userRole = useSelector((state) => state.userRole);
 
 
   const [userId, setUserId] = useState(null)
+  const [userRole, setUserRole] = useState('');
+
   // const navigate = useNavigate()
 
 
@@ -63,6 +65,15 @@ const AppHeaderDropdown = () => {
 
   //   fetchBalance();
   // }, [id]);
+
+
+  useEffect(() => {
+    // Retrieve the user role from localStorage and set it in local state
+    const role = localStorage.getItem('username');
+    if (role) {
+      setUserRole(role);
+    }
+  }, []);
 
 
 
@@ -180,7 +191,7 @@ const AppHeaderDropdown = () => {
     </CDropdown>
     </>
   )}
-  {userRole !== 'dummy' &&(
+  {userRole === 'TEST7982' &&(
       <>
       <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
