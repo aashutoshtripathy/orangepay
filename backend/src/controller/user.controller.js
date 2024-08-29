@@ -251,7 +251,7 @@ const fetchWalletBalance = asyncHandler(async (req, res) => {
 
 const fundRequest = asyncHandler(async (req, res) => {
     // Destructure the fields from the request body
-    const { userId, fundAmount, bankReference, paymentMethod } = req.body;
+    const { userId, fundAmount, bankReference, paymentMethod, bankName } = req.body;
 
     try {
         // Validate required fields

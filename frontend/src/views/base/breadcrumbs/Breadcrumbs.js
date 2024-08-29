@@ -9,7 +9,7 @@ import {
   CRow,
   CLink,
 } from '@coreui/react'
-// import { DocsExample } from 'src/components'
+import { DocsExample } from '../../../components'
 
 const Breadcrumbs = () => {
   return (
@@ -38,7 +38,7 @@ const Breadcrumbs = () => {
             <DocsExample href="components/breadcrumb">
               <CBreadcrumb>
                 <CBreadcrumbItem>
-                  <CLink href="#">Home</CLink>
+                  <CLink >Home</CLink>
                 </CBreadcrumbItem>
                 <CBreadcrumbItem active>Library</CBreadcrumbItem>
               </CBreadcrumb>

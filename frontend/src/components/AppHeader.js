@@ -38,6 +38,7 @@ const AppHeader = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [userRole, setUserRole] = useState('');
+  const [userId, setUserId] = useState('');
 
 
 
@@ -66,8 +67,10 @@ const AppHeader = () => {
 
 
 
+
   useEffect(() => {
     const userId = localStorage.getItem('userId');
+    setUserId(userId)
   
     if (!userId) {
       console.error('Invalid userId format:', userId);
@@ -125,7 +128,7 @@ const AppHeader = () => {
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
             <CNavLink to="/dashboard" as={NavLink}> 
-              Welcome `${}`
+              Welcome {userRole}
             </CNavLink>
           </CNavItem>
           <CNavItem>
@@ -219,12 +222,12 @@ const AppHeader = () => {
         </CHeaderToggler>
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
-            <CNavLink to="/dashboard" as={NavLink}>
-              Welcome `${}`
+            <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
+              Welcome {userRole}
             </CNavLink>
           </CNavItem>
           <CNavItem>
-            <CNavLink href="#">Agent</CNavLink>
+            <CNavLink >Agent</CNavLink>
           </CNavItem>
           {/* <CNavItem>
             <CNavLink to='/requests' as={NavLink}>Requests</CNavLink>
