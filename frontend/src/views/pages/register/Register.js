@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import axios from "axios";
 import {
   CButton,
@@ -40,6 +40,23 @@ import { Link, useNavigate } from "react-router-dom";
 const Register = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
+  const [fileNames, setFileNames] = useState({
+    photograph: "",
+    aadharCard: "",
+    signature: "",
+    panCard: "",
+    educationCertificate: "",
+    cheque: ""
+  });
+  const fileInputRefs = {
+    photograph: useRef(null),
+    signature: useRef(null),
+    aadharCard: useRef(null),
+    panCard: useRef(null),
+    educationCertificate: useRef(null),
+    cheque: useRef(null)
+  };
+
   const [formData, setFormData] = useState({
     name: "",
     fatherOrHusbandName: "",
@@ -62,6 +79,11 @@ const Register = () => {
     panCard: null,
     educationCertificate: null,
     cheque: null,
+    district: "",   // Add this field
+    pincode: "",    // Add this field
+    bank: "",       // Add this field
+    accountno: "",
+    ifsc: "",  // Add this field
   });
 
   const handleChange = (e) => {
@@ -71,7 +93,16 @@ const Register = () => {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFormData({ ...formData, [name]: files[0] });
+    if (files.length > 0) {
+      setFileNames((prev) => ({
+        ...prev,
+        [name]: files[0].name
+      }));
+      setFormData((prev) => ({
+        ...prev,
+        [name]: files[0]
+      }));
+    }
   };
 
   const handleCheckboxChange = (e) => {
@@ -446,14 +477,15 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                          id="panCardInput" // Add an id to the input element
+                          ref={fileInputRefs.photograph}
+                          id="photograph"
                           name="photograph"
                           type="file"
                           onChange={handleFileChange}
                           style={{ display: 'none' }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={handleButtonClick}>
-                          {fileName ? fileName : 'Photograph'}
+                        <CButton color="secondary" onClick={() => handleButtonClick("photograph")}>
+                          {fileNames.photograph || 'Photograph'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
 
@@ -464,19 +496,20 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                          id="panCardInput" // Add an id to the input element
+                          ref={fileInputRefs.signature}
+                          id="signature" // Add an id to the input element
                           name="signature"
                           type="file"
                           onChange={handleFileChange}
                           style={{ display: 'none' }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={handleButtonClick}>
-                          {fileName ? fileName : 'Signature'}
+                        <CButton color="secondary" onClick={() => handleButtonClick("signature")}>
+                          {fileNames.signature || 'Signature'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
 
 
-                    
+
 
 
 
@@ -490,37 +523,37 @@ const Register = () => {
 
 
                     <CInputGroup className="mb-3">
-                        <CInputGroupText>Education</CInputGroupText>
-                        <div className="d-flex m-2 align-items-center">
-                          <CFormCheck
-                            type="checkbox"
-                            name="education"
-                            id="graduate"
-                            label="Graduate"
-                            value="Graduate"
-                            checked={formData.education.includes("Graduate")}
-                            onChange={handleCheckboxChange}
-                          />
-                          <CFormCheck
-                            type="checkbox"
-                            name="education"
-                            id="above12th"
-                            label="Above 12th Pass"
-                            value="Above 12th Pass"
-                            checked={formData.education.includes("Above 12th Pass")}
-                            onChange={handleCheckboxChange}
-                          />
-                          <CFormCheck
-                            type="checkbox"
-                            name="education"
-                            id="other"
-                            label="Other"
-                            value="Other"
-                            checked={formData.education.includes("Other")}
-                            onChange={handleCheckboxChange}
-                          />
-                        </div>
-                      </CInputGroup>
+                      <CInputGroupText>Education</CInputGroupText>
+                      <div className="d-flex m-2 align-items-center">
+                        <CFormCheck
+                          type="checkbox"
+                          name="education"
+                          id="graduate"
+                          label="Graduate"
+                          value="Graduate"
+                          checked={formData.education.includes("Graduate")}
+                          onChange={handleCheckboxChange}
+                        />
+                        <CFormCheck
+                          type="checkbox"
+                          name="education"
+                          id="above12th"
+                          label="Above 12th Pass"
+                          value="Above 12th Pass"
+                          checked={formData.education.includes("Above 12th Pass")}
+                          onChange={handleCheckboxChange}
+                        />
+                        <CFormCheck
+                          type="checkbox"
+                          name="education"
+                          id="other"
+                          label="Other"
+                          value="Other"
+                          checked={formData.education.includes("Other")}
+                          onChange={handleCheckboxChange}
+                        />
+                      </div>
+                    </CInputGroup>
 
                     <CCol md={12} className="mb-3">
                       <CInputGroup className="mb-3">
@@ -664,14 +697,15 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                          id="panCardInput" // Add an id to the input element
+                          ref={fileInputRefs.aadharCard}
+                          id="aadharCard" // Add an id to the input element
                           name="aadharCard"
                           type="file"
                           onChange={handleFileChange}
                           style={{ display: 'none' }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={handleButtonClick}>
-                          {fileName ? fileName : 'Aadhar Card'}
+                        <CButton color="secondary" onClick={() => handleButtonClick("aadharCard")}>
+                          {fileNames.aadharCard || 'AadharCard'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
 
@@ -697,14 +731,15 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                          id="panCardInput" // Add an id to the input element
+                          ref={fileInputRefs.panCard}
+                          id="panCard" // Add an id to the input element
                           name="panCard"
                           type="file"
                           onChange={handleFileChange}
                           style={{ display: 'none' }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={handleButtonClick}>
-                          {fileName ? fileName : 'PAN Card'}
+                        <CButton color="secondary" onClick={() => handleButtonClick("panCard")}>
+                          {fileNames.panCard || 'Pancard'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
 
@@ -729,17 +764,17 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                          id="panCardInput" // Add an id to the input element
+                          ref={fileInputRefs.educationCertificate}
+                          id="educationCertificate" // Add an id to the input element
                           name="educationCertificate"
                           type="file"
                           onChange={handleFileChange}
                           style={{ display: 'none' }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={handleButtonClick}>
-                          {fileName ? fileName : 'Education Certificate'}
+                        <CButton color="secondary" onClick={() => handleButtonClick("educationCertificate")}>
+                          {fileNames.educationCertificate || 'EducationCertificate'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
-
 
 
 
@@ -759,14 +794,15 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                          id="panCardInput" // Add an id to the input element
+                          ref={fileInputRefs.cheque}
+                          id="cheque" // Add an id to the input element
                           name="cheque"
                           type="file"
                           onChange={handleFileChange}
                           style={{ display: 'none' }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={handleButtonClick}>
-                          {fileName ? fileName : 'Cheque'}
+                        <CButton color="secondary" onClick={() => handleButtonClick("cheque")}>
+                          {fileNames.cheque || 'Cheque'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
 

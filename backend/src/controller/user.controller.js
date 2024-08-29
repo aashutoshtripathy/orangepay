@@ -48,7 +48,8 @@ const upload = multer({ storage }).fields([
     { name: 'aadharCard', maxCount: 1 },
     { name: 'panCard', maxCount: 1 },
     { name: 'educationCertificate', maxCount: 1 },
-    { name: 'cheque', maxCount: 1 }
+    { name: 'cheque', maxCount: 1 },
+    { name: 'signature', maxCount: 1 }
 ]);
 
 // User registration handler
@@ -82,7 +83,8 @@ const registerUser = asyncHandler(async (req, res) => {
             aadharCard: req.files['aadharCard'] ? req.files['aadharCard'][0].path : null,
             panCard: req.files['panCard'] ? req.files['panCard'][0].path : null,
             educationCertificate: req.files['educationCertificate'] ? req.files['educationCertificate'][0].path : null,
-            cheque: req.files['cheque'] ? req.files['cheque'][0].path : null
+            cheque: req.files['cheque'] ? req.files['cheque'][0].path : null,
+            signature: req.files['signature'] ? req.files['signature'][0].path : null
         });
             console.log(req.files)
         // Send success response

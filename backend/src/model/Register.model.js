@@ -59,7 +59,6 @@ const registerSchema = new Schema({
   email: { 
     type: String, 
     required: [true, 'Email is required'], 
-    unique: true, 
     trim: true, 
     lowercase: true, 
     match: [/^\S+@\S+\.\S+$/, 'Invalid email format'] 
@@ -102,17 +101,18 @@ const registerSchema = new Schema({
     type: String, 
     trim: true 
   }, // Path to the cheque
+  signature: { 
+    type: String, 
+    trim: true 
+  }, // Path to the cheque
 
   // New fields
   userId: { 
     type: String, 
-    required: [true, 'User ID is required'], 
-    unique: true, 
     trim: true 
   },
   password: { 
     type: String, 
-    required: [true, 'Password is required'] 
   },
 
   // Status field to track registration status
