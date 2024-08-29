@@ -645,16 +645,16 @@ export const distributorNavItems = [
     component: CNavTitle,
     name: 'Management',
   },
-  {
-    component: CNavGroup,
-    name: 'My Network',
-    to: '/base',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
-    items: [
-      { component: CNavItem, name: 'Active Agent', to: '/active' },
-      { component: CNavItem, name: 'Inactive Agent', to: '/inactive' },
-    ],
-  },
+  // {
+  //   component: CNavGroup,
+  //   name: 'My Network',
+  //   to: '/base',
+  //   icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+  //   items: [
+  //     { component: CNavItem, name: 'Active Agent', to: '/active' },
+  //     { component: CNavItem, name: 'Inactive Agent', to: '/inactive' },
+  //   ],
+  // },
   {
     component: CNavGroup,
     name: 'My Accounts',

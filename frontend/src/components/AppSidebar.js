@@ -67,14 +67,14 @@ const AppSidebar = () => {
     case 'dummy':   
       navigation = adminNavItems;
       break;
-    case 'TEST7982':
-      navigation = distributorNavItems;
-      break;
-    case 'agent':
-      navigation = agentNavItems;
-      break;
+    // case 'TEST7982':
+    //   navigation = distributorNavItems;
+    //   break;
+    // case 'agent':
+    //   navigation = agentNavItems;
+    //   break;
     default:
-      navigation = []; // Default or empty navigation
+      navigation = distributorNavItems; // Default or empty navigation
       break;
   }   
 

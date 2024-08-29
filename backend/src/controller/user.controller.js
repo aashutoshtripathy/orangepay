@@ -95,9 +95,9 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
 const generateRandomId = (name) => {
-    const randomSuffix = Math.floor(Math.random() * 10000); // Generate a random 4-digit number
+    const randomSuffix = Math.floor(Math.random() * 100000); // Generate a random 4-digit number
     const namePart = name ? name.substring(0, 4).toUpperCase() : 'USER'; // Take the first 4 letters of the name
-    return `${namePart}${randomSuffix}`;
+    return `${99999}${randomSuffix}`;
 };
 
 const generateRandomPassword = (length = 10) => {
@@ -279,7 +279,96 @@ const fundRequest = asyncHandler(async (req, res) => {
 });
 
 
+const approveUserRequest = asyncHandler(async (req, res) => {
+    try {
+      // Find the user by ID and update the status to "approved" along with generating userId and password
+      const updatedUser = await Register.findByIdAndUpdate(
+        req.params.id,
+        {
+          status: 'approved',
+          userId: generateRandomId(), // Generate a random userId
+          password: generateRandomPassword(12), // Generate a random password
+        },
+        { new: true } // Return the updated document
+      ).exec();
+  
+      // If the user request is not found, return a 404 error
+      if (!updatedUser) {
+        return res.status(404).json({ success: false, message: 'User request not found' });
+      }
+  
+      // Create a wallet for the approved user
+      const wallet = new Wallet({
+        userId: updatedUser._id, // Use the ID of the updated user
+      });
+  
+      // Save the new wallet
+      await wallet.save();
+  
+      // Optionally, send an SMS or email with the new credentials
+      // const smsMessage = `Your account has been approved. User ID: ${updatedUser.userId}, Password: ${updatedUser.password}`;
+      // await twilioClient.messages.create({
+      //     body: smsMessage,
+      //     from: twilioPhoneNumber,
+      //     to: updatedUser.mobileNumber,
+      // });
+  
+      // Return the updated user and wallet creation confirmation
+      return res.status(200).json({
+        success: true,
+        message: 'User approved successfully',
+        user: {
+          id: updatedUser._id,
+          userId: updatedUser.userId,
+          password: updatedUser.password,
+        },
+        wallet,
+      });
+    } catch (error) {
+      console.error("Error approving user request:", error.message);
+      return res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
+    }
+  });
+  
 
+
+const rejectUserRequest = asyncHandler(async (req, res) => {
+    try {
+      // Find the user by ID and update the status to "rejected"
+      const updatedUser = await Register.findByIdAndUpdate(
+        req.params.id,
+        { status: 'rejected' }, // Set the status to "rejected"
+        { new: true } // Return the updated document
+      ).exec();
+  
+      // If the user request is not found, return a 404 error
+      if (!updatedUser) {
+        return res.status(404).json({ success: false, message: 'User request not found' });
+      }
+  
+      // Optionally, send an SMS or email notifying the user of rejection (code commented out)
+      // const smsMessage = `Your account request has been rejected.`;
+      // await twilioClient.messages.create({
+      //     body: smsMessage,
+      //     from: twilioPhoneNumber,
+      //     to: updatedUser.mobileNumber,
+      // });
+  
+      // Send a success response
+      return res.status(200).json({
+        success: true,
+        message: 'User rejected successfully',
+        user: {
+          id: updatedUser._id,
+          status: updatedUser.status,
+        },
+      });
+    } catch (error) {
+      console.error("Error rejecting user request:", error.message); // Log the error for debugging
+      return res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
+    }
+  });
+  
 
 
 
@@ -674,7 +763,7 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Username and password are required");
       }
  
-     const user = await Registered.findOne({
+     const user = await Register.findOne({
         userId:username,
      })
     //      $or: [{username:usernameEmail},{email:usernameEmail}]
@@ -688,6 +777,10 @@ const loginUser = asyncHandler(async (req, res) => {
         // console.log(user)
     //  const isPasswordValid = await bcrypt.compare(password, user.password);
     // const isPasswordValid = await user.isPasswordCorrect(password);
+
+    if(user.status !== "approved"){
+        throw new ApiError(400, "Invalid User");
+    }
      
 
     if (user.password !== password) {
@@ -818,5 +911,5 @@ const deleteUser = asyncHandler(async(req,res) => {
     }
 })
 
-export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList };
+export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest  };
 
