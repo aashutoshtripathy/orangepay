@@ -30,6 +30,7 @@ const Profile = () => {
   const [fundAmount, setFundAmount] = useState('');
   const [bankReference, setBankReference] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [bankName, setBankName] = useState('');
   const [errors, setErrors] = useState({}); // State for validation errors
   const userName = 'Test';
   const availableBalance = '$10,000';
@@ -62,7 +63,9 @@ const Profile = () => {
     // Validate each field
     if (!fundAmount) newErrors.fundAmount = 'Amount is required';
     if (!bankReference) newErrors.bankReference = 'Bank Reference Number is required';
+    if (bankReference && bankReference.length < 6) newErrors.bankReference = 'Bank Reference Number must be at least 6 characters';
     if (!paymentMethod) newErrors.paymentMethod = 'Payment Method is required';
+    if (paymentMethod === 'bank-transfer' && !bankName) newErrors.bankName = 'Bank Name is required';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors); // Set errors if validation fails
@@ -82,6 +85,7 @@ const Profile = () => {
         fundAmount,
         bankReference,
         paymentMethod,
+        bankName,
       });
 
       console.log('Response from server:', response);
@@ -90,6 +94,7 @@ const Profile = () => {
       setFundAmount('');
       setBankReference('');
       setPaymentMethod('');
+      setBankName('');
       setModalVisible(false);
 
     } catch (error) {
@@ -105,6 +110,7 @@ const Profile = () => {
     if (id === 'fund-amount') setFundAmount(value);
     if (id === 'bank-reference') setBankReference(value);
     if (id === 'payment-method') setPaymentMethod(value);
+    if (id === 'bank-name') setBankName(value);
 
     // Clear errors for the specific field
     setErrors((prevErrors) => ({
@@ -185,7 +191,7 @@ const Profile = () => {
               onChange={handleInputChange}
               onFocus={handleInputFocus}
             />
-            {errors.bankReference && <div className="text-danger">{errors.bankReference}</div>}
+             {errors.bankReference && <div className="text-danger">{errors.bankReference}</div>}
 
             <CFormLabel htmlFor="payment-method" className="mt-3">Payment Method</CFormLabel>
             <CFormSelect
@@ -204,6 +210,24 @@ const Profile = () => {
               {/* Add more payment methods as necessary */}
             </CFormSelect>
             {errors.paymentMethod && <div className="text-danger">{errors.paymentMethod}</div>}
+
+            {paymentMethod === 'bank-transfer' && (
+              <>
+                <CFormLabel htmlFor="bank-name" className="mt-3">Bank Name</CFormLabel>
+                <CFormSelect
+                  name="bankName"
+                  id="bank-name"
+                  value={bankName}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select Bank</option>
+                  <option value="state-bank-of-india">State Bank of India</option>
+                  <option value="hdfc-bank">HDFC Bank</option>
+                  <option value="icici-bank">ICICI Bank</option>
+                </CFormSelect>
+                {errors.bankName && <div className="text-danger">{errors.bankName}</div>}
+              </>
+            )}
 
             <CModalFooter>
               <CButton color="secondary" type="button" onClick={() => setModalVisible(false)}>

@@ -21,6 +21,9 @@ const fundRequestSchema = new Schema({
     enum: ['bank-transfer', 'upi', 'card', 'paypal', 'net-banking'],
     required: true,
   },
+  bankName: {
+    type: String,
+  },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],

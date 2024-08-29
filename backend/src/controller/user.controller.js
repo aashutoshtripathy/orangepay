@@ -265,6 +265,7 @@ const fundRequest = asyncHandler(async (req, res) => {
             fundAmount,
             bankReference,
             paymentMethod,
+            bankName,
         });
 
         // Save the document to the database
@@ -423,24 +424,25 @@ const fetchFundRequests = asyncHandler(async (req, res) => {
 
 const fetchUserList = asyncHandler(async (req, res) => {
     try {
-        // Find all fund requests from the database
-        const fetchUser = await Registered.find({}).exec();
+        // Find all users with status 'approved' from the database
+        const fetchUser = await Register.find({ status: 'Approved' }).exec();
 
-        console.log("Fund Requests: ", fetchUser);
+        console.log("Approved Users: ", fetchUser);
 
-        // If no fund requests are found, return a message indicating no requests
+        // If no approved users are found, return a message indicating no users found
         if (fetchUser.length === 0) {
-            return res.status(404).json({ success: false, message: 'No fund requests found' });
+            return res.status(404).json({ success: false, message: 'No approved users found' });
         }
 
-        // Return the list of all fund requests
+        // Return the list of approved users
         return res.status(200).json({ success: true, fetchUser });
         
     } catch (error) {
-        console.error("Error fetching fund requests:", error);
+        console.error("Error fetching approved users:", error);
         return res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 });
+
 
 
 
@@ -778,7 +780,7 @@ const loginUser = asyncHandler(async (req, res) => {
     //  const isPasswordValid = await bcrypt.compare(password, user.password);
     // const isPasswordValid = await user.isPasswordCorrect(password);
 
-    if(user.status !== "approved"){
+    if(user.status !== "Approved"){
         throw new ApiError(400, "Invalid User");
     }
      
