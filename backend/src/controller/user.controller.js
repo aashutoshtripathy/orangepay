@@ -285,7 +285,7 @@ const approveUserRequest = asyncHandler(async (req, res) => {
       const updatedUser = await Register.findByIdAndUpdate(
         req.params.id,
         {
-          status: 'approved',
+          status: 'Approved',
           userId: generateRandomId(), // Generate a random userId
           password: generateRandomPassword(12), // Generate a random password
         },
@@ -337,7 +337,7 @@ const rejectUserRequest = asyncHandler(async (req, res) => {
       // Find the user by ID and update the status to "rejected"
       const updatedUser = await Register.findByIdAndUpdate(
         req.params.id,
-        { status: 'rejected' }, // Set the status to "rejected"
+        { status: 'Rejected' }, // Set the status to "rejected"
         { new: true } // Return the updated document
       ).exec();
   
@@ -591,19 +591,19 @@ const rejectedUser = asyncHandler(async (req, res) => {
 
 
 
-const fetchData = asyncHandler(async(req,res)  => {
+const fetchData = asyncHandler(async (req, res) => {
     try {
-        const allUser = await Register.find({})
-        // console.log(allUser);
-        console.log("Fetched users:", allUser);
-        return res.status(200).json({ success: true, data: allUser });
-        // return res.status(200).json(new ApiResponse(200,"Form Submitted Successfully"))
-        // return allUser;
-    }
-     catch (error) {
+        // Fetch only the users where the status is 'pending'
+        const pendingUsers = await Register.find({ status: 'Pending' });
+        console.log("Fetched users with pending status:", pendingUsers);
+        
+        // Return the filtered data
+        return res.status(200).json({ success: true, data: pendingUsers });
+    } catch (error) {
         return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
     }
-})
+});
+
 
 
 const reports = asyncHandler(async(req,res)  => {

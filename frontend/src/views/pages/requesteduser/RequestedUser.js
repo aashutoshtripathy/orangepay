@@ -156,29 +156,40 @@ const DataTableComponent = () => {
     fetchData();
   }, []);
 
-  const handleAccept = async (row) => {
-    console.log('Accepted:', row);
+  // Handle Accept Fund Request
+const handleAccept = async (row) => {
+  try {
+    const response = await axios.patch(`/users/${row._id}/approve`);
+    const updatedFundRequest = response.data;
 
-    try {
-      const response = await axios.post(`/registered/${row._id}`);
-      console.log('Accept response:', response.data);
-      // Optional: Update UI or give feedback to the user
-      if (response.status === 200) {
-        // Update UI: Remove the accepted row from the data
-        setData(prevData => prevData.filter(item => item._id !== row._id));
-      } else {
-        console.error('Failed to accept:', response.data);
-      }
-    } catch (error) {
-      console.error('Error accepting:', error);
-    }
-  };
+    // Update the state with the new data
+    setData((prevData) =>
+      prevData.map((item) =>
+        item._id === updatedFundRequest._id ? updatedFundRequest : item
+      )
+    );
+  } catch (error) {
+    console.error("Error approving fund request", error);
+  }
+};
 
-  const handleReject = (row) => {
-    console.log('Rejected:', row);
-    setData(prevData => prevData.filter(item => item._id !== row._id));
-    // Implement reject logic here
-  };
+// Handle Reject Fund Request
+const handleReject = async (row) => {
+  try {
+    const response = await axios.patch(`/users/${row._id}/reject`);
+    const updatedFundRequest = response.data;
+
+    // Update the state with the new data
+    setData((prevData) =>
+      prevData.map((item) =>
+        item._id === updatedFundRequest._id ? updatedFundRequest : item
+      )
+    );
+  } catch (error) {
+    console.error("Error rejecting fund request", error);
+  }
+};
+
 
   const handleDownload = (row) => {
     console.log('Downloading file for:', row);
