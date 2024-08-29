@@ -86,6 +86,148 @@ const Register = () => {
     ifsc: "",  // Add this field
   });
 
+
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    let formErrors = {};
+
+    // Name validation
+    if (!formData.name.trim()) {
+      formErrors.name = "Name is required";
+    }
+
+    // Father's/Husband's Name validation
+    if (!formData.fatherOrHusbandName.trim()) {
+      formErrors.fatherOrHusbandName = "Father's/Husband's Name is required";
+    }
+
+    // Date of Birth validation
+    if (!formData.dob) {
+      formErrors.dob = "Date of Birth is required";
+    }
+
+    if (!formData.division.trim()) {
+      formErrors.division = "Division is required";
+    }
+
+    if (!formData.subDivision.trim()) {
+      formErrors.subDivision = "Subdivision is required";
+    }
+
+    if (!formData.section.trim()) {
+      formErrors.section = "Section is required";
+    }
+
+    if (formData.education.length === 0) {
+      formErrors.education = "Please select at least one education level.";
+    }
+
+    // Aadhar Number validation
+    if (!formData.aadharNumber) {
+      formErrors.aadharNumber = "Aadhar Number is required";
+    } else if (formData.aadharNumber.length < 12) {
+      formErrors.aadharNumber = "Aadhar Number must be 12 digits long";
+    }
+
+    // PAN Number validation
+    if (!formData.panNumber) {
+      formErrors.panNumber = "PAN Number is required";
+    } else if (formData.panNumber.length < 10) {
+      formErrors.panNumber = "Pan Number Must be 10 charecters"
+    }
+
+    // Mobile Number validation
+    if (!formData.mobileNumber) {
+      formErrors.mobileNumber = "Mobile Number is required";
+    } else if (formData.mobileNumber.length < 10) {
+      formErrors.mobileNumber = "Mobile Number must be 10 digits long";
+    }
+
+    // Email validation
+    if (!formData.email) {
+      formErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      formErrors.email = "Email address is invalid";
+    }
+
+    // Gender validation
+    if (!formData.gender) {
+      formErrors.gender = "Gender is required";
+    }
+
+    // Marital Status validation
+    if (!formData.maritalStatus) {
+      formErrors.maritalStatus = "Marital Status is required";
+    }
+
+    // Address validation
+    if (!formData.address.trim()) {
+      formErrors.address = "Address is required";
+    }
+
+    // Salary Basis validation
+    if (!formData.salaryBasis) {
+      formErrors.salaryBasis = "Job Type is required";
+    }
+
+    // Section Type validation
+    if (!formData.sectionType) {
+      formErrors.sectionType = "Section Type is required";
+    }
+
+    // Bank validation
+    if (!formData.bank) {
+      formErrors.bank = "Bank is required";
+    }
+
+    // IFSC validation
+    if (!formData.ifsc) {
+      formErrors.ifsc = "IFSC is required";
+    }
+
+    // Account Number validation
+    if (!formData.accountno) {
+      formErrors.accountno = "Account Number is required";
+    }
+
+    // District validation
+    if (!formData.district) {
+      formErrors.district = "District is required";
+    }
+
+    // Pincode validation
+    if (!formData.pincode) {
+      formErrors.pincode = "Pincode is required";
+    } else if (formData.pincode.length < 6) {
+      formErrors.pincode = "Pincode must be 6 digits long";
+    }
+
+    // File uploads validation (if required)
+    if (!formData.photograph) {
+      formErrors.photograph = "Photograph is required";
+    }
+    if (!formData.signature) {
+      formErrors.signature = "Signature is required";
+    }
+    if (!formData.aadharCard) {
+      formErrors.aadharCard = "Aadhar Card is required";
+    }
+    if (!formData.panCard) {
+      formErrors.panCard = "PAN Card is required";
+    }
+    if (!formData.educationCertificate) {
+      formErrors.educationCertificate = "Education Certificate is required";
+    }
+    if (!formData.cheque) {
+      formErrors.cheque = "Cheque is required";
+    }
+
+    setErrors(formErrors);
+    return Object.keys(formErrors).length === 0;
+  };
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -169,6 +311,10 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validateForm()) {
+      return;
+    }
+
     const formDataToSend = new FormData();
 
     for (const key in formData) {
@@ -203,7 +349,6 @@ const Register = () => {
   };
 
 
-  const [fileName, setFileName] = useState('')
 
 
 
@@ -239,6 +384,7 @@ const Register = () => {
                           autoComplete="name"
                         />
                       </CInputGroup>
+                      {errors.name && <p className="text-danger">{errors.name}</p>}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -253,6 +399,8 @@ const Register = () => {
                           autoComplete="family-name"
                         />
                       </CInputGroup>
+                      {errors.fatherOrHusbandName && <p className="text-danger">{errors.fatherOrHusbandName}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -267,6 +415,8 @@ const Register = () => {
                           autoComplete="bday"
                         />
                       </CInputGroup>
+                      {errors.dob && <p className="text-danger">{errors.dob}</p>}
+
                     </CCol>
 
                     <CCol md={6}>
@@ -296,6 +446,8 @@ const Register = () => {
                           />
                         </div>
                       </CInputGroup>
+                      {errors.salaryBasis && <p className="text-danger">{errors.salaryBasis}</p>}
+
 
 
                       <CInputGroup className="mb-3">
@@ -309,6 +461,8 @@ const Register = () => {
                           autoComplete="off"
                         />
                       </CInputGroup>
+                      {errors.aadharNumber && <p className="text-danger">{errors.aadharNumber}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>PAN</CInputGroupText>
@@ -321,6 +475,8 @@ const Register = () => {
                           autoComplete="off"
                         />
                       </CInputGroup>
+                      {errors.panNumber && <p className="text-danger">{errors.panNumber}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -335,6 +491,8 @@ const Register = () => {
                           autoComplete="tel"
                         />
                       </CInputGroup>
+                      {errors.mobileNumber && <p className="text-danger">{errors.mobileNumber}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -349,6 +507,8 @@ const Register = () => {
                           autoComplete="email"
                         />
                       </CInputGroup>
+                      {errors.email && <p className="text-danger">{errors.email}</p>}
+
                     </CCol>
 
                     <CCol md={6}>
@@ -387,6 +547,8 @@ const Register = () => {
                           />
                         </div>
                       </CInputGroup>
+                      {errors.gender && <p className="text-danger">{errors.gender}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Section Type</CInputGroupText>
@@ -423,6 +585,8 @@ const Register = () => {
                           />
                         </div>
                       </CInputGroup>
+                      {errors.sectionType && <p className="text-danger">{errors.sectionType}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Marital Status</CInputGroupText>
@@ -459,6 +623,8 @@ const Register = () => {
                           />
                         </div>
                       </CInputGroup>
+                      {errors.maritalStatus && <p className="text-danger">{errors.maritalStatus}</p>}
+
 
 
                       {/* <CInputGroup className="mb-3">
@@ -488,6 +654,8 @@ const Register = () => {
                           {fileNames.photograph || 'Photograph'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
+                      {errors.photograph && <p className="text-danger">{errors.photograph}</p>}
+
 
 
 
@@ -507,6 +675,8 @@ const Register = () => {
                           {fileNames.signature || 'Signature'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
+                      {errors.signature && <p className="text-danger">{errors.signature}</p>}
+
 
 
 
@@ -554,6 +724,8 @@ const Register = () => {
                         />
                       </div>
                     </CInputGroup>
+                    {errors.education && <p className="text-danger">{errors.education}</p>}
+
 
                     <CCol md={12} className="mb-3">
                       <CInputGroup className="mb-3">
@@ -566,6 +738,8 @@ const Register = () => {
                           autoComplete="street-address"
                         />
                       </CInputGroup>
+                      {errors.address && <p className="text-danger">{errors.address}</p>}
+
 
                       <CRow className="d-flex">
                         <CCol md={6}>
@@ -581,6 +755,8 @@ const Register = () => {
                               autoComplete="street-address"
                             />
                           </CInputGroup>
+                          {errors.district && <p className="text-danger">{errors.district}</p>}
+
 
                         </CCol>
 
@@ -597,6 +773,8 @@ const Register = () => {
                               autoComplete="street-address"
                             />
                           </CInputGroup>
+                          {errors.pincode && <p className="text-danger">{errors.pincode}</p>}
+
 
                         </CCol>
                       </CRow>
@@ -613,6 +791,8 @@ const Register = () => {
                         />
 
                       </CInputGroup>
+                      {errors.bank && <p className="text-danger">{errors.bank}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Bank Account Number</CInputGroupText>
@@ -625,6 +805,8 @@ const Register = () => {
                         />
 
                       </CInputGroup>
+                      {errors.accountno && <p className="text-danger">{errors.accountno}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>IFSC Code</CInputGroupText>
@@ -637,6 +819,8 @@ const Register = () => {
                         />
 
                       </CInputGroup>
+                      {errors.ifsc && <p className="text-danger">{errors.ifsc}</p>}
+
 
 
 
@@ -650,6 +834,8 @@ const Register = () => {
                           autoComplete="off"
                         />
                       </CInputGroup>
+                      {errors.division && <p className="text-danger">{errors.division}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Sub Division</CInputGroupText>
@@ -661,6 +847,8 @@ const Register = () => {
                           autoComplete="off"
                         />
                       </CInputGroup>
+                      {errors.subDivision && <p className="text-danger">{errors.subDivision}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Section</CInputGroupText>
@@ -672,6 +860,8 @@ const Register = () => {
                           autoComplete="off"
                         />
                       </CInputGroup>
+                      {errors.section && <p className="text-danger">{errors.section}</p>}
+
 
 
                     </CCol>
@@ -708,6 +898,8 @@ const Register = () => {
                           {fileNames.aadharCard || 'AadharCard'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
+                      {errors.aadharCard && <p className="text-danger">{errors.aadharCard}</p>}
+
 
 
 
@@ -742,6 +934,8 @@ const Register = () => {
                           {fileNames.panCard || 'Pancard'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
+                      {errors.panCard && <p className="text-danger">{errors.panCard}</p>}
+
 
                     </CCol>
 
@@ -775,6 +969,8 @@ const Register = () => {
                           {fileNames.educationCertificate || 'EducationCertificate'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
+                      {errors.educationCertificate && <p className="text-danger">{errors.educationCertificate}</p>}
+
 
 
 
@@ -805,6 +1001,8 @@ const Register = () => {
                           {fileNames.cheque || 'Cheque'} {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
+                      {errors.cheque && <p className="text-danger">{errors.cheque}</p>}
+
 
 
 
