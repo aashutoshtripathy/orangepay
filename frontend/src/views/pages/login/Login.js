@@ -1,8 +1,5 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useHistory } from 'react-router-dom'
-import { useEffect } from 'react'
-
 import {
   CButton,
   CCard,
@@ -23,20 +20,34 @@ import axios from "axios"
 const Login = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  // const history = useHistory()
-
+  const [usernameError, setUsernameError] = useState(null)
+  const [passwordError, setPasswordError] = useState(null)
+  const [generalError, setGeneralError] = useState(null)
 
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   localStorage.removeItem('username'); // Remove specific item
-  //   // Or clear all items:
-  //   // localStorage.clear();
-  // }, []); 
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
+    // Reset errors
+    setUsernameError(null)
+    setPasswordError(null)
+    setGeneralError(null)
+
+    // Form validation
+    let valid = true;
+
+    if (!username) {
+      setUsernameError("Username is required.")
+      valid = false;
+    }
+
+    if (!password) {
+      setPasswordError("Password is required.")
+      valid = false;
+    }
+
+    if (!valid) return;
 
     try {
       const response = await axios.post('/login', {
@@ -44,51 +55,53 @@ const Login = () => {
         password,
       })  
 
-
+      // const { user } = response.data.data;
+      // const { id } = user;
       
+      const { token, user } = response.data.data;
 
 
+      const expirationTime = new Date().getTime() + 60 * 60 * 1000; // 1 hour from now
 
 
+      // Save token and user data in localStorage
+      localStorage.setItem('token', token);
+      // localStorage.setItem('userId', user.id)
 
-      // If the login is successful, you might receive a token or user data
-      const {data} = response.data
-
-      // localStorage.setItem('username', username)
-      // dispatch(setUserRole(data.role)); // Use the action to set user role
-
+      // Save user info in localStorage
       localStorage.setItem('username', username);
-      // dispatch(setUserRole(data.role)); // Set user role
+      localStorage.setItem('userId', user.id);
+
+      localStorage.setItem('expirationTime', expirationTime);
+
 
       // Redirect to the dashboard
-      navigate('/dashboard');
-
-      // Example: Store the token or user data as needed
-      // localStorage.setItem('token', data.token)
-
-      // Redirect to the dashboard
-      // navigate('/dashboard')
+      navigate(`/dashboard/${user.id}`);
+      // navigate(`/dashboard/${id}`);
 
     } catch (err) {
       // Handle the error, show it to the user
-      // setError('Login failed: ' + (err.response?.data?.message || err.message))
+      setGeneralError('Login failed: '  + 'Something Went Wrong')
     }
   }
 
-    // Perform form validation
-    // if (username === '' || password === '') {
-    //   alert('Please fill in both fields')
-    //   return
-    // }
-    // navigate('/dashboard')
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+    if (e.target.value) {
+      setUsernameError(null); // Clear the error as the user types
+    }
+  }
 
-    // Example: Send form data to a backend or handle login logic
-    // console.log('Form submitted:', { username, password })
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (e.target.value) {
+      setPasswordError(null); // Clear the error as the user types
+    }
+  }
 
-    // Reset form fields
-    // setUsername('')
-    // setPassword('')
-  // }
+  const handlePassword = () => {
+    navigate('/forgetpassword')
+  }
 
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
@@ -99,8 +112,13 @@ const Login = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <CForm onSubmit={handleSubmit}>
-                    <h1>Distributor Login</h1>
+                    <h1>Login</h1>
                     <p className="text-body-secondary">Sign In to your account</p>
+
+                    {/* General error message */}
+                    {generalError && <p style={{ color: 'red' }}>{generalError}</p>}
+
+                    {/* Username input */}
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
@@ -109,9 +127,13 @@ const Login = () => {
                         placeholder="Username"
                         autoComplete="username"
                         value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        onChange={handleUsernameChange}
+                        onFocus={() => setUsernameError(null)} // Clear error on focus
                       />
                     </CInputGroup>
+                    {usernameError && <p style={{ color: 'red', marginTop: '-15px' }}>{usernameError}</p>}
+
+                    {/* Password input */}
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
                         <CIcon icon={cilLockLocked} />
@@ -121,9 +143,12 @@ const Login = () => {
                         placeholder="Password"
                         autoComplete="current-password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={handlePasswordChange}
+                        onFocus={() => setPasswordError(null)} // Clear error on focus
                       />
                     </CInputGroup>
+                    {passwordError && <p style={{ color: 'red', marginTop: '-15px' }}>{passwordError}</p>}
+
                     <CRow>
                       <CCol xs={6}>
                         <CButton type="submit" color="warning" className="px-4">
@@ -131,7 +156,7 @@ const Login = () => {
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
+                        <CButton color="link" onClick={handlePassword} className="px-0">
                           Forgot password?
                         </CButton>
                       </CCol>

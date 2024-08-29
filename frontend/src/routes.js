@@ -2,7 +2,29 @@ import React from 'react'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Login = React.lazy(() => import('./views/pages/login/Login'))
+const OrangePayReports = React.lazy(() => import('./views/pages/reports/OrangePayReport'))
+const EzetapReports = React.lazy(() => import('./views/pages/reports/EzeTapReport'))
+const Profile = React.lazy(() => import('./views/pages/profile/Profile'))
 const RequestedUser = React.lazy(() => import('./views/pages/requesteduser/RequestedUser'))
+const FundRequest = React.lazy(() => import('./views/pages/fundrequest/FundRequest'))
+const FundRequests = React.lazy(() => import('./views/pages/fundrequest/fundRequests'))
+const ViewUser = React.lazy(() => import('./views/pages/reports/ViewUser'))
+const CallMe = React.lazy(() => import('./views/pages/supportdesk/CallMe'))
+const Query = React.lazy(() => import('./views/pages/supportdesk/Query'))
+const Active = React.lazy(() => import('./views/pages/mynetwork/ActiveAgent'))
+const InActive = React.lazy(() => import('./views/pages/mynetwork/InActiveAgent'))
+const ChangePassword = React.lazy(() => import('./views/pages/profile/ChangePassword'))
+const MonthlyBill = React.lazy(() => import('./views/pages/databasemanagement/MonthlyBilling'))
+const Reports = React.lazy(() => import('./views/pages/reports/Reports'))
+const AddUser = React.lazy(() => import('./views/pages/usermangement/AddUser'))
+const ManageUser = React.lazy(() => import('./views/pages/usermangement/ManageUser'))
+const ConsumerDetails = React.lazy(() => import('./views/pages/usermangement/ConsumerDetails'))
+const ManageRePosting = React.lazy(() => import('./views/pages/usermangement/ManageRePosting'))
+const ManageRRFLimit = React.lazy(() => import('./views/pages/usermangement/ManageRRFLimit'))
+const ManageUserService = React.lazy(() => import('./views/pages/usermangement/ManageUserService'))
+const ManageUnclaimedTXN = React.lazy(() => import('./views/pages/usermangement/ManageUnclaimedTXN'))
+const ManageRRF = React.lazy(() => import('./views/pages/usermangement/ManageRRF'))
+const ManageBillFetch = React.lazy(() => import('./views/pages/usermangement/ManageBillFetch'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
@@ -54,53 +76,75 @@ const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
 const routes = [
-  { path: '/', exact: true, name: 'Home' },
-  { path: '/login', name: 'Login Page', element: Login },
-  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+  // { path: '/', exact: true, name: 'Home' },
+  // { path: '/login', name: 'Login Page', element: Login },
+  { path: '/report-OrangePay', name: 'OrangePay Reports', element: OrangePayReports },
+  { path: '/report-Ezetap', name: 'Ezetap Reports', element: EzetapReports },
+  { path: '/profile/:userId', name: 'Profile Page', element: Profile },
+  { path: '/dashboard/:id',  name: 'Dashboard', element: Dashboard },
+  { path: '/fundrequest/:userId', name: 'Fund Request', element: FundRequest },
   { path: '/requests', name: 'RequestedUser', element: RequestedUser },
-  { path: '/theme', name: 'Theme', element: Colors, exact: true },
-  { path: '/theme/colors', name: 'Colors', element: Colors },
-  { path: '/theme/typography', name: 'Typography', element: Typography },
-  { path: '/base', name: 'Base', element: Cards, exact: true },
-  { path: '/base/accordion', name: 'Accordion', element: Accordion },
-  { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },
-  { path: '/base/cards', name: 'Cards', element: Cards },
-  { path: '/base/carousels', name: 'Carousel', element: Carousels },
-  { path: '/base/collapses', name: 'Collapse', element: Collapses },
-  { path: '/base/list-groups', name: 'List Groups', element: ListGroups },
-  { path: '/base/navs', name: 'Navs', element: Navs },
-  { path: '/base/paginations', name: 'Paginations', element: Paginations },
-  { path: '/base/placeholders', name: 'Placeholders', element: Placeholders },
-  { path: '/base/popovers', name: 'Popovers', element: Popovers },
-  { path: '/base/progress', name: 'Progress', element: Progress },
-  { path: '/base/spinners', name: 'Spinners', element: Spinners },
-  { path: '/base/tabs', name: 'Tabs', element: Tabs },
-  { path: '/base/tables', name: 'Tables', element: Tables },
-  { path: '/base/tooltips', name: 'Tooltips', element: Tooltips },
-  { path: '/buttons', name: 'Buttons', element: Buttons, exact: true },
-  { path: '/buttons/buttons', name: 'Buttons', element: Buttons },
-  { path: '/buttons/dropdowns', name: 'Dropdowns', element: Dropdowns },
-  { path: '/buttons/button-groups', name: 'Button Groups', element: ButtonGroups },
-  { path: '/charts', name: 'Charts', element: Charts },
-  { path: '/forms', name: 'Forms', element: FormControl, exact: true },
-  { path: '/forms/form-control', name: 'Form Control', element: FormControl },
-  { path: '/forms/select', name: 'Select', element: Select },
-  { path: '/forms/checks-radios', name: 'Checks & Radios', element: ChecksRadios },
-  { path: '/forms/range', name: 'Range', element: Range },
-  { path: '/forms/input-group', name: 'Input Group', element: InputGroup },
-  { path: '/forms/floating-labels', name: 'Floating Labels', element: FloatingLabels },
-  { path: '/forms/layout', name: 'Layout', element: Layout },
-  { path: '/forms/validation', name: 'Validation', element: Validation },
-  { path: '/icons', exact: true, name: 'Icons', element: CoreUIIcons },
-  { path: '/icons/coreui-icons', name: 'CoreUI Icons', element: CoreUIIcons },
-  { path: '/icons/flags', name: 'Flags', element: Flags },
-  { path: '/icons/brands', name: 'Brands', element: Brands },
-  { path: '/notifications', name: 'Notifications', element: Alerts, exact: true },
-  { path: '/notifications/alerts', name: 'Alerts', element: Alerts },
-  { path: '/notifications/badges', name: 'Badges', element: Badges },
-  { path: '/notifications/modals', name: 'Modals', element: Modals },
-  { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
-  { path: '/widgets', name: 'Widgets', element: Widgets },
+  { path: '/fundrequests', name: 'Fund Request', element: FundRequests },
+  { path: '/view-user', name: 'VIEW USER', element: ViewUser },
+  { path: '/call-me', name: 'CALL ME', element: CallMe },
+  { path: '/query', name: 'QUERY', element: Query },
+  { path: '/active', name: 'ACTIVE', element: Active },
+  { path: '/inactive', name: 'IN-ACTIVE', element: InActive },
+  { path: '/change-password', name: 'CHANGE PASSWORD', element: ChangePassword },
+  { path: '/monthly-billing', name: 'Monthly Billing Master', element: MonthlyBill },
+  { path: '/report', name: 'Report', element: Reports },
+  { path: '/add-user', name: 'Add User', element: AddUser },
+  { path: '/manage-user', name: 'Report', element: ManageUser },
+  { path: '/manage-user-service', name: 'Report', element: ManageUserService },
+  { path: '/manage-reposting-bill', name: 'Report', element: ManageRePosting },
+  { path: '/manage-bill-fetch', name: 'Report', element: ManageBillFetch },
+  { path: '/manage-rrf-mobile', name: 'Report', element: ManageRRF },
+  { path: '/view-consumer-details', name: 'Report', element: ConsumerDetails },
+  { path: '/manage-rrf-limit', name: 'Report', element: ManageRRFLimit },
+  { path: '/manage-unclaimed-txn', name: 'Report', element: ManageUnclaimedTXN },
+  // { path: '/theme', name: 'Theme', element: Colors, exact: true },
+  // { path: '/theme/colors', name: 'Colors', element: Colors },
+  // { path: '/theme/typography', name: 'Typography', element: Typography },
+  // { path: '/base', name: 'Base', element: Cards, exact: true },
+  // { path: '/base/accordion', name: 'Accordion', element: Accordion },
+  // { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },
+  // { path: '/base/cards', name: 'Cards', element: Cards },
+  // { path: '/base/carousels', name: 'Carousel', element: Carousels },
+  // { path: '/base/collapses', name: 'Collapse', element: Collapses },
+  // { path: '/base/list-groups', name: 'List Groups', element: ListGroups },
+  // { path: '/base/navs', name: 'Navs', element: Navs },
+  // { path: '/base/paginations', name: 'Paginations', element: Paginations },
+  // { path: '/base/placeholders', name: 'Placeholders', element: Placeholders },
+  // { path: '/base/popovers', name: 'Popovers', element: Popovers },
+  // { path: '/base/progress', name: 'Progress', element: Progress },
+  // { path: '/base/spinners', name: 'Spinners', element: Spinners },
+  // { path: '/base/tabs', name: 'Tabs', element: Tabs },
+  // { path: '/base/tables', name: 'Tables', element: Tables },
+  // { path: '/base/tooltips', name: 'Tooltips', element: Tooltips },
+  // { path: '/buttons', name: 'Buttons', element: Buttons, exact: true },
+  // { path: '/buttons/buttons', name: 'Buttons', element: Buttons },
+  // { path: '/buttons/dropdowns', name: 'Dropdowns', element: Dropdowns },
+  // { path: '/buttons/button-groups', name: 'Button Groups', element: ButtonGroups },
+  // { path: '/charts', name: 'Charts', element: Charts },
+  // { path: '/forms', name: 'Forms', element: FormControl, exact: true },
+  // { path: '/forms/form-control', name: 'Form Control', element: FormControl },
+  // { path: '/forms/select', name: 'Select', element: Select },
+  // { path: '/forms/checks-radios', name: 'Checks & Radios', element: ChecksRadios },
+  // { path: '/forms/range', name: 'Range', element: Range },
+  // { path: '/forms/input-group', name: 'Input Group', element: InputGroup },
+  // { path: '/forms/floating-labels', name: 'Floating Labels', element: FloatingLabels },
+  // { path: '/forms/layout', name: 'Layout', element: Layout },
+  // { path: '/forms/validation', name: 'Validation', element: Validation },
+  // { path: '/icons', exact: true, name: 'Icons', element: CoreUIIcons },
+  // { path: '/icons/coreui-icons', name: 'CoreUI Icons', element: CoreUIIcons },
+  // { path: '/icons/flags', name: 'Flags', element: Flags },
+  // { path: '/icons/brands', name: 'Brands', element: Brands },
+  // { path: '/notifications', name: 'Notifications', element: Alerts, exact: true },
+  // { path: '/notifications/alerts', name: 'Alerts', element: Alerts },
+  // { path: '/notifications/badges', name: 'Badges', element: Badges },
+  // { path: '/notifications/modals', name: 'Modals', element: Modals },
+  // { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
+  // { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
 
 export default routes

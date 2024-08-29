@@ -14,8 +14,12 @@ import {
   CInputGroupText,
   CRow,
   CFormCheck,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
 } from "@coreui/react";
-import CIcon from "@coreui/icons-react";
 import {
   cilUser,
   cilCalendar,
@@ -23,9 +27,19 @@ import {
   cilEnvelopeClosed,
   cilImage,
 } from "@coreui/icons";
-import { Link } from "react-router-dom";
+import CIcon from "@coreui/icons-react";
+// import {
+//   cilUser,
+//   cilCalendar,
+//   cilPhone,
+//   cilEnvelopeClosed,
+//   cilImage,
+// } from "@coreui/icons";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     fatherOrHusbandName: "",
@@ -127,28 +141,45 @@ const Register = () => {
     const formDataToSend = new FormData();
 
     for (const key in formData) {
-        if (formData.hasOwnProperty(key) && formData[key] !== null) {
-            if (Array.isArray(formData[key])) {
-                formData[key].forEach((value) =>
-                    formDataToSend.append(key, value)
-                );
-            } else {
-                formDataToSend.append(key, formData[key]);
-            }
+      if (formData.hasOwnProperty(key) && formData[key] !== null) {
+        if (Array.isArray(formData[key])) {
+          formData[key].forEach((value) =>
+            formDataToSend.append(key, value)
+          );
+        } else {
+          formDataToSend.append(key, formData[key]);
         }
+      }
     }
 
     try {
-        const response = await axios.post("/register", formDataToSend, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        });
-        console.log(response.data);
+      const response = await axios.post("/register", formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log(response.data);
+      setModalVisible(true);
     } catch (error) {
-        console.error("Error in posting the data:", error);
+      console.error("Error in posting the data:", error);
     }
-};
+  };
+
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+    navigate("/login"); // Redirect to login page after closing modal
+  };
+
+
+  const [fileName, setFileName] = useState('')
+
+
+
+
+  const handleButtonClick = (inputId) => {
+    document.getElementById(inputId).click();
+  };
 
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
@@ -209,7 +240,7 @@ const Register = () => {
 
                     <CCol md={6}>
 
-                    <CInputGroup className="mb-3">
+                      <CInputGroup className="mb-3">
                         <CInputGroupText>Job Type</CInputGroupText>
                         <div className="d-flex m-2 align-items-center">
                           <CFormCheck
@@ -299,7 +330,7 @@ const Register = () => {
                             name="gender"
                             id="genderMale"
                             label="Male"
-                            value="Male"  
+                            value="Male"
                             checked={formData.gender === "Male"}
                             onChange={handleChange}
                           />
@@ -371,7 +402,7 @@ const Register = () => {
                             name="maritalStatus"
                             id="maritalSingle"
                             label="Single"
-                            value="Single"  
+                            value="Single"
                             checked={formData.maritalStatus === "Single"}
                             onChange={handleChange}
                           />
@@ -399,7 +430,7 @@ const Register = () => {
                       </CInputGroup>
 
 
-                      <CInputGroup className="mb-3">
+                      {/* <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
@@ -408,8 +439,88 @@ const Register = () => {
                           type="file"
                           onChange={handleFileChange}
                         />
+                      </CInputGroup> */}
+
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          <CIcon icon={cilImage} />
+                        </CInputGroupText>
+                        <CFormInput
+                          id="panCardInput" // Add an id to the input element
+                          name="photograph"
+                          type="file"
+                          onChange={handleFileChange}
+                          style={{ display: 'none' }} // Hide the default file input
+                        />
+                        <CButton color="secondary" onClick={handleButtonClick}>
+                          {fileName ? fileName : 'Photograph'}
+                        </CButton>
                       </CInputGroup>
+
+
+
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          <CIcon icon={cilImage} />
+                        </CInputGroupText>
+                        <CFormInput
+                          id="panCardInput" // Add an id to the input element
+                          name="signature"
+                          type="file"
+                          onChange={handleFileChange}
+                          style={{ display: 'none' }} // Hide the default file input
+                        />
+                        <CButton color="secondary" onClick={handleButtonClick}>
+                          {fileName ? fileName : 'Signature'}
+                        </CButton>
+                      </CInputGroup>
+
+
+                    
+
+
+
+
+
+
+
+
                     </CCol>
+
+
+
+                    <CInputGroup className="mb-3">
+                        <CInputGroupText>Education</CInputGroupText>
+                        <div className="d-flex m-2 align-items-center">
+                          <CFormCheck
+                            type="checkbox"
+                            name="education"
+                            id="graduate"
+                            label="Graduate"
+                            value="Graduate"
+                            checked={formData.education.includes("Graduate")}
+                            onChange={handleCheckboxChange}
+                          />
+                          <CFormCheck
+                            type="checkbox"
+                            name="education"
+                            id="above12th"
+                            label="Above 12th Pass"
+                            value="Above 12th Pass"
+                            checked={formData.education.includes("Above 12th Pass")}
+                            onChange={handleCheckboxChange}
+                          />
+                          <CFormCheck
+                            type="checkbox"
+                            name="education"
+                            id="other"
+                            label="Other"
+                            value="Other"
+                            checked={formData.education.includes("Other")}
+                            onChange={handleCheckboxChange}
+                          />
+                        </div>
+                      </CInputGroup>
 
                     <CCol md={12} className="mb-3">
                       <CInputGroup className="mb-3">
@@ -423,16 +534,78 @@ const Register = () => {
                         />
                       </CInputGroup>
 
+                      <CRow className="d-flex">
+                        <CCol md={6}>
+
+
+                          <CInputGroup className="mb-3">
+                            <CInputGroupText>District</CInputGroupText>
+                            <CFormInput
+                              name="district"
+                              placeholder="District"
+                              value={formData.district}
+                              onChange={handleChange}
+                              autoComplete="street-address"
+                            />
+                          </CInputGroup>
+
+                        </CCol>
+
+                        <CCol md={6}>
+
+
+                          <CInputGroup className="mb-3">
+                            <CInputGroupText>Pin Code</CInputGroupText>
+                            <CFormInput
+                              name="pincode"
+                              placeholder="Pin Code"
+                              value={formData.pincode}
+                              onChange={handleChange}
+                              autoComplete="street-address"
+                            />
+                          </CInputGroup>
+
+                        </CCol>
+                      </CRow>
+
+
                       <CInputGroup className="mb-3">
-                        <CInputGroupText>Salary Basis</CInputGroupText>
+                        <CInputGroupText>Bank Name</CInputGroupText>
                         <CFormInput
-                          name="salaryBasis"
-                          placeholder="Salary Basis"
-                          value={formData.salaryBasis}
+                          name="bank"
+                          placeholder="Bank Name"
+                          value={formData.bank}
                           onChange={handleChange}
                           autoComplete="off"
                         />
+
                       </CInputGroup>
+
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>Bank Account Number</CInputGroupText>
+                        <CFormInput
+                          name="accountno"
+                          placeholder="Bank Account Number"
+                          value={formData.accountno}
+                          onChange={handleChange}
+                          autoComplete="off"
+                        />
+
+                      </CInputGroup>
+
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>IFSC Code</CInputGroupText>
+                        <CFormInput
+                          name="ifsc"
+                          placeholder="IFSC Code"
+                          value={formData.ifsc}
+                          onChange={handleChange}
+                          autoComplete="off"
+                        />
+
+                      </CInputGroup>
+
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Division</CInputGroupText>
@@ -467,24 +640,15 @@ const Register = () => {
                         />
                       </CInputGroup>
 
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>Section Type</CInputGroupText>
-                        <CFormInput
-                          name="sectionType"
-                          placeholder="Section Type"
-                          value={formData.sectionType}
-                          onChange={handleChange}
-                          autoComplete="off"
-                        />
-                      </CInputGroup>
+
                     </CCol>
 
                     <CCol md={6}>
 
-                   
-                      
 
-                      <CInputGroup className="mb-3">
+
+
+                      {/* <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
@@ -493,9 +657,31 @@ const Register = () => {
                           type="file"
                           onChange={handleFileChange}
                         />
-                      </CInputGroup>
+                      </CInputGroup> */}
 
                       <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          <CIcon icon={cilImage} />
+                        </CInputGroupText>
+                        <CFormInput
+                          id="panCardInput" // Add an id to the input element
+                          name="aadharCard"
+                          type="file"
+                          onChange={handleFileChange}
+                          style={{ display: 'none' }} // Hide the default file input
+                        />
+                        <CButton color="secondary" onClick={handleButtonClick}>
+                          {fileName ? fileName : 'Aadhar Card'}
+                        </CButton>
+                      </CInputGroup>
+
+
+
+
+
+
+
+                      {/* <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
@@ -504,13 +690,30 @@ const Register = () => {
                           type="file"
                           onChange={handleFileChange}
                         />
+                      </CInputGroup> */}
+
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          <CIcon icon={cilImage} />
+                        </CInputGroupText>
+                        <CFormInput
+                          id="panCardInput" // Add an id to the input element
+                          name="panCard"
+                          type="file"
+                          onChange={handleFileChange}
+                          style={{ display: 'none' }} // Hide the default file input
+                        />
+                        <CButton color="secondary" onClick={handleButtonClick}>
+                          {fileName ? fileName : 'PAN Card'}
+                        </CButton>
                       </CInputGroup>
+
                     </CCol>
 
                     <CCol md={6}>
-                      
 
-                      <CInputGroup className="mb-3">
+
+                      {/* <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
@@ -519,9 +722,28 @@ const Register = () => {
                           type="file"
                           onChange={handleFileChange}
                         />
-                      </CInputGroup>
+                      </CInputGroup> */}
 
                       <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          <CIcon icon={cilImage} />
+                        </CInputGroupText>
+                        <CFormInput
+                          id="panCardInput" // Add an id to the input element
+                          name="educationCertificate"
+                          type="file"
+                          onChange={handleFileChange}
+                          style={{ display: 'none' }} // Hide the default file input
+                        />
+                        <CButton color="secondary" onClick={handleButtonClick}>
+                          {fileName ? fileName : 'Education Certificate'}
+                        </CButton>
+                      </CInputGroup>
+
+
+
+
+                      {/* <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
@@ -530,7 +752,30 @@ const Register = () => {
                           type="file"
                           onChange={handleFileChange}
                         />
+                      </CInputGroup> */}
+
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          <CIcon icon={cilImage} />
+                        </CInputGroupText>
+                        <CFormInput
+                          id="panCardInput" // Add an id to the input element
+                          name="cheque"
+                          type="file"
+                          onChange={handleFileChange}
+                          style={{ display: 'none' }} // Hide the default file input
+                        />
+                        <CButton color="secondary" onClick={handleButtonClick}>
+                          {fileName ? fileName : 'Cheque'}
+                        </CButton>
                       </CInputGroup>
+
+
+
+
+
+
+
                     </CCol>
                   </CRow>
 
@@ -542,14 +787,30 @@ const Register = () => {
                 </CForm>
               </CCardBody>
               <CCardFooter className="text-center">
-                <p className="text-muted">Allready have Account? <Link to={`/login`}><CButton color="link"  className="px-0">
-                        Login
-                        </CButton></Link></p>
+                <p className="text-muted">Allready have Account? <Link to={`/login`}><CButton color="link" className="px-0">
+                  Login
+                </CButton></Link></p>
               </CCardFooter>
             </CCard>
           </CCol>
         </CRow>
       </CContainer>
+
+
+      {/* Modal */}
+      <CModal visible={modalVisible} onClose={handleModalClose}>
+        <CModalHeader onClose={handleModalClose}>
+          <CModalTitle>Registration Successful</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          Thank you for registering! We will contact you shortly.
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="primary" onClick={handleModalClose}>
+            OK
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </div>
   );
 };

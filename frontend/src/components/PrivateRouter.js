@@ -1,14 +1,18 @@
-// PrivateRoute.js
-import React, { useContext } from 'react';
+// PrivateRouter.js
+import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-// import { AuthContext } from './AuthContext';
-// import { AuthContext } from './AuthContext';
 
 const PrivateRouter = () => {
-  // const {isAuthenticated} = useContext(AuthContext);
-  return (
-    isAuthenticated ? <Outlet/> : <Navigate to={`/`}/>
-  );
+  // Check if the token is present in localStorage
+  const token = localStorage.getItem('token');
+  
+  // If there's no token, redirect to the login page
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+
+  // Render the child routes if authenticated
+  return <Outlet />;
 };
 
 export default PrivateRouter;

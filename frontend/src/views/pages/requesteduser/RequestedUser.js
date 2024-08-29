@@ -156,9 +156,22 @@ const DataTableComponent = () => {
     fetchData();
   }, []);
 
-  const handleAccept = (row) => {
+  const handleAccept = async (row) => {
     console.log('Accepted:', row);
-    // Implement accept logic here
+
+    try {
+      const response = await axios.post(`/registered/${row._id}`);
+      console.log('Accept response:', response.data);
+      // Optional: Update UI or give feedback to the user
+      if (response.status === 200) {
+        // Update UI: Remove the accepted row from the data
+        setData(prevData => prevData.filter(item => item._id !== row._id));
+      } else {
+        console.error('Failed to accept:', response.data);
+      }
+    } catch (error) {
+      console.error('Error accepting:', error);
+    }
   };
 
   const handleReject = (row) => {
