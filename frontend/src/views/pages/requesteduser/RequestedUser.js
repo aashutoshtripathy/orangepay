@@ -160,14 +160,10 @@ const DataTableComponent = () => {
 const handleAccept = async (row) => {
   try {
     const response = await axios.patch(`/users/${row._id}/approve`);
-    const updatedFundRequest = response.data;
 
-    // Update the state with the new data
-    setData((prevData) =>
-      prevData.map((item) =>
-        item._id === updatedFundRequest._id ? updatedFundRequest : item
-      )
-    );
+    if (response.status === 200) {  // Check if the response is successful
+      setData((prevData) => prevData.filter((item) => item._id !== row._id));
+    }
   } catch (error) {
     console.error("Error approving fund request", error);
   }
@@ -177,18 +173,15 @@ const handleAccept = async (row) => {
 const handleReject = async (row) => {
   try {
     const response = await axios.patch(`/users/${row._id}/reject`);
-    const updatedFundRequest = response.data;
 
-    // Update the state with the new data
-    setData((prevData) =>
-      prevData.map((item) =>
-        item._id === updatedFundRequest._id ? updatedFundRequest : item
-      )
-    );
+    if (response.status === 200) {  // Check if the response is successful
+      setData((prevData) => prevData.filter((item) => item._id !== row._id));
+    }
   } catch (error) {
     console.error("Error rejecting fund request", error);
   }
 };
+
 
 
   const handleDownload = (row) => {

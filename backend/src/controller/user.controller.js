@@ -405,7 +405,7 @@ const fetchFundRequest = asyncHandler(async (req, res) => {
 const fetchFundRequests = asyncHandler(async (req, res) => {
     try {
         // Find all fund requests from the database
-        const fundRequests = await FundRequest.find({}).exec();
+        const fundRequests = await FundRequest.find({ status: 'pending' });
 
         console.log("Fund Requests: ", fundRequests);
 
