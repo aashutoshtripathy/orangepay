@@ -1,37 +1,70 @@
 import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
-// Define the schema for fund requests
+// // Define the schema for fund requests
+// const fundRequestSchema = new Schema({
+//   userId: {
+//     type: Schema.Types.ObjectId, // Use ObjectId for referencing
+//     required: true,
+//     ref: 'Register', // Reference to the Register model
+//   },
+//   fundAmount: {
+//     type: Number,
+//     required: true,
+//   },
+//   bankReference: {
+//     type: String,
+//     required: true,
+//   },
+//   paymentMethod: {
+//     type: String,
+//     enum: ['bank-transfer', 'upi', 'card', 'paypal', 'net-banking'],
+//     required: true,
+//   },
+//   bankName: {
+//     type: String,
+//   },
+//   status: {
+//     type: String,
+//     enum: ['pending', 'approved', 'rejected'],
+//     default: 'pending',
+//   }
+// }, { timestamps: true }); // Automatically manages createdAt and updatedAt
+
+
+
+
 const fundRequestSchema = new Schema({
   userId: {
-    type: Schema.Types.ObjectId,
+    type: String, // Change this to String if userId is not an ObjectId
     required: true,
-    ref: 'Register', // Ensure you have a User model and reference it
   },
   fundAmount: {
     type: Number,
     required: true,
+    min: [0, 'Fund amount cannot be negative'],
   },
   bankReference: {
     type: String,
     required: true,
+    trim: true,
   },
   paymentMethod: {
     type: String,
     enum: ['bank-transfer', 'upi', 'card', 'paypal', 'net-banking'],
     required: true,
   },
-  userId: {
-    type: String,
-  },
   bankName: {
     type: String,
+    trim: true,
+    default: '',
   },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending',
   }
-}, { timestamps: true }); // Automatically manages createdAt and updatedAt
+}, { timestamps: true });
 
 export const FundRequest = mongoose.model('FundRequest', fundRequestSchema);
+

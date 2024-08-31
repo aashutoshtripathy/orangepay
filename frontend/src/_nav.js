@@ -52,6 +52,7 @@ export const adminNavItems = [
       { component: CNavItem, name: 'Manage RRF Mobile No.', to: '/manage-rrf-mobile' },
       { component: CNavItem, name: 'Manage RRF Limit' , to: '/manage-rrf-limit' },
       { component: CNavItem, name: 'Manage Unclaimed Txn', to: '/manage-unclaimed-txn'  },
+      { component: CNavItem, name: 'Rejected User',  to: '/reject-user' },
       { component: CNavItem, name: 'View User',  to: '/view-user' },
       { component: CNavItem, name: 'View Consumer Details', to: '/view-consumer-details' },
     ],

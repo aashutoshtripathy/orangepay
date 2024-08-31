@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faTimesCircle, faUnlock, faLock, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faTimesCircle, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';  // Import XLSX for Excel export
@@ -46,7 +46,7 @@ const downloadPDF = (data) => {
 
   // Define the columns and their widths
   const columns = [
-    // { header: 'ID', dataKey: '_id' },
+    { header: 'ID', dataKey: '_id' },
     { header: 'Name', dataKey: 'name' },
     { header: 'Father/Husband Name', dataKey: 'fatherorHusbandName' },
     { header: 'DOB', dataKey: 'dob' },
@@ -139,14 +139,12 @@ const DataTableComponent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filterText, setFilterText] = useState('');
-  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList`); 
-        const result = response.data.fetchUser || []; // Access the data array from the nested data object
-        console.log(result)
+        const response = await axios.get('/fetch_data_rejected'); 
+        const result = response.data.data || []; // Access the data array from the nested data object
         setData(result);
       } catch (error) {
         setError(error);
@@ -156,29 +154,20 @@ const DataTableComponent = () => {
     };
 
     fetchData();
-  }, [userId]);
+  }, []);
 
+  // Handle Accept Fund Request
+const handleAccept = async (row) => {
+  try {
+    const response = await axios.patch(`/users/${row._id}/approve`);
 
-
-  const handleBlockUnblock = async (row) => {
-    try {
-      const action = row.isBlocked ? 'unblock' : 'block';
-      const response = await axios.patch(`/users/${row._id}/${action}`);
-      const updatedUser = response.data;
-      // Update the data after block/unblock
-      setData((prevData) =>
-        prevData.map((item) =>
-          item._id === updatedUser._id ? updatedUser : item
-        )
-      );
-    } catch (error) {
-      console.error(`Error ${row.isBlocked ? 'unblocking' : 'blocking'} user`, error);
+    if (response.status === 200) {  // Check if the response is successful
+      setData((prevData) => prevData.filter((item) => item._id !== row._id));
     }
-  };
-
-
-
-
+  } catch (error) {
+    console.error("Error approving fund request", error);
+  }
+};
 
 
 
@@ -195,25 +184,22 @@ const DataTableComponent = () => {
   };
 
   const columns = [
-    // { name: 'ID', selector: '_id', sortable: true },
-    { name: 'userId', selector: 'userId', sortable: true },
+    { name: 'ID', selector: '_id', sortable: true },
     { name: 'Name', selector: 'name', sortable: true },
-    { name: 'Father/Husband Name', selector: 'fatherOrHusbandName', sortable: true },
-    { name: 'Date of Birth', selector: 'dob', sortable: true },
-    { name: 'Aadhar Number', selector: 'aadharNumber', sortable: true },
-    { name: 'PAN Number', selector: 'panNumber', sortable: true },
-    { name: 'Mobile Number', selector: 'mobileNumber', sortable: true },
+    { name: 'Father or Husband Name', selector: 'fatherorHusbandName', sortable: true },
+    { name: 'Date Of Birth', selector: 'dob', sortable: true },
+    { name: 'Aadhar No.', selector: 'aadharNumber', sortable: true },
+    { name: 'Pan No.', selector: 'panNumber', sortable: true },
+    { name: 'Mobile No.', selector: 'mobileNumber', sortable: true },
     { name: 'Gender', selector: 'gender', sortable: true },
     { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
     { name: 'Education', selector: 'education', sortable: true },
     { name: 'Address', selector: 'address', sortable: true },
-    { name: 'Salary Basis', selector: 'salaryBasis', sortable: true },
+    { name: 'Job Type', selector: 'salaryBasis', sortable: true },
     { name: 'Email', selector: 'email', sortable: true },
     { name: 'Division', selector: 'division', sortable: true },
     { name: 'Sub-Division', selector: 'subDivision', sortable: true },
     { name: 'Section', selector: 'section', sortable: true },
-    // { name: 'userId', selector: 'userId', sortable: true },
-    { name: 'password', selector: 'password', sortable: true },
     { name: 'Section Type', selector: 'sectionType', sortable: true },
     { name: 'Created At', selector: 'createdAt', sortable: true },
     { name: 'Updated At', selector: 'updatedAt', sortable: true },
@@ -221,49 +207,27 @@ const DataTableComponent = () => {
       name: 'Actions',
       cell: (row) => (
         <div className="button-containerr">
-      <button 
-      className="button-Accept" 
-      onClick={() => handleBlockUnblock(row)}
-    >
-      <FontAwesomeIcon icon={row.isBlocked ? faUnlock : faLock} /> 
-      {row.isBlocked ? 'Details' : 'Details'}
-    </button>
-    </div>
+          <button 
+            className="button-search" 
+            onClick={() => handleAccept(row)}
+          >
+            <FontAwesomeIcon icon={faCheckCircle} /> Accept
+          </button>
+          
+          <button 
+            className="button-download" 
+            onClick={() => handleDownload(row)}
+          >
+            <FontAwesomeIcon icon={faDownload} /> Download File
+          </button>
+        </div>
       ),
-    }
+    },
   ];
-//   {
-//     name: 'Actions',
-//     cell: (row) => (
-//       <div className="button-containerr">
-//         <button 
-//           className="button-search" 
-//           onClick={() => handleAccept(row)}
-//         >
-//           <FontAwesomeIcon icon={faCheckCircle} /> Accept
-//         </button>
-//         <button 
-//           className="button-reject" 
-//           onClick={() => handleReject(row)}
-//         >
-//           <FontAwesomeIcon icon={faTimesCircle} /> Reject
-//         </button>
-//         <button 
-//           className="button-download" 
-//           onClick={() => handleDownload(row)}
-//         >
-//           <FontAwesomeIcon icon={faDownload} /> Download File
-//         </button>
-//       </div>
-//     ),
-//   },
-// ];
-  
 
   const filteredItems = data.filter(item => 
     item._id && item._id .toLowerCase().includes(filterText.toLowerCase())
   );
-  
 
   if (loading) {
     return <div>Loading...</div>;

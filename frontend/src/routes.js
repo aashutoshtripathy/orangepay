@@ -26,6 +26,8 @@ const ManageUnclaimedTXN = React.lazy(() => import('./views/pages/usermangement/
 const ManageRRF = React.lazy(() => import('./views/pages/usermangement/ManageRRF'))
 const ManageBillFetch = React.lazy(() => import('./views/pages/usermangement/ManageBillFetch'))
 const FundReport = React.lazy(() => import('./views/pages/reports/FundReport'))
+const RejectedUser = React.lazy(() => import('./views/pages/usermangement/RejectedUser.js'))
+
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
@@ -104,6 +106,7 @@ const routes = [
   { path: '/manage-rrf-limit', name: 'Report', element: ManageRRFLimit },
   { path: '/manage-unclaimed-txn', name: 'Report', element: ManageUnclaimedTXN },
   { path: '/fund-report', name: 'Report', element: FundReport },
+  { path: '/reject-user', name: 'Rejected User', element: RejectedUser },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

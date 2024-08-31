@@ -251,8 +251,10 @@ const fetchWalletBalance = asyncHandler(async (req, res) => {
 
 
 
+
+
+
 const fundRequest = asyncHandler(async (req, res) => {
-    // Destructure the fields from the request body
     const { userId, fundAmount, bankReference, paymentMethod, bankName } = req.body;
 
     try {
@@ -261,9 +263,15 @@ const fundRequest = asyncHandler(async (req, res) => {
             throw new Error('All fields are required');
         }
 
+        // Validate that the user exists in the Register table
+        const user = await Register.findById(userId); // Use findById to find the user by _id
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
         // Create a new fund request
         const newFundRequest = new FundRequest({
-            userId,
+            userId: user.userId, // Correctly set userId from the fetched user document
             fundAmount,
             bankReference,
             paymentMethod,
@@ -274,22 +282,54 @@ const fundRequest = asyncHandler(async (req, res) => {
         const savedFundRequest = await newFundRequest.save();
 
         // Return the created transaction
-        return res.status(201).json(new ApiResponse(201, savedFundRequest, 'Fund request created successfully'));
+        return res.status(201).json({ success: true, data: savedFundRequest, message: 'Fund request created successfully' });
     } catch (error) {
         // Catch any errors and send error response
-        return res.status(400).json(new ApiError(400, error.message));
+        return res.status(400).json({ success: false, message: error.message });
     }
 });
 
 
+// const fundRequest = asyncHandler(async (req, res) => {
+//     // Destructure the fields from the request body
+//     const { userId, fundAmount, bankReference, paymentMethod, bankName } = req.body;
+
+//     try {
+//         // Validate required fields
+//         if (!userId || !fundAmount || !bankReference || !paymentMethod) {
+//             throw new Error('All fields are required');
+//         }
+
+//         // Create a new fund request
+//         const newFundRequest = new FundRequest({
+//             userId,
+//             fundAmount,
+//             bankReference,
+//             paymentMethod,
+//             bankName,
+//         });
+
+//         // Save the document to the database
+//         const savedFundRequest = await newFundRequest.save();
+
+//         // Return the created transaction
+//         return res.status(201).json(new ApiResponse(201, savedFundRequest, 'Fund request created successfully'));
+//     } catch (error) {
+//         // Catch any errors and send error response
+//         return res.status(400).json(new ApiError(400, error.message));
+//     }
+// });
+
+
 const approveUserRequest = asyncHandler(async (req, res) => {
     try {
+        const customId = generateRandomId()
       // Find the user by ID and update the status to "approved" along with generating userId and password
       const updatedUser = await Register.findByIdAndUpdate(
         req.params.id,
         {
           status: 'Approved',
-          userId: generateRandomId(), // Generate a random userId
+          userId: customId, // Generate a random userId
           password: generateRandomPassword(12), // Generate a random password
         },
         { new: true } // Return the updated document
@@ -303,6 +343,7 @@ const approveUserRequest = asyncHandler(async (req, res) => {
       // Create a wallet for the approved user
       const wallet = new Wallet({
         userId: updatedUser._id, // Use the ID of the updated user
+        uniqueId: customId
       });
   
       // Save the new wallet
@@ -448,6 +489,59 @@ const fetchUserList = asyncHandler(async (req, res) => {
 
 
 
+// const approveFundRequest = asyncHandler(async (req, res) => {
+//     const { id } = req.params;
+
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//         return res.status(400).json({ success: false, message: 'Invalid fund request ID' });
+//     }
+
+//     try {
+//         const updatedFundRequest = await FundRequest.findByIdAndUpdate(
+//             id,
+//             { status: 'approved' },
+//             { new: true }
+//         ).exec();
+
+//         if (!updatedFundRequest) {
+//             return res.status(404).json({ success: false, message: 'Fund request not found' });
+//         }
+
+//         const userWallet = await Wallet.findOne({ userId: updatedFundRequest.userId });
+
+//         if (!userWallet) {
+//             return res.status(404).json({ success: false, message: 'Wallet not found' });
+//         }
+
+//         userWallet.balance += updatedFundRequest.fundAmount;
+
+//         await userWallet.save();
+
+//         return res.status(200).json({
+//             success: true,
+//             message: 'Fund request approved and wallet updated',
+//             fundRequest: updatedFundRequest,
+//             wallet: userWallet
+//         });
+
+//     } catch (error) {
+//         console.error("Error approving fund request:", error);
+
+//         // Log detailed error information
+//         console.error("Detailed Error: ", {
+//             message: error.message,
+//             name: error.name,
+//             stack: error.stack,
+//             cause: error.cause
+//         });
+
+//         return res.status(500).json({ success: false, message: `Internal Server Error: ${error.message}` });
+//     }
+// });
+
+
+
+
 const approveFundRequest = asyncHandler(async (req, res) => {
     try {
       // Find the fund request by ID and update the status to "approved"
@@ -456,14 +550,13 @@ const approveFundRequest = asyncHandler(async (req, res) => {
         { status: 'approved' },
         { new: true }
       ).exec();
-  
       // If the fund request is not found, return a 404 error
       if (!updatedFundRequest) {
         return res.status(404).json({ success: false, message: 'Fund request not found' });
       }
   
       // Retrieve the user's wallet associated with the fund request
-      const userWallet = await Wallet.findOne({ userId: updatedFundRequest.userId });
+      const userWallet = await Wallet.findOne({ uniqueId: updatedFundRequest.userId });
   
       // If the wallet is not found, return a 404 error
       if (!userWallet) {
@@ -607,6 +700,21 @@ const fetchData = asyncHandler(async (req, res) => {
         return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
     }
 });
+
+
+const fetchData_reject = asyncHandler(async (req, res) => {
+    try {
+        // Fetch only the users where the status is 'pending'
+        const pendingUsers = await Register.find({ status: 'Rejected' });
+        console.log("Fetched users with pending status:", pendingUsers);
+        
+        // Return the filtered data
+        return res.status(200).json({ success: true, data: pendingUsers });
+    } catch (error) {
+        return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
+    }
+});
+
 
 
 
@@ -915,5 +1023,5 @@ const deleteUser = asyncHandler(async(req,res) => {
     }
 })
 
-export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest  };
+export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest  };
 
