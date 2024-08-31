@@ -12,6 +12,7 @@
   min-width: 410px;
 }
 
+.button-Accept,
   .button-reject,
   .button-search, 
   .button-download, 
@@ -56,6 +57,10 @@
   
   .button-reject {
     background-color: #ff0000;
+  }
+
+  .button-Accept {
+    background-color: green;
   }
 
   .button-download-excel {

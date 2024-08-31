@@ -6,7 +6,7 @@ const fundRequestSchema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'User', // Ensure you have a User model and reference it
+    ref: 'Register', // Ensure you have a User model and reference it
   },
   fundAmount: {
     type: Number,
@@ -20,6 +20,9 @@ const fundRequestSchema = new Schema({
     type: String,
     enum: ['bank-transfer', 'upi', 'card', 'paypal', 'net-banking'],
     required: true,
+  },
+  userId: {
+    type: String,
   },
   bankName: {
     type: String,

@@ -76,7 +76,7 @@ export const adminNavItems = [
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
       { component: CNavItem, name: 'Reports' , to: '/report' },
-      { component: CNavItem, name: 'Fund Reports' , to: '/report' },
+      { component: CNavItem, name: 'Fund Reports' , to: '/fund-report' },
     ],
   },
 ];
@@ -112,9 +112,9 @@ export const distributorNavItems = [
     items: [
       { component: CNavItem, name: 'Transactions Report-Ezetap', to: '/report-Ezetap' },
       { component: CNavItem, name: 'Transactions Report-OrangePay', to: '/report-OrangePay' },
-      { component: CNavItem, name: 'Fund Request', to: `/fundrequest/${userId}` },
+      // { component: CNavItem, name: 'Fund Request', to: `/fundrequest/${userId}` },
       { component: CNavItem, name: 'Fund Transfer', to: '/report-OrangePay' },
-      { component: CNavItem, name: 'Fund Report', to: '/report-OrangePay' },
+      { component: CNavItem, name: 'Fund Report', to: `/fundrequest/${userId}` },
       { component: CNavItem, name: 'Reports', to: '/report-OrangePay' },
       { component: CNavItem, name: 'Top-Up Report', to: '/report-OrangePay' },
     ],
