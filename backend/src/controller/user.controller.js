@@ -15,6 +15,7 @@ import { Registered } from "../model/Registered.model.js";
 import { Transaction } from "../model/Transaction.model.js";
 import { Wallet } from "../model/Wallet.model.js";
 import { FundRequest } from "../model/FundRequest.model.js";
+import archiver from "archiver";
 
 
 
@@ -171,6 +172,57 @@ const registeredUser = asyncHandler(async (req, res) => {
         // Handle errors
         return res.status(500).json(new ApiError(500, "Server Error"));
     }
+});
+
+
+
+// Function to download user images
+const downloadUserImages = asyncHandler(async (req, res) => {
+  const aadharNumber = req.params.aadharNumber;
+  const userDir = path.join('public/images', aadharNumber); // Directory containing user images
+
+  // Check if the directory exists
+  if (!fs.existsSync(userDir)) {
+      return res.status(404).json({ message: 'No images found for the provided Aadhar number.' });
+  }
+
+  // Set the name of the zip file
+  const zipFileName = `images-${aadharNumber}.zip`;
+  const zipFilePath = path.join('public', zipFileName);
+
+  // Create a writable stream for the zip file
+  const output = fs.createWriteStream(zipFilePath);
+  const archive = archiver('zip', {
+      zlib: { level: 9 } // Maximum compression level
+  });
+
+  // Handle zip creation errors
+  output.on('close', () => {
+      // Send the zip file as a response
+      res.download(zipFilePath, (err) => {
+          if (err) {
+              console.error('Error downloading the file:', err);
+              res.status(500).send('Error downloading the file');
+          }
+
+          // Delete the zip file after download
+          fs.unlinkSync(zipFilePath);
+      });
+  });
+
+  archive.on('error', (err) => {
+      console.error('Error creating the archive:', err);
+      res.status(500).send('Error creating the archive');
+  });
+
+  // Pipe the archive to the writable stream
+  archive.pipe(output);
+
+  // Append images in the user's directory to the archive
+  archive.directory(userDir, false);
+
+  // Finalize the archive
+  archive.finalize();
 });
 
 
@@ -1042,5 +1094,5 @@ const fetchUserById = asyncHandler(async (req, res) => {
     }
   });
 
-export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById };
+export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages };
 
