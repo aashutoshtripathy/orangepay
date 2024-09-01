@@ -31,22 +31,21 @@ const customStyles = {
 
 // Function to generate and download PDF
 const downloadPDF = (data) => {
-  const doc = new jsPDF();
+  const doc = new jsPDF({
+    orientation: 'landscape', // Use landscape orientation
+    unit: 'mm',
+    format: 'a4'
+  });
 
-  // Set up margins and title
-  const pageWidth = doc.internal.pageSize.getWidth();
+  // Title and date
   const title = "Table Data";
-  const titleXPos = pageWidth / 2;
-
-  doc.setFontSize(18);
-  doc.text(title, titleXPos, 15, { align: 'center' });
-
+  doc.setFontSize(16);
+  doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
   doc.setFontSize(10);
   doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
 
-  // Define the columns and their widths
+  // Define columns
   const columns = [
-    // { header: 'ID', dataKey: '_id' },
     { header: 'Name', dataKey: 'name' },
     { header: 'Father/Husband Name', dataKey: 'fatherorHusbandName' },
     { header: 'DOB', dataKey: 'dob' },
@@ -68,7 +67,6 @@ const downloadPDF = (data) => {
   ];
 
   const rows = data.map(row => ({
-    _id: row._id,
     name: row.name,
     fatherorHusbandName: row.fatherorHusbandName,
     dob: row.dob,
@@ -92,32 +90,47 @@ const downloadPDF = (data) => {
   // Auto table options
   doc.autoTable({
     startY: 30, // Starting y position
-    head: columns.map(col => col.header), // Table headers
-    body: rows.map(row => columns.map(col => row[col.dataKey])), // Table data
-    margin: { top: 30 }, // Top margin to align with title
+    head: [columns.map(col => col.header)],
+    body: rows.map(row => columns.map(col => row[col.dataKey])),
+    margin: { top: 30, left: 10, right: 10, bottom: 10 }, // Adjust margins
     styles: {
-      fontSize: 8,
-      cellPadding: 3,
+      fontSize: 7, // Smaller font size
+      cellPadding: 1,
       overflow: 'linebreak',
-      halign: 'left', // Horizontal alignment
-      valign: 'middle', // Vertical alignment
+      halign: 'left',
+      valign: 'middle',
     },
     headStyles: {
-      fillColor: [52, 58, 64], // Dark gray background
-      textColor: [255, 255, 255], // White text
+      fillColor: [52, 58, 64],
+      textColor: [255, 255, 255],
       fontStyle: 'bold',
     },
     alternateRowStyles: {
-      fillColor: [220, 220, 220], // Light gray alternating row background
+      fillColor: [220, 220, 220],
     },
     columnStyles: {
-      0: { cellWidth: 'auto' }, // Adjust column width automatically
-      1: { cellWidth: 'auto' }, // Adjust column width automatically
+      name: { cellWidth: 25 },
+      fatherorHusbandName: { cellWidth: 25 },
+      dob: { cellWidth: 15 },
+      aadharNumber: { cellWidth: 20 },
+      panNumber: { cellWidth: 20 },
+      mobileNumber: { cellWidth: 20 },
+      gender: { cellWidth: 15 },
+      maritalStatus: { cellWidth: 20 },
+      education: { cellWidth: 20 },
+      address: { cellWidth: 30 },
+      salaryBasis: { cellWidth: 20 },
+      email: { cellWidth: 30 },
+      division: { cellWidth: 20 },
+      subDivision: { cellWidth: 20 },
+      section: { cellWidth: 20 },
+      sectionType: { cellWidth: 20 },
+      createdAt: { cellWidth: 20 },
+      updatedAt: { cellWidth: 20 },
     },
     didDrawPage: (data) => {
-      // Add page number at the bottom
       const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(10);
+      doc.setFontSize(8);
       doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
     }
   });
