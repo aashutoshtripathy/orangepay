@@ -141,6 +141,34 @@ const DataTableComponent = () => {
   const [filterText, setFilterText] = useState('');
   const userId = localStorage.getItem('userId');
 
+
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       // Fetch user details first to get the wallet unique ID
+  //       const userResponse = await axios.get(`/user-details/${userId}`); // Assume an endpoint to fetch user details
+  //       const walletUniqueId = userResponse.data.user.wallet.uniqueId; // Extract the wallet unique ID from the response
+  
+  //       // Now use the walletUniqueId to fetch the fund request data
+  //       const response = await axios.get(`/fund-request/${walletUniqueId}`);
+  //       const result = response.data.fundRequest || []; // Access the data array from the response
+  //       setData(result);
+  //     } catch (error) {
+  //       setError(error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  
+  //   if (userId) { // Check if userId is available before making the request
+  //     fetchData();
+  //   } else {
+  //     setError("User ID not found.");
+  //     setLoading(false);
+  //   }
+  // }, [userId]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {

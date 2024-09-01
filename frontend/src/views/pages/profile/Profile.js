@@ -24,6 +24,7 @@ const Profile = () => {
   console.log('User ID from useParams:', userId);
 
   const [balance, setBalance] = useState(null);
+  const [user, setUser] = useState(null); // State to store user data
   const [loading, setLoading] = useState(true); // Changed default value to true
   const [error, setError] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -34,6 +35,23 @@ const Profile = () => {
   const [errors, setErrors] = useState({}); // State for validation errors
   const userName = 'Test';
   const availableBalance = '$10,000';
+
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`/fetchUserById/${userId}`); // Fetch user data
+        setUser(response.data.user); // Set the user data
+        setLoading(false); // Set loading to false after data is fetched
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        setError('Failed to load user data.');
+        setLoading(false); // Set loading to false on error
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) {
@@ -143,7 +161,7 @@ const Profile = () => {
         <CCardBody>
           <CRow className="justify-content-center">
             <CCol sm={6} className="text-center ">
-              <h5>Account ID : {userName}</h5>
+              <h5>Account ID : {user.userId}</h5>
               <h5>Agency Firm Name : {userName}</h5>
               <h5>Registered Name: {userName}</h5>
               <h5>Registered E-Mail ID : {userName}</h5>

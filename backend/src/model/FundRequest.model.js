@@ -31,40 +31,37 @@ import { Schema } from "mongoose";
 //   }
 // }, { timestamps: true }); // Automatically manages createdAt and updatedAt
 
-
-
-
-const fundRequestSchema = new Schema({
-  userId: {
-    type: String, // Change this to String if userId is not an ObjectId
-    required: true,
+const fundRequestSchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    uniqueId: { type: String, required: true },
+    fundAmount: {
+      type: Number,
+      required: true,
+      min: [0, "Fund amount cannot be negative"],
+    },
+    bankReference: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["bank-transfer", "upi", "card", "paypal", "net-banking"],
+      required: true,
+    },
+    bankName: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
   },
-  fundAmount: {
-    type: Number,
-    required: true,
-    min: [0, 'Fund amount cannot be negative'],
-  },
-  bankReference: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  paymentMethod: {
-    type: String,
-    enum: ['bank-transfer', 'upi', 'card', 'paypal', 'net-banking'],
-    required: true,
-  },
-  bankName: {
-    type: String,
-    trim: true,
-    default: '',
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending',
-  }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
-export const FundRequest = mongoose.model('FundRequest', fundRequestSchema);
-
+export const FundRequest = mongoose.model("FundRequest", fundRequestSchema);
