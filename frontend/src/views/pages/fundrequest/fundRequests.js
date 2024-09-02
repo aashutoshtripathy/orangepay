@@ -207,7 +207,7 @@ const handleReject = async (row) => {
   };
 
   const columns = [
-    { name: 'userId', selector: 'userId', sortable: true },
+    { name: 'userId', selector: 'uniqueId', sortable: true },
     { name: 'fundAmount', selector: 'fundAmount', sortable: true },
     { name: 'bankReference', selector: 'bankReference', sortable: true },
     { name: 'paymentMethod', selector: 'paymentMethod', sortable: true },
