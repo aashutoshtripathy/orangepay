@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 import {
   CCard,
   CCardBody,
@@ -15,28 +15,46 @@ import {
   CModalFooter,
   CFormLabel,
   CFormInput,
-  CFormSelect
-} from '@coreui/react';
+  CFormSelect,
+} from "@coreui/react";
 
 const Profile = () => {
   const { userId } = useParams();
 
-  console.log('User ID from useParams:', userId);
+  console.log("User ID from useParams:", userId);
 
   const [balance, setBalance] = useState(null);
-  const [loading, setLoading] = useState(true); // Changed default value to true
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [fundAmount, setFundAmount] = useState('');
-  const [bankReference, setBankReference] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [errors, setErrors] = useState({}); // State for validation errors
-  const userName = 'Test';
-  const availableBalance = '$10,000';
+  const [fundAmount, setFundAmount] = useState("");
+  const [bankReference, setBankReference] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [errors, setErrors] = useState({});
+  // const userName = "Test";
+  const availableBalance = "0";
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`/fetchUserById/${userId}`);
+        setUser(response.data.user);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError("Failed to load user data.");
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) {
-      console.error('Invalid userId format:', userId);
+      console.error("Invalid userId format:", userId);
       return;
     }
 
@@ -45,8 +63,8 @@ const Profile = () => {
         const response = await axios.get(`/balance/${userId}`);
         setBalance(response.data.balance);
       } catch (err) {
-        console.error('Error fetching balance:', err);
-        setError('Failed to fetch balance');
+        console.error("Error fetching balance:", err);
+        setError("Failed to fetch balance");
       } finally {
         setLoading(false);
       }
@@ -59,57 +77,61 @@ const Profile = () => {
     e.preventDefault();
     const newErrors = {};
 
-    // Validate each field
-    if (!fundAmount) newErrors.fundAmount = 'Amount is required';
-    if (!bankReference) newErrors.bankReference = 'Bank Reference Number is required';
-    if (!paymentMethod) newErrors.paymentMethod = 'Payment Method is required';
+    if (!fundAmount) newErrors.fundAmount = "Amount is required";
+    if (!bankReference)
+      newErrors.bankReference = "Bank Reference Number is required";
+    if (bankReference && bankReference.length < 6)
+      newErrors.bankReference =
+        "Bank Reference Number must be at least 6 characters";
+    if (!paymentMethod) newErrors.paymentMethod = "Payment Method is required";
+    if (paymentMethod === "bank-transfer" && !bankName)
+      newErrors.bankName = "Bank Name is required";
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors); // Set errors if validation fails
+      setErrors(newErrors);
       return;
     }
 
     try {
-      console.log('Sending fund request:', {
+      console.log("Sending fund request:", {
         userId,
         fundAmount,
         bankReference,
         paymentMethod,
       });
 
-      const response = await axios.post('/fund-request', {
+      const response = await axios.post("/fund-request", {
         userId,
         fundAmount,
         bankReference,
         paymentMethod,
+        bankName,
       });
 
-      console.log('Response from server:', response);
+      console.log("Response from server:", response);
 
-      // Clear the states
-      setFundAmount('');
-      setBankReference('');
-      setPaymentMethod('');
+      setFundAmount("");
+      setBankReference("");
+      setPaymentMethod("");
+      setBankName("");
       setModalVisible(false);
-
     } catch (error) {
-      console.error('Error requesting fund:', error);
-      setError('Failed to request fund');
+      console.error("Error requesting fund:", error);
+      setError("Failed to request fund");
     }
   };
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
 
-    // Update state based on field id
-    if (id === 'fund-amount') setFundAmount(value);
-    if (id === 'bank-reference') setBankReference(value);
-    if (id === 'payment-method') setPaymentMethod(value);
+    if (id === "fund-amount") setFundAmount(value);
+    if (id === "bank-reference") setBankReference(value);
+    if (id === "payment-method") setPaymentMethod(value);
+    if (id === "bank-name") setBankName(value);
 
-    // Clear errors for the specific field
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [id]: ''
+      [id]: "",
     }));
   };
 
@@ -117,12 +139,12 @@ const Profile = () => {
     const { id } = e.target;
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [id]: ''
+      [id]: "",
     }));
   };
 
   const date = new Date();
-  const month = date.toLocaleString('default', { month: 'long' });
+  const month = date.toLocaleString("default", { month: "long" });
   const year = date.getFullYear();
 
   if (loading) return <div>Loading...</div>;
@@ -137,15 +159,25 @@ const Profile = () => {
         <CCardBody>
           <CRow className="justify-content-center">
             <CCol sm={6} className="text-center ">
-              <h5>Account ID : {userName}</h5>
-              <h5>Agency Firm Name : {userName}</h5>
-              <h5>Registered Name: {userName}</h5>
-              <h5>Registered E-Mail ID : {userName}</h5>
-              <h5>Registered Mobile No. : {userName}</h5>
+              {user ? (
+                <>
+                  <h5>Account ID : {user.userId}</h5>
+                  <h5>
+                    Agency Firm Name : {process.env.REACT_APP_COMPANY_NAME}
+                  </h5>
+                  <h5>Registered Name: {user.name}</h5>
+                  <h5>Registered E-Mail ID : {user.email}</h5>
+                  <h5>Registered Mobile No. : {user.mobileNumber}</h5>
+                </>
+              ) : (
+                <h5>Loading user data...</h5>
+              )}
             </CCol>
             <CCol sm={6} className="text-center mt-4">
               <h5>Available Balance : {balance}</h5>
-              <h5>Margin ({month} {year}) : {availableBalance}</h5>
+              <h5>
+                Margin ({month} {year}) : {availableBalance}
+              </h5>
             </CCol>
           </CRow>
         </CCardBody>
@@ -153,7 +185,11 @@ const Profile = () => {
           <CButton color="success" size="lg" className="me-3">
             Get Android App
           </CButton>
-          <CButton color="primary" size="lg" onClick={() => setModalVisible(true)}>
+          <CButton
+            color="primary"
+            size="lg"
+            onClick={() => setModalVisible(true)}
+          >
             Request Fund
           </CButton>
         </CCardFooter>
@@ -174,9 +210,13 @@ const Profile = () => {
               onChange={handleInputChange}
               onFocus={handleInputFocus}
             />
-            {errors.fundAmount && <div className="text-danger">{errors.fundAmount}</div>}
+            {errors.fundAmount && (
+              <div className="text-danger">{errors.fundAmount}</div>
+            )}
 
-            <CFormLabel htmlFor="bank-reference" className="mt-3">Bank Reference Number</CFormLabel>
+            <CFormLabel htmlFor="bank-reference" className="mt-3">
+              Bank Reference Number
+            </CFormLabel>
             <CFormInput
               name="bankReference"
               id="bank-reference"
@@ -184,10 +224,15 @@ const Profile = () => {
               value={bankReference}
               onChange={handleInputChange}
               onFocus={handleInputFocus}
+              style={{ textTransform: "uppercase" }}
             />
-            {errors.bankReference && <div className="text-danger">{errors.bankReference}</div>}
+            {errors.bankReference && (
+              <div className="text-danger">{errors.bankReference}</div>
+            )}
 
-            <CFormLabel htmlFor="payment-method" className="mt-3">Payment Method</CFormLabel>
+            <CFormLabel htmlFor="payment-method" className="mt-3">
+              Payment Method
+            </CFormLabel>
             <CFormSelect
               name="paymentMethod"
               id="payment-method"
@@ -201,12 +246,41 @@ const Profile = () => {
               <option value="card">Card</option>
               <option value="paypal">PayPal</option>
               <option value="net-banking">Net Banking</option>
-              {/* Add more payment methods as necessary */}
             </CFormSelect>
-            {errors.paymentMethod && <div className="text-danger">{errors.paymentMethod}</div>}
+            {errors.paymentMethod && (
+              <div className="text-danger">{errors.paymentMethod}</div>
+            )}
+
+            {paymentMethod === "bank-transfer" && (
+              <>
+                <CFormLabel htmlFor="bank-name" className="mt-3">
+                  Bank Name
+                </CFormLabel>
+                <CFormSelect
+                  name="bankName"
+                  id="bank-name"
+                  value={bankName}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select Bank</option>
+                  <option value="state-bank-of-india">
+                    State Bank of India
+                  </option>
+                  <option value="hdfc-bank">HDFC Bank</option>
+                  <option value="icici-bank">ICICI Bank</option>
+                </CFormSelect>
+                {errors.bankName && (
+                  <div className="text-danger">{errors.bankName}</div>
+                )}
+              </>
+            )}
 
             <CModalFooter>
-              <CButton color="secondary" type="button" onClick={() => setModalVisible(false)}>
+              <CButton
+                color="secondary"
+                type="button"
+                onClick={() => setModalVisible(false)}
+              >
                 Cancel
               </CButton>
               <CButton color="primary" type="submit">

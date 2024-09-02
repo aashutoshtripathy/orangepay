@@ -191,7 +191,7 @@ const AppHeaderDropdown = () => {
     </CDropdown>
     </>
   )}
-  {userRole === 'TEST7982' &&(
+  {userRole !== 'dummy' &&(
       <>
       <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>

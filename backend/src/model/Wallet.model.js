@@ -5,6 +5,7 @@ import { Schema } from "mongoose";
 
 const walletSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    uniqueId: { type: String, required: true },
     balance: { type: Number, default: 0 },
     transactions: [
       {

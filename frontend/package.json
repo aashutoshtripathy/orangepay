@@ -27,14 +27,13 @@
     "redux": "^5.0.1",
     "simplebar-react": "^3.2.6",
     "web-vitals": "^4.2.3",
-    "webpack": "^5.93.0",
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "./node_modules/.bin/react-scripts start",
+    "build": "./node_modules/.bin/react-scripts build",
+    "test": "./node_modules/.bin/react-scripts test",
+    "eject": "./node_modules/.bin/react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -56,11 +55,22 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@craco/craco": "^5.9.0",
+    "@babel/plugin-transform-class-properties": "^7.25.4",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.24.7",
+    "@babel/plugin-transform-numeric-separator": "^7.24.7",
+    "@babel/plugin-transform-optional-chaining": "^7.24.8",
+    "@babel/plugin-transform-private-methods": "^7.25.4",
+    "@babel/plugin-transform-private-property-in-object": "^7.24.7",
+    "@craco/craco": "^7.1.0",
+    "@eslint/config-array": "^0.18.0",
     "css-loader": "^7.1.2",
     "postcss-loader": "^8.1.1",
-    "react-scripts": "^5.0.0",
+    "react-scripts": "^5.0.1",
     "resolve-url-loader": "^5.0.0",
-    "sass": "^1.77.8"
+    "sass": "^1.77.8",
+    "svgo": "^2.8.0",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
   }
 }
