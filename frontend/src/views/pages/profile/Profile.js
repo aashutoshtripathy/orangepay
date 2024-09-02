@@ -24,28 +24,28 @@ const Profile = () => {
   console.log("User ID from useParams:", userId);
 
   const [balance, setBalance] = useState(null);
-  const [user, setUser] = useState(null); // State to store user data
-  const [loading, setLoading] = useState(true); // Changed default value to true
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [fundAmount, setFundAmount] = useState("");
   const [bankReference, setBankReference] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [bankName, setBankName] = useState("");
-  const [errors, setErrors] = useState({}); // State for validation errors
-  const userName = "Test";
+  const [errors, setErrors] = useState({});
+  // const userName = "Test";
   const availableBalance = "0";
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`/fetchUserById/${userId}`); // Fetch user data
-        setUser(response.data.user); // Set the user data
-        setLoading(false); // Set loading to false after data is fetched
+        const response = await axios.get(`/fetchUserById/${userId}`);
+        setUser(response.data.user);
+        setLoading(false);
       } catch (err) {
         console.error("Error fetching user data:", err);
         setError("Failed to load user data.");
-        setLoading(false); // Set loading to false on error
+        setLoading(false);
       }
     };
 
@@ -77,7 +77,6 @@ const Profile = () => {
     e.preventDefault();
     const newErrors = {};
 
-    // Validate each field
     if (!fundAmount) newErrors.fundAmount = "Amount is required";
     if (!bankReference)
       newErrors.bankReference = "Bank Reference Number is required";
@@ -89,7 +88,7 @@ const Profile = () => {
       newErrors.bankName = "Bank Name is required";
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors); // Set errors if validation fails
+      setErrors(newErrors);
       return;
     }
 
@@ -111,7 +110,6 @@ const Profile = () => {
 
       console.log("Response from server:", response);
 
-      // Clear the states
       setFundAmount("");
       setBankReference("");
       setPaymentMethod("");
@@ -126,13 +124,11 @@ const Profile = () => {
   const handleInputChange = (e) => {
     const { id, value } = e.target;
 
-    // Update state based on field id
     if (id === "fund-amount") setFundAmount(value);
     if (id === "bank-reference") setBankReference(value);
     if (id === "payment-method") setPaymentMethod(value);
     if (id === "bank-name") setBankName(value);
 
-    // Clear errors for the specific field
     setErrors((prevErrors) => ({
       ...prevErrors,
       [id]: "",
@@ -166,9 +162,11 @@ const Profile = () => {
               {user ? (
                 <>
                   <h5>Account ID : {user.userId}</h5>
-                  <h5>Agency Firm Name : {process.env.REACT_APP_COMPANY_NAME}</h5>
+                  <h5>
+                    Agency Firm Name : {process.env.REACT_APP_COMPANY_NAME}
+                  </h5>
                   <h5>Registered Name: {user.name}</h5>
-                  <h5>Registered E-Mail ID : {user.email}</h5>      
+                  <h5>Registered E-Mail ID : {user.email}</h5>
                   <h5>Registered Mobile No. : {user.mobileNumber}</h5>
                 </>
               ) : (
@@ -226,6 +224,7 @@ const Profile = () => {
               value={bankReference}
               onChange={handleInputChange}
               onFocus={handleInputFocus}
+              style={{ textTransform: "uppercase" }}
             />
             {errors.bankReference && (
               <div className="text-danger">{errors.bankReference}</div>
@@ -247,7 +246,6 @@ const Profile = () => {
               <option value="card">Card</option>
               <option value="paypal">PayPal</option>
               <option value="net-banking">Net Banking</option>
-              {/* Add more payment methods as necessary */}
             </CFormSelect>
             {errors.paymentMethod && (
               <div className="text-danger">{errors.paymentMethod}</div>

@@ -46,7 +46,7 @@ const Register = () => {
     signature: "",
     panCard: "",
     educationCertificate: "",
-    cheque: ""
+    cheque: "",
   });
   const fileInputRefs = {
     photograph: useRef(null),
@@ -54,7 +54,7 @@ const Register = () => {
     aadharCard: useRef(null),
     panCard: useRef(null),
     educationCertificate: useRef(null),
-    cheque: useRef(null)
+    cheque: useRef(null),
   };
 
   const [formData, setFormData] = useState({
@@ -79,13 +79,12 @@ const Register = () => {
     panCard: null,
     educationCertificate: null,
     cheque: null,
-    district: "",   // Add this field
-    pincode: "",    // Add this field
-    bank: "",       // Add this field
+    district: "", // Add this field
+    pincode: "", // Add this field
+    bank: "", // Add this field
     accountno: "",
-    ifsc: "",  // Add this field
+    ifsc: "", // Add this field
   });
-
 
   const [errors, setErrors] = useState({});
 
@@ -134,7 +133,7 @@ const Register = () => {
     if (!formData.panNumber) {
       formErrors.panNumber = "PAN Number is required";
     } else if (formData.panNumber.length < 10) {
-      formErrors.panNumber = "Pan Number Must be 10 charecters"
+      formErrors.panNumber = "Pan Number Must be 10 charecters";
     }
 
     // Mobile Number validation
@@ -227,7 +226,6 @@ const Register = () => {
     return Object.keys(formErrors).length === 0;
   };
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -238,11 +236,11 @@ const Register = () => {
     if (files.length > 0) {
       setFileNames((prev) => ({
         ...prev,
-        [name]: files[0].name
+        [name]: files[0].name,
       }));
       setFormData((prev) => ({
         ...prev,
-        [name]: files[0]
+        [name]: files[0],
       }));
     }
   };
@@ -306,8 +304,6 @@ const Register = () => {
   //   });
   // };
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -320,9 +316,7 @@ const Register = () => {
     for (const key in formData) {
       if (formData.hasOwnProperty(key) && formData[key] !== null) {
         if (Array.isArray(formData[key])) {
-          formData[key].forEach((value) =>
-            formDataToSend.append(key, value)
-          );
+          formData[key].forEach((value) => formDataToSend.append(key, value));
         } else {
           formDataToSend.append(key, formData[key]);
         }
@@ -342,16 +336,10 @@ const Register = () => {
     }
   };
 
-
   const handleModalClose = () => {
     setModalVisible(false);
     navigate("/login"); // Redirect to login page after closing modal
   };
-
-
-
-
-
 
   const handleButtonClick = (inputId) => {
     document.getElementById(inputId).click();
@@ -384,7 +372,9 @@ const Register = () => {
                           autoComplete="name"
                         />
                       </CInputGroup>
-                      {errors.name && <p className="text-danger">{errors.name}</p>}
+                      {errors.name && (
+                        <p className="text-danger">{errors.name}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -399,8 +389,11 @@ const Register = () => {
                           autoComplete="family-name"
                         />
                       </CInputGroup>
-                      {errors.fatherOrHusbandName && <p className="text-danger">{errors.fatherOrHusbandName}</p>}
-
+                      {errors.fatherOrHusbandName && (
+                        <p className="text-danger">
+                          {errors.fatherOrHusbandName}
+                        </p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -415,12 +408,12 @@ const Register = () => {
                           autoComplete="bday"
                         />
                       </CInputGroup>
-                      {errors.dob && <p className="text-danger">{errors.dob}</p>}
-
+                      {errors.dob && (
+                        <p className="text-danger">{errors.dob}</p>
+                      )}
                     </CCol>
 
                     <CCol md={6}>
-
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Job Type</CInputGroupText>
                         <div className="d-flex m-2 align-items-center">
@@ -441,14 +434,16 @@ const Register = () => {
                             id="comissionbased"
                             label="Commission Based"
                             value="commission based"
-                            checked={formData.salaryBasis === "commission based"}
+                            checked={
+                              formData.salaryBasis === "commission based"
+                            }
                             onChange={handleChange}
                           />
                         </div>
                       </CInputGroup>
-                      {errors.salaryBasis && <p className="text-danger">{errors.salaryBasis}</p>}
-
-
+                      {errors.salaryBasis && (
+                        <p className="text-danger">{errors.salaryBasis}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Aadhar</CInputGroupText>
@@ -461,8 +456,9 @@ const Register = () => {
                           autoComplete="off"
                         />
                       </CInputGroup>
-                      {errors.aadharNumber && <p className="text-danger">{errors.aadharNumber}</p>}
-
+                      {errors.aadharNumber && (
+                        <p className="text-danger">{errors.aadharNumber}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>PAN</CInputGroupText>
@@ -475,8 +471,9 @@ const Register = () => {
                           autoComplete="off"
                         />
                       </CInputGroup>
-                      {errors.panNumber && <p className="text-danger">{errors.panNumber}</p>}
-
+                      {errors.panNumber && (
+                        <p className="text-danger">{errors.panNumber}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -491,8 +488,9 @@ const Register = () => {
                           autoComplete="tel"
                         />
                       </CInputGroup>
-                      {errors.mobileNumber && <p className="text-danger">{errors.mobileNumber}</p>}
-
+                      {errors.mobileNumber && (
+                        <p className="text-danger">{errors.mobileNumber}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -507,8 +505,9 @@ const Register = () => {
                           autoComplete="email"
                         />
                       </CInputGroup>
-                      {errors.email && <p className="text-danger">{errors.email}</p>}
-
+                      {errors.email && (
+                        <p className="text-danger">{errors.email}</p>
+                      )}
                     </CCol>
 
                     <CCol md={6}>
@@ -547,8 +546,9 @@ const Register = () => {
                           />
                         </div>
                       </CInputGroup>
-                      {errors.gender && <p className="text-danger">{errors.gender}</p>}
-
+                      {errors.gender && (
+                        <p className="text-danger">{errors.gender}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Section Type</CInputGroupText>
@@ -585,8 +585,9 @@ const Register = () => {
                           />
                         </div>
                       </CInputGroup>
-                      {errors.sectionType && <p className="text-danger">{errors.sectionType}</p>}
-
+                      {errors.sectionType && (
+                        <p className="text-danger">{errors.sectionType}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Marital Status</CInputGroupText>
@@ -604,8 +605,8 @@ const Register = () => {
                           <CFormCheck
                             variant="inline"
                             type="radio"
-                            name="maritalMarried"
-                            id="genderFemale"
+                            name="maritalStatus"
+                            id="maritalMarried"
                             label="Married"
                             value="Married"
                             checked={formData.maritalStatus === "Married"}
@@ -623,9 +624,9 @@ const Register = () => {
                           />
                         </div>
                       </CInputGroup>
-                      {errors.maritalStatus && <p className="text-danger">{errors.maritalStatus}</p>}
-
-
+                      {errors.maritalStatus && (
+                        <p className="text-danger">{errors.maritalStatus}</p>
+                      )}
 
                       {/* <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -648,16 +649,19 @@ const Register = () => {
                           name="photograph"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: 'none' }} // Hide the default file input
+                          style={{ display: "none" }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={() => handleButtonClick("photograph")}>
-                          {fileNames.photograph || 'Photograph'} {/* Display file name or default text */}
+                        <CButton
+                          color="secondary"
+                          onClick={() => handleButtonClick("photograph")}
+                        >
+                          {fileNames.photograph || "Photograph"}{" "}
+                          {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
-                      {errors.photograph && <p className="text-danger">{errors.photograph}</p>}
-
-
-
+                      {errors.photograph && (
+                        <p className="text-danger">{errors.photograph}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -669,28 +673,20 @@ const Register = () => {
                           name="signature"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: 'none' }} // Hide the default file input
+                          style={{ display: "none" }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={() => handleButtonClick("signature")}>
-                          {fileNames.signature || 'Signature'} {/* Display file name or default text */}
+                        <CButton
+                          color="secondary"
+                          onClick={() => handleButtonClick("signature")}
+                        >
+                          {fileNames.signature || "Signature"}{" "}
+                          {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
-                      {errors.signature && <p className="text-danger">{errors.signature}</p>}
-
-
-
-
-
-
-
-
-
-
-
-
+                      {errors.signature && (
+                        <p className="text-danger">{errors.signature}</p>
+                      )}
                     </CCol>
-
-
 
                     <CInputGroup className="mb-3">
                       <CInputGroupText>Education</CInputGroupText>
@@ -710,7 +706,9 @@ const Register = () => {
                           id="above12th"
                           label="Above 12th Pass"
                           value="Above 12th Pass"
-                          checked={formData.education.includes("Above 12th Pass")}
+                          checked={formData.education.includes(
+                            "Above 12th Pass"
+                          )}
                           onChange={handleCheckboxChange}
                         />
                         <CFormCheck
@@ -724,8 +722,9 @@ const Register = () => {
                         />
                       </div>
                     </CInputGroup>
-                    {errors.education && <p className="text-danger">{errors.education}</p>}
-
+                    {errors.education && (
+                      <p className="text-danger">{errors.education}</p>
+                    )}
 
                     <CCol md={12} className="mb-3">
                       <CInputGroup className="mb-3">
@@ -738,13 +737,12 @@ const Register = () => {
                           autoComplete="street-address"
                         />
                       </CInputGroup>
-                      {errors.address && <p className="text-danger">{errors.address}</p>}
-
+                      {errors.address && (
+                        <p className="text-danger">{errors.address}</p>
+                      )}
 
                       <CRow className="d-flex">
                         <CCol md={6}>
-
-
                           <CInputGroup className="mb-3">
                             <CInputGroupText>District</CInputGroupText>
                             <CFormInput
@@ -755,14 +753,12 @@ const Register = () => {
                               autoComplete="street-address"
                             />
                           </CInputGroup>
-                          {errors.district && <p className="text-danger">{errors.district}</p>}
-
-
+                          {errors.district && (
+                            <p className="text-danger">{errors.district}</p>
+                          )}
                         </CCol>
 
                         <CCol md={6}>
-
-
                           <CInputGroup className="mb-3">
                             <CInputGroupText>Pin Code</CInputGroupText>
                             <CFormInput
@@ -773,12 +769,11 @@ const Register = () => {
                               autoComplete="street-address"
                             />
                           </CInputGroup>
-                          {errors.pincode && <p className="text-danger">{errors.pincode}</p>}
-
-
+                          {errors.pincode && (
+                            <p className="text-danger">{errors.pincode}</p>
+                          )}
                         </CCol>
                       </CRow>
-
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Bank Name</CInputGroupText>
@@ -789,10 +784,10 @@ const Register = () => {
                           onChange={handleChange}
                           autoComplete="off"
                         />
-
                       </CInputGroup>
-                      {errors.bank && <p className="text-danger">{errors.bank}</p>}
-
+                      {errors.bank && (
+                        <p className="text-danger">{errors.bank}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Bank Account Number</CInputGroupText>
@@ -803,10 +798,10 @@ const Register = () => {
                           onChange={handleChange}
                           autoComplete="off"
                         />
-
                       </CInputGroup>
-                      {errors.accountno && <p className="text-danger">{errors.accountno}</p>}
-
+                      {errors.accountno && (
+                        <p className="text-danger">{errors.accountno}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>IFSC Code</CInputGroupText>
@@ -817,12 +812,10 @@ const Register = () => {
                           onChange={handleChange}
                           autoComplete="off"
                         />
-
                       </CInputGroup>
-                      {errors.ifsc && <p className="text-danger">{errors.ifsc}</p>}
-
-
-
+                      {errors.ifsc && (
+                        <p className="text-danger">{errors.ifsc}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Division</CInputGroupText>
@@ -834,8 +827,9 @@ const Register = () => {
                           autoComplete="off"
                         />
                       </CInputGroup>
-                      {errors.division && <p className="text-danger">{errors.division}</p>}
-
+                      {errors.division && (
+                        <p className="text-danger">{errors.division}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Sub Division</CInputGroupText>
@@ -847,8 +841,9 @@ const Register = () => {
                           autoComplete="off"
                         />
                       </CInputGroup>
-                      {errors.subDivision && <p className="text-danger">{errors.subDivision}</p>}
-
+                      {errors.subDivision && (
+                        <p className="text-danger">{errors.subDivision}</p>
+                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Section</CInputGroupText>
@@ -860,17 +855,12 @@ const Register = () => {
                           autoComplete="off"
                         />
                       </CInputGroup>
-                      {errors.section && <p className="text-danger">{errors.section}</p>}
-
-
-
+                      {errors.section && (
+                        <p className="text-danger">{errors.section}</p>
+                      )}
                     </CCol>
 
                     <CCol md={6}>
-
-
-
-
                       {/* <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
@@ -892,20 +882,19 @@ const Register = () => {
                           name="aadharCard"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: 'none' }} // Hide the default file input
+                          style={{ display: "none" }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={() => handleButtonClick("aadharCard")}>
-                          {fileNames.aadharCard || 'AadharCard'} {/* Display file name or default text */}
+                        <CButton
+                          color="secondary"
+                          onClick={() => handleButtonClick("aadharCard")}
+                        >
+                          {fileNames.aadharCard || "AadharCard"}{" "}
+                          {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
-                      {errors.aadharCard && <p className="text-danger">{errors.aadharCard}</p>}
-
-
-
-
-
-
-
+                      {errors.aadharCard && (
+                        <p className="text-danger">{errors.aadharCard}</p>
+                      )}
 
                       {/* <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -928,20 +917,22 @@ const Register = () => {
                           name="panCard"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: 'none' }} // Hide the default file input
+                          style={{ display: "none" }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={() => handleButtonClick("panCard")}>
-                          {fileNames.panCard || 'Pancard'} {/* Display file name or default text */}
+                        <CButton
+                          color="secondary"
+                          onClick={() => handleButtonClick("panCard")}
+                        >
+                          {fileNames.panCard || "Pancard"}{" "}
+                          {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
-                      {errors.panCard && <p className="text-danger">{errors.panCard}</p>}
-
-
+                      {errors.panCard && (
+                        <p className="text-danger">{errors.panCard}</p>
+                      )}
                     </CCol>
 
                     <CCol md={6}>
-
-
                       {/* <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
@@ -963,16 +954,24 @@ const Register = () => {
                           name="educationCertificate"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: 'none' }} // Hide the default file input
+                          style={{ display: "none" }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={() => handleButtonClick("educationCertificate")}>
-                          {fileNames.educationCertificate || 'EducationCertificate'} {/* Display file name or default text */}
+                        <CButton
+                          color="secondary"
+                          onClick={() =>
+                            handleButtonClick("educationCertificate")
+                          }
+                        >
+                          {fileNames.educationCertificate ||
+                            "EducationCertificate"}{" "}
+                          {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
-                      {errors.educationCertificate && <p className="text-danger">{errors.educationCertificate}</p>}
-
-
-
+                      {errors.educationCertificate && (
+                        <p className="text-danger">
+                          {errors.educationCertificate}
+                        </p>
+                      )}
 
                       {/* <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -995,21 +994,19 @@ const Register = () => {
                           name="cheque"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: 'none' }} // Hide the default file input
+                          style={{ display: "none" }} // Hide the default file input
                         />
-                        <CButton color="secondary" onClick={() => handleButtonClick("cheque")}>
-                          {fileNames.cheque || 'Cheque'} {/* Display file name or default text */}
+                        <CButton
+                          color="secondary"
+                          onClick={() => handleButtonClick("cheque")}
+                        >
+                          {fileNames.cheque || "Cheque"}{" "}
+                          {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
-                      {errors.cheque && <p className="text-danger">{errors.cheque}</p>}
-
-
-
-
-
-
-
-
+                      {errors.cheque && (
+                        <p className="text-danger">{errors.cheque}</p>
+                      )}
                     </CCol>
                   </CRow>
 
@@ -1021,15 +1018,19 @@ const Register = () => {
                 </CForm>
               </CCardBody>
               <CCardFooter className="text-center">
-                <p className="text-muted">Allready have Account? <Link to={`/login`}><CButton color="link" className="px-0">
-                  Login
-                </CButton></Link></p>
+                <p className="text-muted">
+                  Allready have Account?{" "}
+                  <Link to={`/login`}>
+                    <CButton color="link" className="px-0">
+                      Login
+                    </CButton>
+                  </Link>
+                </p>
               </CCardFooter>
             </CCard>
           </CCol>
         </CRow>
       </CContainer>
-
 
       {/* Modal */}
       <CModal visible={modalVisible} onClose={handleModalClose}>

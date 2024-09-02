@@ -197,7 +197,7 @@ const handleReject = async (row) => {
   const columns = [
     { name: 'ID', selector: '_id', sortable: true },
     { name: 'Name', selector: 'name', sortable: true },
-    { name: 'Father or Husband Name', selector: 'fatherorHusbandName', sortable: true },
+    { name: 'Father or Husband Name', selector: 'fatherOrHusbandName', sortable: true },
     { name: 'Date Of Birth', selector: 'dob', sortable: true },
     { name: 'Aadhar No.', selector: 'aadharNumber', sortable: true },
     { name: 'Pan No.', selector: 'panNumber', sortable: true },

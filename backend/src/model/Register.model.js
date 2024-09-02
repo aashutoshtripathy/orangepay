@@ -79,6 +79,26 @@ const registerSchema = new Schema({
     type: String, 
     trim: true 
   },
+  district: { 
+    type: String, 
+    trim: true 
+  },
+  pincode: { 
+    type: String, 
+    trim: true 
+  },
+  bank: { 
+    type: String, 
+    trim: true 
+  },
+  accountno: { 
+    type: String, 
+    trim: true 
+  },
+  ifsc: { 
+    type: String, 
+    trim: true 
+  },
   
   // Store the file paths as strings
   photograph: { 
