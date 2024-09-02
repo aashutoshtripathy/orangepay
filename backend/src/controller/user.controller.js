@@ -16,6 +16,12 @@ import { Transaction } from "../model/Transaction.model.js";
 import { Wallet } from "../model/Wallet.model.js";
 import { FundRequest } from "../model/FundRequest.model.js";
 import archiver from "archiver";
+import { fileURLToPath } from 'url';
+// import path from 'path';
+
+// Define __dirname in ES module
+
+
 
 
 
@@ -174,45 +180,51 @@ const registeredUser = asyncHandler(async (req, res) => {
     }
 });
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 // Function to download user images
 const downloadUserImages = asyncHandler(async (req, res) => {
   const aadharNumber = req.params.aadharNumber;
-  const userDir = path.join('public/images', aadharNumber); // Directory containing user images
+  
+  // Corrected path to go up to the root directory
+  const userDir = path.join(__dirname, '..', '..', 'public', 'images', aadharNumber);
 
   // Check if the directory exists
   if (!fs.existsSync(userDir)) {
-      return res.status(404).json({ message: 'No images found for the provided Aadhar number.' });
+    return res.status(404).json({ message: 'No images found for the provided Aadhar number.' });
   }
 
-  // Set the name of the zip file
+  // Corrected path for zip file
   const zipFileName = `images-${aadharNumber}.zip`;
-  const zipFilePath = path.join('public', zipFileName);
+  const zipFilePath = path.join(__dirname, '..', '..', 'public', zipFileName);
 
   // Create a writable stream for the zip file
   const output = fs.createWriteStream(zipFilePath);
   const archive = archiver('zip', {
-      zlib: { level: 9 } // Maximum compression level
+    zlib: { level: 9 }, // Maximum compression level
   });
 
-  // Handle zip creation errors
+  // Handle zip creation and download response
   output.on('close', () => {
-      // Send the zip file as a response
-      res.download(zipFilePath, (err) => {
-          if (err) {
-              console.error('Error downloading the file:', err);
-              res.status(500).send('Error downloading the file');
-          }
+    // Send the zip file as a response
+    res.download(zipFilePath, (err) => {
+      if (err) {
+        console.error('Error downloading the file:', err);
+        res.status(500).send('Error downloading the file');
+      }
 
-          // Delete the zip file after download
-          fs.unlinkSync(zipFilePath);
+      // Delete the zip file after download
+      fs.unlink(zipFilePath, (err) => {
+        if (err) console.error('Error deleting the file:', err);
       });
+    });
   });
 
   archive.on('error', (err) => {
-      console.error('Error creating the archive:', err);
-      res.status(500).send('Error creating the archive');
+    console.error('Error creating the archive:', err);
+    res.status(500).send('Error creating the archive');
   });
 
   // Pipe the archive to the writable stream

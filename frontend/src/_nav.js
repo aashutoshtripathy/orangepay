@@ -111,8 +111,8 @@ export const distributorNavItems = [
     to: '/buttons',
     icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Transactions Report-Ezetap', to: '/report-Ezetap' },
-      { component: CNavItem, name: 'Transactions Report-OrangePay', to: '/report-OrangePay' },
+      // { component: CNavItem, name: 'Transactions Report-Ezetap', to: '/report-Ezetap' },
+      // { component: CNavItem, name: 'Transactions Report-OrangePay', to: '/report-OrangePay' },
       // { component: CNavItem, name: 'Fund Request', to: `/fundrequest/${userId}` },
       { component: CNavItem, name: 'Fund Transfer', to: '/report-OrangePay' },
       { component: CNavItem, name: 'Fund Report', to: `/fundrequest/${userId}` },

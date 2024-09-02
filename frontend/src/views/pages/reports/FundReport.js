@@ -205,7 +205,7 @@ const DataTableComponent = () => {
   ];
 
   const filteredItems = data.filter(
-    (item) => item.status === 'approved' && item.userId && item.userId.toLowerCase().includes(filterText.toLowerCase())
+    (item) => item.userId && item.userId.toLowerCase().includes(filterText.toLowerCase())
   );
   
 
