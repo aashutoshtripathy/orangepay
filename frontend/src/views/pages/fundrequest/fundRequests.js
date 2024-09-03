@@ -237,7 +237,10 @@ const handleReject = async (row) => {
   ];
 
   const filteredItems = data.filter(
-    (item) => item.status === 'pending' && item.userId && item.userId.toLowerCase().includes(filterText.toLowerCase())
+    (item) => 
+      item.status === 'pending' &&
+      (item.uniqueId && item.uniqueId.toLowerCase().includes(filterText.toLowerCase()) ||
+      item.bankReference && item.bankReference.toLowerCase().includes(filterText.toLowerCase()))
   );
   
 
@@ -254,7 +257,7 @@ const handleReject = async (row) => {
       <div className="button-container">
         <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search by userId or Ref..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
@@ -278,7 +281,7 @@ const handleReject = async (row) => {
         </button>
       </div>
       <DataTable
-        title="My Data Table"
+        title="Fund Requests"
         columns={columns}
         data={filteredItems}
         pagination

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   CCard,
   CCardBody,
@@ -182,9 +182,11 @@ const Profile = () => {
           </CRow>
         </CCardBody>
         <CCardFooter className="text-center">
+          <Link to={`/update-user/${userId}`}>
           <CButton color="success" size="lg" className="me-3">
-            Get Android App
+              Update User
           </CButton>
+          </Link>
           <CButton
             color="primary"
             size="lg"

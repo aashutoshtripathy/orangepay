@@ -238,7 +238,7 @@ const AppHeaderDropdown = () => {
           <CIcon icon={cilSettings} className="me-2" />
           Settings
         </CDropdownItem>
-        <CDropdownItem href="#">
+        {/* <CDropdownItem href="#">
           <CIcon icon={cilCreditCard} className="me-2" />
           Payments
           <CBadge color="secondary" className="ms-2">
@@ -252,7 +252,7 @@ const AppHeaderDropdown = () => {
             42
           </CBadge>
         </CDropdownItem>
-        <CDropdownDivider />
+        <CDropdownDivider /> */}
         <CDropdownItem onClick={handleLogout}>
           <CIcon icon={cilLockLocked} className="me-2" />
           Log Out

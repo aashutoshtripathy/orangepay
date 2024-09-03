@@ -143,7 +143,7 @@ const DataTableComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/fetch_data_rejected'); 
+        const response = await axios.get('/fetch_data_rejected');
         const result = response.data.data || []; // Access the data array from the nested data object
         setData(result);
       } catch (error) {
@@ -157,26 +157,50 @@ const DataTableComponent = () => {
   }, []);
 
   // Handle Accept Fund Request
-const handleAccept = async (row) => {
-  try {
-    const response = await axios.patch(`/users/${row._id}/approve`);
+  const handleAccept = async (row) => {
+    try {
+      const response = await axios.patch(`/users/${row._id}/approve`);
 
-    if (response.status === 200) {  // Check if the response is successful
-      setData((prevData) => prevData.filter((item) => item._id !== row._id));
+      if (response.status === 200) {  // Check if the response is successful
+        setData((prevData) => prevData.filter((item) => item._id !== row._id));
+      }
+    } catch (error) {
+      console.error("Error approving fund request", error);
     }
-  } catch (error) {
-    console.error("Error approving fund request", error);
-  }
-};
-
-
-
-
-
-  const handleDownload = (row) => {
-    console.log('Downloading file for:', row);
-    // Implement download logic here
   };
+
+
+
+
+  const handleDownload = async (row) => {
+    try {
+      // Use the Aadhar number from the row object to request the ZIP file
+      const response = await axios.get(`/download-images/${row.aadharNumber}`, {
+        responseType: 'blob', // Important for binary response type (like a ZIP file)
+      });
+  
+      // Create a URL for the file blob
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      
+      // Create a link element and set the URL to download
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `photos_${row.aadharNumber}.zip`); // Use Aadhar number for file name
+  
+      // Append the link to the body and trigger the click
+      document.body.appendChild(link);
+      link.click();
+  
+      // Clean up
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading file', error);
+    }
+  };
+
+
+
+
 
   const handleSearch = () => {
     // Search logic is already implemented with the filter, just trigger re-render
@@ -184,9 +208,8 @@ const handleAccept = async (row) => {
   };
 
   const columns = [
-    { name: 'ID', selector: '_id', sortable: true },
     { name: 'Name', selector: 'name', sortable: true },
-    { name: 'Father or Husband Name', selector: 'fatherorHusbandName', sortable: true },
+    { name: 'Father or Husband Name', selector: 'fatherOrHusbandName', sortable: true },
     { name: 'Date Of Birth', selector: 'dob', sortable: true },
     { name: 'Aadhar No.', selector: 'aadharNumber', sortable: true },
     { name: 'Pan No.', selector: 'panNumber', sortable: true },
@@ -207,15 +230,15 @@ const handleAccept = async (row) => {
       name: 'Actions',
       cell: (row) => (
         <div className="button-containerr">
-          <button 
-            className="button-search" 
+          <button
+            className="button-search"
             onClick={() => handleAccept(row)}
           >
             <FontAwesomeIcon icon={faCheckCircle} /> Accept
           </button>
-          
-          <button 
-            className="button-download" 
+
+          <button
+            className="button-download"
             onClick={() => handleDownload(row)}
           >
             <FontAwesomeIcon icon={faDownload} /> Download File
@@ -225,8 +248,8 @@ const handleAccept = async (row) => {
     },
   ];
 
-  const filteredItems = data.filter(item => 
-    item._id && item._id .toLowerCase().includes(filterText.toLowerCase())
+  const filteredItems = data.filter(
+    item => item.name && item.name.toLowerCase().includes(filterText.toLowerCase())
   );
 
   if (loading) {
@@ -246,27 +269,27 @@ const handleAccept = async (row) => {
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
-        <button 
-          className="button-search" 
+        <button
+          className="button-search"
           onClick={handleSearch}
         >
           <FontAwesomeIcon icon={faSearch} /> Search
         </button>
-        <button 
-          className="button-download" 
+        <button
+          className="button-download"
           onClick={() => downloadPDF(data)}
         >
           <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
-        <button 
-          className="button-download-excel" 
+        <button
+          className="button-download-excel"
           onClick={() => downloadExcel(data)}
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
       </div>
       <DataTable
-        title="My Data Table"
+        title="Rejected User"
         columns={columns}
         data={filteredItems}
         pagination

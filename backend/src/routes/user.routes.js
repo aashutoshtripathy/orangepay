@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteUser, fetchData, fetchWalletBalance,fetchData_reject, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser, user , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages } from "../controller/user.controller.js";
+import { deleteUser, fetchData, fetchWalletBalance,fetchData_reject, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser, user , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile } from "../controller/user.controller.js";
 
 
 const router = Router();
@@ -14,6 +14,7 @@ router.route("/fundrequests").get(fetchFundRequests)
 router.route("/fetchUserList").get(fetchUserList)
 router.route("/download-images/:aadharNumber").get(downloadUserImages)
 router.route("/fetchUserById/:id").get(fetchUserById)
+router.route("/updateProfile/:id").put(updateProfile)
 router.route("/fundrequests/:id/approve").patch(approveFundRequest)
 router.route("/fundrequests/:id/reject").patch(rejectFundRequest)
 router.route("/users/:id/approve").patch(approveUserRequest)

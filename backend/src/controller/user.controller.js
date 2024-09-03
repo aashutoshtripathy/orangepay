@@ -115,6 +115,73 @@ const generateRandomPassword = (length = 10) => {
 
 
 
+const updateProfile = asyncHandler(async (req, res) => {
+  upload(req, res, async (err) => {
+    const  userId  = req.params.id; // Assuming userId is passed as a parameter in the request
+    console.log(userId)
+
+
+      if (err) {
+          return res.status(400).json(new ApiError(400, "File upload failed"));
+      }
+
+      const {
+          name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+          gender, maritalStatus, education, address, salaryBasis, email, division,
+          subDivision, section, sectionType, ifsc, district, pincode, bank, accountno,
+      } = req.body;
+      console.log(req.body)
+
+
+      try {
+          // Find the existing user by ID
+          const user = await Register.findById(userId);
+          if (!user) {
+              throw new ApiError(404, "User not found");
+          }
+
+          // Update user fields
+          user.name = name || user.name;
+          user.fatherOrHusbandName = fatherOrHusbandName || user.fatherOrHusbandName;
+          user.dob = dob || user.dob;
+          user.aadharNumber = aadharNumber || user.aadharNumber;
+          user.panNumber = panNumber || user.panNumber;
+          user.mobileNumber = mobileNumber || user.mobileNumber;
+          user.gender = gender || user.gender;
+          user.maritalStatus = maritalStatus || user.maritalStatus;
+          user.education = education || user.education;
+          user.address = address || user.address;
+          user.salaryBasis = salaryBasis || user.salaryBasis;
+          user.email = email || user.email;
+          user.division = division || user.division;
+          user.subDivision = subDivision || user.subDivision;
+          user.section = section || user.section;
+          user.sectionType = sectionType || user.sectionType;
+          user.ifsc = ifsc || user.ifsc;
+          user.district = district || user.district;
+          user.pincode = pincode || user.pincode;
+          user.bank = bank || user.bank;
+          user.accountno = accountno || user.accountno;
+
+
+          // Save the updated user
+          await user.save();
+
+          // Send success response
+          return res.status(200).json(
+              new ApiResponse(200, user, "User updated successfully")
+          );
+
+      } catch (error) {
+          // Handle errors
+          return res.status(error.statusCode || 500).json(new ApiError(error.statusCode || 500, error.message));
+      }
+  });
+});
+
+
+
+
 
 
 const registeredUser = asyncHandler(async (req, res) => {
@@ -1106,5 +1173,5 @@ const fetchUserById = asyncHandler(async (req, res) => {
     }
   });
 
-export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages };
+export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile };
 

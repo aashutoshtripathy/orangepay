@@ -31,107 +31,159 @@ const customStyles = {
 
 // Function to generate and download PDF
 const downloadPDF = (data) => {
-  const doc = new jsPDF();
+  const doc = new jsPDF({
+    orientation: 'p', // Portrait mode
+    unit: 'mm',
+    format: 'a4' // A4 paper size
+  });
 
-  // Set up margins and title
   const pageWidth = doc.internal.pageSize.getWidth();
-  const title = "Table Data";
+  const title = "Fund Reports";
   const titleXPos = pageWidth / 2;
 
-  doc.setFontSize(18);
+  doc.setFontSize(16);
   doc.text(title, titleXPos, 15, { align: 'center' });
 
   doc.setFontSize(10);
   doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
 
-  // Define the columns and their widths
   const columns = [
-    { header: 'ID', dataKey: '_id' },
-    { header: 'Name', dataKey: 'name' },
-    { header: 'Father/Husband Name', dataKey: 'fatherorHusbandName' },
-    { header: 'DOB', dataKey: 'dob' },
-    { header: 'Aadhar No.', dataKey: 'aadharNumber' },
-    { header: 'Pan No.', dataKey: 'panNumber' },
-    { header: 'Mobile No.', dataKey: 'mobileNumber' },
-    { header: 'Gender', dataKey: 'gender' },
-    { header: 'Marital Status', dataKey: 'maritalStatus' },
-    { header: 'Education', dataKey: 'education' },
-    { header: 'Address', dataKey: 'address' },
-    { header: 'Job Type', dataKey: 'salaryBasis' },
-    { header: 'Email', dataKey: 'email' },
-    { header: 'Division', dataKey: 'division' },
-    { header: 'Sub-Division', dataKey: 'subDivision' },
-    { header: 'Section', dataKey: 'section' },
-    { header: 'Section Type', dataKey: 'sectionType' },
+    { header: 'User ID', dataKey: 'userId' },
+    { header: 'Fund Amount', dataKey: 'fundAmount' },
+    { header: 'Bank Reference', dataKey: 'bankReference' },
+    { header: 'Payment Method', dataKey: 'paymentMethod' },
+    { header: 'Bank Name', dataKey: 'bankName' },
+    { header: 'Status', dataKey: 'status' },
     { header: 'Created At', dataKey: 'createdAt' },
     { header: 'Updated At', dataKey: 'updatedAt' },
   ];
 
   const rows = data.map(row => ({
-    _id: row._id,
-    name: row.name,
-    fatherorHusbandName: row.fatherorHusbandName,
-    dob: row.dob,
-    aadharNumber: row.aadharNumber,
-    panNumber: row.panNumber,
-    mobileNumber: row.mobileNumber,
-    gender: row.gender,
-    maritalStatus: row.maritalStatus,
-    education: row.education,
-    address: row.address,
-    salaryBasis: row.salaryBasis,
-    email: row.email,
-    division: row.division,
-    subDivision: row.subDivision,
-    section: row.section,
-    sectionType: row.sectionType,
+    userId: row.uniqueId,
+    fundAmount: row.fundAmount,
+    bankReference: row.bankReference,
+    paymentMethod: row.paymentMethod,
+    bankName: row.bankName,
+    status: row.status,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   }));
 
   // Auto table options
   doc.autoTable({
-    startY: 30, // Starting y position
-    head: columns.map(col => col.header), // Table headers
+    startY: 30,
+    head: [columns.map(col => col.header)], // Table headers
     body: rows.map(row => columns.map(col => row[col.dataKey])), // Table data
-    margin: { top: 30 }, // Top margin to align with title
+    margin: { top: 30, bottom: 10 }, // Adjust bottom margin for page footer
     styles: {
-      fontSize: 8,
-      cellPadding: 3,
+      fontSize: 7, // Adjust font size
+      cellPadding: 1, // Reduce cell padding
       overflow: 'linebreak',
-      halign: 'left', // Horizontal alignment
-      valign: 'middle', // Vertical alignment
+      halign: 'left',
+      valign: 'middle',
     },
     headStyles: {
-      fillColor: [52, 58, 64], // Dark gray background
-      textColor: [255, 255, 255], // White text
+      fillColor: [52, 58, 64],
+      textColor: [255, 255, 255],
       fontStyle: 'bold',
     },
     alternateRowStyles: {
-      fillColor: [220, 220, 220], // Light gray alternating row background
+      fillColor: [220, 220, 220],
     },
     columnStyles: {
-      0: { cellWidth: 'auto' }, // Adjust column width automatically
-      1: { cellWidth: 'auto' }, // Adjust column width automatically
+      0: { cellWidth: 20 }, // Adjust column widths
+      1: { cellWidth: 20 },
+      2: { cellWidth: 25 },
+      3: { cellWidth: 30 },
+      4: { cellWidth: 30 },
+      5: { cellWidth: 20 },
+      6: { cellWidth: 25 },
+      7: { cellWidth: 25 },
     },
     didDrawPage: (data) => {
-      // Add page number at the bottom
       const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(10);
+      doc.setFontSize(8);
       doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
     }
   });
 
   // Download the PDF
-  doc.save('table_data.pdf');
+  doc.save('fund_reports.pdf');
 };
 
-// Function to generate and download Excel
+
+
+
+
 const downloadExcel = (data) => {
-  const ws = XLSX.utils.json_to_sheet(data); // Convert JSON data to sheet
-  const wb = XLSX.utils.book_new(); // Create a new workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data"); // Append sheet to workbook
-  XLSX.writeFile(wb, 'table_data.xlsx'); // Write and download Excel file
+  // Create a new workbook
+  const wb = XLSX.utils.book_new();
+
+  // Define headers and data
+  const headers = [
+    "User ID",
+    "Fund Amount",
+    "Bank Reference",
+    "Payment Method",
+    "Bank Name",
+    "Status",
+    "Created At",
+    "Updated At"
+  ];
+
+  // Convert JSON data to sheet
+  const wsData = data.map(row => ({
+    "User ID": row.uniqueId,
+    "Fund Amount": row.fundAmount,
+    "Bank Reference": row.bankReference,
+    "Payment Method": row.paymentMethod,
+    "Bank Name": row.bankName,
+    "Status": row.status,
+    "Created At": row.createdAt,
+    "Updated At": row.updatedAt,
+  }));
+
+  // Create a worksheet
+  const ws = XLSX.utils.json_to_sheet(wsData, { header: headers });
+
+  // Define column widths manually
+  const columnWidths = [
+    { wch: 15 },  // User ID
+    { wch: 12 },  // Fund Amount
+    { wch: 25 },  // Bank Reference
+    { wch: 20 },  // Payment Method
+    { wch: 20 },  // Bank Name
+    { wch: 10 },  // Status
+    { wch: 20 },  // Created At
+    { wch: 20 }   // Updated At
+  ];
+
+  // Apply column widths to the worksheet
+  ws['!cols'] = columnWidths;
+
+  // Append sheet to workbook
+  XLSX.utils.book_append_sheet(wb, ws, "Fund Reports");
+
+  // Convert workbook to binary format
+  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+  // Create a Blob object from the binary data
+  function s2ab(s) {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
+  }
+
+  // Create and trigger the download
+  const blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fund_reports.xlsx'; // File name
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 };
 
 const DataTableComponent = () => {
@@ -143,37 +195,13 @@ const DataTableComponent = () => {
 
 
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       // Fetch user details first to get the wallet unique ID
-  //       const userResponse = await axios.get(`/user-details/${userId}`); // Assume an endpoint to fetch user details
-  //       const walletUniqueId = userResponse.data.user.wallet.uniqueId; // Extract the wallet unique ID from the response
-  
-  //       // Now use the walletUniqueId to fetch the fund request data
-  //       const response = await axios.get(`/fund-request/${walletUniqueId}`);
-  //       const result = response.data.fundRequest || []; // Access the data array from the response
-  //       setData(result);
-  //     } catch (error) {
-  //       setError(error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  
-  //   if (userId) { // Check if userId is available before making the request
-  //     fetchData();
-  //   } else {
-  //     setError("User ID not found.");
-  //     setLoading(false);
-  //   }
-  // }, [userId]);
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/fund-request/${userId}`); 
-        const result = response.data.fundRequest || []; // Access the data array from the nested data object
+        const result = response.data.fundRequest || []; 
         setData(result);
       } catch (error) {
         setError(error);
@@ -189,19 +217,10 @@ const DataTableComponent = () => {
 
  
 
-  const handleReject = (row) => {
-    console.log('Rejected:', row);
-    setData(prevData => prevData.filter(item => item._id !== row._id));
-    // Implement reject logic here
-  };
 
-  const handleDownload = (row) => {
-    console.log('Downloading file for:', row);
-    // Implement download logic here
-  };
+ 
 
   const handleSearch = () => {
-    // Search logic is already implemented with the filter, just trigger re-render
     setFilterText(filterText);
   };
 
@@ -218,7 +237,7 @@ const DataTableComponent = () => {
   ];
 
   const filteredItems = data.filter(item => 
-    item.userId && item.userId.toLowerCase().includes(filterText.toLowerCase())
+    item.status && item.status.toLowerCase().includes(filterText.toLowerCase())
   );
 
   if (loading) {
@@ -234,7 +253,7 @@ const DataTableComponent = () => {
       <div className="button-container">
         <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search by status..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
@@ -258,7 +277,7 @@ const DataTableComponent = () => {
         </button>
       </div>
       <DataTable
-        title="My Data Table"
+        title="Fund Reports"
         columns={columns}
         data={filteredItems}
         pagination

@@ -31,108 +31,221 @@ const customStyles = {
 
 // Function to generate and download PDF
 const downloadPDF = (data) => {
-  const doc = new jsPDF();
+  // Create a new PDF document with landscape orientation
+  const doc = new jsPDF({ orientation: 'landscape' });
 
-  // Set up margins and title
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const title = "Table Data";
-  const titleXPos = pageWidth / 2;
-
-  doc.setFontSize(18);
-  doc.text(title, titleXPos, 15, { align: 'center' });
-
-  doc.setFontSize(10);
-  doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
-
-  // Define the columns and their widths
+  // Define table columns and data
   const columns = [
-    { header: 'ID', dataKey: '_id' },
+    { header: 'User ID', dataKey: 'userId' },
     { header: 'Name', dataKey: 'name' },
-    { header: 'Father/Husband Name', dataKey: 'fatherorHusbandName' },
-    { header: 'DOB', dataKey: 'dob' },
-    { header: 'Aadhar No.', dataKey: 'aadharNumber' },
-    { header: 'Pan No.', dataKey: 'panNumber' },
-    { header: 'Mobile No.', dataKey: 'mobileNumber' },
+    { header: 'Father/Husband Name', dataKey: 'fatherOrHusbandName' },
+    { header: 'Date of Birth', dataKey: 'dob' },
+    { header: 'Aadhar Number', dataKey: 'aadharNumber' },
+    { header: 'PAN Number', dataKey: 'panNumber' },
+    { header: 'Mobile Number', dataKey: 'mobileNumber' },
     { header: 'Gender', dataKey: 'gender' },
     { header: 'Marital Status', dataKey: 'maritalStatus' },
     { header: 'Education', dataKey: 'education' },
     { header: 'Address', dataKey: 'address' },
+    { header: 'District', dataKey: 'district' },
+    { header: 'Pin Code', dataKey: 'pincode' },
+    { header: 'Bank Name', dataKey: 'bank' },
+    { header: 'Account no', dataKey: 'accountno' },
+    { header: 'Ifsc Code', dataKey: 'ifsc' },
     { header: 'Job Type', dataKey: 'salaryBasis' },
     { header: 'Email', dataKey: 'email' },
     { header: 'Division', dataKey: 'division' },
     { header: 'Sub-Division', dataKey: 'subDivision' },
     { header: 'Section', dataKey: 'section' },
-    { header: 'Section Type', dataKey: 'sectionType' },
-    { header: 'Created At', dataKey: 'createdAt' },
-    { header: 'Updated At', dataKey: 'updatedAt' },
+    { header: 'Password', dataKey: 'password' },
+    { header: 'Section Type', dataKey: 'sectionType' }
   ];
 
-  const rows = data.map(row => ({
-    _id: row._id,
-    name: row.name,
-    fatherorHusbandName: row.fatherorHusbandName,
-    dob: row.dob,
-    aadharNumber: row.aadharNumber,
-    panNumber: row.panNumber,
-    mobileNumber: row.mobileNumber,
-    gender: row.gender,
-    maritalStatus: row.maritalStatus,
-    education: row.education,
-    address: row.address,
-    salaryBasis: row.salaryBasis,
-    email: row.email,
-    division: row.division,
-    subDivision: row.subDivision,
-    section: row.section,
-    sectionType: row.sectionType,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+  const rows = data.map(item => ({
+    userId: item.userId,
+    name: item.name,
+    fatherOrHusbandName: item.fatherOrHusbandName,
+    dob: item.dob,
+    aadharNumber: item.aadharNumber,
+    panNumber: item.panNumber,
+    mobileNumber: item.mobileNumber,
+    gender: item.gender,
+    maritalStatus: item.maritalStatus,
+    education: item.education,
+    address: item.address,
+    district: item.district,
+    pincode: item.pincode,
+    bank: item.bank,
+    accountno: item.accountno,
+    ifsc: item.ifsc,
+    salaryBasis: item.salaryBasis,
+    email: item.email,
+    division: item.division,
+    subDivision: item.subDivision,
+    section: item.section,
+    password: item.password,
+    sectionType: item.sectionType
   }));
 
-  // Auto table options
+  // Add table to the PDF with landscape orientation
   doc.autoTable({
-    startY: 30, // Starting y position
-    head: columns.map(col => col.header), // Table headers
-    body: rows.map(row => columns.map(col => row[col.dataKey])), // Table data
-    margin: { top: 30 }, // Top margin to align with title
+    columns: columns,
+    body: rows,
+    startY: 10,
+    margin: { top: 1, bottom: 1, left: 1, right: 1 }, // Tighter margins
     styles: {
-      fontSize: 8,
-      cellPadding: 3,
+      fontSize: 4,   // Further reduce font size
+      cellPadding: 0.5, // Reduce cell padding
       overflow: 'linebreak',
-      halign: 'left', // Horizontal alignment
-      valign: 'middle', // Vertical alignment
-    },
-    headStyles: {
-      fillColor: [52, 58, 64], // Dark gray background
-      textColor: [255, 255, 255], // White text
-      fontStyle: 'bold',
-    },
-    alternateRowStyles: {
-      fillColor: [220, 220, 220], // Light gray alternating row background
     },
     columnStyles: {
-      0: { cellWidth: 'auto' }, // Adjust column width automatically
-      1: { cellWidth: 'auto' }, // Adjust column width automatically
+      name: { cellWidth: 10 },
+      fatherOrHusbandName: { cellWidth: 15 },
+      dob: { cellWidth: 10 },
+      aadharNumber: { cellWidth: 14 },
+      panNumber: { cellWidth: 14 },
+      mobileNumber: { cellWidth: 14 },
+      gender: { cellWidth: 8 },
+      maritalStatus: { cellWidth: 10 },
+      education: { cellWidth: 15 },
+      address: { cellWidth: 20 },
+      district: { cellWidth: 12 },
+      pincode: { cellWidth: 8 },
+      bank: { cellWidth: 14 },
+      accountno: { cellWidth: 14 },
+      ifsc: { cellWidth: 10 },
+      salaryBasis: { cellWidth: 10 },
+      email: { cellWidth: 15 },
+      division: { cellWidth: 12 },
+      subDivision: { cellWidth: 12 },
+      section: { cellWidth: 12 },
+      sectionType: { cellWidth: 12 }
     },
-    didDrawPage: (data) => {
-      // Add page number at the bottom
-      const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(10);
-      doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
-    }
+    pageBreak: 'auto',
   });
 
-  // Download the PDF
-  doc.save('table_data.pdf');
+  // Save the PDF
+  doc.save('users.pdf');
 };
 
-// Function to generate and download Excel
 const downloadExcel = (data) => {
-  const ws = XLSX.utils.json_to_sheet(data); // Convert JSON data to sheet
-  const wb = XLSX.utils.book_new(); // Create a new workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data"); // Append sheet to workbook
-  XLSX.writeFile(wb, 'table_data.xlsx'); // Write and download Excel file
+  // Define headers and their corresponding keys
+  const headers = [
+    "Name",
+    "Father/Husband Name",
+    "Date of Birth",
+    "Aadhar Number",
+    "PAN Number",
+    "Mobile Number",
+    "Gender",
+    "Marital Status",
+    "Education",
+    "Address",
+    "District",
+    "Pin Code",
+    "Bank Name",
+    "Account no",
+    "Ifsc Code",
+    "Job Type",
+    "Email",
+    "Division",
+    "Sub-Division",
+    "Section",
+    "Section Type",
+    "Created At",
+    "Updated At"
+  ];
+
+  // Convert JSON data to sheet
+  const wsData = data.map(row => ({
+    "Name": row.name,
+    "Father/Husband Name": row.fatherOrHusbandName,
+    "Date of Birth": row.dob,
+    "Aadhar Number": row.aadharNumber,
+    "PAN Number": row.panNumber,
+    "Mobile Number": row.mobileNumber,
+    "Gender": row.gender,
+    "Marital Status": row.maritalStatus,
+    "Education": row.education,
+    "Address": row.address,
+    "District": row.district,
+    "Pin Code": row.pincode,
+    "Bank Name": row.bank,
+    "Account no": row.accountno,
+    "Ifsc Code": row.ifsc,
+    "Job Type": row.salaryBasis,
+    "Email": row.email,
+    "Division": row.division,
+    "Sub-Division": row.subDivision,
+    "Section": row.section,
+    "Section Type": row.sectionType,
+    "Created At": row.createdAt,
+    "Updated At": row.updatedAt,
+  }));
+
+  // Create a worksheet
+  const ws = XLSX.utils.json_to_sheet(wsData, { header: headers });
+
+  // Define column widths manually
+  const columnWidths = [
+    { wch: 15 },  // User ID
+    { wch: 20 },  // Name
+    { wch: 25 },  // Father/Husband Name
+    { wch: 20 },  // Date of Birth
+    { wch: 15 },  // Aadhar Number
+    { wch: 15 },  // PAN Number
+    { wch: 15 },  // Mobile Number
+    { wch: 10 },  // Gender
+    { wch: 15 },  // Marital Status
+    { wch: 20 },  // Education
+    { wch: 30 },  // Address
+    { wch: 20 },  // District
+    { wch: 10 },  // Pin Code
+    { wch: 20 },  // Bank Name
+    { wch: 20 },  // Account no
+    { wch: 15 },  // Ifsc Code
+    { wch: 15 },  // Job Type
+    { wch: 25 },  // Email
+    { wch: 20 },  // Division
+    { wch: 20 },  // Sub-Division
+    { wch: 20 },  // Section
+    { wch: 20 },  // Password
+    { wch: 20 },  // Section Type
+    { wch: 20 },  // Created At
+    { wch: 20 }   // Updated At
+  ];
+
+  // Apply column widths to the worksheet
+  ws['!cols'] = columnWidths;
+
+  // Create a new workbook
+  const wb = XLSX.utils.book_new();
+
+  // Append sheet to workbook
+  XLSX.utils.book_append_sheet(wb, ws, "User Data");
+
+  // Convert workbook to binary format
+  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+  // Create a Blob object from the binary data
+  function s2ab(s) {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
+  }
+
+  // Create and trigger the download
+  const blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'requested_user_data.xlsx'; // File name
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 };
+
 
 const DataTableComponent = () => {
   const [data, setData] = useState([]);
@@ -216,7 +329,6 @@ const handleDownload = async (row) => {
   };
 
   const columns = [
-    { name: 'ID', selector: '_id', sortable: true },
     { name: 'Name', selector: 'name', sortable: true },
     { name: 'Father or Husband Name', selector: 'fatherOrHusbandName', sortable: true },
     { name: 'Date Of Birth', selector: 'dob', sortable: true },
@@ -227,6 +339,11 @@ const handleDownload = async (row) => {
     { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
     { name: 'Education', selector: 'education', sortable: true },
     { name: 'Address', selector: 'address', sortable: true },
+    { name: 'District', selector: 'district', sortable: true },
+    { name: 'Pin Code', selector: 'pincode', sortable: true },
+    { name: 'Bank Name', selector: 'bank', sortable: true },
+    { name: 'Account no', selector: 'accountno', sortable: true },
+    { name: 'Ifsc Code', selector: 'ifsc', sortable: true },
     { name: 'Job Type', selector: 'salaryBasis', sortable: true },
     { name: 'Email', selector: 'email', sortable: true },
     { name: 'Division', selector: 'division', sortable: true },
@@ -262,8 +379,8 @@ const handleDownload = async (row) => {
     },
   ];
 
-  const filteredItems = data.filter(item => 
-    item.name && item.name.toLowerCase().includes(filterText.toLowerCase())
+  const filteredItems = data.filter(item =>
+    item.name.toLowerCase().includes(filterText.toLowerCase())
   );
 
   if (loading) {
@@ -277,9 +394,9 @@ const handleDownload = async (row) => {
   return (
     <div>
       <div className="button-container">
-        <input
+      <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search by name"
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
@@ -303,7 +420,7 @@ const handleDownload = async (row) => {
         </button>
       </div>
       <DataTable
-        title="My Data Table"
+        title="Requested Users"
         columns={columns}
         data={filteredItems}
         pagination

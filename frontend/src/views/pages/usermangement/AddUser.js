@@ -604,8 +604,8 @@ const AddUser = () => {
                           <CFormCheck
                             variant="inline"
                             type="radio"
-                            name="maritalMarried"
-                            id="genderFemale"
+                            name="maritalStatus"
+                            id="maritalMarried"
                             label="Married"
                             value="Married"
                             checked={formData.maritalStatus === "Married"}

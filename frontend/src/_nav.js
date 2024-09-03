@@ -29,8 +29,8 @@ export const adminNavItems = [
   {
     component: CNavItem,  
     name: 'OrangePay',
-    // to: `/dashboard/${_id}`,
-    to:`/dashboard`,
+    to: `/dashboard/${userId}`,
+    // to:`/dashboard`,
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
   {
@@ -87,8 +87,8 @@ export const distributorNavItems = [
   {
     component: CNavItem,  
     name: 'OrangePay',
-    // to: '/dashboard',
-     to: '/dashboard',
+    to: `/dashboard/${userId}`,
+    //  to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
   {
