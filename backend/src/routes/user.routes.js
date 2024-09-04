@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteUser, fetchData, fetchWalletBalance,fetchData_reject, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser, user , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile } from "../controller/user.controller.js";
+import { deleteUser, fetchData, fetchWalletBalance,fetchData_reject, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser, user , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser } from "../controller/user.controller.js";
 
 
 const router = Router();
@@ -22,6 +22,8 @@ router.route("/users/:id/reject").patch(rejectUserRequest)
 router.route("/registered/:id").post(registeredUser)
 router.route("/fund-request").post(fundRequest)
 router.route("/submit_form").post(user)
+router.route("/block/:id").post(blockUser)
+router.route("/unblock/:id").post(unblockUser)
 router.route("/fetch_data").get(fetchData)
 router.route("/fetch_data_rejected").get(fetchData_reject)
 router.route("/update_data/:id").put(updateUser)

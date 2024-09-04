@@ -75,6 +75,10 @@ const registerSchema = new Schema({
     type: String, 
     trim: true 
   },
+  consumerId: { 
+    type: String, 
+    trim: true 
+  },
   sectionType: { 
     type: String, 
     trim: true 

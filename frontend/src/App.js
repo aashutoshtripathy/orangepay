@@ -80,10 +80,17 @@ const App = () => {
 
         <Routes>
           {/* Dynamically render routes from router.js */}
-          <Route exact path="/" name="Login Page" element={<Login />} />
+          {/* <Route exact path="/" name="Login Page" element={<Login />} />
           <Route exact path="/login" name="Login Page" element={<Login />} />
           <Route exact path="/register" name="Register Page" element={<Register />} />
-          <Route exact path="/forgetpassword" name="Register Page" element={<ForgetPassword />} />
+          <Route exact path="/forgetpassword" name="Register Page" element={<ForgetPassword />} /> */}
+           {!isAuthenticated && (
+            <>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgetpassword" element={<ForgetPassword />} />
+            </>
+          )}
           <Route element={<PrivateRouter isAuthenticated={isAuthenticated} />}>
             <Route path="/" element={<DefaultLayout />}>
               {routes.map((route, idx) => (

@@ -69,7 +69,7 @@ const registerUser = asyncHandler(async (req, res) => {
         const {
             name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
             gender, maritalStatus, education, address, salaryBasis, email, division,
-            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,
+            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,consumerId,
         } = req.body;
         console.log(req.body)
         // Check for existing user
@@ -85,7 +85,7 @@ const registerUser = asyncHandler(async (req, res) => {
         const user = await Register.create({
             name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
             gender, maritalStatus, education, address, salaryBasis, email, division,
-            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,
+            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,consumerId,
             photograph: req.files['photograph'] ? req.files['photograph'][0].path : null,
             aadharCard: req.files['aadharCard'] ? req.files['aadharCard'][0].path : null,
             panCard: req.files['panCard'] ? req.files['panCard'][0].path : null,
@@ -351,6 +351,66 @@ const registerTransaction = asyncHandler(async (req, res) => {
 
 
 
+// Function to block a user
+const blockUser = asyncHandler(async (req, res) => {
+  const { userId } = req.body; // Assuming user ID is sent in the request body
+
+  try {
+      // Find the user and update their status to 'Blocked'
+      const user = await Register.findOneAndUpdate(
+          { userId },
+          { isBlocked: true, status: 'Blocked' },
+          { new: true } // Return the updated document
+      );
+
+      // If user not found
+      if (!user) {
+          return res.status(404).json(new ApiError(404, 'User not found'));
+      }
+
+      // Return a successful response
+      return res.status(200).json(
+          new ApiResponse(200, user, "User blocked successfully")
+      );
+  } catch (error) {
+      // Handle errors and send a structured error response
+      return res.status(400).json(
+          new ApiError(400, error.message)
+      );
+  }
+});
+
+// Function to unblock a user
+const unblockUser = asyncHandler(async (req, res) => {
+  const { userId } = req.body; // Assuming user ID is sent in the request body
+
+  try {
+      // Find the user and update their status to 'Approved'
+      const user = await Register.findOneAndUpdate(
+          { userId },
+          { isBlocked: false, status: 'Approved' },
+          { new: true } // Return the updated document
+      );
+
+      // If user not found
+      if (!user) {
+          return res.status(404).json(new ApiError(404, 'User not found'));
+      }
+
+      // Return a successful response
+      return res.status(200).json(
+          new ApiResponse(200, user, "User unblocked successfully")
+      );
+  } catch (error) {
+      // Handle errors and send a structured error response
+      return res.status(400).json(
+          new ApiError(400, error.message)
+      );
+  }
+});
+
+
+
 
 
 const fetchWalletBalance = asyncHandler(async (req, res) => {
@@ -386,11 +446,11 @@ const fetchWalletBalance = asyncHandler(async (req, res) => {
 
 
 const fundRequest = asyncHandler(async (req, res) => {
-    const { userId, fundAmount, bankReference, paymentMethod, bankName } = req.body;
+    const { userId, fundAmount, bankReference, paymentMethod, datePayment, bankName } = req.body;
 
     try {
         // Validate required fields
-        if (!userId || !fundAmount || !bankReference || !paymentMethod) {
+        if (!userId || !fundAmount || !paymentMethod) {
             throw new Error('All fields are required');
         }
 
@@ -409,6 +469,7 @@ const fundRequest = asyncHandler(async (req, res) => {
             bankReference,
             paymentMethod,
             bankName,
+            datePayment,
         });
 
         // Save the document to the database
@@ -1173,5 +1234,5 @@ const fetchUserById = asyncHandler(async (req, res) => {
     }
   });
 
-export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile };
+export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser };
 
