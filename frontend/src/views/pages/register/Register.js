@@ -261,32 +261,16 @@ const Register = () => {
       formErrors.aadharNumber = "Aadhar Number must be 12 digits long";
     }
 
-    // PAN Number validation
     if (!formData.panNumber) {
       formErrors.panNumber = "PAN Number is required";
     } else if (formData.panNumber.length !== 10) {
-      formErrors.panNumber = "Pan Number Must be 10 charecters";
+      formErrors.panNumber = "PAN Number must be exactly 10 characters long";
+    } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(formData.panNumber)) {
+      formErrors.panNumber = "PAN Number must follow the format: 5 letters, 4 digits, 1 letter";
     }
+    
 
-    function isValidPAN(pan) {
-      // Regular expression to match the PAN format
-      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-
-      // Check if the input matches the PAN format
-      if (!panRegex.test(pan)) {
-        return false; // Invalid PAN format
-      }
-
-      return true; // Valid PAN format
-    }
-
-    // Example usage
-    const panNumber = "ABCDE1234F";
-    if (isValidPAN(panNumber)) {
-      console.log("PAN number is valid.");
-    } else {
-      console.log("PAN number is invalid.");
-    }
+ 
 
 
     // Mobile Number validation
@@ -347,7 +331,7 @@ const Register = () => {
     // Pincode validation
     if (!formData.pincode) {
       formErrors.pincode = "Pincode is required";
-    } else if (formData.pincode.length < 6) {
+    } else if (formData.pincode.length !== 6) {
       formErrors.pincode = "Pincode must be 6 digits long";
     }
 
@@ -381,7 +365,9 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const uppercasedValue = value.toUpperCase();
+
+    setFormData({ ...formData, [name]: uppercasedValue });
 
 
     // Dynamic options for district and sub-division

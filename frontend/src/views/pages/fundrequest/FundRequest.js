@@ -202,6 +202,7 @@ const DataTableComponent = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/fund-request/${userId}`); 
+        console.log(userId)
         const result = response.data.fundRequest || []; 
         setData(result);
       } catch (error) {

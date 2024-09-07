@@ -46,6 +46,7 @@ import {
   cilUserFemale,
 } from '@coreui/icons'
 import { useParams } from 'react-router-dom';
+import usePreventBackNavigation from '../../components/usePreventBackNavigation ';
 
 
 // import avatar1 from 'src/assets/images/avatars/1.jpg'
@@ -62,6 +63,7 @@ import { setUserRole } from '../../store';
 
 
 const Dashboard = () => {
+  // usePreventBackNavigation(`/dashboard/`);
   // const { user } = response.data.data;
 
   // const { id } = user; 

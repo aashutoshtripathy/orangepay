@@ -17,10 +17,14 @@ import { Wallet } from "../model/Wallet.model.js";
 import { FundRequest } from "../model/FundRequest.model.js";
 import archiver from "archiver";
 import { fileURLToPath } from 'url';
+import { isValidObjectId } from "mongoose";
 // import path from 'path';
 
 // Define __dirname in ES module
 
+
+
+const sessionStore = new Map(); 
 
 
 
@@ -354,13 +358,14 @@ const registerTransaction = asyncHandler(async (req, res) => {
 // Function to block a user
 const blockUser = asyncHandler(async (req, res) => {
   const { userId } = req.body; // Assuming user ID is sent in the request body
+  console.log("id",userId)
 
   try {
       // Find the user and update their status to 'Blocked'
       const user = await Register.findOneAndUpdate(
-          { userId },
-          { isBlocked: true, status: 'Blocked' },
-          { new: true } // Return the updated document
+        { _id: userId },
+        { $set: { isBlocked: true, status: 'Blocked' } },
+        { new: true }
       );
 
       // If user not found
@@ -383,13 +388,15 @@ const blockUser = asyncHandler(async (req, res) => {
 // Function to unblock a user
 const unblockUser = asyncHandler(async (req, res) => {
   const { userId } = req.body; // Assuming user ID is sent in the request body
+  console.log("id",userId)
+
 
   try {
       // Find the user and update their status to 'Approved'
       const user = await Register.findOneAndUpdate(
-          { userId },
-          { isBlocked: false, status: 'Approved' },
-          { new: true } // Return the updated document
+        { _id: userId },
+        { $set: { isBlocked: false, status: 'Approved' } },
+        { new: true }
       );
 
       // If user not found
@@ -649,36 +656,38 @@ const rejectUserRequest = asyncHandler(async (req, res) => {
 
 
 const fetchFundRequest = asyncHandler(async (req, res) => {
-    const { userId } = req.params; // Get the user ID from the request parameters
-    console.log(userId)
-  
-    try {
-      // Find the user by ID
-    //   const user = await Register.findById(userId); 
-    const fundRequests = await FundRequest.find({ userId });
-    console.log(fundRequests)
+  const { userId } = req.params; // Get the user ID from the request parameters
+  console.log('User ID from params:', userId);
+
+  try {
+      // Check if the user exists in the Register collection
+      const user = await Register.findById(userId);
       if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found.' });
+          console.log('User not found for ID:', userId);
+          return res.status(404).json({ success: false, message: 'User not found.' });
       }
-  
-      console.log("User ID: ", user.userId); // Log the userId from the Register collection
-  
+
+      console.log('User ID found:', user._id); // Log the user ID from the Register collection
+
       // Find all fund requests related to this user
-    //   const fundRequests = await FundRequest.find({ userId: userId }); // Query the FundRequest collection by userId
-  
+      const fundRequests = await FundRequest.find({ userId });
+      console.log('Fetched Fund Requests:', fundRequests);
+
       // Check if any fund requests exist
       if (!fundRequests || fundRequests.length === 0) {
-        return res.status(200).json({ success: false, message: 'No fund requests found for this user ID', fundRequest: [] });
+          console.log('No fund requests found for user ID:', userId);
+          return res.status(200).json({ success: false, message: 'No fund requests found for this user ID', fundRequest: [] });
       }
-  
-      console.log("Fund requests: ", fundRequests);
-      return res.status(200).json({ success: true, fundRequest: fundRequests }); // Return the fund requests
-  
-    } catch (error) {
-      console.error("Error fetching fund request:", error);
+
+      // Return the fund requests
+      return res.status(200).json({ success: true, fundRequest: fundRequests });
+
+  } catch (error) {
+      console.error('Error fetching fund request:', error.message);
       return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-  });
+  }
+});
+
   
   
   
@@ -727,6 +736,28 @@ const fetchUserList = asyncHandler(async (req, res) => {
         console.error("Error fetching approved users:", error);
         return res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
+});
+
+
+const blockUserList = asyncHandler(async (req, res) => {
+  try {
+      // Find all users with status 'approved' from the database
+      const fetchUser = await Register.find({ status: 'Blocked' }).exec();
+
+      console.log("Approved Users: ", fetchUser);
+
+      // If no approved users are found, return a message indicating no users found
+      if (fetchUser.length === 0) {
+          return res.status(404).json({ success: false, message: 'No approved users found' });
+      }
+
+      // Return the list of approved users
+      return res.status(200).json({ success: true, fetchUser });
+      
+  } catch (error) {
+      console.error("Error fetching approved users:", error);
+      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 });
 
 
@@ -1059,112 +1090,81 @@ const reports = asyncHandler(async(req,res)  => {
 
 
 const loginUser = asyncHandler(async (req, res) => {
-   try {
-    console.log(req.body)
-     const {username,password} = req.body
- 
-     if (!username || !password) {
-        throw new ApiError(400, "Username and password are required");
-      }
- 
-     const user = await Register.findOne({
-        userId:username,
-     })
-    //      $or: [{username:usernameEmail},{email:usernameEmail}]
-    //  })
-     console.log(user)
-     
- 
-     if (!user) {
-        throw new ApiError(400, "User does not exist");
-      }
-        // console.log(user)
-    //  const isPasswordValid = await bcrypt.compare(password, user.password);
-    // const isPasswordValid = await user.isPasswordCorrect(password);
+  try {
+    const { username, password } = req.body;
 
-    if(user.status !== "Approved"){
-        throw new ApiError(400, "Invalid User");
+    if (!username || !password) {
+      throw new ApiError(400, "Username and password are required");
     }
-     
 
+    const user = await Register.findOne({ userId: username });
+
+    if (!user) {
+      throw new ApiError(400, "User does not exist");
+    }
+
+    if (user.status !== "Approved" || user.isBlocked) {
+      throw new ApiError(400, "User account is Temporarily Blocked");
+    }
+
+    // Check password - Assuming plain text comparison here
     if (user.password !== password) {
-        throw new ApiError(400, "Invalid User Credentials");
-      } 
- 
-  
+      throw new ApiError(400, "Invalid User Credentials");
+    }
 
+    // Save session details
+    req.session.user = { id: user._id, username: user.username, email: user.email };
+    console.log('Session ID:', req.sessionID);
 
-      const accessToken = jwt.sign(
-        { _id: user._id, username: user.username, email: user.email },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
-      );
+    // Generate JWT token
+    const accessToken = jwt.sign(
+      { _id: user._id, username: user.username, email: user.email },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+    );
 
- 
-      return res.status(200).json(
-        new ApiResponse(200, {
-          success: true,
-          message: "User Logged in Successfully",
-          user: {
-            id: user._id, 
-            username: user.username,
-            email: user.email, 
-          },
-          token: accessToken, 
-        })
-      );
-    } catch (error) {
-        console.error("Error in loginUser function:", error); 
-        if (error instanceof ApiError) {
-          return res.status(error.statusCode).json(error); 
-        } else {
-          return res.status(500).json(new ApiError(500, "Internal Server Error"));
-        }
-      }
+    // Set cookies
+    res.cookie('sessionID', req.sessionID, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      path: '/' // Ensure the path is correct
     });
 
-    const user = asyncHandler(async(req,res) => {
-        try {
-            const {empnumber,email,password,status,role,name} = req.body
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      path: '/' // Ensure the path is correct
+    });
 
-            // if(role === "admin"){
-                const user = await User.create({
-                    name,
-                    empnumber,
-                    email,
-                    password,
-                    status,
-                    role
-                })
-            // }else{
-        
-        //     const user = await User.create({
-        //         name,
-        //         empnumber,
-        //         email,
-        //         status,
-        //         role
-        //     })
-        // }
-            return res.status(200).json(new ApiResponse(200,"Form Submitted Successfully"))
-        } catch (error) {
-            return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
-        }
-})
+    // Respond with success
+    return res.status(200).json(
+      new ApiResponse(200, {
+        success: true,
+        message: "User Logged in Successfully",
+        user: {
+          id: user._id, 
+          username: user.username,
+          email: user.email
+        },
+        token: accessToken,
+        session: req.sessionID
+      })
+    );
+  } catch (error) {
+    console.error("Error in loginUser function:", error);
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json(error);
+    } else {
+      return res.status(500).json(new ApiError(500, "Internal Server Error"));
+    }
+  }
+});
 
-// const fetchData = asyncHandler(async(req,res)  => {
-//     try {
-//         const allUser = await User.find({})
-//         // console.log(allUser);
-//         console.log("Fetched users:", allUser);
-//         return res.status(200).json({ success: true, data: allUser });
-//         // return res.status(200).json(new ApiResponse(200,"Form Submitted Successfully"))
-//         // return allUser;
-//     }
-//      catch (error) {
-//         return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
-//     }
-// })
+
+
+
 
 const fetchIdData = asyncHandler(async (req, res) => {
     try {
@@ -1175,6 +1175,54 @@ const fetchIdData = asyncHandler(async (req, res) => {
         res.status(500).json(new ApiError(500, "error", "internal server error"));
     }
 });
+
+
+
+const logoutUser = asyncHandler(async (req, res) => {
+  try {
+    // Log the current session details for debugging
+    console.log('Current session before destroy:', req.sessionID, req.session);
+
+    // Destroy the session
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err);
+        return res.status(500).json({ message: 'Error logging out', error: err.message });
+      }
+
+      // Clear the session cookie
+      res.clearCookie('sessionID', {
+        path: '/', // Ensure this path matches the cookie path
+        httpOnly: true, // Match the httpOnly flag used when setting the cookie
+        secure: process.env.NODE_ENV === 'production', // Ensure this matches the secure flag used when setting the cookie
+        sameSite: 'Strict' // Ensure this matches the sameSite flag used when setting the cookie
+      });
+      // Optionally clear other cookies
+      res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict'
+      });
+
+      console.log('Session and cookies cleared successfully');
+
+      // Send success response
+      res.status(200).json({ message: 'Logged out successfully' });
+    });
+  } catch (error) {
+    console.error('Error logging out:', error);
+    res.status(500).json({ message: 'An error occurred while logging out', error: error.message });
+  }
+});
+
+
+
+
+
+
+
+
+
 
 const updateUser = asyncHandler(async(req,res) => {
     try {
@@ -1234,5 +1282,5 @@ const fetchUserById = asyncHandler(async (req, res) => {
     }
   });
 
-export { registerUser, fetchWalletBalance, registerTransaction , loginUser , reports , user , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser };
+export { registerUser, fetchWalletBalance,blockUserList, registerTransaction , loginUser , reports  , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser };
 

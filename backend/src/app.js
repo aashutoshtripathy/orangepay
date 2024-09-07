@@ -6,6 +6,8 @@ import { registerUser } from "./controller/user.controller.js";
 import path from "path";
 import multer from "multer";
 import { fileURLToPath } from "url";
+import  session  from "express-session";
+import MongoStore from "connect-mongo"
 
 
 
@@ -23,6 +25,17 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(cookieParser())
 app.use(bodyParser.json())
 
+app.use(session({
+  name: 'sessionID', // Name of the session cookie
+  secret: 'your-secret-key', // Secret key to sign the session ID cookie
+  resave: false, // Do not save session if unmodified
+  saveUninitialized: false, // Do not create a session until something is stored
+  cookie: {
+    httpOnly: true, // Prevent JavaScript access to session cookie
+    secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
+    sameSite: 'Strict' // Prevent CSRF attacks
+  }
+  }));
 
 
 import userRouter from "./routes/user.routes.js"

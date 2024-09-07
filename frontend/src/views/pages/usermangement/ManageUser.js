@@ -190,36 +190,45 @@ const DataTableComponent = () => {
   const [filterText, setFilterText] = useState('');
   const userId = localStorage.getItem('userId');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`/fetchUserList`); 
-        const result = response.data.fetchUser || [];
-        setData(result);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+   useEffect(() => {
     fetchData();
-  }, [userId]);
+  }, []);
 
-  const handleBlockUnblock = async (row) => {
+  const fetchData = async () => {
     try {
-      const action = row.isBlocked ? 'unblock' : 'block';
-      const response = await axios.patch(`/users/${row._id}/${action}`);
-      const updatedUser = response.data;
-      setData((prevData) =>
-        prevData.map((item) =>
-          item._id === updatedUser._id ? updatedUser : item
-        )
-      );
+      // Clear any previous error
+      setError(null);
+  
+      const response = await axios.get('/fetchUserList');
+      
+      // Handle response if status is 404
+      if (response.status === 404) {
+        setError(undefined);  // Set error to undefined
+      } else {
+        setData(response.data.fetchUser);
+      }
     } catch (error) {
-      console.error(`Error ${row.isBlocked ? 'unblocking' : 'blocking'} user`, error);
+      setError(error);
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   };
+  
+
+  const handleBlockUnblock = async (row, action) => {
+    try {
+      const url = action === 'block' ? `/block/${row._id}` : `/unblock/${row._id}`;
+      console.log(url)
+      const response = await axios.post(url , { userId: row._id });
+      if (response.status === 200) {
+        fetchData();  // Refresh data after blocking/unblocking
+      }
+    } catch (error) {
+      console.error(`Error ${action}ing user:`, error);
+    }
+  };
+  
 
  
 
@@ -256,16 +265,17 @@ const DataTableComponent = () => {
         <div className="actions-cell">
           <button 
             className={`block-unblock-btn ${row.isBlocked ? 'unblock-btn' : 'block-btn'}`} 
-            onClick={() => handleBlockUnblock(row)}
+            onClick={() => handleBlockUnblock(row, row.isBlocked ? 'unblock' : 'block')}
+
           >
-            {row.isBlocked ? "UnBlock" : "Block"}
+            {row.isBlocked ? "Unblock" : "Block"}
           </button>
         </div>
       ),
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-    }
+    }    
   ];
 
   const filteredItems = data.filter((item) =>
