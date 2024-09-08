@@ -656,36 +656,36 @@ const rejectUserRequest = asyncHandler(async (req, res) => {
 
 
 const fetchFundRequest = asyncHandler(async (req, res) => {
-  const { userId } = req.params; // Get the user ID from the request parameters
-  console.log('User ID from params:', userId);
+    const { userId } = req.params; // Get the user ID from the request parameters
+    console.log('User ID from params:', userId);
+  
+    try {
+        // Check if the user exists in the Register collection
+        const user = await Register.findById(userId);
+        if (!user) {
+            console.log('User not found for ID:', userId);
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
 
-  try {
-      // Check if the user exists in the Register collection
-      const user = await Register.findById(userId);
-      if (!user) {
-          console.log('User not found for ID:', userId);
-          return res.status(404).json({ success: false, message: 'User not found.' });
-      }
+        console.log('User ID found:', user._id); // Log the user ID from the Register collection
 
-      console.log('User ID found:', user._id); // Log the user ID from the Register collection
+        // Find all fund requests related to this user
+        const fundRequests = await FundRequest.find({ userId });
+        console.log('Fetched Fund Requests:', fundRequests);
 
-      // Find all fund requests related to this user
-      const fundRequests = await FundRequest.find({ userId });
-      console.log('Fetched Fund Requests:', fundRequests);
+        // Check if any fund requests exist
+        if (!fundRequests || fundRequests.length === 0) {
+            console.log('No fund requests found for user ID:', userId);
+            return res.status(200).json({ success: false, message: 'No fund requests found for this user ID', fundRequest: [] });
+        }
 
-      // Check if any fund requests exist
-      if (!fundRequests || fundRequests.length === 0) {
-          console.log('No fund requests found for user ID:', userId);
-          return res.status(200).json({ success: false, message: 'No fund requests found for this user ID', fundRequest: [] });
-      }
+        // Return the fund requests
+        return res.status(200).json({ success: true, fundRequest: fundRequests });
 
-      // Return the fund requests
-      return res.status(200).json({ success: true, fundRequest: fundRequests });
-
-  } catch (error) {
-      console.error('Error fetching fund request:', error.message);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
-  }
+    } catch (error) {
+        console.error('Error fetching fund request:', error.message);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
 });
 
   

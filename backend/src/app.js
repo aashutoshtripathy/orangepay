@@ -33,9 +33,11 @@ app.use(session({
   cookie: {
     httpOnly: true, // Prevent JavaScript access to session cookie
     secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
-    sameSite: 'Strict' // Prevent CSRF attacks
+    sameSite: 'Strict', // Prevent CSRF attacks
+    maxAge: 60 * 60 * 1000 // Set cookie expiration time to 1 hour (in milliseconds)
   }
-  }));
+}));
+
 
 
 import userRouter from "./routes/user.routes.js"

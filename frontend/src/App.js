@@ -1,74 +1,50 @@
-import React, { Suspense, useEffect , useState } from 'react'
-import { HashRouter, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import React, { Suspense, useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { CSpinner, useColorModes } from '@coreui/react';
+import './scss/style.scss';
+import PrivateRouter from './components/PrivateRouter';
+import routes from './routes'; // Import routes
 
-import { CSpinner, useColorModes } from '@coreui/react'
-import './scss/style.scss'
-import Dashboard from './views/dashboard/Dashboard'
-import ForgetPassword from './views/pages/forgetpasswword/ForgetPassword'
-import routes from './routes'
-import PrivateRouter from './components/PrivateRouter'
-
-// Containers
-const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
-
-// Pages
-const Login = React.lazy(() => import('./views/pages/login/Login'))
-const Profile = React.lazy(() => import('./views/pages/profile/Profile'))
-const Register = React.lazy(() => import('./views/pages/register/Register'))
-const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
-const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
+// Lazily load the components
+const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'));
+const Login = React.lazy(() => import('./views/pages/login/Login'));
+const Register = React.lazy(() => import('./views/pages/register/Register'));
+const ForgetPassword = React.lazy(() => import('./views/pages/forgetpassword/ForgetPassword'));
+const Page404 = React.lazy(() => import('./views/pages/page404/Page404'));
+const Page500 = React.lazy(() => import('./views/pages/page500/Page500'));
 
 const App = () => {
-  const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
-  const storedTheme = useSelector((state) => state.theme)
+  const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme');
+  const storedTheme = useSelector((state) => state.theme);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const userId = localStorage.getItem('userId');
 
 
   useEffect(() => {
-
+    // Check for authentication status
     const token = localStorage.getItem('token');
     const expirationTime = localStorage.getItem('expirationTime');
     if (token && expirationTime && new Date().getTime() < expirationTime) {
-      setIsAuthenticated(true);  // User is authenticated
+      setIsAuthenticated(true); // User is authenticated
     } else {
-      // Token is expired or not found
-      setIsAuthenticated(false);
-      localStorage.clear()  // Clear all storage on session expiry
+      setIsAuthenticated(false); // Token is expired or not found
+      localStorage.clear(); // Clear all storage on session expiry
     }
-    
 
-
-
-    const urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0]
+    // Set color theme
+    const urlParams = new URLSearchParams(window.location.href.split('?')[1]);
+    const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0];
     if (theme) {
-      setColorMode(theme)
+      setColorMode(theme);
     }
 
-
-    if (isColorModeSet()) {
-      return
+    if (!isColorModeSet()) {
+      setColorMode(storedTheme);
     }
-
-    setColorMode(storedTheme)
-
-    
-  }, [setIsAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // useEffect(() => {
-  //   // Check if a token exists in localStorage
-  //   const token = localStorage.getItem('token');
-  //   if (token) {
-  //     setIsAuthenticated(true);
-  //   }
-  // }, []);
-
-
-  // const isAuthenticated = true;
+  }, [setColorMode, storedTheme]);
 
   return (
-    // <HashRouter>
     <Router>
       <Suspense
         fallback={
@@ -77,20 +53,24 @@ const App = () => {
           </div>
         }
       >
-
         <Routes>
-          {/* Dynamically render routes from router.js */}
-          {/* <Route exact path="/" name="Login Page" element={<Login />} />
-          <Route exact path="/login" name="Login Page" element={<Login />} />
-          <Route exact path="/register" name="Register Page" element={<Register />} />
-          <Route exact path="/forgetpassword" name="Register Page" element={<ForgetPassword />} /> */}
-           {!isAuthenticated && (
+          {/* Public Routes */}
+          {!isAuthenticated ? (
             <>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgetpassword" element={<ForgetPassword />} />
             </>
+          ) : (
+            <>
+              {/* Redirect to Dashboard if already authenticated */}
+              <Route path="/login" element={<Navigate to={`/dashboard/${userId}`} />} />
+              <Route path="/register" element={<Navigate to={`/dashboard/${userId}`} />} />
+              <Route path="/forgetpassword" element={<Navigate to={`/dashboard/${userId}`} />} />
+            </>
           )}
+
+          {/* Protected Routes */}
           <Route element={<PrivateRouter isAuthenticated={isAuthenticated} />}>
             <Route path="/" element={<DefaultLayout />}>
               {routes.map((route, idx) => (
@@ -102,26 +82,13 @@ const App = () => {
               ))}
             </Route>
           </Route>
-          {/* Add a default route or fallback to handle non-matching routes */}
+
+          {/* Default Fallback Route */}
           <Route path="*" element={<Login />} />
-        {/* </Routes> */}
-        {/* <Routes> */}
-          {/* <Route exact path="/" name="Login Page" element={<Login />} />
-          <Route exact path="/login" name="Login Page" element={<Login />} />
-          <Route exact path="/register" name="Register Page" element={<Register />} />
-          <Route exact path="/forgetpassword" name="Register Page" element={<ForgetPassword />} /> */}
-          {/* <Route exact path="/dashboard/:id" name="Register Page" element={<Dashboard />} /> */}
-          {/* <Route exact path="/profile/:userId" name="Profile Page" element={<Profile/>} /> */}
-          {/* <Route exact path="/404" name="Page 404" element={<Page404 />} />
-          <Route exact path="/500" name="Page 500" element={<Page500 />} /> */}
-          {/* <Route path="*" name="Home" element={<DefaultLayout />} /> */}
-          {/* <Route path="*" name="Home" element={<Login />} /> */}
-          {/* </Route> */}
         </Routes>
       </Suspense>
     </Router>
-    //  </HashRouter> 
-  )
-}
+  );
+};
 
-export default App
+export default App;

@@ -88,8 +88,12 @@
         // navigate(`/dashboard/${id}`);
 
       } catch (err) {
-        // Handle the error, show it to the user
-        setGeneralError('Login failed: '  + 'Something Went Wrong')
+
+        if (err.response && err.response.data && err.response.data.message) {
+          setGeneralError(err.response.data.message); // Set the error message from API response
+        } else {
+          setGeneralError("Login failed: Something went wrong");
+        }
       }
     }
 
