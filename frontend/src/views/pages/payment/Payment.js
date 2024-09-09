@@ -17,6 +17,7 @@ const Payment = () => {
   const [consumerId, setConsumerId] = useState('');
   const [meterId, setMeterId] = useState('');
   const [amount, setAmount] = useState('');
+  const userId = localStorage.getItem('userId')
 
   const handlePaymentSelection = (method) => {
     setSelectedPaymentMethod(method);
@@ -27,9 +28,36 @@ const Payment = () => {
     setAmount(value);
   };
 
-  const handleProceedToPay = () => {
-    alert(`Processing payment via ${selectedPaymentMethod} for Consumer ID: ${consumerId}, Meter ID: ${meterId}, Amount: ${amount}`);
+
+
+  const handleProceedToPay = async () => {
+    try {
+      const response = await fetch('/payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          consumerId,
+          meterId,
+          amount,
+          paymentMethod: selectedPaymentMethod,
+        }),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        alert(`Payment processed successfully: ${data.payment.transactionId}`);
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      alert('An error occurred while processing the payment.');
+    }
   };
+  
 
   return (
     <CContainer className="p-4">
