@@ -105,24 +105,23 @@ export const distributorNavItems = [
     component: CNavTitle,
     name: 'Management',
   },
-  // {
-  //   component: CNavGroup,
-  //   name: 'My Network',
-  //   to: '/base',
-  //   icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
-  //   items: [
-  //     { component: CNavItem, name: 'Active Agent', to: '/active' },
-  //     { component: CNavItem, name: 'Inactive Agent', to: '/inactive' },
-  //   ],
-  // },
+  {
+    component: CNavGroup,
+    name: 'Payment',
+    to: '/base',
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+    items: [
+      { component: CNavItem, name: 'Payment', to: '/Payment' },
+    ],
+  },
   {
     component: CNavGroup,
     name: 'My Accounts',
     to: '/buttons',
     icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
     items: [
-      // { component: CNavItem, name: 'Transactions Report-Ezetap', to: '/report-Ezetap' },
-      // { component: CNavItem, name: 'Transactions Report-OrangePay', to: '/report-OrangePay' },
+      { component: CNavItem, name: 'Transactions Report-Ezetap', to: '/report-Ezetap' },
+      { component: CNavItem, name: 'Transactions Report-OrangePay', to: '/report-OrangePay' },
       // { component: CNavItem, name: 'Fund Request', to: `/fundrequest/${userId}` },
       { component: CNavItem, name: 'Fund Transfer', to: '/report-OrangePay' },
       { component: CNavItem, name: 'Fund Report', to: `/fundrequest/${userId}` },
