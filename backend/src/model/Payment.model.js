@@ -24,7 +24,7 @@ const paymentSchema = new Schema({
   },
   serviceName: {
     type: String,
-    enum: ['Mobile Recharge', 'Aadhar ATM', 'Other Service'],
+    enum: ['Bill Payment', 'Recharge', 'Other Services'], 
     required: true,
   },
   consumerId: {

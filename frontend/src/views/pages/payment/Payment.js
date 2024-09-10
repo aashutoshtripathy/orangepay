@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import {
   CContainer,
   CRow,
@@ -17,7 +17,18 @@ const Payment = () => {
   const [consumerId, setConsumerId] = useState('');
   const [meterId, setMeterId] = useState('');
   const [amount, setAmount] = useState('');
-  const userId = localStorage.getItem('userId')
+  const [userId, setUserId] = useState(''); // Initialize userId with useState
+
+  useEffect(() => {
+    // Fetch userId from localStorage when the component mounts
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+  }, []);
+
+
+
 
   const handlePaymentSelection = (method) => {
     setSelectedPaymentMethod(method);
@@ -32,7 +43,7 @@ const Payment = () => {
 
   const handleProceedToPay = async () => {
     try {
-      const response = await fetch('/payment', {
+      const response = await fetch('/payment', { // Ensure the correct API endpoint is used
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,9 +58,12 @@ const Payment = () => {
       });
   
       const data = await response.json();
-      if (response.ok) {
-        alert(`Payment processed successfully: ${data.payment.transactionId}`);
+      console.log("Response data:", data); // Log the response data for debugging
+  
+      if (response.ok && data.success) {
+        alert(`Payment processed successfully: Transaction ID - ${data.data.transactionId}`);
       } else {
+        console.error(`Error from backend: ${data.message}`);
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
@@ -57,6 +71,9 @@ const Payment = () => {
       alert('An error occurred while processing the payment.');
     }
   };
+  
+  
+  
   
 
   return (
