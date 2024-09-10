@@ -10,7 +10,7 @@ import routes from './routes'; // Import routes
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'));
 const Login = React.lazy(() => import('./views/pages/login/Login'));
 const Register = React.lazy(() => import('./views/pages/register/Register'));
-const ForgetPassword = React.lazy(() => import('./views/pages/forgetpassword/ForgetPassword'));
+const ForgetPassword = React.lazy(() => import('./views/pages/forgetpasswword/ForgetPassword'));
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'));
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'));
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
 import { deleteUser, fetchData, fetchWalletBalance,blockUserList,fetchData_reject, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser } from "../controller/user.controller.js";
-import {processPayment} from "../controller/payment.controller.js"
+import {processPayment, getPayment} from "../controller/payment.controller.js"
 
 
 const router = Router();
@@ -10,6 +10,7 @@ router.route("/register").post(registerUser)
 router.route("/login").post(loginUser)
 router.route("/transaction").post(registerTransaction)
 router.route("/reports").get(reports)
+router.route("/getPayment/:userId").get(getPayment)
 router.route("/balance/:userId").get(fetchWalletBalance)
 router.route("/fund-request/:userId").get(fetchFundRequest)
 router.route("/fundrequests").get(fetchFundRequests)

@@ -1,8 +1,13 @@
 import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
-// Define the Payment Schema with extended fields
+
 const paymentSchema = new Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User',
+  },
   transactionId: {
     type: String,
     required: true,

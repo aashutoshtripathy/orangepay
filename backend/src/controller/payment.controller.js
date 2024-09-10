@@ -3,6 +3,7 @@ import { Wallet } from "../model/Wallet.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from '../utils/ApiError.js'; // Adjust the import path as needed
 import {ApiResponse} from '../utils/ApiResponse.js'; // Adjust the import path as needed
+import mongoose from "mongoose";
 
 // Function to process the payment
 const processPayment = asyncHandler(async (req, res) => {
@@ -39,6 +40,7 @@ const processPayment = asyncHandler(async (req, res) => {
 
     console.log('Creating payment record...');
     const payment = new Payment({
+      userId,
       transactionId: `TXN-${Date.now()}`,
       referenceNumber: `REF-${Date.now()}`,
       consumerId,
@@ -68,5 +70,32 @@ const processPayment = asyncHandler(async (req, res) => {
 });
 
 
-export { processPayment };
+
+const getPayment = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.log("Invalid userId format:", userId);
+      return res.status(400).json({ success: false, message: 'Invalid userId' });
+  }
+
+  try {
+      const payment = await Payment.findOne({ userId }).exec();
+      
+      if (!payment) {
+          return res.status(404).json({ success: false, message: 'Wallet not found' });
+      }
+
+      console.log("Fetched wallet balance:", payment);
+
+      return res.status(200).json({ success: true, balance: payment });
+      
+  } catch (error) {
+      console.error("Error fetching wallet balance:", error);
+      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
+export { processPayment, getPayment };
 
