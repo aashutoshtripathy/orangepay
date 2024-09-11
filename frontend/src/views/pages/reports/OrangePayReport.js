@@ -112,7 +112,7 @@ const OrangePayReport = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/getPayment/${userId}`);
-        const result = response.data.balance ? [response.data.balance] : [];
+        const result = response.data.balance ? response.data.balance : [];
         setData(result);
       } catch (error) {
         setError(error);

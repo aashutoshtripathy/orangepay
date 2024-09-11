@@ -21,6 +21,11 @@ const processPayment = asyncHandler(async (req, res) => {
   try {
     console.log(`Processing payment for userId: ${userId}, amount: ${amount}`);
 
+    const marginRate = 0.035; // 3.5%
+    const marginAmount = amount * marginRate / (1 + marginRate); // Extract the margin part from the total amount
+    const originalAmount = amount - marginAmount; // Deduct the margin to get the amount without the margin
+
+
     // Further logging to see if there are any issues
     const wallet = await Wallet.findOne({ userId });
     if (!wallet) {
@@ -28,14 +33,14 @@ const processPayment = asyncHandler(async (req, res) => {
       throw new ApiError(404, "Wallet not found");
     }
 
-    if (wallet.balance < amount) {
+    if (wallet.balance < originalAmount) {
       console.error('Insufficient balance. Wallet balance:', wallet.balance, 'Requested amount:', amount);
       throw new ApiError(400, "Insufficient balance");
     }
 
     console.log('Deducting amount from wallet. Original balance:', wallet.balance);
 
-    wallet.balance -= amount;
+    wallet.balance -= originalAmount;
     await wallet.save();
 
     console.log('Creating payment record...');
@@ -47,7 +52,8 @@ const processPayment = asyncHandler(async (req, res) => {
       meterId,
       transactionDateTime: new Date(),
       serviceName: "Bill Payment",
-      requestAmount: amount,
+      requestAmount: originalAmount,
+      totalCommission: marginAmount,
       netAmount: amount,
       actionOnAmount: 'Dr',
       status: 'Pending',
@@ -80,7 +86,7 @@ const getPayment = asyncHandler(async (req, res) => {
   }
 
   try {
-      const payment = await Payment.findOne({ userId }).exec();
+      const payment = await Payment.find({ userId }).exec();
       
       if (!payment) {
           return res.status(404).json({ success: false, message: 'Wallet not found' });
