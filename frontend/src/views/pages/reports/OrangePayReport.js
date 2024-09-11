@@ -170,7 +170,7 @@ const OrangePayReport = () => {
         </button>
       </div>
       <DataTable
-        title="My Data Table"
+        title="Bill Payment"
         columns={columns}
         data={filteredItems}
         pagination
