@@ -10,7 +10,6 @@ import {
   CCardBody,
   CFormInput,
   CFormLabel,
-  CFormText,
   CModal,
   CModalHeader,
   CModalBody,
@@ -22,13 +21,14 @@ const Payment = () => {
   const [consumerId, setConsumerId] = useState('');
   const [meterId, setMeterId] = useState('');
   const [amount, setAmount] = useState('');
-  const [userId, setUserId] = useState(''); // Initialize userId with useState
-  const [errors, setErrors] = useState({}); // Object to hold validation errors
-  const [showSuccessModal, setShowSuccessModal] = useState(false); // State to control modal visibility
-  const [transactionId, setTransactionId] = useState(''); // Store the transaction ID
+  const [userId, setUserId] = useState('');
+  const [errors, setErrors] = useState({});
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [transactionId, setTransactionId] = useState('');
+  const [formSubmitted, setFormSubmitted] = useState(false); // New state to track form submission
+  const [focusedField, setFocusedField] = useState(''); // New state to track the focused field
 
   useEffect(() => {
-    // Fetch userId from localStorage when the component mounts
     const storedUserId = localStorage.getItem('userId');
     if (storedUserId) {
       setUserId(storedUserId);
@@ -37,8 +37,7 @@ const Payment = () => {
 
   const validate = () => {
     const errors = {};
-    if (!consumerId) errors.consumerId = 'Consumer ID is required.';
-    if (!meterId) errors.meterId = 'Meter ID is required.';
+    if (!consumerId && !meterId) errors.id = 'Either Consumer ID or Meter ID must be provided.';
     if (!amount || isNaN(amount) || amount <= 0) errors.amount = 'A valid amount is required.';
     if (!selectedPaymentMethod) errors.paymentMethod = 'Please select a payment method.';
     setErrors(errors);
@@ -55,29 +54,36 @@ const Payment = () => {
   };
 
   const handleProceedToPay = async () => {
-    if (!validate()) return; // Only proceed if validation passes
+    setFormSubmitted(true); // Set formSubmitted to true when the user attempts to submit
+
+    if (!validate()) return;
 
     try {
-      const response = await fetch('/payment', { // Ensure the correct API endpoint is used
+      const response = await fetch('/payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           userId,
-          consumerId,
-          meterId,
+          consumerId: consumerId || '',
+          meterId: meterId || '',
           amount,
           paymentMethod: selectedPaymentMethod,
         }),
       });
 
       const data = await response.json();
-      console.log("Response data:", data); // Log the response data for debugging
+      console.log("Response data:", data);
 
       if (response.ok && data.success) {
-        setTransactionId(data.data.transactionId); // Set the transaction ID
-        setShowSuccessModal(true); // Show the success modal
+        setTransactionId(data.data.transactionId);
+        setShowSuccessModal(true);
+        setConsumerId('');
+        setMeterId('');
+        setAmount('');
+        setSelectedPaymentMethod('');
+        setErrors({}); 
       } else {
         console.error(`Error from backend: ${data.message}`);
         alert(`Error: ${data.message}`);
@@ -89,7 +95,17 @@ const Payment = () => {
   };
 
   const handleCloseModal = () => {
-    setShowSuccessModal(false); // Close the modal
+    setShowSuccessModal(false);
+  };
+
+  const handleBlur = (field) => {
+    if (errors[field]) {
+      setErrors(prevErrors => {
+        const { [field]: _, ...rest } = prevErrors;
+        return rest;
+      });
+    }
+    setFocusedField('');
   };
 
   return (
@@ -108,10 +124,11 @@ const Payment = () => {
                 id="consumerId"
                 value={consumerId}
                 onChange={(e) => setConsumerId(e.target.value)}
-                onBlur={() => validate()}
+                onFocus={() => setFocusedField('consumerId')}
+                onBlur={() => handleBlur('id')}
                 placeholder="Enter Consumer ID"
               />
-              {errors.consumerId && <CFormText color="danger">{errors.consumerId}</CFormText>}
+              {(formSubmitted && errors.id && !meterId) && <p className="text-danger">{errors.id}</p>}
             </CCol>
           </CRow>
 
@@ -124,10 +141,11 @@ const Payment = () => {
                 id="meterId"
                 value={meterId}
                 onChange={(e) => setMeterId(e.target.value)}
-                onBlur={() => validate()}
+                onFocus={() => setFocusedField('meterId')}
+                onBlur={() => handleBlur('id')}
                 placeholder="Enter Meter ID"
               />
-              {errors.meterId && <CFormText color="danger">{errors.meterId}</CFormText>}
+              {(formSubmitted && errors.id && !consumerId) && <p className="text-danger">{errors.id}</p>}
             </CCol>
           </CRow>
 
@@ -140,10 +158,11 @@ const Payment = () => {
                 id="amount"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                onBlur={() => validate()}
+                onFocus={() => setFocusedField('amount')}
+                onBlur={() => handleBlur('amount')}
                 placeholder="Enter or select amount"
               />
-              {errors.amount && <CFormText color="danger">{errors.amount}</CFormText>}
+              {(formSubmitted && errors.amount) && <p className="text-danger">{errors.amount}</p>}
               <div className="mt-2">
                 {/* Static Value Buttons */}
                 {[100, 500, 1000, 2000].map((value) => (
@@ -160,40 +179,49 @@ const Payment = () => {
             </CCol>
           </CRow>
 
-          {/* Payment Method Options */}
-          <CRow className="mb-3">
-            <CCol>
-              <CFormCheck
-                type="radio"
-                name="paymentMethod"
-                id="cash"
-                label="Cash"
-                onChange={() => handlePaymentSelection('cash')}
-                checked={selectedPaymentMethod === 'cash'}
-              />
-            </CCol>
-            <CCol>
-              <CFormCheck
-                type="radio"
-                name="paymentMethod"
-                id="ezytap"
-                label="Ezetap"
-                onChange={() => handlePaymentSelection('ezytap')}
-                checked={selectedPaymentMethod === 'ezytap'}
-              />
-            </CCol>
-            <CCol>
-              <CFormCheck
-                type="radio"
-                name="paymentMethod"
-                id="ccard"
-                label="Card"
-                onChange={() => handlePaymentSelection('ccard')}
-                checked={selectedPaymentMethod === 'ccard'}
-              />
+           <CRow className="mb-3">
+            <CCol md={8} lg={6}>
+              <CCard>
+                <CCardHeader>Select Payment Method</CCardHeader>
+                <CCardBody>
+                  <CRow>
+                    <CCol>
+                      <CFormCheck
+                        type="radio"
+                        name="paymentMethod"
+                        id="cash"
+                        label="Cash"
+                        onChange={() => handlePaymentSelection('cash')}
+                        checked={selectedPaymentMethod === 'cash'}
+                      />
+                    </CCol>
+                    <CCol>
+                      <CFormCheck
+                        type="radio"
+                        name="paymentMethod"
+                        id="ezytap"
+                        label="Ezetap"
+                        onChange={() => handlePaymentSelection('ezytap')}
+                        checked={selectedPaymentMethod === 'ezytap'}
+                      />
+                    </CCol>
+                    <CCol>
+                      <CFormCheck
+                        type="radio"
+                        name="paymentMethod"
+                        id="ccard"
+                        label="Card"
+                        onChange={() => handlePaymentSelection('ccard')}
+                        checked={selectedPaymentMethod === 'ccard'}
+                      />
+                    </CCol>
+                  </CRow>
+                  {errors.paymentMethod && <p className="text-danger mt-2">{errors.paymentMethod}</p>}
+                </CCardBody>
+              </CCard>
             </CCol>
           </CRow>
-          {errors.paymentMethod && <CFormText color="danger">{errors.paymentMethod}</CFormText>}
+
           
           {/* Proceed to Pay Button */}
           <CButton color="primary" onClick={handleProceedToPay}>

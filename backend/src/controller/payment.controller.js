@@ -13,7 +13,7 @@ const processPayment = asyncHandler(async (req, res) => {
   console.log('Request Body:', req.body);
 
   // Validate the request body
-  if (!userId || !consumerId || !meterId || !amount || !paymentMethod) {
+  if (!userId ||  (!consumerId && !meterId) || !amount || !paymentMethod) {
     console.error('Missing required fields:', { userId, consumerId, meterId, amount, paymentMethod });
     throw new ApiError(400, "Missing required fields");
   }
