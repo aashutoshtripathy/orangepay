@@ -40,14 +40,18 @@ const fundRequestSchema = new Schema(
       required: true,
       min: [0, "Fund amount cannot be negative"],
     },
-    bankReference: {
+    datePayment: {
       type: String,
       required: true,
       trim: true,
     },
+    bankReference: {
+      type: String,
+      trim: true,
+    },
     paymentMethod: {
       type: String,
-      enum: ["bank-transfer", "upi", "card", "paypal", "net-banking"],
+      enum: ["bank-transfer", "upi", "card", "paypal", "cash"],
       required: true,
     },
     bankName: {

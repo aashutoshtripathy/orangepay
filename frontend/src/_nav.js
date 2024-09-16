@@ -29,13 +29,23 @@ export const adminNavItems = [
   {
     component: CNavItem,  
     name: 'OrangePay',
-    // to: `/dashboard/${_id}`,
-    to:`/dashboard`,
+    to: `/dashboard/${userId}`,
+    // to:`/dashboard`,
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
     name: 'Management',
+  },
+   {
+    component: CNavGroup,
+    name: 'My Network',
+    to: '/base',
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+    items: [
+      { component: CNavItem, name: 'Active Agent', to: '/active' },
+      { component: CNavItem, name: 'Inactive Agent', to: '/inactive' },
+    ],
   },
   {
     component: CNavGroup,
@@ -87,24 +97,23 @@ export const distributorNavItems = [
   {
     component: CNavItem,  
     name: 'OrangePay',
-    // to: '/dashboard',
-     to: '/dashboard',
+    to: `/dashboard/${userId}`,
+    //  to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
     name: 'Management',
   },
-  // {
-  //   component: CNavGroup,
-  //   name: 'My Network',
-  //   to: '/base',
-  //   icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
-  //   items: [
-  //     { component: CNavItem, name: 'Active Agent', to: '/active' },
-  //     { component: CNavItem, name: 'Inactive Agent', to: '/inactive' },
-  //   ],
-  // },
+  {
+    component: CNavGroup,
+    name: 'Payment',
+    to: '/base',
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+    items: [
+      { component: CNavItem, name: 'Payment', to: '/Payment' },
+    ],
+  },
   {
     component: CNavGroup,
     name: 'My Accounts',

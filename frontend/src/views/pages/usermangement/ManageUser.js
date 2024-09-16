@@ -8,11 +8,10 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';  // Import XLSX for Excel export
 import '../../../scss/dataTable.scss';
 
-// Define custom styles for the table
 const customStyles = {
   rows: {
     style: {
-      minHeight: '72px', // Set the minimum row height
+      minHeight: '72px',
     },
   },
   headCells: {
@@ -29,110 +28,160 @@ const customStyles = {
   },
 };
 
-// Function to generate and download PDF
 const downloadPDF = (data) => {
-  const doc = new jsPDF();
+  // Create a new PDF document with landscape orientation
+  const doc = new jsPDF({ orientation: 'landscape' });
 
-  // Set up margins and title
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const title = "Table Data";
-  const titleXPos = pageWidth / 2;
-
-  doc.setFontSize(18);
-  doc.text(title, titleXPos, 15, { align: 'center' });
-
-  doc.setFontSize(10);
-  doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
-
-  // Define the columns and their widths
+  // Define table columns and data
   const columns = [
-    { header: 'ID', dataKey: '_id' },
+    { header: 'User ID', dataKey: 'userId' },
     { header: 'Name', dataKey: 'name' },
-    { header: 'Father/Husband Name', dataKey: 'fatherorHusbandName' },
-    { header: 'DOB', dataKey: 'dob' },
-    { header: 'Aadhar No.', dataKey: 'aadharNumber' },
-    { header: 'Pan No.', dataKey: 'panNumber' },
-    { header: 'Mobile No.', dataKey: 'mobileNumber' },
+    { header: 'Father/Husband Name', dataKey: 'fatherOrHusbandName' },
+    { header: 'Date of Birth', dataKey: 'dob' },
+    { header: 'Aadhar Number', dataKey: 'aadharNumber' },
+    { header: 'PAN Number', dataKey: 'panNumber' },
+    { header: 'Mobile Number', dataKey: 'mobileNumber' },
     { header: 'Gender', dataKey: 'gender' },
     { header: 'Marital Status', dataKey: 'maritalStatus' },
     { header: 'Education', dataKey: 'education' },
     { header: 'Address', dataKey: 'address' },
+    { header: 'District', dataKey: 'district' },
+    { header: 'Pin Code', dataKey: 'pincode' },
+    { header: 'Bank Name', dataKey: 'bank' },
+    { header: 'Account no', dataKey: 'accountno' },
+    { header: 'Ifsc Code', dataKey: 'ifsc' },
     { header: 'Job Type', dataKey: 'salaryBasis' },
     { header: 'Email', dataKey: 'email' },
     { header: 'Division', dataKey: 'division' },
     { header: 'Sub-Division', dataKey: 'subDivision' },
     { header: 'Section', dataKey: 'section' },
-    { header: 'Section Type', dataKey: 'sectionType' },
-    { header: 'Created At', dataKey: 'createdAt' },
-    { header: 'Updated At', dataKey: 'updatedAt' },
+    { header: 'Password', dataKey: 'password' },
+    { header: 'Section Type', dataKey: 'sectionType' }
   ];
 
-  const rows = data.map(row => ({
-    _id: row._id,
-    name: row.name,
-    fatherorHusbandName: row.fatherorHusbandName,
-    dob: row.dob,
-    aadharNumber: row.aadharNumber,
-    panNumber: row.panNumber,
-    mobileNumber: row.mobileNumber,
-    gender: row.gender,
-    maritalStatus: row.maritalStatus,
-    education: row.education,
-    address: row.address,
-    salaryBasis: row.salaryBasis,
-    email: row.email,
-    division: row.division,
-    subDivision: row.subDivision,
-    section: row.section,
-    sectionType: row.sectionType,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+  const rows = data.map(item => ({
+    userId: item.userId,
+    name: item.name,
+    fatherOrHusbandName: item.fatherOrHusbandName,
+    dob: item.dob,
+    aadharNumber: item.aadharNumber,
+    panNumber: item.panNumber,
+    mobileNumber: item.mobileNumber,
+    gender: item.gender,
+    maritalStatus: item.maritalStatus,
+    education: item.education,
+    address: item.address,
+    district: item.district,
+    pincode: item.pincode,
+    bank: item.bank,
+    accountno: item.accountno,
+    ifsc: item.ifsc,
+    salaryBasis: item.salaryBasis,
+    email: item.email,
+    division: item.division,
+    subDivision: item.subDivision,
+    section: item.section,
+    password: item.password,
+    sectionType: item.sectionType
   }));
 
-  // Auto table options
+  // Add table to the PDF with landscape orientation
   doc.autoTable({
-    startY: 30, // Starting y position
-    head: columns.map(col => col.header), // Table headers
-    body: rows.map(row => columns.map(col => row[col.dataKey])), // Table data
-    margin: { top: 30 }, // Top margin to align with title
+    columns: columns,
+    body: rows,
+    startY: 10,
+    margin: { top: 1, bottom: 1, left: 1, right: 1 }, // Tighter margins
     styles: {
-      fontSize: 8,
-      cellPadding: 3,
+      fontSize: 4,   // Further reduce font size
+      cellPadding: 0.5, // Reduce cell padding
       overflow: 'linebreak',
-      halign: 'left', // Horizontal alignment
-      valign: 'middle', // Vertical alignment
-    },
-    headStyles: {
-      fillColor: [52, 58, 64], // Dark gray background
-      textColor: [255, 255, 255], // White text
-      fontStyle: 'bold',
-    },
-    alternateRowStyles: {
-      fillColor: [220, 220, 220], // Light gray alternating row background
     },
     columnStyles: {
-      0: { cellWidth: 'auto' }, // Adjust column width automatically
-      1: { cellWidth: 'auto' }, // Adjust column width automatically
+      userId: { cellWidth: 7 },
+      name: { cellWidth: 10 },
+      fatherOrHusbandName: { cellWidth: 15 },
+      dob: { cellWidth: 10 },
+      aadharNumber: { cellWidth: 14 },
+      panNumber: { cellWidth: 14 },
+      mobileNumber: { cellWidth: 14 },
+      gender: { cellWidth: 8 },
+      maritalStatus: { cellWidth: 10 },
+      education: { cellWidth: 15 },
+      address: { cellWidth: 20 },
+      district: { cellWidth: 12 },
+      pincode: { cellWidth: 8 },
+      bank: { cellWidth: 14 },
+      accountno: { cellWidth: 14 },
+      ifsc: { cellWidth: 10 },
+      salaryBasis: { cellWidth: 10 },
+      email: { cellWidth: 15 },
+      division: { cellWidth: 12 },
+      subDivision: { cellWidth: 12 },
+      section: { cellWidth: 12 },
+      password: { cellWidth: 12 },
+      sectionType: { cellWidth: 12 }
     },
-    didDrawPage: (data) => {
-      // Add page number at the bottom
-      const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(10);
-      doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
-    }
+    pageBreak: 'auto',
   });
 
-  // Download the PDF
-  doc.save('table_data.pdf');
+  // Save the PDF
+  doc.save('users.pdf');
 };
 
-// Function to generate and download Excel
+
 const downloadExcel = (data) => {
-  const ws = XLSX.utils.json_to_sheet(data); // Convert JSON data to sheet
-  const wb = XLSX.utils.book_new(); // Create a new workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data"); // Append sheet to workbook
-  XLSX.writeFile(wb, 'table_data.xlsx'); // Write and download Excel file
+  const formattedData = data.map(row => ({
+    ID: row._id,
+    Name: row.name,
+    'Father/Husband Name': row.fatherorHusbandName,
+    DOB: row.dob,
+    'Aadhar No.': row.aadharNumber,
+    'Pan No.': row.panNumber,
+    'Mobile No.': row.mobileNumber,
+    Gender: row.gender,
+    'Marital Status': row.maritalStatus,
+    Education: row.education,
+    Address: row.address,
+    'Job Type': row.salaryBasis,
+    Email: row.email,
+    Division: row.division,
+    'Sub-Division': row.subDivision,
+    Section: row.section,
+    'Section Type': row.sectionType,
+    'Created At': row.createdAt,
+    'Updated At': row.updatedAt,
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(formattedData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Table Data");
+
+  // Adjust column widths
+  ws['!cols'] = [
+    { wpx: 50 },  // Width for ID column
+    { wpx: 100 }, // Width for Name column
+    { wpx: 150 }, // Width for Father/Husband Name column
+    { wpx: 80 },  // Width for DOB column
+    { wpx: 100 }, // Width for Aadhar No. column
+    { wpx: 100 }, // Width for Pan No. column
+    { wpx: 100 }, // Width for Mobile No. column
+    { wpx: 50 },  // Width for Gender column
+    { wpx: 100 }, // Width for Marital Status column
+    { wpx: 100 }, // Width for Education column
+    { wpx: 150 }, // Width for Address column
+    { wpx: 100 }, // Width for Job Type column
+    { wpx: 150 }, // Width for Email column
+    { wpx: 100 }, // Width for Division column
+    { wpx: 120 }, // Width for Sub-Division column
+    { wpx: 100 }, // Width for Section column
+    { wpx: 100 }, // Width for Section Type column
+    { wpx: 120 }, // Width for Created At column
+    { wpx: 120 }, // Width for Updated At column
+  ];
+
+  XLSX.writeFile(wb, 'table_data.xlsx');
 };
+
 
 const DataTableComponent = () => {
   const [data, setData] = useState([]);
@@ -141,89 +190,54 @@ const DataTableComponent = () => {
   const [filterText, setFilterText] = useState('');
   const userId = localStorage.getItem('userId');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`/fetchUserList`); 
-        const result = response.data.fetchUser || []; // Access the data array from the nested data object
-        console.log(result)
-        setData(result);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+   useEffect(() => {
     fetchData();
-  }, [userId]);
+  }, []);
 
-
-
-  const handleBlockUnblock = async (row) => {
+  const fetchData = async () => {
     try {
-      const action = row.isBlocked ? 'unblock' : 'block';
-      const response = await axios.patch(`/users/${row._id}/${action}`);
-      const updatedUser = response.data;
-      // Update the data after block/unblock
-      setData((prevData) =>
-        prevData.map((item) =>
-          item._id === updatedUser._id ? updatedUser : item
-        )
-      );
+      // Clear any previous error
+      setError(null);
+  
+      const response = await axios.get('/fetchUserList');
+      
+      // Handle response if status is 404
+      if (response.status === 404) {
+        setError(undefined);  // Set error to undefined
+      } else {
+        setData(response.data.fetchUser);
+      }
     } catch (error) {
-      console.error(`Error ${row.isBlocked ? 'unblocking' : 'blocking'} user`, error);
+      setError(error);
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   };
+  
 
-
-
-
-   // Handle Accept Fund Request
-   const handleAccept = async (row) => {
+  const handleBlockUnblock = async (row, action) => {
     try {
-      const response = await axios.patch(`/fundrequests/${row._id}/approve`);
-      const updatedFundRequest = response.data;
-      setData((prevData) =>
-        prevData.map((item) =>
-          item._id === updatedFundRequest._id ? updatedFundRequest : item
-        )
-      );
+      const url = action === 'block' ? `/block/${row._id}` : `/unblock/${row._id}`;
+      console.log(url)
+      const response = await axios.post(url , { userId: row._id });
+      if (response.status === 200) {
+        fetchData();  // Refresh data after blocking/unblocking
+      }
     } catch (error) {
-      console.error("Error approving fund request", error);
+      console.error(`Error ${action}ing user:`, error);
     }
   };
+  
 
-  // Handle Reject Fund Request
-  const handleReject = async (row) => {
-    try {
-      const response = await axios.patch(`/fundrequests/${row._id}/reject`);
-      const updatedFundRequest = response.data;
-      setData((prevData) =>
-        prevData.map((item) =>
-          item._id === updatedFundRequest._id ? updatedFundRequest : item
-        )
-      );
-    } catch (error) {
-      console.error("Error rejecting fund request", error);
-    }
-  };
-
-
-
-
-  const handleDownload = (row) => {
-    console.log('Downloading file for:', row);
-    // Implement download logic here
-  };
+ 
 
   const handleSearch = () => {
-    // Search logic is already implemented with the filter, just trigger re-render
-    setFilterText(filterText);
+    setFilterText(filterText); 
   };
 
   const columns = [
-    { name: 'ID', selector: '_id', sortable: true },
+    { name: 'userId', selector: 'userId', sortable: true },
     { name: 'Name', selector: 'name', sortable: true },
     { name: 'Father/Husband Name', selector: 'fatherOrHusbandName', sortable: true },
     { name: 'Date of Birth', selector: 'dob', sortable: true },
@@ -234,78 +248,46 @@ const DataTableComponent = () => {
     { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
     { name: 'Education', selector: 'education', sortable: true },
     { name: 'Address', selector: 'address', sortable: true },
-    { name: 'Salary Basis', selector: 'salaryBasis', sortable: true },
+    { name: 'District', selector: 'district', sortable: true },
+    { name: 'Pin Code', selector: 'pincode', sortable: true },
+    { name: 'Bank Name', selector: 'bank', sortable: true },
+    { name: 'Account no', selector: 'accountno', sortable: true },
+    { name: 'Ifsc Code', selector: 'ifsc', sortable: true },
+    { name: 'Job Type', selector: 'salaryBasis', sortable: true },
     { name: 'Email', selector: 'email', sortable: true },
     { name: 'Division', selector: 'division', sortable: true },
     { name: 'Sub-Division', selector: 'subDivision', sortable: true },
     { name: 'Section', selector: 'section', sortable: true },
     { name: 'userId', selector: 'userId', sortable: true },
     { name: 'password', selector: 'password', sortable: true },
-    { name: 'Section Type', selector: 'sectionType', sortable: true },
-    { name: 'Created At', selector: 'createdAt', sortable: true },
-    { name: 'Updated At', selector: 'updatedAt', sortable: true },
-    {
-      name: 'Actions',
+    { name: 'Actions', 
       cell: (row) => (
-        <div className="button-containerr">
-      <button 
-      className="button-reject" 
-      onClick={() => handleBlockUnblock(row)}
-    >
-      <FontAwesomeIcon icon={row.isBlocked ? faUnlock : faLock} /> 
-      {row.isBlocked ? 'Unblock' : 'Block'}
-    </button>
-    </div>
+        <div className="actions-cell">
+          <button 
+            className={`block-unblock-btn ${row.isBlocked ? 'unblock-btn' : 'block-btn'}`} 
+            onClick={() => handleBlockUnblock(row, row.isBlocked ? 'unblock' : 'block')}
+
+          >
+            {row.isBlocked ? "Unblock" : "Block"}
+          </button>
+        </div>
       ),
-    }
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    }    
   ];
-//   {
-//     name: 'Actions',
-//     cell: (row) => (
-//       <div className="button-containerr">
-//         <button 
-//           className="button-search" 
-//           onClick={() => handleAccept(row)}
-//         >
-//           <FontAwesomeIcon icon={faCheckCircle} /> Accept
-//         </button>
-//         <button 
-//           className="button-reject" 
-//           onClick={() => handleReject(row)}
-//         >
-//           <FontAwesomeIcon icon={faTimesCircle} /> Reject
-//         </button>
-//         <button 
-//           className="button-download" 
-//           onClick={() => handleDownload(row)}
-//         >
-//           <FontAwesomeIcon icon={faDownload} /> Download File
-//         </button>
-//       </div>
-//     ),
-//   },
-// ];
-  
 
-  const filteredItems = data.filter(item => 
-    item._id && item._id .toLowerCase().includes(filterText.toLowerCase())
+  const filteredItems = data.filter((item) =>
+    item.userId && item.userId.toLowerCase().includes(filterText.toLowerCase())
   );
-  
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
 
   return (
-    <div>
+    <div className="datatable-container">
       <div className="button-container">
         <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search by User ID"
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
@@ -329,13 +311,17 @@ const DataTableComponent = () => {
         </button>
       </div>
       <DataTable
-        title="My Data Table"
+       title="Manage Users"
         columns={columns}
         data={filteredItems}
-        pagination
-        highlightOnHover
         customStyles={customStyles}
+        pagination
+        selectableRows
+        progressPending={loading}
+        highlightOnHover
+        striped
       />
+      {error && <p>Error loading data: {error.message}</p>}
     </div>
   );
 };

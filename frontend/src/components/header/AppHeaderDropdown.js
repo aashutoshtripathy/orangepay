@@ -106,15 +106,42 @@ const AppHeaderDropdown = () => {
   // };
 
 
+console.log(userRole)
+  const handleLogout = async () => {
+    try {
+      // const userId = localStorage.getItem('userId'); 
+      // // Make a request to the backend logout route
+      // await axios.post('/logout', { userId }, {
+      //   withCredentials: true, // Include cookies with the request
+      // });
 
-    const handleLogout = () => {
-      localStorage.removeItem('username')
-      localStorage.removeItem('userId')
+
+         // Extract token from cookies or headers
+    // const token = req.cookies.accessToken || req.headers.authorization?.split(' ')[1];
+
+    await axios.post('/logout', { userRole }, {
+        withCredentials: true, // Include cookies with the request
+      });
+
+   
+  
+      // Clear client-side storage
+      localStorage.removeItem('username');
+      localStorage.removeItem('userId');
       localStorage.removeItem('token');
       localStorage.removeItem('expirationTime');
-      // dispatch(setUserRole(null)); // Reset user role in Redux state if applicable
-      navigate('/login'); // Redirect to login page
-    };
+      sessionStorage.clear();
+
+      // Redirect to the login page
+      navigate('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Optionally handle errors, e.g., show a notification
+    }
+  };
+
+
+ 
   
 
 
@@ -238,7 +265,7 @@ const AppHeaderDropdown = () => {
           <CIcon icon={cilSettings} className="me-2" />
           Settings
         </CDropdownItem>
-        <CDropdownItem href="#">
+        {/* <CDropdownItem href="#">
           <CIcon icon={cilCreditCard} className="me-2" />
           Payments
           <CBadge color="secondary" className="ms-2">
@@ -252,7 +279,7 @@ const AppHeaderDropdown = () => {
             42
           </CBadge>
         </CDropdownItem>
-        <CDropdownDivider />
+        <CDropdownDivider /> */}
         <CDropdownItem onClick={handleLogout}>
           <CIcon icon={cilLockLocked} className="me-2" />
           Log Out

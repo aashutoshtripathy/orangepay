@@ -77,3 +77,39 @@
     margin-right: 8px;
   }
   
+
+  .actions-cell {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .block-unblock-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  
+    // Style for the "Block" button
+    &.block-btn {
+      background-color: #d9534f; // Red color
+      color: #fff;
+  
+      &:hover {
+        background-color: #c9302c; // Darker red on hover
+      }
+    }
+  
+    // Style for the "Unblock" button
+    &.unblock-btn {
+      background-color: #5cb85c; // Green color
+      color: #fff;
+  
+      &:hover {
+        background-color: #4cae4c; // Darker green on hover
+      }
+    }
+  }
+  

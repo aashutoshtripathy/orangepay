@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   CCard,
   CCardBody,
@@ -32,6 +32,7 @@ const Profile = () => {
   const [bankReference, setBankReference] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [bankName, setBankName] = useState("");
+  const [datePayment, setDatePayment] = useState(""); // State for datePayment
   const [errors, setErrors] = useState({});
   // const userName = "Test";
   const availableBalance = "0";
@@ -76,17 +77,19 @@ const Profile = () => {
   const handleRequestFund = async (e) => {
     e.preventDefault();
     const newErrors = {};
-
+  
     if (!fundAmount) newErrors.fundAmount = "Amount is required";
-    if (!bankReference)
-      newErrors.bankReference = "Bank Reference Number is required";
-    if (bankReference && bankReference.length < 6)
-      newErrors.bankReference =
-        "Bank Reference Number must be at least 6 characters";
-    if (!paymentMethod) newErrors.paymentMethod = "Payment Method is required";
-    if (paymentMethod === "bank-transfer" && !bankName)
-      newErrors.bankName = "Bank Name is required";
-
+    if (paymentMethod !== "cash") {
+      if (!bankReference) newErrors.bankReference = "Bank Reference Number is required";
+      if (bankReference && bankReference.length < 6)
+        newErrors.bankReference = "Bank Reference Number must be at least 6 characters";
+      if (!paymentMethod) newErrors.paymentMethod = "Payment Method is required";
+      if (paymentMethod === "bank-transfer" && !bankName)
+        newErrors.bankName = "Bank Name is required";
+    }
+    if (!datePayment) newErrors.datePayment = "Date of deposit is required";
+  
+    // If there are errors, display them and stop submission
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -98,6 +101,7 @@ const Profile = () => {
         fundAmount,
         bankReference,
         paymentMethod,
+        datePayment,
       });
 
       const response = await axios.post("/fund-request", {
@@ -106,6 +110,7 @@ const Profile = () => {
         bankReference,
         paymentMethod,
         bankName,
+        datePayment,
       });
 
       console.log("Response from server:", response);
@@ -114,6 +119,7 @@ const Profile = () => {
       setBankReference("");
       setPaymentMethod("");
       setBankName("");
+      setDatePayment(""); // Clear datePayment
       setModalVisible(false);
     } catch (error) {
       console.error("Error requesting fund:", error);
@@ -123,25 +129,39 @@ const Profile = () => {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-
+  
+    // Update state based on the input field
     if (id === "fund-amount") setFundAmount(value);
     if (id === "bank-reference") setBankReference(value);
     if (id === "payment-method") setPaymentMethod(value);
     if (id === "bank-name") setBankName(value);
-
+    if (id === "date-payment") setDatePayment(value);
+  
+    // Clear error for the specific field being changed
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [id]: "",
+      [id]: "", // Clear only the error related to the field being changed
     }));
   };
-
+  
   const handleInputFocus = (e) => {
     const { id } = e.target;
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [id]: "",
-    }));
+  
+    // Clear error for the specific field being focused
+    setErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+      
+      // Map input IDs to the corresponding error keys
+      if (id === "fund-amount") delete newErrors.fundAmount;
+      if (id === "bank-reference") delete newErrors.bankReference;
+      if (id === "payment-method") delete newErrors.paymentMethod;
+      if (id === "bank-name") delete newErrors.bankName;
+      if (id === "date-payment") delete newErrors.datePayment;
+  
+      return newErrors;
+    });
   };
+  
 
   const date = new Date();
   const month = date.toLocaleString("default", { month: "long" });
@@ -182,9 +202,11 @@ const Profile = () => {
           </CRow>
         </CCardBody>
         <CCardFooter className="text-center">
-          <CButton color="success" size="lg" className="me-3">
-            Get Android App
-          </CButton>
+          <Link to={`/update-user/${userId}`}>
+            <CButton color="success" size="lg" className="me-3">
+              Update User
+            </CButton>
+          </Link>
           <CButton
             color="primary"
             size="lg"
@@ -214,21 +236,22 @@ const Profile = () => {
               <div className="text-danger">{errors.fundAmount}</div>
             )}
 
-            <CFormLabel htmlFor="bank-reference" className="mt-3">
-              Bank Reference Number
+            <CFormLabel htmlFor="date-payment" className="mt-3">
+              Date of Deposit
             </CFormLabel>
             <CFormInput
-              name="bankReference"
-              id="bank-reference"
-              type="text"
-              value={bankReference}
+              name="datePayment"
+              id="date-payment"
+              type="date"
+              value={datePayment}
               onChange={handleInputChange}
               onFocus={handleInputFocus}
-              style={{ textTransform: "uppercase" }}
+
             />
-            {errors.bankReference && (
-              <div className="text-danger">{errors.bankReference}</div>
+            {errors.datePayment && (
+              <div className="text-danger">{errors.datePayment}</div>
             )}
+
 
             <CFormLabel htmlFor="payment-method" className="mt-3">
               Payment Method
@@ -245,11 +268,35 @@ const Profile = () => {
               <option value="upi">UPI</option>
               <option value="card">Card</option>
               <option value="paypal">PayPal</option>
-              <option value="net-banking">Net Banking</option>
+              <option value="cash">Cash</option>
             </CFormSelect>
             {errors.paymentMethod && (
               <div className="text-danger">{errors.paymentMethod}</div>
             )}
+
+
+
+            {paymentMethod !== "cash" && (
+              <>
+                <CFormLabel htmlFor="bank-reference" className="mt-3">
+                  Bank Reference Number
+                </CFormLabel>
+                <CFormInput
+                  name="bankReference"
+                  id="bank-reference"
+                  type="text"
+                  value={bankReference}
+                  onChange={handleInputChange}
+                  onFocus={handleInputFocus}
+                  style={{ textTransform: "uppercase" }}
+                />
+                {errors.bankReference && (
+                  <div className="text-danger">{errors.bankReference}</div>
+                )}
+              </>
+            )}
+
+
 
             {paymentMethod === "bank-transfer" && (
               <>

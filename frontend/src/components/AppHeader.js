@@ -37,6 +37,7 @@ const AppHeader = () => {
   const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [user, setUser] = useState(false);
   const [userRole, setUserRole] = useState('');
   const [userId, setUserId] = useState('');
 
@@ -62,6 +63,27 @@ const AppHeader = () => {
       setUserRole(role);
     }
   }, []);
+
+
+
+
+
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`/fetchUserById/${userId}`);
+        setUser(response.data.user);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError("Failed to load user data.");
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
 
 
@@ -132,7 +154,7 @@ const AppHeader = () => {
             </CNavLink>
           </CNavItem>
           <CNavItem>
-            <CNavLink href="#">Admin</CNavLink>
+            <CNavLink href="#">SuperAdmin</CNavLink>
           </CNavItem>
           <CNavItem>
             <CNavLink to='/requests' as={NavLink}>Requests</CNavLink>
@@ -223,7 +245,7 @@ const AppHeader = () => {
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
             <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
-              Welcome {userRole}
+              Welcome {user.name}
             </CNavLink>
           </CNavItem>
           <CNavItem>
@@ -242,7 +264,7 @@ const AppHeader = () => {
           <CNavItem>
             <CNavLink href="#">
               {/* <CIcon icon={cilDollar} size="lg" /> */}
-              <span style={{ marginLeft: '10px' }}>Balance: ${balance}</span>
+              <span style={{ marginLeft: '10px' }}>Balance: {balance}</span>
             </CNavLink>
           </CNavItem>
           <CNavItem>

@@ -19,6 +19,7 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CFormSelect,
 } from "@coreui/react";
 import {
   cilUser,
@@ -40,6 +41,10 @@ import { Link, useNavigate } from "react-router-dom";
 const Register = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
+  const [selectedDivision, setSelectedDivision] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [districtOptions, setDistrictOptions] = useState([]);
+  const [subDivisionOptions, setSubDivisionOptions] = useState([]);
   const [fileNames, setFileNames] = useState({
     photograph: "",
     aadharCard: "",
@@ -56,6 +61,109 @@ const Register = () => {
     educationCertificate: useRef(null),
     cheque: useRef(null),
   };
+
+
+
+
+  const divisionsData = {
+    "Patna Division": {
+      Patna: ["Patna Sadar", "Barh", "Masaurhi", "Paliganj", "Danapur"],
+      Nalanda: ["Bihar Sharif", "Hilsa", "Rajgir", "Asthawan"],
+      Bhojpur: ["Ara Sadar", "Jagdishpur", "Piro"],
+      Buxar: ["Buxar Sadar", "Dumraon"],
+      Rohtas: ["Sasaram", "Dehri", "Bikramganj"],
+      "Kaimur (Bhabua)": ["Bhabua Sadar", "Mohania"],
+    },
+    "Tirhut Division": {
+      Muzaffarpur: ["Muzaffarpur Sadar", "East Muzaffarpur", "West Muzaffarpur"],
+      Sitamarhi: ["Sitamarhi Sadar", "Pupri"],
+      Sheohar: ["Sheohar Sadar"],
+      Vaishali: ["Hajipur", "Mahnar"],
+      "East Champaran (Motihari)": ["Motihari Sadar", "Pakridayal", "Raxaul"],
+      "West Champaran (Bettiah)": ["Bettiah", "Bagaha", "Narkatiaganj"],
+    },
+    "Saran Division": {
+      "Saran (Chhapra)": ["Chhapra Sadar", "Marhaura", "Garkha"],
+      Siwan: ["Siwan Sadar", "Maharajganj"],
+      Gopalganj: ["Gopalganj Sadar", "Hathua"],
+    },
+    "Darbhanga Division": {
+      Darbhanga: ["Darbhanga Sadar", "Benipur", "Biraul"],
+      Madhubani: ["Madhubani Sadar", "Jhanjharpur", "Benipatti"],
+      Samastipur: ["Samastipur Sadar", "Dalsinghsarai", "Rosera"],
+    },
+    "Kosi Division": {
+      Saharsa: ["Saharsa Sadar", "Simri Bakhtiyarpur", "Sonbarsa"],
+      Madhepura: ["Madhepura Sadar", "Uda Kishanganj"],
+      Supaul: ["Supaul Sadar", "Birpur", "Tribeniganj"],
+    },
+    "Purnia Division": {
+      Purnia: ["Purnia Sadar", "Banmankhi", "Dhamdaha"],
+      Araria: ["Araria Sadar", "Forbesganj"],
+      Kishanganj: ["Kishanganj Sadar", "Bahadurganj"],
+      Katihar: ["Katihar Sadar", "Barsoi", "Manihari"],
+    },
+    "Bhagalpur Division": {
+      Bhagalpur: ["Bhagalpur Sadar", "Kahalgaon", "Naugachhia"],
+      Banka: ["Banka Sadar", "Amarpur"],
+    },
+    "Munger Division": {
+      Munger: ["Munger Sadar", "Jamalpur", "Kharagpur"],
+      Lakhisarai: ["Lakhisarai Sadar", "Barahiya"],
+      Sheikhpura: ["Sheikhpura Sadar"],
+      Jamui: ["Jamui Sadar", "Jhajha", "Sono"],
+      Khagaria: ["Khagaria Sadar", "Gogri"],
+      Begusarai: ["Begusarai Sadar", "Bachhwara", "Bakhri"],
+    },
+    "Magadh Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "Pataliputra Division": {
+      Nalanda: ["Bihar Sharif", "Rajgir", "Hilsa"],
+      Patna: ["Patna Sadar", "Barh", "Masaurhi", "Paliganj", "Danapur"],
+    },
+    "Saharsa Division": {
+      Saharsa: ["Saharsa Sadar", "Simri Bakhtiyarpur", "Sonbarsa"],
+      Madhepura: ["Madhepura Sadar", "Uda Kishanganj"],
+      Supaul: ["Supaul Sadar", "Birpur", "Tribeniganj"],
+    },
+    "Purnia Division": {
+      Purnia: ["Purnia Sadar", "Banmankhi", "Dhamdaha"],
+      Araria: ["Araria Sadar", "Forbesganj"],
+      Kishanganj: ["Kishanganj Sadar", "Bahadurganj"],
+      Katihar: ["Katihar Sadar", "Barsoi", "Manihari"],
+    },
+    "Bhagalpur Division": {
+      Bhagalpur: ["Bhagalpur Sadar", "Kahalgaon", "Naugachhia"],
+      Banka: ["Banka Sadar", "Amarpur"],
+    },
+    "Munger Division": {
+      Munger: ["Munger Sadar", "Jamalpur", "Kharagpur"],
+      Lakhisarai: ["Lakhisarai Sadar", "Barahiya"],
+      Sheikhpura: ["Sheikhpura Sadar"],
+      Jamui: ["Jamui Sadar", "Jhajha", "Sono"],
+      Khagaria: ["Khagaria Sadar", "Gogri"],
+      Begusarai: ["Begusarai Sadar", "Bachhwara", "Bakhri"],
+    },
+    "Magadh Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+  };
+
+
+
+
+
+
+
 
   const [formData, setFormData] = useState({
     name: "",
@@ -84,9 +192,39 @@ const Register = () => {
     bank: "", // Add this field
     accountno: "",
     ifsc: "", // Add this field
+    consumerId: "",
   });
 
-  const [errors, setErrors] = useState({});
+
+  const [errors, setErrors] = useState({
+    name: "",
+    fatherOrHusbandName: "",
+    dob: "",
+    aadharNumber: "",
+    panNumber: "",
+    mobileNumber: "",
+    gender: "",
+    maritalStatus: "",
+    education: [],
+    address: "",
+    salaryBasis: "",
+    email: "",
+    division: "",
+    subDivision: "",
+    section: "",
+    sectionType: "",
+    photograph: null,
+    aadharCard: null,
+    panCard: null,
+    educationCertificate: null,
+    cheque: null,
+    district: "", // Add this field
+    pincode: "", // Add this field
+    bank: "", // Add this field
+    accountno: "",
+    ifsc: "", // Add this field
+    consumerId: "",
+  });
 
   const validateForm = () => {
     let formErrors = {};
@@ -106,13 +244,7 @@ const Register = () => {
       formErrors.dob = "Date of Birth is required";
     }
 
-    if (!formData.division.trim()) {
-      formErrors.division = "Division is required";
-    }
-
-    if (!formData.subDivision.trim()) {
-      formErrors.subDivision = "Subdivision is required";
-    }
+    
 
     if (!formData.section.trim()) {
       formErrors.section = "Section is required";
@@ -125,21 +257,26 @@ const Register = () => {
     // Aadhar Number validation
     if (!formData.aadharNumber) {
       formErrors.aadharNumber = "Aadhar Number is required";
-    } else if (formData.aadharNumber.length < 12) {
+    } else if (formData.aadharNumber.length !== 12) {
       formErrors.aadharNumber = "Aadhar Number must be 12 digits long";
     }
 
-    // PAN Number validation
     if (!formData.panNumber) {
       formErrors.panNumber = "PAN Number is required";
-    } else if (formData.panNumber.length < 10) {
-      formErrors.panNumber = "Pan Number Must be 10 charecters";
+    } else if (formData.panNumber.length !== 10) {
+      formErrors.panNumber = "PAN Number must be exactly 10 characters long";
+    } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(formData.panNumber)) {
+      formErrors.panNumber = "PAN Number must follow the format: 5 letters, 4 digits, 1 letter";
     }
+    
+
+ 
+
 
     // Mobile Number validation
     if (!formData.mobileNumber) {
       formErrors.mobileNumber = "Mobile Number is required";
-    } else if (formData.mobileNumber.length < 10) {
+    } else if (formData.mobileNumber.length !== 10) {
       formErrors.mobileNumber = "Mobile Number must be 10 digits long";
     }
 
@@ -190,15 +327,11 @@ const Register = () => {
       formErrors.accountno = "Account Number is required";
     }
 
-    // District validation
-    if (!formData.district) {
-      formErrors.district = "District is required";
-    }
-
+   
     // Pincode validation
     if (!formData.pincode) {
       formErrors.pincode = "Pincode is required";
-    } else if (formData.pincode.length < 6) {
+    } else if (formData.pincode.length !== 6) {
       formErrors.pincode = "Pincode must be 6 digits long";
     }
 
@@ -222,14 +355,40 @@ const Register = () => {
       formErrors.cheque = "Cheque is required";
     }
 
+    if (!formData.consumerId && !(formData.division && formData.district && formData.subDivision)) {
+      formErrors.general = "You must provide either the division, district, and sub-division or your Consumer ID.";
+    }
+
     setErrors(formErrors);
     return Object.keys(formErrors).length === 0;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const uppercasedValue = value.toUpperCase();
+
+    setFormData({ ...formData, [name]: uppercasedValue });
+
+
+    // Dynamic options for district and sub-division
+    if (name === "division") {
+      const selectedDivision = divisionsData[value] || {};
+      const districts = Object.keys(selectedDivision);
+      setDistrictOptions(districts);
+      setSubDivisionOptions([]);
+      setFormData({ ...formData, division: value, district: "", subDivision: "" });
+    } else if (name === "district") {
+      const selectedSubDivisions = divisionsData[formData.division][value] || [];
+      setSubDivisionOptions(selectedSubDivisions);
+      setFormData({ ...formData, district: value, subDivision: "" });
+    } else if (name === "subDivision") {
+      setFormData({ ...formData, subDivision: value });
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: '' }));
+
   };
+
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
@@ -243,6 +402,8 @@ const Register = () => {
         [name]: files[0],
       }));
     }
+    setErrors((prev) => ({ ...prev, [name]: '' }));
+
   };
 
   const handleCheckboxChange = (e) => {
@@ -253,6 +414,8 @@ const Register = () => {
         ? [...prev[name], value]
         : prev[name].filter((item) => item !== value),
     }));
+    setErrors((prev) => ({ ...prev, [name]: '' }));
+
   };
 
   // const handleSubmit = async (e) => {
@@ -303,6 +466,12 @@ const Register = () => {
   //     cheque: null,
   //   });
   // };
+
+
+  const handleFocus = (e) => {
+    const { name } = e.target;
+    setErrors((prev) => ({ ...prev, [name]: '' })); // Clear error message on focus
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -368,6 +537,7 @@ const Register = () => {
                           placeholder="Name"
                           value={formData.name}
                           onChange={handleChange}
+                          onFocus={handleFocus}
                           style={{ textTransform: "capitalize" }}
                           autoComplete="name"
                         />
@@ -385,6 +555,7 @@ const Register = () => {
                           placeholder="Father's/Husband Name"
                           value={formData.fatherOrHusbandName}
                           onChange={handleChange}
+                          onFocus={handleFocus}
                           style={{ textTransform: "capitalize" }}
                           autoComplete="family-name"
                         />
@@ -405,6 +576,7 @@ const Register = () => {
                           type="date"
                           value={formData.dob}
                           onChange={handleChange}
+                          onFocus={handleFocus}
                           autoComplete="bday"
                         />
                       </CInputGroup>
@@ -426,6 +598,8 @@ const Register = () => {
                             value="salary based"
                             checked={formData.salaryBasis === "salary based"}
                             onChange={handleChange}
+                          onFocus={handleFocus}
+                            
                           />
                           <CFormCheck
                             variant="inline"
@@ -438,6 +612,8 @@ const Register = () => {
                               formData.salaryBasis === "commission based"
                             }
                             onChange={handleChange}
+                          onFocus={handleFocus}
+
                           />
                         </div>
                       </CInputGroup>
@@ -453,6 +629,8 @@ const Register = () => {
                           type="number"
                           value={formData.aadharNumber}
                           onChange={handleChange}
+                          onFocus={handleFocus}
+
                           autoComplete="off"
                         />
                       </CInputGroup>
@@ -467,6 +645,8 @@ const Register = () => {
                           placeholder="Pan Number"
                           value={formData.panNumber}
                           onChange={handleChange}
+                          onFocus={handleFocus}
+
                           style={{ textTransform: "uppercase" }}
                           autoComplete="off"
                         />
@@ -479,18 +659,23 @@ const Register = () => {
                         <CInputGroupText>
                           <CIcon icon={cilPhone} />
                         </CInputGroupText>
+                        <CInputGroupText>+91</CInputGroupText>
                         <CFormInput
                           name="mobileNumber"
                           placeholder="Mobile Number"
                           type="number"
                           value={formData.mobileNumber}
                           onChange={handleChange}
+                          onFocus={handleFocus}
+
                           autoComplete="tel"
+                          style={{ paddingLeft: '1rem' }} // Adjust padding as needed
                         />
                       </CInputGroup>
                       {errors.mobileNumber && (
                         <p className="text-danger">{errors.mobileNumber}</p>
                       )}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -502,6 +687,8 @@ const Register = () => {
                           type="email"
                           value={formData.email}
                           onChange={handleChange}
+                          onFocus={handleFocus}
+
                           autoComplete="email"
                         />
                       </CInputGroup>
@@ -523,6 +710,8 @@ const Register = () => {
                             value="Male"
                             checked={formData.gender === "Male"}
                             onChange={handleChange}
+                          onFocus={handleFocus}
+
                           />
                           <CFormCheck
                             variant="inline"
@@ -533,6 +722,8 @@ const Register = () => {
                             value="Female"
                             checked={formData.gender === "Female"}
                             onChange={handleChange}
+                          onFocus={handleFocus}
+
                           />
                           <CFormCheck
                             variant="inline"
@@ -543,6 +734,8 @@ const Register = () => {
                             value="Other"
                             checked={formData.gender === "Other"}
                             onChange={handleChange}
+                          onFocus={handleFocus}
+
                           />
                         </div>
                       </CInputGroup>
@@ -562,6 +755,8 @@ const Register = () => {
                             value="Rural"
                             checked={formData.sectionType === "Rural"}
                             onChange={handleChange}
+                          onFocus={handleFocus}
+
                           />
                           <CFormCheck
                             variant="inline"
@@ -572,6 +767,8 @@ const Register = () => {
                             value="Urban"
                             checked={formData.sectionType === "Urban"}
                             onChange={handleChange}
+                          onFocus={handleFocus}
+
                           />
                           <CFormCheck
                             variant="inline"
@@ -582,6 +779,8 @@ const Register = () => {
                             value="Both"
                             checked={formData.sectionType === "Both"}
                             onChange={handleChange}
+                          onFocus={handleFocus}
+
                           />
                         </div>
                       </CInputGroup>
@@ -601,6 +800,8 @@ const Register = () => {
                             value="Single"
                             checked={formData.maritalStatus === "Single"}
                             onChange={handleChange}
+                          onFocus={handleFocus}
+
                           />
                           <CFormCheck
                             variant="inline"
@@ -611,6 +812,8 @@ const Register = () => {
                             value="Married"
                             checked={formData.maritalStatus === "Married"}
                             onChange={handleChange}
+                          onFocus={handleFocus}
+
                           />
                           <CFormCheck
                             variant="inline"
@@ -621,6 +824,8 @@ const Register = () => {
                             value="Divorced"
                             checked={formData.maritalStatus === "Divorced"}
                             onChange={handleChange}
+                          onFocus={handleFocus}
+
                           />
                         </div>
                       </CInputGroup>
@@ -649,6 +854,8 @@ const Register = () => {
                           name="photograph"
                           type="file"
                           onChange={handleFileChange}
+                          onFocus={handleFocus}
+
                           style={{ display: "none" }} // Hide the default file input
                         />
                         <CButton
@@ -673,6 +880,8 @@ const Register = () => {
                           name="signature"
                           type="file"
                           onChange={handleFileChange}
+                          onFocus={handleFocus}
+
                           style={{ display: "none" }} // Hide the default file input
                         />
                         <CButton
@@ -699,6 +908,8 @@ const Register = () => {
                           value="Graduate"
                           checked={formData.education.includes("Graduate")}
                           onChange={handleCheckboxChange}
+                          onFocus={handleFocus}
+
                         />
                         <CFormCheck
                           type="checkbox"
@@ -710,6 +921,8 @@ const Register = () => {
                             "Above 12th Pass"
                           )}
                           onChange={handleCheckboxChange}
+                          onFocus={handleFocus}
+
                         />
                         <CFormCheck
                           type="checkbox"
@@ -719,6 +932,8 @@ const Register = () => {
                           value="Other"
                           checked={formData.education.includes("Other")}
                           onChange={handleCheckboxChange}
+                          onFocus={handleFocus}
+
                         />
                       </div>
                     </CInputGroup>
@@ -734,6 +949,8 @@ const Register = () => {
                           placeholder="Full Address"
                           value={formData.address}
                           onChange={handleChange}
+                          onFocus={handleFocus}
+
                           autoComplete="street-address"
                         />
                       </CInputGroup>
@@ -742,21 +959,8 @@ const Register = () => {
                       )}
 
                       <CRow className="d-flex">
-                        <CCol md={6}>
-                          <CInputGroup className="mb-3">
-                            <CInputGroupText>District</CInputGroupText>
-                            <CFormInput
-                              name="district"
-                              placeholder="District"
-                              value={formData.district}
-                              onChange={handleChange}
-                              autoComplete="street-address"
-                            />
-                          </CInputGroup>
-                          {errors.district && (
-                            <p className="text-danger">{errors.district}</p>
-                          )}
-                        </CCol>
+
+
 
                         <CCol md={6}>
                           <CInputGroup className="mb-3">
@@ -766,6 +970,8 @@ const Register = () => {
                               placeholder="Pin Code"
                               value={formData.pincode}
                               onChange={handleChange}
+                          onFocus={handleFocus}
+
                               autoComplete="street-address"
                             />
                           </CInputGroup>
@@ -773,7 +979,109 @@ const Register = () => {
                             <p className="text-danger">{errors.pincode}</p>
                           )}
                         </CCol>
+
+
+
+                        <CCol md={6}>
+                          <CInputGroup className="mb-3">
+                            <CInputGroupText>Division</CInputGroupText>
+                            <CFormSelect
+                              name="division"
+                              value={formData.division}
+                              onChange={handleChange}
+                          onFocus={handleFocus}
+
+                              aria-label="Select Division"
+                            >
+                              <option value="" disabled>
+                                Select a division
+                              </option>
+                              {Object.keys(divisionsData).map((division, index) => (
+                                <option key={index} value={division}>
+                                  {division}
+                                </option>
+                              ))}
+                            </CFormSelect>
+                          </CInputGroup>
+                        </CCol>
                       </CRow>
+
+
+
+
+
+
+                      {formData.division && (
+                        <>
+                          <CRow className="d-flex">
+                            <CCol md={6}>
+                              <CInputGroup className="mb-3">
+                                <CInputGroupText>District</CInputGroupText>
+                                <CFormSelect
+                                  name="district"
+                                  value={formData.district}
+                                  onChange={handleChange}
+                          onFocus={handleFocus}
+
+                                  aria-label="Select District"
+                                  disabled={!formData.division} // Disable until a division is selected
+                                >
+                                  <option value="" disabled>
+                                    Select a district
+                                  </option>
+                                  {districtOptions.map((district, index) => (
+                                    <option key={index} value={district}>
+                                      {district}
+                                    </option>
+                                  ))}
+                                </CFormSelect>
+                              </CInputGroup>
+                            </CCol>
+
+
+
+                            <CCol md={6}>
+                              <CInputGroup className="mb-3">
+                                <CInputGroupText>Sub Division</CInputGroupText>
+                                <CFormSelect
+                                  name="subDivision"
+                                  value={formData.subDivision}
+                                  onChange={handleChange}
+                          onFocus={handleFocus}
+
+                                  aria-label="Select Sub-Division"
+                                  disabled={!formData.district} // Disable until a district is selected
+                                >
+                                  <option value="" disabled>
+                                    Select a sub-division
+                                  </option>
+                                  {subDivisionOptions.map((subDivision, index) => (
+                                    <option key={index} value={subDivision}>
+                                      {subDivision}
+                                    </option>
+                                  ))}
+                                </CFormSelect>
+                              </CInputGroup>
+
+                            </CCol>
+                          </CRow>
+                        </>
+                      )}
+
+<CInputGroup className="mb-3">
+        <CInputGroupText>Consumer ID</CInputGroupText>
+        <CFormInput
+          name="consumerId"
+          placeholder="Enter your Consumer ID"
+          value={formData.consumerId}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          autoComplete="off"
+        />
+      </CInputGroup>
+
+      {errors.general && <p className="text-danger">{errors.general}</p>}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Bank Name</CInputGroupText>
@@ -782,6 +1090,8 @@ const Register = () => {
                           placeholder="Bank Name"
                           value={formData.bank}
                           onChange={handleChange}
+                          onFocus={handleFocus}
+
                           autoComplete="off"
                         />
                       </CInputGroup>
@@ -796,6 +1106,8 @@ const Register = () => {
                           placeholder="Bank Account Number"
                           value={formData.accountno}
                           onChange={handleChange}
+                          onFocus={handleFocus}
+
                           autoComplete="off"
                         />
                       </CInputGroup>
@@ -810,6 +1122,8 @@ const Register = () => {
                           placeholder="IFSC Code"
                           value={formData.ifsc}
                           onChange={handleChange}
+                          onFocus={handleFocus}
+
                           autoComplete="off"
                         />
                       </CInputGroup>
@@ -817,33 +1131,7 @@ const Register = () => {
                         <p className="text-danger">{errors.ifsc}</p>
                       )}
 
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>Division</CInputGroupText>
-                        <CFormInput
-                          name="division"
-                          placeholder="Division"
-                          value={formData.division}
-                          onChange={handleChange}
-                          autoComplete="off"
-                        />
-                      </CInputGroup>
-                      {errors.division && (
-                        <p className="text-danger">{errors.division}</p>
-                      )}
 
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>Sub Division</CInputGroupText>
-                        <CFormInput
-                          name="subDivision"
-                          placeholder="Sub Division"
-                          value={formData.subDivision}
-                          onChange={handleChange}
-                          autoComplete="off"
-                        />
-                      </CInputGroup>
-                      {errors.subDivision && (
-                        <p className="text-danger">{errors.subDivision}</p>
-                      )}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Section</CInputGroupText>
@@ -852,6 +1140,8 @@ const Register = () => {
                           placeholder="Section"
                           value={formData.section}
                           onChange={handleChange}
+                          onFocus={handleFocus}
+
                           autoComplete="off"
                         />
                       </CInputGroup>
@@ -882,6 +1172,8 @@ const Register = () => {
                           name="aadharCard"
                           type="file"
                           onChange={handleFileChange}
+                          onFocus={handleFocus}
+
                           style={{ display: "none" }} // Hide the default file input
                         />
                         <CButton

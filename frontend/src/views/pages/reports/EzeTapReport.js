@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faTimesCircle, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import * as XLSX from 'xlsx';  // Import XLSX for Excel export
+import * as XLSX from 'xlsx'; // Import XLSX for Excel export
 import '../../../scss/dataTable.scss';
 
 // Define custom styles for the table
@@ -32,10 +32,8 @@ const customStyles = {
 // Function to generate and download PDF
 const downloadPDF = (data) => {
   const doc = new jsPDF();
-
-  // Set up margins and title
   const pageWidth = doc.internal.pageSize.getWidth();
-  const title = "Table Data";
+  const title = "Ezetap Payment Reports";
   const titleXPos = pageWidth / 2;
 
   doc.setFontSize(18);
@@ -44,94 +42,64 @@ const downloadPDF = (data) => {
   doc.setFontSize(10);
   doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
 
-  // Define the columns and their widths
   const columns = [
-    { header: 'ID', dataKey: '_id' },
-    { header: 'Name', dataKey: 'name' },
-    { header: 'Father/Husband Name', dataKey: 'fatherorHusbandName' },
-    { header: 'DOB', dataKey: 'dob' },
-    { header: 'Aadhar No.', dataKey: 'aadharNumber' },
-    { header: 'Pan No.', dataKey: 'panNumber' },
-    { header: 'Mobile No.', dataKey: 'mobileNumber' },
-    { header: 'Gender', dataKey: 'gender' },
-    { header: 'Marital Status', dataKey: 'maritalStatus' },
-    { header: 'Education', dataKey: 'education' },
-    { header: 'Address', dataKey: 'address' },
-    { header: 'Job Type', dataKey: 'salaryBasis' },
-    { header: 'Email', dataKey: 'email' },
-    { header: 'Division', dataKey: 'division' },
-    { header: 'Sub-Division', dataKey: 'subDivision' },
-    { header: 'Section', dataKey: 'section' },
-    { header: 'Section Type', dataKey: 'sectionType' },
-    { header: 'Created At', dataKey: 'createdAt' },
-    { header: 'Updated At', dataKey: 'updatedAt' },
+    { header: 'Transaction ID', dataKey: 'transactionId' },
+    { header: 'Amount', dataKey: 'amount' },
+    { header: 'Payment Mode', dataKey: 'paymentMode' },
+    { header: 'Customer Name', dataKey: 'customerName' },
+    { header: 'Mobile No.', dataKey: 'customerMobile' },
+    { header: 'Email', dataKey: 'customerEmail' },
+    { header: 'Status', dataKey: 'status' },
+    { header: 'Date', dataKey: 'date' },
   ];
 
   const rows = data.map(row => ({
-    _id: row._id,
-    name: row.name,
-    fatherorHusbandName: row.fatherorHusbandName,
-    dob: row.dob,
-    aadharNumber: row.aadharNumber,
-    panNumber: row.panNumber,
-    mobileNumber: row.mobileNumber,
-    gender: row.gender,
-    maritalStatus: row.maritalStatus,
-    education: row.education,
-    address: row.address,
-    salaryBasis: row.salaryBasis,
-    email: row.email,
-    division: row.division,
-    subDivision: row.subDivision,
-    section: row.section,
-    sectionType: row.sectionType,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    transactionId: row.transactionId,
+    amount: row.amount,
+    paymentMode: row.paymentMode,
+    customerName: row.customer.name,
+    customerMobile: row.customer.mobileNo,
+    customerEmail: row.customer.email,
+    status: row.status,
+    date: row.date,
   }));
 
-  // Auto table options
   doc.autoTable({
-    startY: 30, // Starting y position
-    head: columns.map(col => col.header), // Table headers
-    body: rows.map(row => columns.map(col => row[col.dataKey])), // Table data
-    margin: { top: 30 }, // Top margin to align with title
+    startY: 30,
+    head: columns.map(col => col.header),
+    body: rows.map(row => columns.map(col => row[col.dataKey])),
+    margin: { top: 30 },
     styles: {
       fontSize: 8,
       cellPadding: 3,
       overflow: 'linebreak',
-      halign: 'left', // Horizontal alignment
-      valign: 'middle', // Vertical alignment
+      halign: 'left',
+      valign: 'middle',
     },
     headStyles: {
-      fillColor: [52, 58, 64], // Dark gray background
-      textColor: [255, 255, 255], // White text
+      fillColor: [52, 58, 64],
+      textColor: [255, 255, 255],
       fontStyle: 'bold',
     },
     alternateRowStyles: {
-      fillColor: [220, 220, 220], // Light gray alternating row background
-    },
-    columnStyles: {
-      0: { cellWidth: 'auto' }, // Adjust column width automatically
-      1: { cellWidth: 'auto' }, // Adjust column width automatically
+      fillColor: [220, 220, 220],
     },
     didDrawPage: (data) => {
-      // Add page number at the bottom
       const pageCount = doc.internal.getNumberOfPages();
       doc.setFontSize(10);
       doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
     }
   });
 
-  // Download the PDF
-  doc.save('table_data.pdf');
+  doc.save('ezetap_payment_reports.pdf');
 };
 
 // Function to generate and download Excel
 const downloadExcel = (data) => {
-  const ws = XLSX.utils.json_to_sheet(data); // Convert JSON data to sheet
-  const wb = XLSX.utils.book_new(); // Create a new workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data"); // Append sheet to workbook
-  XLSX.writeFile(wb, 'table_data.xlsx'); // Write and download Excel file
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Payment Reports");
+  XLSX.writeFile(wb, 'ezetap_payment_reports.xlsx');
 };
 
 const EzeTapReport = () => {
@@ -141,11 +109,40 @@ const EzeTapReport = () => {
   const [filterText, setFilterText] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchEzeTapReports = async () => {
       try {
-        const response = await axios.get('/fetch_data'); 
-        const result = response.data.data || []; // Access the data array from the nested data object
-        setData(result);
+        const jsonRequest = {
+          demoAppKey: 'Your demo app key',
+          prodAppKey: 'Your demo app key',
+          merchantName: 'Your Merchant Name',
+          userName: 'As provided in email',
+          currencyCode: 'INR',
+          appMode: 'DEMO',
+          captureSignature: 'false',
+          prepareDevice: 'true',
+          amount: '123',
+          options: {
+            serviceFee: 100,
+            paymentBy: 'ANY',
+            paymentMode: 'CARD',
+            references: {
+              reference1: '1234',
+              additionalReferences: ['addRef_xx1', 'addRef_xx2']
+            },
+            customer: {
+              name: 'xyz',
+              mobileNo: '1234567890',
+              email: 'abc@xyz.com'
+            }
+          }
+        };
+
+        const response = await axios.post('https://api.ezetap.com/universalpay', jsonRequest, {
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = response.data; // Modify this based on the actual response format
+        setData(result.transactions); // Assume the response has a 'transactions' array
       } catch (error) {
         setError(error);
       } finally {
@@ -153,79 +150,39 @@ const EzeTapReport = () => {
       }
     };
 
-    fetchData();
+    fetchEzeTapReports();
   }, []);
 
   const handleAccept = (row) => {
     console.log('Accepted:', row);
-    // Implement accept logic here
   };
 
   const handleReject = (row) => {
     console.log('Rejected:', row);
-    setData(prevData => prevData.filter(item => item._id !== row._id));
-    // Implement reject logic here
+    setData(prevData => prevData.filter(item => item.transactionId !== row.transactionId));
   };
 
   const handleDownload = (row) => {
     console.log('Downloading file for:', row);
-    // Implement download logic here
   };
 
   const handleSearch = () => {
-    // Search logic is already implemented with the filter, just trigger re-render
     setFilterText(filterText);
   };
 
   const columns = [
-    { name: 'ID', selector: '_id', sortable: true },
-    { name: 'Name', selector: 'name', sortable: true },
-    { name: 'Father or Husband Name', selector: 'fatherorHusbandName', sortable: true },
-    { name: 'Date Of Birth', selector: 'dob', sortable: true },
-    { name: 'Aadhar No.', selector: 'aadharNumber', sortable: true },
-    { name: 'Pan No.', selector: 'panNumber', sortable: true },
-    { name: 'Mobile No.', selector: 'mobileNumber', sortable: true },
-    { name: 'Gender', selector: 'gender', sortable: true },
-    { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
-    { name: 'Education', selector: 'education', sortable: true },
-    { name: 'Address', selector: 'address', sortable: true },
-    { name: 'Job Type', selector: 'salaryBasis', sortable: true },
-    { name: 'Email', selector: 'email', sortable: true },
-    { name: 'Division', selector: 'division', sortable: true },
-    { name: 'Sub-Division', selector: 'subDivision', sortable: true },
-    { name: 'Section', selector: 'section', sortable: true },
-    { name: 'Section Type', selector: 'sectionType', sortable: true },
-    { name: 'Created At', selector: 'createdAt', sortable: true },
-    { name: 'Updated At', selector: 'updatedAt', sortable: true },
-    {
-      name: 'Actions',
-      cell: (row) => (
-        <div className="button-containerr">
-          <button 
-            className="button-search" 
-            onClick={() => handleAccept(row)}
-          >
-            <FontAwesomeIcon icon={faCheckCircle} /> Accept
-          </button>
-          <button 
-            className="button-reject" 
-            onClick={() => handleReject(row)}
-          >
-            <FontAwesomeIcon icon={faTimesCircle} /> Reject
-          </button>
-          <button 
-            className="button-download" 
-            onClick={() => handleDownload(row)}
-          >
-            <FontAwesomeIcon icon={faDownload} /> Download File
-          </button>
-        </div>
-      ),
-    },
+    { name: 'Transaction ID', selector: 'transactionId', sortable: true },
+    { name: 'Amount', selector: 'amount', sortable: true },
+    { name: 'Payment Mode', selector: 'paymentMode', sortable: true },
+    { name: 'Customer Name', selector: 'customerName', sortable: true },
+    { name: 'Mobile No.', selector: 'customerMobile', sortable: true },
+    { name: 'Email', selector: 'customerEmail', sortable: true },
+    { name: 'Status', selector: 'status', sortable: true },
+    { name: 'Date', selector: 'date', sortable: true },
   ];
 
-  const filteredItems = data.filter(item => 
-    item.name && item.name.toLowerCase().includes(filterText.toLowerCase())
+  const filteredItems = data.filter(item =>
+    item.customerName && item.customerName.toLowerCase().includes(filterText.toLowerCase())
   );
 
   if (loading) {
@@ -241,31 +198,22 @@ const EzeTapReport = () => {
       <div className="button-container">
         <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search by customer name..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
-        <button 
-          className="button-search" 
-          onClick={handleSearch}
-        >
+        <button className="button-search" onClick={handleSearch}>
           <FontAwesomeIcon icon={faSearch} /> Search
         </button>
-        <button 
-          className="button-download" 
-          onClick={() => downloadPDF(data)}
-        >
+        <button className="button-download" onClick={() => downloadPDF(data)}>
           <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
-        <button 
-          className="button-download-excel" 
-          onClick={() => downloadExcel(data)}
-        >
+        <button className="button-download-excel" onClick={() => downloadExcel(data)}>
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
       </div>
       <DataTable
-        title="My Data Table"
+        title="Ezetap Payment Reports"
         columns={columns}
         data={filteredItems}
         pagination

@@ -29,23 +29,23 @@ const customStyles = {
   },
 };
 
-// Function to generate and download PDF
 const downloadPDF = (data) => {
-  const doc = new jsPDF();
+  const doc = new jsPDF({
+    orientation: 'p', // Portrait mode
+    unit: 'mm',
+    format: 'a4' // A4 paper size
+  });
 
-  // Set up margins and title
   const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const title = "Table Data";
+  const title = "Fund Reports";
   const titleXPos = pageWidth / 2;
 
-  doc.setFontSize(14); // Reduced font size for title
+  doc.setFontSize(16);
   doc.text(title, titleXPos, 15, { align: 'center' });
 
-  doc.setFontSize(8); // Smaller font size for date
-  doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 20);
+  doc.setFontSize(10);
+  doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
 
-  // Define the columns and their widths
   const columns = [
     { header: 'User ID', dataKey: 'userId' },
     { header: 'Fund Amount', dataKey: 'fundAmount' },
@@ -54,10 +54,9 @@ const downloadPDF = (data) => {
     { header: 'Bank Name', dataKey: 'bankName' },
     { header: 'Status', dataKey: 'status' },
     { header: 'Created At', dataKey: 'createdAt' },
-    { header: 'Updated At', dataKey: 'updatedAt' }
+    { header: 'Updated At', dataKey: 'updatedAt' },
   ];
 
-  // Prepare the data for autoTable
   const rows = data.map(row => ({
     userId: row.uniqueId,
     fundAmount: row.fundAmount,
@@ -65,19 +64,19 @@ const downloadPDF = (data) => {
     paymentMethod: row.paymentMethod,
     bankName: row.bankName,
     status: row.status,
-    createdAt: new Date(row.createdAt).toLocaleDateString(),
-    updatedAt: new Date(row.updatedAt).toLocaleDateString()
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
   }));
 
-  // Auto table options with adjustments
+  // Auto table options
   doc.autoTable({
-    startY: 25, // Start position below the title and date
-    head: [columns.map(col => col.header)],
-    body: rows.map(row => Object.values(row)),
-    margin: { top: 25, bottom: 10, left: 10, right: 10 }, // Reduced margins
+    startY: 30,
+    head: [columns.map(col => col.header)], // Table headers
+    body: rows.map(row => columns.map(col => row[col.dataKey])), // Table data
+    margin: { top: 30, bottom: 10 }, // Adjust bottom margin for page footer
     styles: {
-      fontSize: 7, // Smaller font size for table
-      cellPadding: 1, // Reduced padding
+      fontSize: 7, // Adjust font size
+      cellPadding: 1, // Reduce cell padding
       overflow: 'linebreak',
       halign: 'left',
       valign: 'middle',
@@ -88,38 +87,65 @@ const downloadPDF = (data) => {
       fontStyle: 'bold',
     },
     alternateRowStyles: {
-      fillColor: [240, 240, 240],
+      fillColor: [220, 220, 220],
     },
     columnStyles: {
-      // Dynamically calculate widths or assign percentages
-      userId: { cellWidth: 15 },
-      fundAmount: { cellWidth: 20 },
-      bankReference: { cellWidth: 25 },
-      paymentMethod: { cellWidth: 25 },
-      bankName: { cellWidth: 30 },
-      status: { cellWidth: 15 },
-      createdAt: { cellWidth: 20 },
-      updatedAt: { cellWidth: 20 }
+      0: { cellWidth: 20 }, // Adjust column widths
+      1: { cellWidth: 20 },
+      2: { cellWidth: 25 },
+      3: { cellWidth: 30 },
+      4: { cellWidth: 30 },
+      5: { cellWidth: 20 },
+      6: { cellWidth: 25 },
+      7: { cellWidth: 25 },
     },
     didDrawPage: (data) => {
       const pageCount = doc.internal.getNumberOfPages();
       doc.setFontSize(8);
-      doc.text(`Page ${pageCount}`, data.settings.margin.left, pageHeight - 5); // Smaller font size for footer
+      doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
     }
   });
 
   // Download the PDF
-  doc.save('table_data.pdf');
+  doc.save('fund_reports.pdf');
 };
 
 
 
-// Function to generate and download Excel
-const downloadExcel = (data) => {
-  // Convert JSON data to sheet
-  const ws = XLSX.utils.json_to_sheet(data);
 
-  // Define column widths to fit data within a single page
+
+const downloadExcel = (data) => {
+  // Create a new workbook
+  const wb = XLSX.utils.book_new();
+
+  // Define headers and data
+  const headers = [
+    "User ID",
+    "Fund Amount",
+    "Bank Reference",
+    "Payment Method",
+    "Bank Name",
+    "Status",
+    "Created At",
+    "Updated At"
+  ];
+
+  // Convert JSON data to sheet
+  const wsData = data.map(row => ({
+    "User ID": row.uniqueId,
+    "Fund Amount": row.fundAmount,
+    "Bank Reference": row.bankReference,
+    "Payment Method": row.paymentMethod,
+    "Bank Name": row.bankName,
+    "Status": row.status,
+    "Created At": row.createdAt,
+    "Updated At": row.updatedAt,
+  }));
+
+  // Create a worksheet
+  const ws = XLSX.utils.json_to_sheet(wsData, { header: headers });
+
+  // Define column widths manually
   const columnWidths = [
     { wch: 15 },  // User ID
     { wch: 12 },  // Fund Amount
@@ -130,13 +156,12 @@ const downloadExcel = (data) => {
     { wch: 20 },  // Created At
     { wch: 20 }   // Updated At
   ];
-  ws['!cols'] = columnWidths; // Apply column widths to the sheet
 
-  // Create a new workbook
-  const wb = XLSX.utils.book_new();
+  // Apply column widths to the worksheet
+  ws['!cols'] = columnWidths;
 
   // Append sheet to workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data");
+  XLSX.utils.book_append_sheet(wb, ws, "Fund Reports");
 
   // Convert workbook to binary format
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
@@ -154,11 +179,12 @@ const downloadExcel = (data) => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'table_data.xlsx';
+  a.download = 'fund_reports.xlsx'; // File name
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
 };
+
 
 
 
@@ -188,9 +214,8 @@ const DataTableComponent = () => {
 
 
 
-  const handleSearch = () => {
-    // Search logic is already implemented with the filter, just trigger re-render
-    setFilterText(filterText);
+  const handleSearch = (event) => {
+    setFilterText(event.target.value); // Update filter text on input change
   };
 
   const columns = [
@@ -199,15 +224,15 @@ const DataTableComponent = () => {
     { name: 'bankReference', selector: 'bankReference', sortable: true },
     { name: 'paymentMethod', selector: 'paymentMethod', sortable: true },
     { name: 'bankName', selector: 'bankName', sortable: true },
+    { name: 'Date of Payment', selector: 'datePayment', sortable: true }, 
     { name: 'status', selector: 'status', sortable: true },
     { name: 'createdAt', selector: 'createdAt', sortable: true },
     { name: 'updatedAt', selector: 'updatedAt', sortable: true },
   ];
 
-  const filteredItems = data.filter(
-    (item) => item.status === 'approved' && item.userId && item.userId.toLowerCase().includes(filterText.toLowerCase())
+  const filteredItems = data.filter((item) =>
+    item.uniqueId && item.uniqueId.toLowerCase().includes(filterText.toLowerCase())
   );
-  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -222,7 +247,7 @@ const DataTableComponent = () => {
       <div className="button-container">
         <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search by userId..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
@@ -248,7 +273,7 @@ const DataTableComponent = () => {
       <DataTable
         title="My Data Table"
         columns={columns}
-        data={filteredItems}
+        data={filteredItems} // Use filtered items for the table data
         pagination
         highlightOnHover
         customStyles={customStyles}

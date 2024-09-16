@@ -75,6 +75,10 @@ const registerSchema = new Schema({
     type: String, 
     trim: true 
   },
+  consumerId: { 
+    type: String, 
+    trim: true 
+  },
   sectionType: { 
     type: String, 
     trim: true 
@@ -129,10 +133,12 @@ const registerSchema = new Schema({
   // New fields
   userId: { 
     type: String, 
-    trim: true 
+    trim: true ,
+    immutable: true
   },
   password: { 
     type: String, 
+    immutable: true
   },
 
   // Status field to track registration status
