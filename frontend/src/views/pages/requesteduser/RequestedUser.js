@@ -328,42 +328,49 @@ const handleDownload = async (row) => {
     setFilterText(filterText);
   };
 
+  const handleView = () => {
+    // Search logic is already implemented with the filter, just trigger re-render
+    setFilterText(filterText);
+  };
+
+
   const columns = [
     { name: 'Name', selector: 'name', sortable: true },
     { name: 'Father or Husband Name', selector: 'fatherOrHusbandName', sortable: true },
-    { name: 'Date Of Birth', selector: 'dob', sortable: true },
-    { name: 'Aadhar No.', selector: 'aadharNumber', sortable: true },
-    { name: 'Pan No.', selector: 'panNumber', sortable: true },
     { name: 'Mobile No.', selector: 'mobileNumber', sortable: true },
-    { name: 'Gender', selector: 'gender', sortable: true },
-    { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
-    { name: 'Education', selector: 'education', sortable: true },
-    { name: 'Address', selector: 'address', sortable: true },
-    { name: 'District', selector: 'district', sortable: true },
-    { name: 'Pin Code', selector: 'pincode', sortable: true },
-    { name: 'Bank Name', selector: 'bank', sortable: true },
-    { name: 'Account no', selector: 'accountno', sortable: true },
-    { name: 'Ifsc Code', selector: 'ifsc', sortable: true },
-    { name: 'Job Type', selector: 'salaryBasis', sortable: true },
-    { name: 'Email', selector: 'email', sortable: true },
-    { name: 'Division', selector: 'division', sortable: true },
-    { name: 'Sub-Division', selector: 'subDivision', sortable: true },
-    { name: 'Section', selector: 'section', sortable: true },
-    { name: 'Section Type', selector: 'sectionType', sortable: true },
-    { name: 'Created At', selector: 'createdAt', sortable: true },
-    { name: 'Updated At', selector: 'updatedAt', sortable: true },
+    // { name: 'Date Of Birth', selector: 'dob', sortable: true },
+    // { name: 'Aadhar No.', selector: 'aadharNumber', sortable: true },
+    // { name: 'Pan No.', selector: 'panNumber', sortable: true },
+    // { name: 'Mobile No.', selector: 'mobileNumber', sortable: true },
+    // { name: 'Gender', selector: 'gender', sortable: true },
+    // { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
+    // { name: 'Education', selector: 'education', sortable: true },
+    // { name: 'Address', selector: 'address', sortable: true },
+    // { name: 'District', selector: 'district', sortable: true },
+    // { name: 'Pin Code', selector: 'pincode', sortable: true },
+    // { name: 'Bank Name', selector: 'bank', sortable: true },
+    // { name: 'Account no', selector: 'accountno', sortable: true },
+    // { name: 'Ifsc Code', selector: 'ifsc', sortable: true },
+    // { name: 'Job Type', selector: 'salaryBasis', sortable: true },
+    // { name: 'Email', selector: 'email', sortable: true },
+    // { name: 'Division', selector: 'division', sortable: true },
+    // { name: 'Sub-Division', selector: 'subDivision', sortable: true },
+    // { name: 'Section', selector: 'section', sortable: true },
+    // { name: 'Section Type', selector: 'sectionType', sortable: true },
+    // { name: 'Created At', selector: 'createdAt', sortable: true },
+    // { name: 'Updated At', selector: 'updatedAt', sortable: true },
     {
       name: 'Actions',
       cell: (row) => (
         <div className='actions-cell'>
-        <div className="button-containerr">
+        {/* <div className="button-containerr"> */}
           <button 
             className="button-search" 
-            onClick={() => handleAccept(row)}
+            onClick={() => handleView(row)}
           >
-            <FontAwesomeIcon icon={faCheckCircle} /> Accept
+            <FontAwesomeIcon icon={faCheckCircle} /> view
           </button>
-          <button 
+          {/* <button 
             className="button-reject" 
             onClick={() => handleReject(row)}
           >
@@ -374,8 +381,8 @@ const handleDownload = async (row) => {
             onClick={() => handleDownload(row)}
           >
             <FontAwesomeIcon icon={faDownload} /> Download File
-          </button>
-        </div>
+          </button> */}
+        {/* </div> */}
         </div>
       ),
     },
