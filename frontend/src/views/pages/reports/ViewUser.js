@@ -347,7 +347,7 @@ const DataTableComponent = () => {
     {
       name: 'Actions',
       cell: (row) => (
-        <div className="button-containerr">
+        <div className="actions-cell">
       <button 
       className="button-Accept" 
       onClick={() => handleBlockUnblock(row)}

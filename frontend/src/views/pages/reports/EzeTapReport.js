@@ -112,37 +112,22 @@ const EzeTapReport = () => {
     const fetchEzeTapReports = async () => {
       try {
         const jsonRequest = {
-          demoAppKey: 'Your demo app key',
-          prodAppKey: 'Your demo app key',
-          merchantName: 'Your Merchant Name',
-          userName: 'As provided in email',
+          demoAppKey: 'YourDemoAppKey', // Replace with your demo key
+          prodAppKey: 'YourProdAppKey', // Replace with your production key
+          merchantName: 'YourMerchantName',
+          userName: 'YourUserName', // As provided in the API documentation
           currencyCode: 'INR',
-          appMode: 'DEMO',
+          appMode: 'DEMO', // Change to 'PROD' in production
           captureSignature: 'false',
           prepareDevice: 'true',
-          amount: '123',
-          options: {
-            serviceFee: 100,
-            paymentBy: 'ANY',
-            paymentMode: 'CARD',
-            references: {
-              reference1: '1234',
-              additionalReferences: ['addRef_xx1', 'addRef_xx2']
-            },
-            customer: {
-              name: 'xyz',
-              mobileNo: '1234567890',
-              email: 'abc@xyz.com'
-            }
-          }
         };
 
         const response = await axios.post('https://api.ezetap.com/universalpay', jsonRequest, {
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
 
-        const result = response.data; // Modify this based on the actual response format
-        setData(result.transactions); // Assume the response has a 'transactions' array
+        const result = response.data; // Modify based on actual response format
+        setData(result.transactions); // Assume the response contains 'transactions'
       } catch (error) {
         setError(error);
       } finally {
@@ -174,15 +159,15 @@ const EzeTapReport = () => {
     { name: 'Transaction ID', selector: 'transactionId', sortable: true },
     { name: 'Amount', selector: 'amount', sortable: true },
     { name: 'Payment Mode', selector: 'paymentMode', sortable: true },
-    { name: 'Customer Name', selector: 'customerName', sortable: true },
-    { name: 'Mobile No.', selector: 'customerMobile', sortable: true },
-    { name: 'Email', selector: 'customerEmail', sortable: true },
+    { name: 'Customer Name', selector: 'customer.name', sortable: true }, // Adjust for nested customer field
+    { name: 'Mobile No.', selector: 'customer.mobileNo', sortable: true },
+    { name: 'Email', selector: 'customer.email', sortable: true },
     { name: 'Status', selector: 'status', sortable: true },
     { name: 'Date', selector: 'date', sortable: true },
   ];
 
   const filteredItems = data.filter(item =>
-    item.customerName && item.customerName.toLowerCase().includes(filterText.toLowerCase())
+    item.customer.name && item.customer.name.toLowerCase().includes(filterText.toLowerCase())
   );
 
   if (loading) {
@@ -205,10 +190,10 @@ const EzeTapReport = () => {
         <button className="button-search" onClick={handleSearch}>
           <FontAwesomeIcon icon={faSearch} /> Search
         </button>
-        <button className="button-download" onClick={() => downloadPDF(data)}>
+        <button className="button-download" onClick={() => downloadPDF(filteredItems)}>
           <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
-        <button className="button-download-excel" onClick={() => downloadExcel(data)}>
+        <button className="button-download-excel" onClick={() => downloadExcel(filteredItems)}>
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
       </div>

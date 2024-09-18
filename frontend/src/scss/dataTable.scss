@@ -1,115 +1,121 @@
-.button-container {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-.button-containerr {
-  display: flex;
-  gap: 10px;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  min-width: 410px;
-}
-
-.button-Accept,
-  .button-reject,
-  .button-search, 
-  .button-download, 
-  .button-download-excel {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    text-decoration: none;
-  }
-  
-  
-  .button-search:hover, 
-  .button-download:hover, 
-  .button-download-excel:hover {
-    background-color: #0056b3;
-  }
-  
-  .button-search {
-    background-color: #28a745;
-  }
-  
-  .button-search:hover {
-    background-color: #218838;
-  }
-  
-  .button-download {
-    background-color: #007bff;
-  }
-  
-  .button-download:hover {
-    background-color: #0056b3;
-  }
-  
-  .button-reject {
-    background-color: #ff0000;
-  }
-
-  .button-Accept {
-    background-color: green;
-  }
-
-  .button-download-excel {
-    background-color: #17a2b8;
-  }
-  
-  .button-download-excel:hover {
-    background-color: #138496;
-  }
-  
-  .button-container button .fa-search, 
-  .button-container button .fa-download, 
-  .button-container button .fa-file-excel {
-    margin-right: 8px;
-  }
-  
-
-  .actions-cell {
+  .button-container {
     display: flex;
     gap: 10px;
+    margin-bottom: 20px;
   }
-  
-  .block-unblock-btn {
-    padding: 8px 12px;
-    font-size: 14px;
-    font-weight: bold;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-  
-    // Style for the "Block" button
-    &.block-btn {
-      background-color: #d9534f; // Red color
+  .button-containerr {
+    display: flex;
+    gap: 10px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 410px;
+  }
+
+  .button-Accept,
+    .button-reject,
+    .button-search, 
+    .button-download, 
+    .button-download-excel {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
       color: #fff;
-  
-      &:hover {
-        background-color: #c9302c; // Darker red on hover
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      text-decoration: none;
+    }
+    
+    
+    .button-search:hover, 
+    .button-download:hover, 
+    .button-download-excel:hover {
+      background-color: #0056b3;
+    }
+    
+    .button-search {
+      background-color: #28a745;
+    }
+    
+    .button-search:hover {
+      background-color: #218838;
+    }
+    
+    .button-download {
+      background-color: #007bff;
+    }
+    
+    .button-download:hover {
+      background-color: #0056b3;
+    }
+    
+    .button-reject {
+      background-color: #ff0000;
+    }
+
+    .button-Accept {
+      background-color: green;
+    }
+
+    .button-download-excel {
+      background-color: #17a2b8;
+    }
+    
+    .button-download-excel:hover {
+      background-color: #138496;
+    }
+    
+    .button-container button .fa-search, 
+    .button-container button .fa-download, 
+    .button-container button .fa-file-excel {
+      margin-right: 8px;
+    }
+    
+
+    .actions-cell {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .block-unblock-btn {
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: bold;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    
+      // Style for the "Block" button
+      &.block-btn {
+        background-color: #d9534f; // Red color
+        color: #fff;
+    
+        &:hover {
+          background-color: #c9302c; // Darker red on hover
+        }
+      }
+    
+      // Style for the "Unblock" button
+      &.unblock-btn {
+        background-color: #5cb85c; // Green color
+        color: #fff;
+    
+        &:hover {
+          background-color: #4cae4c; // Darker green on hover
+        }
       }
     }
-  
-    // Style for the "Unblock" button
-    &.unblock-btn {
-      background-color: #5cb85c; // Green color
-      color: #fff;
-  
-      &:hover {
-        background-color: #4cae4c; // Darker green on hover
-      }
+    .flex-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
     }
-  }
-  
+    

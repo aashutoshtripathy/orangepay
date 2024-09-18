@@ -73,7 +73,7 @@ const registerUser = asyncHandler(async (req, res) => {
         const {
             name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
             gender, maritalStatus, education, address, salaryBasis, email, division,
-            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,consumerId,
+            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,consumerId,role,
         } = req.body;
         console.log(req.body)
         // Check for existing user
@@ -87,7 +87,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
         // Create new user
         const user = await Register.create({
-            name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+            name, fatherOrHusbandName, dob, role, aadharNumber, panNumber, mobileNumber,
             gender, maritalStatus, education, address, salaryBasis, email, division,
             subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,consumerId,
             photograph: req.files['photograph'] ? req.files['photograph'][0].path : null,

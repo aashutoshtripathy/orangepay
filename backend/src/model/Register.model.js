@@ -16,6 +16,10 @@ const registerSchema = new Schema({
     type: Date, 
     required: [true, 'Date of Birth is required'] 
   },
+  role:{
+    type: String,
+    trim: true
+  },
   aadharNumber: { 
     type: String, 
     required: [true, 'Aadhar Number is required'], 

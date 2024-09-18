@@ -355,6 +355,7 @@ const handleDownload = async (row) => {
     {
       name: 'Actions',
       cell: (row) => (
+        <div className='actions-cell'>
         <div className="button-containerr">
           <button 
             className="button-search" 
@@ -374,6 +375,7 @@ const handleDownload = async (row) => {
           >
             <FontAwesomeIcon icon={faDownload} /> Download File
           </button>
+        </div>
         </div>
       ),
     },
