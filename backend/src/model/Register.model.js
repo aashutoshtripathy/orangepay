@@ -55,11 +55,6 @@ const registerSchema = new Schema({
     required: [true, 'Address is required'], 
     trim: true 
   },
-  salaryBasis: { 
-    type: String, 
-    enum: ['salary based', 'commission based'], 
-    required: [true, 'Salary Basis is required'] 
-  },
   email: { 
     type: String, 
     required: [true, 'Email is required'], 
@@ -133,7 +128,10 @@ const registerSchema = new Schema({
     type: String, 
     trim: true 
   }, // Path to the cheque
-
+  discom: { 
+    type: String, 
+    trim: true 
+  }, // Path to the cheque
   // New fields
   userId: { 
     type: String, 

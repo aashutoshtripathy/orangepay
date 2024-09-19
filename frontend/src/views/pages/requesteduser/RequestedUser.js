@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';  // Import XLSX for Excel export
 import '../../../scss/dataTable.scss';
+import { useNavigate } from 'react-router-dom';
 
 // Define custom styles for the table
 const customStyles = {
@@ -252,6 +253,7 @@ const DataTableComponent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filterText, setFilterText] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -328,9 +330,8 @@ const handleDownload = async (row) => {
     setFilterText(filterText);
   };
 
-  const handleView = () => {
-    // Search logic is already implemented with the filter, just trigger re-render
-    setFilterText(filterText);
+  const handleView = (row) => {
+    navigate(`/view-details/${row._id}`)
   };
 
 
@@ -368,7 +369,7 @@ const handleDownload = async (row) => {
             className="button-search" 
             onClick={() => handleView(row)}
           >
-            <FontAwesomeIcon icon={faCheckCircle} /> view
+            <FontAwesomeIcon icon={faCheckCircle} /> View Details
           </button>
           {/* <button 
             className="button-reject" 

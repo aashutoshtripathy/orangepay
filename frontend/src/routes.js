@@ -29,6 +29,7 @@ const FundReport = React.lazy(() => import('./views/pages/reports/FundReport'))
 const RejectedUser = React.lazy(() => import('./views/pages/usermangement/RejectedUser.js'))
 const UpdateUser = React.lazy(() => import('./views/pages/profile/UpdateProfile.js'))
 const Payment = React.lazy(() => import('./views/pages/payment/Payment.js'))
+const ViewDetails = React.lazy(() => import('./views/pages/requesteduser/ViewTable.js'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -111,6 +112,7 @@ const routes = [
   { path: '/reject-user', name: 'Rejected User', element: RejectedUser },
   { path: '/payment', name: 'Payment', element: Payment },
   { path: '/update-user/:userId', name: 'Update User', element: UpdateUser },
+  { path: '/view-details/:userId', name: 'View Details', element: ViewDetails },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },
