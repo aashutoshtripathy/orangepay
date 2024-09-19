@@ -924,6 +924,26 @@ const fetchData = asyncHandler(async (req, res) => {
     }
 });
 
+const fetchDataa = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log(userId)
+
+    // Fetch users where the userId matches and status is 'pending'
+    const pendingUsers = await Register.find({ _id: userId });
+    
+    // Log fetched users
+    console.log("Fetched users with pending status:", pendingUsers);
+
+    // Return the filtered data
+    return res.status(200).json({ success: true, data: pendingUsers });
+  } catch (error) {
+    console.error("Error fetching pending users:", error);
+    return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
+  }
+});
+
+
 
 const fetchData_reject = asyncHandler(async (req, res) => {
     try {
@@ -1282,5 +1302,5 @@ const fetchUserById = asyncHandler(async (req, res) => {
     }
   });
 
-export { registerUser, fetchWalletBalance,blockUserList, registerTransaction , loginUser , reports  , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser };
+export { registerUser, fetchWalletBalance,blockUserList,fetchDataa, registerTransaction , loginUser , reports  , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser };
 

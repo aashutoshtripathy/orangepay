@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
-import { deleteUser, fetchData, fetchWalletBalance,blockUserList,fetchData_reject, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser } from "../controller/user.controller.js";
+import { deleteUser, fetchData, fetchWalletBalance,blockUserList,fetchData_reject,fetchDataa, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser } from "../controller/user.controller.js";
 import {processPayment, getPayment} from "../controller/payment.controller.js"
 
 
@@ -30,6 +30,7 @@ router.route("/payment").post(processPayment)
 router.route("/block/:userId").post(blockUser)
 router.route("/unblock/:userId").post(unblockUser)
 router.route("/fetch_data").get(fetchData)
+router.route("/fetch-data/:userId").get(fetchDataa)
 router.route("/fetch_data_rejected").get(fetchData_reject)
 router.route("/update_data/:id").put(updateUser)
 router.route("/fetch_unique_data/:id").get(fetchIdData)
