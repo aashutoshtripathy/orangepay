@@ -1059,6 +1059,18 @@ const Register = () => {
     return value;
   };
 
+  const formatMobileNumber = (value) => {
+    // Remove non-numeric characters
+    value = value.replace(/\D/g, '');
+  
+    // Limit to 10 digits for mobile number
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+  
+    return value;
+  };
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -1074,6 +1086,8 @@ const Register = () => {
       updatedValue = formatPincode(value);
     } else if (name === 'accountno') {
       updatedValue = formatAccountNumber(value);
+    } else if (name === 'mobileNumber') {
+      updatedValue = formatMobileNumber(value);
     } else if (type === 'checkbox') {
       updatedValue = checked;
     } else if (type === 'radio') {
@@ -1505,7 +1519,7 @@ const Register = () => {
                         <CFormInput
                           name="mobileNumber"
                           placeholder="Mobile Number"
-                          type="number"
+                          type="text"
                           value={formData.mobileNumber}
                           onChange={handleChange}
                           onFocus={handleFocus}

@@ -23,13 +23,14 @@ const ViewTable = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/fetch-data/${userId}`);
+        console.log("Image Path:", response.data.data[0].photograph);
         console.log("API Response:", response.data);
         setTableData(response.data.data);  // Ensure you're setting the correct field
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-  
+
     fetchData();
   }, [userId]);
 
@@ -38,11 +39,10 @@ const ViewTable = () => {
     console.log(`${action} action triggered for user:`, user);
     // Implement your logic for Accept, Reject, and Download actions here
   };
-  
+
   return (
     <CContainer fluid>
       <CTable striped hover bordered responsive>
-        {/* Table Header */}
         <CTableHead>
           <CTableRow>
             <CTableHeaderCell>Field</CTableHeaderCell>
@@ -51,7 +51,6 @@ const ViewTable = () => {
             ))}
           </CTableRow>
         </CTableHead>
-        {/* Table Body */}
         <CTableBody>
           <CTableRow>
             <CTableHeaderCell scope="row">Name</CTableHeaderCell>
@@ -180,14 +179,123 @@ const ViewTable = () => {
             ))}
           </CTableRow>
           <CTableRow>
-            <CTableHeaderCell scope="row">Action</CTableHeaderCell>
-            <CButton
-                  color="success"
-                  onClick={() => handleAction('Accept', user)}
-                >
+            <CTableHeaderCell scope="row">Photograph</CTableHeaderCell>
+            {tableData.map((user) => {
+              const photographPath = user.photograph;
+              const filename = photographPath.split('/').pop();
+
+              return (
+                <CTableDataCell key={user.id}>
+                  <img
+                    src={`/images/${user.aadharNumber}/${filename}`}
+                    alt="Photograph"
+                    width="100"
+                  />
+                </CTableDataCell>
+              );
+            })}
+          </CTableRow>
+          <CTableRow>
+            <CTableHeaderCell scope="row">Aadhar Card</CTableHeaderCell>
+            {tableData.map((user) => {
+              const photographPath = user.aadharCard;
+              const filename = photographPath.split('/').pop();
+
+              return (
+                <CTableDataCell key={user.id}>
+                  <img
+                    src={`/images/${user.aadharNumber}/${filename}`}
+                    alt="Photograph"
+                    width="100"
+                  />
+                </CTableDataCell>
+              );
+            })}
+          </CTableRow>
+          <CTableRow>
+            <CTableHeaderCell scope="row">Pan Card</CTableHeaderCell>
+            {tableData.map((user) => {
+              const photographPath = user.panCard;
+              const filename = photographPath.split('/').pop();
+
+              return (
+                <CTableDataCell key={user.id}>
+                  <img
+                    src={`/images/${user.aadharNumber}/${filename}`}
+                    alt="Photograph"
+                    width="100"
+                  />
+                </CTableDataCell>
+              );
+            })}
+          </CTableRow>
+          <CTableRow>
+            <CTableHeaderCell scope="row">Education Certificate</CTableHeaderCell>
+            {tableData.map((user) => {
+              const photographPath = user.educationCertificate;
+              const filename = photographPath.split('/').pop();
+
+              return (
+                <CTableDataCell key={user.id}>
+                  <img
+                    src={`/images/${user.aadharNumber}/${filename}`}
+                    alt="Photograph"
+                    width="100"
+                  />
+                </CTableDataCell>
+              );
+            })}
+          </CTableRow>
+          <CTableRow>
+            <CTableHeaderCell scope="row">Cheque</CTableHeaderCell>
+            {tableData.map((user) => {
+              const photographPath = user.cheque;
+              const filename = photographPath.split('/').pop();
+
+              return (
+                <CTableDataCell key={user.id}>
+                  <img
+                    src={`/images/${user.aadharNumber}/${filename}`}
+                    alt="Photograph"
+                    width="100"
+                  />
+                </CTableDataCell>
+              );
+            })}
+          </CTableRow>
+          <CTableRow>
+            <CTableHeaderCell scope="row">Signature</CTableHeaderCell>
+            {tableData.map((user) => {
+              const photographPath = user.signature;
+              const filename = photographPath.split('/').pop();
+
+              return (
+                <CTableDataCell key={user.id}>
+                  <img
+                    src={`/images/${user.aadharNumber}/${filename}`}
+                    alt="Photograph"
+                    width="100"
+                  />
+                </CTableDataCell>
+              );
+            })}
+          </CTableRow>
+          <CTableRow>
+            <CTableHeaderCell scope="row" colSpan={2}>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                <CButton color="success" onClick={() => handleAction('Accept', user)}>
                   Accept
                 </CButton>
+                <CButton color="danger" onClick={() => handleAction('Reject', user)}>
+                  Reject
+                </CButton>
+                <CButton color="info" onClick={() => handleAction('Download', user)}>
+                  Download File
+                </CButton>
+              </div>
+            </CTableHeaderCell>
           </CTableRow>
+
         </CTableBody>
       </CTable>
     </CContainer>
