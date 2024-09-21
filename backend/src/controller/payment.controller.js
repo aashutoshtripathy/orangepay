@@ -3,75 +3,91 @@ import { Wallet } from "../model/Wallet.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from '../utils/ApiError.js'; // Adjust the import path as needed
 import {ApiResponse} from '../utils/ApiResponse.js'; // Adjust the import path as needed
+import { Invoice } from '../model/Invoice.model.js';  // If using ES modules
+
+
 import mongoose from "mongoose";
 
-// Function to process the payment
+
+
 const processPayment = asyncHandler(async (req, res) => {
-  const { userId, consumerId, meterId, amount, paymentMethod } = req.body;
+  const {
+    userId, consumerId, amount, paymentMethod,
+  } = req.body;
 
   // Log the request body for debugging
   console.log('Request Body:', req.body);
 
   // Validate the request body
-  if (!userId ||  (!consumerId && !meterId) || !amount || !paymentMethod) {
-    console.error('Missing required fields:', { userId, consumerId, meterId, amount, paymentMethod });
-    throw new ApiError(400, "Missing required fields");
-  }
+  // if (!userId || !consumerId || !amount || !paymentMethod || !CANumber || !InvoiceNO || !BillMonth || !latitude || !longitude || !ConsumerMobileNo || !LoginId) {
+  //   console.error('Missing required fields:', { userId, consumerId, meterId, amount, paymentMethod });
+  //   return res.status(400).json(new ApiError(400, "Missing required fields"));
+  // }
 
   try {
     console.log(`Processing payment for userId: ${userId}, amount: ${amount}`);
 
-    const marginRate = 0.035; // 3.5%
-    const marginAmount = amount * marginRate / (1 + marginRate); // Extract the margin part from the total amount
-    const originalAmount = amount - marginAmount; // Deduct the margin to get the amount without the margin
+    const marginRate = 0.035; // 3.5% margin
+    const marginAmount = amount * marginRate / (1 + marginRate); // Extract margin
+    const originalAmount = amount - marginAmount; // Deduct margin to get original amount
 
-
-    // Further logging to see if there are any issues
+    // Find the user's wallet
     const wallet = await Wallet.findOne({ userId });
     if (!wallet) {
       console.error('Wallet not found for userId:', userId);
-      throw new ApiError(404, "Wallet not found");
+      return res.status(404).json(new ApiError(404, "Wallet not found"));
     }
 
+    // Check if there is sufficient balance
     if (wallet.balance < originalAmount) {
       console.error('Insufficient balance. Wallet balance:', wallet.balance, 'Requested amount:', amount);
-      throw new ApiError(400, "Insufficient balance");
+      return res.status(400).json(new ApiError(400, "Insufficient balance"));
     }
 
-    console.log('Deducting amount from wallet. Original balance:', wallet.balance);
+    // Log before deducting amount from wallet
+    console.log(`Deducting ${originalAmount} from wallet. Original balance: ${wallet.balance}`);
 
     wallet.balance -= originalAmount;
     await wallet.save();
 
-    console.log('Creating payment record...');
-    const payment = new Payment({
-      userId,
-      transactionId: `TXN-${Date.now()}`,
-      referenceNumber: `REF-${Date.now()}`,
-      consumerId,
-      meterId,
-      transactionDateTime: new Date(),
-      serviceName: "Bill Payment",
-      requestAmount: originalAmount,
-      totalCommission: marginAmount,
-      netAmount: amount,
-      actionOnAmount: 'Dr',
-      status: 'Pending',
-      paymentMethod,
+    // Log after wallet deduction
+    console.log(`Wallet balance updated. New balance: ${wallet.balance}`);
+
+    // Create invoice record with additional fields
+    const invoice = new Invoice({
+      CANumber:consumerId,
+      InvoiceNO: `INV-${userId}-${Date.now()}`,
+      BillMonth:consumerId,
+      TxnId: `TXN-${userId}-${Date.now()}`,
+      PaymentMode: paymentMethod.toUpperCase(),
+      PaymentStatus: 'Pending',
+      CreatedBy: userId,
+      PaidAmount: originalAmount,
+      BillPostStatus: 'Pending',
+      BillAmount: amount,
+      location: { userId, userId },
+      ConsumerMobileNo: userId,
+      LoginId:userId,
+      paymentDate: new Date(),
+      latitude:userId,
+      longitude:userId,
     });
 
-    await payment.save();
+    await invoice.save();
 
-    console.log('Payment record created. Transaction ID:', payment.transactionId);
+    console.log(`Invoice record created. Invoice ID: ${invoice._id}`);
 
-    payment.status = 'Success';
-    await payment.save();
+    // Update payment status to success after saving the initial record
+    invoice.PaymentStatus = 'Completed';
+    await invoice.save();
 
-    return res.status(200).json(new ApiResponse(200, payment, "Payment processed successfully"));
+    console.log(`Invoice payment status updated to Completed. Invoice ID: ${invoice._id}`);
+
+    return res.status(200).json(new ApiResponse(200, invoice, "Payment processed successfully"));
 
   } catch (error) {
     console.error("Error processing payment:", error);
-    throw new ApiError(500, "An error occurred while processing the payment");
+    return res.status(500).json(new ApiError(500, "An error occurred while processing the payment"));
   }
 });
 
@@ -86,7 +102,7 @@ const getPayment = asyncHandler(async (req, res) => {
   }
 
   try {
-      const payment = await Payment.find({ userId }).exec();
+      const payment = await Invoice.find({ userId }).exec();
       
       if (!payment) {
           return res.status(404).json({ success: false, message: 'Wallet not found' });

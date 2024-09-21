@@ -136,11 +136,9 @@ const registerSchema = new Schema({
   userId: { 
     type: String, 
     trim: true ,
-    immutable: true
   },
   password: { 
     type: String, 
-    immutable: true
   },
 
   // Status field to track registration status

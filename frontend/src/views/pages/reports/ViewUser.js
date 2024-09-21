@@ -387,9 +387,11 @@ const DataTableComponent = () => {
 // ];
   
 
-const filteredItems = data.filter(
-  item => item.userId.toLowerCase().includes(filterText.toLowerCase())
-);
+const filteredItems = data.filter(item => {
+  return item.userId && typeof item.userId === 'string' &&
+         item.userId.toLowerCase().includes(filterText.toLowerCase());
+});
+
   
 
   if (loading) {

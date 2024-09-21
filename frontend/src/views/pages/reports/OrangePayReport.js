@@ -131,7 +131,7 @@ const OrangePayReport = () => {
   );
 
   const columns = [
-    { name: 'Transaction ID', selector: 'transactionId', sortable: true },
+    { name: 'Transaction ID', selector: 'CANumber', sortable: true },
     { name: 'Reference Number', selector: 'referenceNumber', sortable: true },
     { name: 'Transaction DateTime', selector: 'transactionDateTime', sortable: true },
     { name: 'Service Name', selector: 'serviceName', sortable: true },

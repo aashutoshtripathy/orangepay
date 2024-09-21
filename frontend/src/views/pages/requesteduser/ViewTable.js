@@ -7,16 +7,21 @@ import {
   CTableBody,
   CTableDataCell,
   CContainer,
-  CButton
+  CButton,
+  CModal, CModalBody, CModalHeader,
 } from '@coreui/react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+
 
 const ViewTable = () => {
   // State to hold the fetched table data
   const [tableData, setTableData] = useState([]);
   const { userId } = useParams();
+ const navigate = useNavigate();
 
+ const [modal, setModal] = useState(false);
+ const [selectedImage, setSelectedImage] = useState('');
 
   // Fetch data from API when the component mounts
   useEffect(() => {
@@ -35,10 +40,58 @@ const ViewTable = () => {
   }, [userId]);
 
 
-  const handleAction = (action, user) => {
-    console.log(`${action} action triggered for user:`, user);
-    // Implement your logic for Accept, Reject, and Download actions here
+  const handleImageClick = (imagePath) => {
+    setSelectedImage(imagePath);
+    setModal(true);
   };
+
+
+  // Handle Accept Fund Request
+  const handleAccept = async (row) => {
+    try {
+      const response = await axios.patch(`/users/${row._id}/approve`);
+      if (response.status === 200) {
+        setTableData((prevData) => prevData.filter((item) => item._id !== row._id));
+        navigate('/requests')
+      }
+    } catch (error) {
+      console.error("Error approving fund request", error);
+    }
+  };
+
+  // Handle Reject Fund Request
+  const handleReject = async (row) => {
+    try {
+      const response = await axios.patch(`/users/${row._id}/reject`);
+      if (response.status === 200) {
+        setTableData((prevData) => prevData.filter((item) => item._id !== row._id));
+        navigate('/requests')
+      }
+    } catch (error) {
+      console.error("Error rejecting fund request", error);
+    }
+  };
+
+  // Handle Download Images
+  const handleDownload = async (row) => {
+    try {
+      const response = await axios.get(`/download-images/${row.aadharNumber}`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `photos_${row.aadharNumber}.zip`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading file', error);
+    }
+  };
+
+
+
 
   return (
     <CContainer fluid>
@@ -183,13 +236,17 @@ const ViewTable = () => {
             {tableData.map((user) => {
               const photographPath = user.photograph;
               const filename = photographPath.split('/').pop();
+              const imagePath = `/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
+                  {/* Clickable Image */}
                   <img
-                    src={`/images/${user.aadharNumber}/${filename}`}
+                    src={imagePath}
                     alt="Photograph"
                     width="100"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleImageClick(imagePath)}
                   />
                 </CTableDataCell>
               );
@@ -200,13 +257,17 @@ const ViewTable = () => {
             {tableData.map((user) => {
               const photographPath = user.aadharCard;
               const filename = photographPath.split('/').pop();
+              const imagePath = `/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
+                  {/* Clickable Image */}
                   <img
-                    src={`/images/${user.aadharNumber}/${filename}`}
+                    src={imagePath}
                     alt="Photograph"
                     width="100"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleImageClick(imagePath)}
                   />
                 </CTableDataCell>
               );
@@ -217,13 +278,17 @@ const ViewTable = () => {
             {tableData.map((user) => {
               const photographPath = user.panCard;
               const filename = photographPath.split('/').pop();
+              const imagePath = `/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
+                  {/* Clickable Image */}
                   <img
-                    src={`/images/${user.aadharNumber}/${filename}`}
+                    src={imagePath}
                     alt="Photograph"
                     width="100"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleImageClick(imagePath)}
                   />
                 </CTableDataCell>
               );
@@ -234,70 +299,88 @@ const ViewTable = () => {
             {tableData.map((user) => {
               const photographPath = user.educationCertificate;
               const filename = photographPath.split('/').pop();
+              const imagePath = `/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
+                  {/* Clickable Image */}
                   <img
-                    src={`/images/${user.aadharNumber}/${filename}`}
+                    src={imagePath}
                     alt="Photograph"
                     width="100"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleImageClick(imagePath)}
                   />
                 </CTableDataCell>
               );
             })}
+           
           </CTableRow>
           <CTableRow>
             <CTableHeaderCell scope="row">Cheque</CTableHeaderCell>
             {tableData.map((user) => {
               const photographPath = user.cheque;
               const filename = photographPath.split('/').pop();
+              const imagePath = `/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
+                  {/* Clickable Image */}
                   <img
-                    src={`/images/${user.aadharNumber}/${filename}`}
+                    src={imagePath}
                     alt="Photograph"
                     width="100"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleImageClick(imagePath)}
                   />
                 </CTableDataCell>
               );
             })}
+           
           </CTableRow>
           <CTableRow>
             <CTableHeaderCell scope="row">Signature</CTableHeaderCell>
             {tableData.map((user) => {
               const photographPath = user.signature;
               const filename = photographPath.split('/').pop();
+              const imagePath = `/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
+                  {/* Clickable Image */}
                   <img
-                    src={`/images/${user.aadharNumber}/${filename}`}
+                    src={imagePath}
                     alt="Photograph"
                     width="100"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleImageClick(imagePath)}
                   />
                 </CTableDataCell>
               );
             })}
+           
           </CTableRow>
           <CTableRow>
-            <CTableHeaderCell scope="row" colSpan={2}>
-              <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                <CButton color="success" onClick={() => handleAction('Accept', user)}>
-                  Accept
-                </CButton>
-                <CButton color="danger" onClick={() => handleAction('Reject', user)}>
-                  Reject
-                </CButton>
-                <CButton color="info" onClick={() => handleAction('Download', user)}>
-                  Download File
-                </CButton>
-              </div>
-            </CTableHeaderCell>
+            <CTableHeaderCell scope="row">Actions</CTableHeaderCell>
+            {tableData.map((user) => (
+              <CTableDataCell key={user._id}>
+                <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
+                  <CButton color="success" onClick={() => handleAccept(user)}>Accept</CButton>{' '}
+                  <CButton color="danger" onClick={() => handleReject(user)}>Reject</CButton>{' '}
+                  <CButton color="info" onClick={() => handleDownload(user)}>Download</CButton>
+                </div>
+              </CTableDataCell>
+            ))}
           </CTableRow>
 
         </CTableBody>
       </CTable>
+      <CModal visible={modal} onClose={() => setModal(false)}>
+          <CModalHeader onClose={() => setModal(false)}>Image Preview</CModalHeader>
+          <CModalBody>
+            <img src={selectedImage} alt="Full Size" style={{ width: '100%' }} />
+          </CModalBody>
+        </CModal>
     </CContainer>
   );
 };

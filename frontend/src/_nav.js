@@ -73,14 +73,14 @@ export const adminNavItems = [
     to: '/buttons',
     icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
   },
-  {
-    component: CNavGroup,
-    name: 'Database Management',
-    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
-    items: [
-      { component: CNavItem, name: 'Monthly Billing Master' , to: '/monthly-billing' },
-    ],
-  },
+  // {
+  //   component: CNavGroup,
+  //   name: 'Database Management',
+  //   icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+  //   items: [
+  //     { component: CNavItem, name: 'Monthly Billing Master' , to: '/monthly-billing' },
+  //   ],
+  // },
   {
     component: CNavGroup,
     name: 'Reports',
