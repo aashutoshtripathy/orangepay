@@ -270,8 +270,7 @@ const Profile = () => {
               <option value="">Select Payment Method</option>
               <option value="bank-transfer">Bank Transfer</option>
               <option value="upi">UPI</option>
-              <option value="card">Card</option>
-              <option value="paypal">PayPal</option>
+              <option value="cdm">CDM</option>
               <option value="cash">Cash</option>
             </CFormSelect>
             {errors.paymentMethod && (
