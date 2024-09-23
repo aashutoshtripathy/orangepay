@@ -284,16 +284,22 @@ const DataTableComponent = () => {
   }, [userId]);
 
   const filteredItems = data.filter(item => {
-    if (statusFilter === 'all') return true;
-    if (statusFilter === 'Approved') return item.status === 'Approved'; 
-    if (statusFilter === 'Blocked') return item.status === 'Blocked'; 
-    if (statusFilter === 'Rejected') return item.status === 'Rejected';
-    if (statusFilter === 'Pending') return item.status === 'Pending'; 
-    return false;
-  }).filter(item => {
-    return item.status && item.status.toLowerCase().includes(filterText.toLowerCase());
+    // Check status filter
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'Approved' && item.status === 'Approved') ||
+      (statusFilter === 'Blocked' && item.status === 'Blocked') ||
+      (statusFilter === 'Rejected' && item.status === 'Rejected') ||
+      (statusFilter === 'Pending' && item.status === 'Pending');
+  
+    // Check userId filter
+    const matchesUserId =
+      item.userId &&
+      item.userId.toString().toLowerCase().includes(filterText.toLowerCase());
+  
+      return (matchesStatus || statusFilter === 'all') && 
+      (matchesUserId || filterText.trim() === '');
   });
-
 
   const handleBlockUnblock = async (row) => {
     try {
