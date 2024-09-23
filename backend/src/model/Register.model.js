@@ -16,6 +16,10 @@ const registerSchema = new Schema({
     type: Date, 
     required: [true, 'Date of Birth is required'] 
   },
+  role:{
+    type: String,
+    trim: true
+  },
   aadharNumber: { 
     type: String, 
     required: [true, 'Aadhar Number is required'], 
@@ -50,11 +54,6 @@ const registerSchema = new Schema({
     type: String, 
     required: [true, 'Address is required'], 
     trim: true 
-  },
-  salaryBasis: { 
-    type: String, 
-    enum: ['salary based', 'commission based'], 
-    required: [true, 'Salary Basis is required'] 
   },
   email: { 
     type: String, 
@@ -129,16 +128,17 @@ const registerSchema = new Schema({
     type: String, 
     trim: true 
   }, // Path to the cheque
-
+  discom: { 
+    type: String, 
+    trim: true 
+  }, // Path to the cheque
   // New fields
   userId: { 
     type: String, 
     trim: true ,
-    immutable: true
   },
   password: { 
     type: String, 
-    immutable: true
   },
 
   // Status field to track registration status

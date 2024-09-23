@@ -39,12 +39,12 @@ export const adminNavItems = [
   },
    {
     component: CNavGroup,
-    name: 'My Network',
+    name: 'Management',
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Active Agent', to: '/active' },
-      { component: CNavItem, name: 'Inactive Agent', to: '/inactive' },
+      { component: CNavItem, name: 'Agent Management', to: '/active' },
+      // { component: CNavItem, name: 'Inactive Agent', to: '/inactive' },
     ],
   },
   {
@@ -73,14 +73,14 @@ export const adminNavItems = [
     to: '/buttons',
     icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
   },
-  {
-    component: CNavGroup,
-    name: 'Database Management',
-    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
-    items: [
-      { component: CNavItem, name: 'Monthly Billing Master' , to: '/monthly-billing' },
-    ],
-  },
+  // {
+  //   component: CNavGroup,
+  //   name: 'Database Management',
+  //   icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+  //   items: [
+  //     { component: CNavItem, name: 'Monthly Billing Master' , to: '/monthly-billing' },
+  //   ],
+  // },
   {
     component: CNavGroup,
     name: 'Reports',
@@ -127,6 +127,7 @@ export const distributorNavItems = [
       { component: CNavItem, name: 'Fund Report', to: `/fundrequest/${userId}` },
       { component: CNavItem, name: 'Reports', to: '/report-OrangePay' },
       { component: CNavItem, name: 'Top-Up Report', to: '/report-OrangePay' },
+      { component: CNavItem, name: 'Transaction History',  to: '/transaction-history' },
     ],
   },
   {

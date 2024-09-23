@@ -73,7 +73,7 @@ const registerUser = asyncHandler(async (req, res) => {
         const {
             name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
             gender, maritalStatus, education, address, salaryBasis, email, division,
-            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,consumerId,
+            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,consumerId,role,discom,
         } = req.body;
         console.log(req.body)
         // Check for existing user
@@ -87,9 +87,9 @@ const registerUser = asyncHandler(async (req, res) => {
 
         // Create new user
         const user = await Register.create({
-            name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+            name, fatherOrHusbandName, dob, role, aadharNumber, panNumber, mobileNumber,
             gender, maritalStatus, education, address, salaryBasis, email, division,
-            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,consumerId,
+            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,discom,consumerId,
             photograph: req.files['photograph'] ? req.files['photograph'][0].path : null,
             aadharCard: req.files['aadharCard'] ? req.files['aadharCard'][0].path : null,
             panCard: req.files['panCard'] ? req.files['panCard'][0].path : null,
@@ -720,7 +720,8 @@ const fetchFundRequests = asyncHandler(async (req, res) => {
 const fetchUserList = asyncHandler(async (req, res) => {
     try {
         // Find all users with status 'approved' from the database
-        const fetchUser = await Register.find({ status: 'Approved' }).exec();
+        // const fetchUser = await Register.find({ status: 'Approved' }).exec();
+        const fetchUser = await Register.find().exec();
 
         console.log("Approved Users: ", fetchUser);
 
@@ -923,6 +924,85 @@ const fetchData = asyncHandler(async (req, res) => {
         return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
     }
 });
+
+
+
+const images = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get the user ID from the request parameters
+    const imageFileName = req.params.imageFileName; // Get the image filename from the request parameters (e.g., 'aadharCard')
+
+    console.log('User ID:', userId);
+    console.log('Image File Name:', imageFileName);
+
+    // Construct the path to the image
+    const imagePath = path.join(__dirname, "../../public/images/", `${userId}/${imageFileName}`); // Adjust the pattern if needed
+    console.log('Image path:', imagePath);
+
+    // Use fs to check if the file exists before sending
+    fs.access(imagePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        console.error('File not found:', err);
+        return res.status(404).send('Image not found'); // Respond with 404 if file doesn't exist
+      }
+
+      // Send the image file
+      res.sendFile(imagePath, (err) => {
+        if (err) {
+          console.error('Error sending file:', err);
+          res.status(err.status || 500).end(); // Ensure a valid status code is used
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error sending image:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+
+
+
+const fetchDataa = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log(userId);
+
+    // Fetch users where the userId matches (this returns an array)
+    const pendingUsers = await Register.find({ _id: userId });
+
+    // Check if pendingUsers is an array and has items
+    if (!pendingUsers || pendingUsers.length === 0) {
+      return res.status(404).json(new ApiError(404, "No users found"));
+    }
+
+    const userWithImage = pendingUsers.map(user => {
+      const aadharNumber = user.aadharNumber;
+      const imageBaseUrl = `/images/${aadharNumber}/`;
+
+      return {
+        ...user.toObject(),
+        photograph: user.photograph ? `${imageBaseUrl}${path.basename(user.photograph)}` : null,
+        aadharCard: user.aadharCard ? `${imageBaseUrl}${path.basename(user.aadharCard)}` : null,
+        panCard: user.panCard ? `${imageBaseUrl}${path.basename(user.panCard)}` : null,
+        educationCertificate: user.educationCertificate ? `${imageBaseUrl}${path.basename(user.educationCertificate)}` : null,
+        cheque: user.cheque ? `${imageBaseUrl}${path.basename(user.cheque)}` : null,
+        signature: user.signature ? `${imageBaseUrl}${path.basename(user.signature)}` : null,
+      };
+    });
+
+    // Return the filtered data
+    return res.status(200).json({ success: true, data: userWithImage });
+
+  } catch (error) {
+    console.error("Error fetching pending users:", error);
+    return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
+  }
+});
+
+
+
 
 
 const fetchData_reject = asyncHandler(async (req, res) => {
@@ -1282,5 +1362,5 @@ const fetchUserById = asyncHandler(async (req, res) => {
     }
   });
 
-export { registerUser, fetchWalletBalance,blockUserList, registerTransaction , loginUser , reports  , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser };
+export { registerUser, fetchWalletBalance,blockUserList,fetchDataa,images, registerTransaction , loginUser , reports  , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser };
 

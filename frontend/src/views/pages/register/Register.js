@@ -41,8 +41,11 @@ import { Link, useNavigate } from "react-router-dom";
 const Register = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
-  const [selectedDivision, setSelectedDivision] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedDiscom, setSelectedDiscom] = useState('');
+  const [divisionData, setDivisionData] = useState(null);
+  const [sectionOptions, setSectionOptions] = useState(null);
+
+  const [districts, setDistricts] = useState([]);
   const [districtOptions, setDistrictOptions] = useState([]);
   const [subDivisionOptions, setSubDivisionOptions] = useState([]);
   const [fileNames, setFileNames] = useState({
@@ -65,49 +68,92 @@ const Register = () => {
 
 
 
-  const divisionsData = {
-    "Patna Division": {
-      Patna: ["Patna Sadar", "Barh", "Masaurhi", "Paliganj", "Danapur"],
-      Nalanda: ["Bihar Sharif", "Hilsa", "Rajgir", "Asthawan"],
-      Bhojpur: ["Ara Sadar", "Jagdishpur", "Piro"],
-      Buxar: ["Buxar Sadar", "Dumraon"],
-      Rohtas: ["Sasaram", "Dehri", "Bikramganj"],
-      "Kaimur (Bhabua)": ["Bhabua Sadar", "Mohania"],
+  const northBiharDistricts = [
+    "Araria",
+    "Aurangabad",
+    "Banka",
+    "Begusarai",
+    "Bhagalpur",
+    "Bhojpur",
+    "Buxar",
+    "Darbhanga",
+    "East Champaran (Purbi Champaran)",
+    "Gopalganj",
+    "Katihar",
+    "Kishanganj",
+    "Khagaria",
+    "Madhepura",
+    "Madhubani",
+    "Muzaffarpur",
+    "Purnia",
+    "Saran",
+    "Sheikhpura",
+    "Sheohar",
+    "Sitamarhi",
+    "Supaul",
+    "Vaishali",
+    "West Champaran (Pashchim Champaran)",
+    "Siwan"
+  ];
+
+  const southBiharDistricts = [
+    "Arwal",
+    "Aurangabad",
+    "Banka",
+    "Begusarai",
+    "Bhojpur",
+    "Kaimur (Bhabua)",
+    "Gaya",
+    "Jamui",
+    "Jehanabad",
+    "Nalanda",
+    "Nawada",
+    "Patna",
+    "Rohtas",
+    "Sheikhpura",
+    "Siwan",
+    "Saran",
+    "Vaishali"
+  ];
+
+
+
+  const southBiharDivision = {
+    "ASHIYANA Division": {
+      ASHIYANA: ["ASHIYANA"],
+      KHAJPURA: ["IGIMS", "KHAJPURA", "VIJAYNAGAR"],
     },
-    "Tirhut Division": {
-      Muzaffarpur: ["Muzaffarpur Sadar", "East Muzaffarpur", "West Muzaffarpur"],
-      Sitamarhi: ["Sitamarhi Sadar", "Pupri"],
-      Sheohar: ["Sheohar Sadar"],
-      Vaishali: ["Hajipur", "Mahnar"],
-      "East Champaran (Motihari)": ["Motihari Sadar", "Pakridayal", "Raxaul"],
-      "West Champaran (Bettiah)": ["Bettiah", "Bagaha", "Narkatiaganj"],
+    "PATNACITY Division": {
+      CHOWK: ["CHOWK", "East Muzaffarpur", "West Muzaffarpur"],
+      KATRA: ["Sitamarhi Sadar", "Pupri"],
+      MAHRUFGANJ: ["Sheohar Sadar"],
     },
-    "Saran Division": {
+    "BANKIPUR Division": {
       "Saran (Chhapra)": ["Chhapra Sadar", "Marhaura", "Garkha"],
       Siwan: ["Siwan Sadar", "Maharajganj"],
       Gopalganj: ["Gopalganj Sadar", "Hathua"],
     },
-    "Darbhanga Division": {
+    "RAJENDRANAGAR Division": {
       Darbhanga: ["Darbhanga Sadar", "Benipur", "Biraul"],
       Madhubani: ["Madhubani Sadar", "Jhanjharpur", "Benipatti"],
       Samastipur: ["Samastipur Sadar", "Dalsinghsarai", "Rosera"],
     },
-    "Kosi Division": {
+    "KANKARBAGH(1) Division": {
       Saharsa: ["Saharsa Sadar", "Simri Bakhtiyarpur", "Sonbarsa"],
       Madhepura: ["Madhepura Sadar", "Uda Kishanganj"],
       Supaul: ["Supaul Sadar", "Birpur", "Tribeniganj"],
     },
-    "Purnia Division": {
+    "KANKARBAGH(2) Division": {
       Purnia: ["Purnia Sadar", "Banmankhi", "Dhamdaha"],
       Araria: ["Araria Sadar", "Forbesganj"],
       Kishanganj: ["Kishanganj Sadar", "Bahadurganj"],
       Katihar: ["Katihar Sadar", "Barsoi", "Manihari"],
     },
-    "Bhagalpur Division": {
+    "GULZARBAGH Division": {
       Bhagalpur: ["Bhagalpur Sadar", "Kahalgaon", "Naugachhia"],
       Banka: ["Banka Sadar", "Amarpur"],
     },
-    "Munger Division": {
+    "NEW CAPITAL Division": {
       Munger: ["Munger Sadar", "Jamalpur", "Kharagpur"],
       Lakhisarai: ["Lakhisarai Sadar", "Barahiya"],
       Sheikhpura: ["Sheikhpura Sadar"],
@@ -115,33 +161,33 @@ const Register = () => {
       Khagaria: ["Khagaria Sadar", "Gogri"],
       Begusarai: ["Begusarai Sadar", "Bachhwara", "Bakhri"],
     },
-    "Magadh Division": {
+    "PATLIPUTRA Division": {
       Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
       Nawada: ["Nawada Sadar", "Rajauli"],
       Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
       Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
       Arwal: ["Arwal Sadar", "Karpi"],
     },
-    "Pataliputra Division": {
+    "DAKBUNGLOW Division": {
       Nalanda: ["Bihar Sharif", "Rajgir", "Hilsa"],
       Patna: ["Patna Sadar", "Barh", "Masaurhi", "Paliganj", "Danapur"],
     },
-    "Saharsa Division": {
+    "GARDANIBAGH Division": {
       Saharsa: ["Saharsa Sadar", "Simri Bakhtiyarpur", "Sonbarsa"],
       Madhepura: ["Madhepura Sadar", "Uda Kishanganj"],
       Supaul: ["Supaul Sadar", "Birpur", "Tribeniganj"],
     },
-    "Purnia Division": {
+    "DANAPUR Division": {
       Purnia: ["Purnia Sadar", "Banmankhi", "Dhamdaha"],
       Araria: ["Araria Sadar", "Forbesganj"],
       Kishanganj: ["Kishanganj Sadar", "Bahadurganj"],
       Katihar: ["Katihar Sadar", "Barsoi", "Manihari"],
     },
-    "Bhagalpur Division": {
+    "BIHTA Division": {
       Bhagalpur: ["Bhagalpur Sadar", "Kahalgaon", "Naugachhia"],
       Banka: ["Banka Sadar", "Amarpur"],
     },
-    "Munger Division": {
+    "BARH Division": {
       Munger: ["Munger Sadar", "Jamalpur", "Kharagpur"],
       Lakhisarai: ["Lakhisarai Sadar", "Barahiya"],
       Sheikhpura: ["Sheikhpura Sadar"],
@@ -149,7 +195,231 @@ const Register = () => {
       Khagaria: ["Khagaria Sadar", "Gogri"],
       Begusarai: ["Begusarai Sadar", "Bachhwara", "Bakhri"],
     },
-    "Magadh Division": {
+    "FATUHA Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "MASAURHI Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "PATNA Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "ARRAH Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BUXAR Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BIHARSARIF Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "RAJGIR Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "EKANGARSARAI Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "NAWADA Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "SASARAM Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "DEHRIONSONE Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BHABUA Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "GAYA(U) Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "GAYA(R) Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BIHARSARIF(U) Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "SHERGHATI Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "AURANGABAD Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "JAHANABAD Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "ARWAL Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BHAGALPUR(U) Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BHAGALPUR(E) Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BANKA Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "MUNGER Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "LAKHISARAI Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "SHEIKHPURA Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "JAMUI Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "KHAGAUL Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "JAGDISHPUR Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "DAUDNAGAR Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "NAUGACHIA Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "MANPUR Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "AMARPUR Division": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "RAJAULI Division": {
       Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
       Nawada: ["Nawada Sadar", "Rajauli"],
       Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
@@ -157,6 +427,373 @@ const Register = () => {
       Arwal: ["Arwal Sadar", "Karpi"],
     },
   };
+
+
+  const northBiharDivision = {
+    "ASHIYANA Division": {
+      ASHIYANA: ["ASHIYANA"],
+      KHAJPURA: ["IGIMS", "KHAJPURA", "VIJAYNAGAR"],
+    },
+    "PATNACITY Division": {
+      CHOWK: ["CHOWK", "East Muzaffarpur", "West Muzaffarpur"],
+      KATRA: ["Sitamarhi Sadar", "Pupri"],
+      MAHRUFGANJ: ["Sheohar Sadar"],
+    },
+  };
+
+
+
+  const discomDistricts = {
+    NBSL: northBiharDistricts,
+    SBPDCL: southBiharDistricts
+  };
+
+  const divisionsData = {
+    NBSL: northBiharDivision,
+    SBPDCL: southBiharDivision
+  };
+
+
+  const handleDiscomChange = (event) => {
+    const discom = event.target.value;
+
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      discom: discom
+    }));
+
+    // Set the selected discom state
+    setSelectedDiscom(discom);
+
+    // Set districts based on selected DISCOM
+    const selectedDistricts = discomDistricts[discom] || [];
+    setDistricts(selectedDistricts);
+
+    // Set division data based on the selected discom
+    if (discom === 'NBSL') {
+      // Set specific data for NBSL
+      setDivisionData(northBiharDivision); // Example data for North Bihar
+    } else if (discom === 'SBPDCL') {
+      // Set specific data for SBPDCL
+      setDivisionData(southBiharDivision); // Example data for South Bihar
+    } else {
+      // Default case if neither NBSL nor SBPDCL is selected
+      setDivisionData([]);
+    }
+  };
+
+
+
+
+  // const divisionsData = {
+  //   "ASHIYANA Division": {
+  //     ASHIYANA: ["ASHIYANA"],
+  //     KHAJPURA: ["IGIMS", "KHAJPURA", "VIJAYNAGAR"],
+  //   },
+  //   "PATNACITY Division": {
+  //     CHOWK: ["CHOWK", "East Muzaffarpur", "West Muzaffarpur"],
+  //     KATRA: ["Sitamarhi Sadar", "Pupri"],
+  //     MAHRUFGANJ: ["Sheohar Sadar"],
+  //   },
+  //   "BANKIPUR Division": {
+  //     "Saran (Chhapra)": ["Chhapra Sadar", "Marhaura", "Garkha"],
+  //     Siwan: ["Siwan Sadar", "Maharajganj"],
+  //     Gopalganj: ["Gopalganj Sadar", "Hathua"],
+  //   },
+  //   "RAJENDRANAGAR Division": {
+  //     Darbhanga: ["Darbhanga Sadar", "Benipur", "Biraul"],
+  //     Madhubani: ["Madhubani Sadar", "Jhanjharpur", "Benipatti"],
+  //     Samastipur: ["Samastipur Sadar", "Dalsinghsarai", "Rosera"],
+  //   },
+  //   "KANKARBAGH(1) Division": {
+  //     Saharsa: ["Saharsa Sadar", "Simri Bakhtiyarpur", "Sonbarsa"],
+  //     Madhepura: ["Madhepura Sadar", "Uda Kishanganj"],
+  //     Supaul: ["Supaul Sadar", "Birpur", "Tribeniganj"],
+  //   },
+  //   "KANKARBAGH(2) Division": {
+  //     Purnia: ["Purnia Sadar", "Banmankhi", "Dhamdaha"],
+  //     Araria: ["Araria Sadar", "Forbesganj"],
+  //     Kishanganj: ["Kishanganj Sadar", "Bahadurganj"],
+  //     Katihar: ["Katihar Sadar", "Barsoi", "Manihari"],
+  //   },
+  //   "GULZARBAGH Division": {
+  //     Bhagalpur: ["Bhagalpur Sadar", "Kahalgaon", "Naugachhia"],
+  //     Banka: ["Banka Sadar", "Amarpur"],
+  //   },
+  //   "NEW CAPITAL Division": {
+  //     Munger: ["Munger Sadar", "Jamalpur", "Kharagpur"],
+  //     Lakhisarai: ["Lakhisarai Sadar", "Barahiya"],
+  //     Sheikhpura: ["Sheikhpura Sadar"],
+  //     Jamui: ["Jamui Sadar", "Jhajha", "Sono"],
+  //     Khagaria: ["Khagaria Sadar", "Gogri"],
+  //     Begusarai: ["Begusarai Sadar", "Bachhwara", "Bakhri"],
+  //   },
+  //   "PATLIPUTRA Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "DAKBUNGLOW Division": {
+  //     Nalanda: ["Bihar Sharif", "Rajgir", "Hilsa"],
+  //     Patna: ["Patna Sadar", "Barh", "Masaurhi", "Paliganj", "Danapur"],
+  //   },
+  //   "GARDANIBAGH Division": {
+  //     Saharsa: ["Saharsa Sadar", "Simri Bakhtiyarpur", "Sonbarsa"],
+  //     Madhepura: ["Madhepura Sadar", "Uda Kishanganj"],
+  //     Supaul: ["Supaul Sadar", "Birpur", "Tribeniganj"],
+  //   },
+  //   "DANAPUR Division": {
+  //     Purnia: ["Purnia Sadar", "Banmankhi", "Dhamdaha"],
+  //     Araria: ["Araria Sadar", "Forbesganj"],
+  //     Kishanganj: ["Kishanganj Sadar", "Bahadurganj"],
+  //     Katihar: ["Katihar Sadar", "Barsoi", "Manihari"],
+  //   },
+  //   "BIHTA Division": {
+  //     Bhagalpur: ["Bhagalpur Sadar", "Kahalgaon", "Naugachhia"],
+  //     Banka: ["Banka Sadar", "Amarpur"],
+  //   },
+  //   "BARH Division": {
+  //     Munger: ["Munger Sadar", "Jamalpur", "Kharagpur"],
+  //     Lakhisarai: ["Lakhisarai Sadar", "Barahiya"],
+  //     Sheikhpura: ["Sheikhpura Sadar"],
+  //     Jamui: ["Jamui Sadar", "Jhajha", "Sono"],
+  //     Khagaria: ["Khagaria Sadar", "Gogri"],
+  //     Begusarai: ["Begusarai Sadar", "Bachhwara", "Bakhri"],
+  //   },
+  //   "FATUHA Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "MASAURHI Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "PATNA Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "ARRAH Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "BUXAR Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "BIHARSARIF Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "RAJGIR Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "EKANGARSARAI Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "NAWADA Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "SASARAM Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "DEHRIONSONE Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "BHABUA Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "GAYA(U) Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "GAYA(R) Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "BIHARSARIF(U) Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "SHERGHATI Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "AURANGABAD Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "JAHANABAD Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "ARWAL Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "BHAGALPUR(U) Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "BHAGALPUR(E) Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "BANKA Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "MUNGER Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "LAKHISARAI Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "SHEIKHPURA Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "JAMUI Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "KHAGAUL Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "JAGDISHPUR Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "DAUDNAGAR Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "NAUGACHIA Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "MANPUR Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "AMARPUR Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  //   "RAJAULI Division": {
+  //     Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+  //     Nawada: ["Nawada Sadar", "Rajauli"],
+  //     Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+  //     Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+  //     Arwal: ["Arwal Sadar", "Karpi"],
+  //   },
+  // };
 
 
 
@@ -169,6 +806,7 @@ const Register = () => {
     name: "",
     fatherOrHusbandName: "",
     dob: "",
+    role: "",
     aadharNumber: "",
     panNumber: "",
     mobileNumber: "",
@@ -181,7 +819,7 @@ const Register = () => {
     division: "",
     subDivision: "",
     section: "",
-    sectionType: "",
+    selection: "",
     photograph: null,
     aadharCard: null,
     panCard: null,
@@ -193,6 +831,7 @@ const Register = () => {
     accountno: "",
     ifsc: "", // Add this field
     consumerId: "",
+    discom: "",
   });
 
 
@@ -200,6 +839,7 @@ const Register = () => {
     name: "",
     fatherOrHusbandName: "",
     dob: "",
+    role: "",
     aadharNumber: "",
     panNumber: "",
     mobileNumber: "",
@@ -244,10 +884,10 @@ const Register = () => {
       formErrors.dob = "Date of Birth is required";
     }
 
-    
 
-    if (!formData.section.trim()) {
-      formErrors.section = "Section is required";
+
+    if (!formData.district) {
+      formErrors.district = "District is required";
     }
 
     if (formData.education.length === 0) {
@@ -257,7 +897,7 @@ const Register = () => {
     // Aadhar Number validation
     if (!formData.aadharNumber) {
       formErrors.aadharNumber = "Aadhar Number is required";
-    } else if (formData.aadharNumber.length !== 12) {
+    } else if (formData.aadharNumber.length !== 14) {
       formErrors.aadharNumber = "Aadhar Number must be 12 digits long";
     }
 
@@ -268,9 +908,9 @@ const Register = () => {
     } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(formData.panNumber)) {
       formErrors.panNumber = "PAN Number must follow the format: 5 letters, 4 digits, 1 letter";
     }
-    
 
- 
+
+
 
 
     // Mobile Number validation
@@ -302,15 +942,9 @@ const Register = () => {
       formErrors.address = "Address is required";
     }
 
-    // Salary Basis validation
-    if (!formData.salaryBasis) {
-      formErrors.salaryBasis = "Job Type is required";
-    }
+    
 
-    // Section Type validation
-    if (!formData.sectionType) {
-      formErrors.sectionType = "Section Type is required";
-    }
+ 
 
     // Bank validation
     if (!formData.bank) {
@@ -327,7 +961,16 @@ const Register = () => {
       formErrors.accountno = "Account Number is required";
     }
 
-   
+
+    if (!formData.district) {
+      formErrors.district = "District is required";
+    }
+
+    if (!formData.discom) {
+      formErrors.discom = "Discom is required";
+    }
+
+
     // Pincode validation
     if (!formData.pincode) {
       formErrors.pincode = "Pincode is required";
@@ -355,7 +998,11 @@ const Register = () => {
       formErrors.cheque = "Cheque is required";
     }
 
-    if (!formData.consumerId && !(formData.division && formData.district && formData.subDivision)) {
+    if (!formData.role) {
+      formErrors.role = "Role is required";
+    }
+
+    if (!formData.consumerId && !(formData.division && formData.subDivision && formData.section)) {
       formErrors.general = "You must provide either the division, district, and sub-division or your Consumer ID.";
     }
 
@@ -363,31 +1010,135 @@ const Register = () => {
     return Object.keys(formErrors).length === 0;
   };
 
+  const formatAadharNumber = (value) => {
+    // Remove non-numeric characters
+    value = value.replace(/\D/g, '');
+
+    if (value.length > 12) {
+      value = value.substring(0, 12);
+    }
+
+    // Add dashes every four digits
+    return value.replace(/(\d{4})(?=\d)/g, '$1-');
+  };
+
+
+  const formatPANNumber = (value) => {
+    // Remove any non-alphanumeric characters
+    value = value.replace(/[^a-zA-Z0-9]/g, '');
+  
+    // Limit the length to 10 characters (PAN is typically 10 characters)
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+  
+    return value.toUpperCase(); // PAN numbers are usually uppercase
+  };
+
+  const formatPincode = (value) => {
+    // Remove non-numeric characters
+    value = value.replace(/\D/g, '');
+  
+    // Limit to 6 digits for pincode
+    if (value.length > 6) {
+      value = value.substring(0, 6);
+    }
+  
+    return value;
+  };
+  
+  const formatAccountNumber = (value) => {
+    // Remove non-numeric characters
+    value = value.replace(/\D/g, '');
+  
+    // Here you can define any limit for the account number if needed, e.g., max 16 digits
+    if (value.length > 16) {
+      value = value.substring(0, 16); // Adjust limit if needed
+    }
+  
+    return value;
+  };
+
+  const formatMobileNumber = (value) => {
+    // Remove non-numeric characters
+    value = value.replace(/\D/g, '');
+  
+    // Limit to 10 digits for mobile number
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+  
+    return value;
+  };
+
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    const uppercasedValue = value.toUpperCase();
+    const { name, value, type, checked } = e.target;
 
-    setFormData({ ...formData, [name]: uppercasedValue });
+    let updatedValue;
 
+    // Format the value based on input type
+    if (name === 'aadharNumber') {
+      updatedValue = formatAadharNumber(value);
+    } else if (name === 'panNumber') {
+      updatedValue = formatPANNumber(value);
+    } else if (name === 'pincode') {
+      updatedValue = formatPincode(value);
+    } else if (name === 'accountno') {
+      updatedValue = formatAccountNumber(value);
+    } else if (name === 'mobileNumber') {
+      updatedValue = formatMobileNumber(value);
+    } else if (type === 'checkbox') {
+      updatedValue = checked;
+    } else if (type === 'radio') {
+      updatedValue = value;
+    } else {
+      updatedValue = name === "email" ? value : value.toUpperCase();
+    }
 
-    // Dynamic options for district and sub-division
-    if (name === "division") {
+    // Update formData with the changed field
+    const newFormData = { ...formData, [name]: updatedValue };
+
+    if (name === "district") {
+      newFormData.district = value;
+    }else if (name === "division") {
+      // Reset subDivision and section when division changes
+      newFormData.division = value;
+      newFormData.subDivision = "";
+      newFormData.section = "";
+
+      // Update districts based on selected division
       const selectedDivision = divisionsData[value] || {};
       const districts = Object.keys(selectedDivision);
       setDistrictOptions(districts);
-      setSubDivisionOptions([]);
-      setFormData({ ...formData, division: value, district: "", subDivision: "" });
-    } else if (name === "district") {
-      const selectedSubDivisions = divisionsData[formData.division][value] || [];
+      setSubDivisionOptions([]); // Clear subDivision options
+      setSectionOptions([]); // Clear section options
+    } else if (name === "subdivision") {
+      // Reset subDivision and section when district changes
+      newFormData.subDivision = value;
+      newFormData.section = "";
+
+      // Update subDivisions based on selected district
+      const selectedSubDivisions = divisionsData[formData.division]?.[value] || [];
       setSubDivisionOptions(selectedSubDivisions);
-      setFormData({ ...formData, district: value, subDivision: "" });
-    } else if (name === "subDivision") {
-      setFormData({ ...formData, subDivision: value });
+      setSectionOptions([]); // Clear section options
+    } else if (name === "section") {
+      // Reset section when subDivision changes
+      newFormData.section = value;
+
+      // Update sections based on selected subDivision
+      const selectedSections = divisionsData[formData.division]?.[formData.district]?.[value] || [];
+      setSectionOptions(selectedSections);
     }
 
-    setErrors((prev) => ({ ...prev, [name]: '' }));
+    // Update formData state
+    setFormData(newFormData);
 
+    // Clear error for the changed field
+    setErrors((prev) => ({ ...prev, [name]: '' }));
   };
+
+
 
 
   const handleFileChange = (e) => {
@@ -406,6 +1157,7 @@ const Register = () => {
 
   };
 
+
   const handleCheckboxChange = (e) => {
     const { name, value, checked } = e.target;
     setFormData((prev) => ({
@@ -414,63 +1166,171 @@ const Register = () => {
         ? [...prev[name], value]
         : prev[name].filter((item) => item !== value),
     }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
-
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
 
-  //   const formDataToSend = new FormData();
+  const handleRadioChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  }
 
-  //   for (const key in formData) {
-  //     if (formData.hasOwnProperty(key) && formData[key] !== null) {
-  //       if (Array.isArray(formData[key])) {
-  //         formData[key].forEach((value) =>
-  //           formDataToSend.append(key, value)
-  //         );
-  //       } else {
-  //         formDataToSend.append(key, formData[key]);
-  //       }
-  //     }
-  //   }
 
-  //   try {
-  //     const response = await axios.post("register", formData);
-  //     console.log(response.data);
-  //   } catch (error) {
-  //     console.error("Error in posting the data:", error);
-  //   }
-
-  //   setFormData({
-  //     name: "",
-  //     fatherOrHusbandName: "",
-  //     dob: "",
-  //     aadharNumber: "",
-  //     panNumber: "",
-  //     mobileNumber: "",
-  //     gender: "",
-  //     maritalStatus: "",
-  //     education: [],
-  //     address: "",
-  //     salaryBasis: "",
-  //     email: "",
-  //     division: "",
-  //     subDivision: "",
-  //     section: "",
-  //     sectionType: "",
-  //     photograph: null,
-  //     aadharCard: null,
-  //     panCard: null,
-  //     educationCertificate: null,
-  //     cheque: null,
-  //   });
-  // };
 
 
   const handleFocus = (e) => {
     const { name } = e.target;
-    setErrors((prev) => ({ ...prev, [name]: '' })); // Clear error message on focus
+    setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+
+    // Initialize an error object
+    let formErrors = {};
+
+      // Name validation
+      if (!formData.name.trim()) {
+        formErrors.name = "Name is required";
+      }
+  
+      // Father's/Husband's Name validation
+      if (!formData.fatherOrHusbandName.trim()) {
+        formErrors.fatherOrHusbandName = "Father's/Husband's Name is required";
+      }
+  
+      // Date of Birth validation
+      if (!formData.dob) {
+        formErrors.dob = "Date of Birth is required";
+      }
+  
+  
+  
+      if (!formData.district) {
+        formErrors.district = "District is required";
+      }
+  
+      if (formData.education.length === 0) {
+        formErrors.education = "Please select at least one education level.";
+      }
+  
+      // Aadhar Number validation
+      if (!formData.aadharNumber) {
+        formErrors.aadharNumber = "Aadhar Number is required";
+      } else if (formData.aadharNumber.length !== 14) {
+        formErrors.aadharNumber = "Aadhar Number must be 12 digits long";
+      }
+  
+      if (!formData.panNumber) {
+        formErrors.panNumber = "PAN Number is required";
+      } else if (formData.panNumber.length !== 10) {
+        formErrors.panNumber = "PAN Number must be exactly 10 characters long";
+      } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(formData.panNumber)) {
+        formErrors.panNumber = "PAN Number must follow the format: 5 letters, 4 digits, 1 letter";
+      }
+  
+  
+  
+  
+  
+      // Mobile Number validation
+      if (!formData.mobileNumber) {
+        formErrors.mobileNumber = "Mobile Number is required";
+      } else if (formData.mobileNumber.length !== 10) {
+        formErrors.mobileNumber = "Mobile Number must be 10 digits long";
+      }
+  
+      // Email validation
+      if (!formData.email) {
+        formErrors.email = "Email is required";
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        formErrors.email = "Email address is invalid";
+      }
+  
+      // Gender validation
+      if (!formData.gender) {
+        formErrors.gender = "Gender is required";
+      }
+  
+      // Marital Status validation
+      if (!formData.maritalStatus) {
+        formErrors.maritalStatus = "Marital Status is required";
+      }
+  
+      // Address validation
+      if (!formData.address.trim()) {
+        formErrors.address = "Address is required";
+      }
+  
+      
+  
+   
+  
+      // Bank validation
+      if (!formData.bank) {
+        formErrors.bank = "Bank is required";
+      }
+  
+      // IFSC validation
+      if (!formData.ifsc) {
+        formErrors.ifsc = "IFSC is required";
+      }
+  
+      // Account Number validation
+      if (!formData.accountno) {
+        formErrors.accountno = "Account Number is required";
+      }
+
+      if (!formData.district) {
+        formErrors.district = "District is required";
+      }
+
+      if (!formData.discom) {
+        formErrors.discom = "Discom is required";
+      }
+  
+  
+      // Pincode validation
+      if (!formData.pincode) {
+        formErrors.pincode = "Pincode is required";
+      } else if (formData.pincode.length !== 6) {
+        formErrors.pincode = "Pincode must be 6 digits long";
+      }
+  
+      // File uploads validation (if required)
+      if (!formData.photograph) {
+        formErrors.photograph = "Photograph is required";
+      }
+      if (!formData.signature) {
+        formErrors.signature = "Signature is required";
+      }
+      if (!formData.aadharCard) {
+        formErrors.aadharCard = "Aadhar Card is required";
+      }
+      if (!formData.panCard) {
+        formErrors.panCard = "PAN Card is required";
+      }
+      if (!formData.educationCertificate) {
+        formErrors.educationCertificate = "Education Certificate is required";
+      }
+      if (!formData.cheque) {
+        formErrors.cheque = "Cheque is required";
+      }
+  
+      if (!formData.role) {
+        formErrors.role = "Role is required";
+      }
+  
+      if (!formData.consumerId && !(formData.division && formData.subDivision && formData.section)) {
+        formErrors.general = "You must provide either the division, district, and sub-division or your Consumer ID.";
+      }
+
+    // Add other field validations as needed
+
+    // Set the specific field's error
+    setErrors((prev) => ({
+      ...prev,
+      [name]: formErrors[name] || "" // Set the error for the specific field or clear it
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -486,6 +1346,9 @@ const Register = () => {
       if (formData.hasOwnProperty(key) && formData[key] !== null) {
         if (Array.isArray(formData[key])) {
           formData[key].forEach((value) => formDataToSend.append(key, value));
+        } else if (typeof formData[key] === "boolean") {
+          // Convert boolean (for checkboxes) to string "true" or "false"
+          formDataToSend.append(key, formData[key] ? "true" : "false");
         } else {
           formDataToSend.append(key, formData[key]);
         }
@@ -507,7 +1370,7 @@ const Register = () => {
 
   const handleModalClose = () => {
     setModalVisible(false);
-    navigate("/login"); // Redirect to login page after closing modal
+    navigate("/login");
   };
 
   const handleButtonClick = (inputId) => {
@@ -538,6 +1401,7 @@ const Register = () => {
                           value={formData.name}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
                           style={{ textTransform: "capitalize" }}
                           autoComplete="name"
                         />
@@ -556,6 +1420,7 @@ const Register = () => {
                           value={formData.fatherOrHusbandName}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
                           style={{ textTransform: "capitalize" }}
                           autoComplete="family-name"
                         />
@@ -577,6 +1442,7 @@ const Register = () => {
                           value={formData.dob}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
                           autoComplete="bday"
                         />
                       </CInputGroup>
@@ -584,52 +1450,41 @@ const Register = () => {
                         <p className="text-danger">{errors.dob}</p>
                       )}
                     </CCol>
+                    <CInputGroup className="mb-3">
+                      <CInputGroupText>Select Role</CInputGroupText>
+                      <CFormSelect
+                        id="role"
+                        name="role"
+                        onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                        aria-label="Select Role"
+                      >
+                        <option value="">Select Role</option>
+                        <option value="distributor" disabled>Distributor</option>
+                        <option value="agent">Agent</option>
+                      </CFormSelect>
+                    </CInputGroup>
+                    {errors.role && (
+                      <p className="text-danger">{errors.role}</p>
+                    )}
+
+
 
                     <CCol md={6}>
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>Job Type</CInputGroupText>
-                        <div className="d-flex m-2 align-items-center">
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="salaryBasis"
-                            id="salaryBased"
-                            label="Salary Based"
-                            value="salary based"
-                            checked={formData.salaryBasis === "salary based"}
-                            onChange={handleChange}
-                          onFocus={handleFocus}
-                            
-                          />
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="salaryBasis"
-                            id="comissionbased"
-                            label="Commission Based"
-                            value="commission based"
-                            checked={
-                              formData.salaryBasis === "commission based"
-                            }
-                            onChange={handleChange}
-                          onFocus={handleFocus}
 
-                          />
-                        </div>
-                      </CInputGroup>
-                      {errors.salaryBasis && (
-                        <p className="text-danger">{errors.salaryBasis}</p>
-                      )}
+
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Aadhar</CInputGroupText>
                         <CFormInput
                           name="aadharNumber"
                           placeholder="Aadhar Number"
-                          type="number"
+                          type="text"
                           value={formData.aadharNumber}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
                           autoComplete="off"
                         />
@@ -646,6 +1501,7 @@ const Register = () => {
                           value={formData.panNumber}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
                           style={{ textTransform: "uppercase" }}
                           autoComplete="off"
@@ -663,13 +1519,14 @@ const Register = () => {
                         <CFormInput
                           name="mobileNumber"
                           placeholder="Mobile Number"
-                          type="number"
+                          type="text"
                           value={formData.mobileNumber}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
                           autoComplete="tel"
-                          style={{ paddingLeft: '1rem' }} // Adjust padding as needed
+                          style={{ paddingLeft: '1rem' }}
                         />
                       </CInputGroup>
                       {errors.mobileNumber && (
@@ -688,6 +1545,7 @@ const Register = () => {
                           value={formData.email}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
                           autoComplete="email"
                         />
@@ -695,6 +1553,9 @@ const Register = () => {
                       {errors.email && (
                         <p className="text-danger">{errors.email}</p>
                       )}
+
+
+
                     </CCol>
 
                     <CCol md={6}>
@@ -709,8 +1570,8 @@ const Register = () => {
                             label="Male"
                             value="Male"
                             checked={formData.gender === "Male"}
-                            onChange={handleChange}
-                          onFocus={handleFocus}
+                            onChange={handleRadioChange}
+
 
                           />
                           <CFormCheck
@@ -721,8 +1582,8 @@ const Register = () => {
                             label="Female"
                             value="Female"
                             checked={formData.gender === "Female"}
-                            onChange={handleChange}
-                          onFocus={handleFocus}
+                            onChange={handleRadioChange}
+
 
                           />
                           <CFormCheck
@@ -733,8 +1594,8 @@ const Register = () => {
                             label="Other"
                             value="Other"
                             checked={formData.gender === "Other"}
-                            onChange={handleChange}
-                          onFocus={handleFocus}
+                            onChange={handleRadioChange}
+
 
                           />
                         </div>
@@ -743,54 +1604,11 @@ const Register = () => {
                         <p className="text-danger">{errors.gender}</p>
                       )}
 
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>Section Type</CInputGroupText>
-                        <div className="d-flex m-2 align-items-center">
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="sectionType"
-                            id="sectionRural"
-                            label="Rural"
-                            value="Rural"
-                            checked={formData.sectionType === "Rural"}
-                            onChange={handleChange}
-                          onFocus={handleFocus}
-
-                          />
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="sectionType"
-                            id="sectionUrban"
-                            label="Urban"
-                            value="Urban"
-                            checked={formData.sectionType === "Urban"}
-                            onChange={handleChange}
-                          onFocus={handleFocus}
-
-                          />
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="sectionType"
-                            id="sectionBoth"
-                            label="Both"
-                            value="Both"
-                            checked={formData.sectionType === "Both"}
-                            onChange={handleChange}
-                          onFocus={handleFocus}
-
-                          />
-                        </div>
-                      </CInputGroup>
-                      {errors.sectionType && (
-                        <p className="text-danger">{errors.sectionType}</p>
-                      )}
+                    
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Marital Status</CInputGroupText>
-                        <div className="d-flex m-2 align-items-center">
+                        <div className="d-flex m-2 align-items-center" >
                           <CFormCheck
                             variant="inline"
                             type="radio"
@@ -799,8 +1617,8 @@ const Register = () => {
                             label="Single"
                             value="Single"
                             checked={formData.maritalStatus === "Single"}
-                            onChange={handleChange}
-                          onFocus={handleFocus}
+                            onChange={handleRadioChange}
+
 
                           />
                           <CFormCheck
@@ -811,8 +1629,7 @@ const Register = () => {
                             label="Married"
                             value="Married"
                             checked={formData.maritalStatus === "Married"}
-                            onChange={handleChange}
-                          onFocus={handleFocus}
+                            onChange={handleRadioChange}
 
                           />
                           <CFormCheck
@@ -823,8 +1640,8 @@ const Register = () => {
                             label="Divorced"
                             value="Divorced"
                             checked={formData.maritalStatus === "Divorced"}
-                            onChange={handleChange}
-                          onFocus={handleFocus}
+                            onChange={handleRadioChange}
+
 
                           />
                         </div>
@@ -833,16 +1650,7 @@ const Register = () => {
                         <p className="text-danger">{errors.maritalStatus}</p>
                       )}
 
-                      {/* <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          <CIcon icon={cilImage} />
-                        </CInputGroupText>
-                        <CFormInput
-                          name="photograph"
-                          type="file"
-                          onChange={handleFileChange}
-                        />
-                      </CInputGroup> */}
+                
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -855,8 +1663,9 @@ const Register = () => {
                           type="file"
                           onChange={handleFileChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
-                          style={{ display: "none" }} // Hide the default file input
+                          style={{ display: "none" }}
                         />
                         <CButton
                           color="secondary"
@@ -881,6 +1690,7 @@ const Register = () => {
                           type="file"
                           onChange={handleFileChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
                           style={{ display: "none" }} // Hide the default file input
                         />
@@ -908,8 +1718,6 @@ const Register = () => {
                           value="Graduate"
                           checked={formData.education.includes("Graduate")}
                           onChange={handleCheckboxChange}
-                          onFocus={handleFocus}
-
                         />
                         <CFormCheck
                           type="checkbox"
@@ -917,12 +1725,8 @@ const Register = () => {
                           id="above12th"
                           label="Above 12th Pass"
                           value="Above 12th Pass"
-                          checked={formData.education.includes(
-                            "Above 12th Pass"
-                          )}
+                          checked={formData.education.includes("Above 12th Pass")}
                           onChange={handleCheckboxChange}
-                          onFocus={handleFocus}
-
                         />
                         <CFormCheck
                           type="checkbox"
@@ -932,14 +1736,11 @@ const Register = () => {
                           value="Other"
                           checked={formData.education.includes("Other")}
                           onChange={handleCheckboxChange}
-                          onFocus={handleFocus}
-
                         />
                       </div>
                     </CInputGroup>
-                    {errors.education && (
-                      <p className="text-danger">{errors.education}</p>
-                    )}
+                    {errors.education && <p className="text-danger">{errors.education}</p>}
+
 
                     <CCol md={12} className="mb-3">
                       <CInputGroup className="mb-3">
@@ -950,6 +1751,7 @@ const Register = () => {
                           value={formData.address}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
                           autoComplete="street-address"
                         />
@@ -970,7 +1772,8 @@ const Register = () => {
                               placeholder="Pin Code"
                               value={formData.pincode}
                               onChange={handleChange}
-                          onFocus={handleFocus}
+                              onFocus={handleFocus}
+                              onBlur={handleBlur}
 
                               autoComplete="street-address"
                             />
@@ -978,31 +1781,56 @@ const Register = () => {
                           {errors.pincode && (
                             <p className="text-danger">{errors.pincode}</p>
                           )}
+
+
+                          <CInputGroup className="mb-3">
+                            <CInputGroupText htmlFor="district">District</CInputGroupText>
+                            <CFormSelect
+                              id="district"
+                              name="district"
+                              value={formData.district}
+                              onChange={handleChange}
+                              onFocus={handleFocus}
+                              onBlur={handleBlur}
+
+                              aria-label="Select District"
+                            >
+                              <option value="" disabled>
+                                Select a district
+                              </option>
+                              {districts.map((district, index) => (
+                                <option key={index} value={district}>
+                                  {district}
+                                </option>
+                              ))}
+                            </CFormSelect>
+                          </CInputGroup>
+                          {errors.district && <p className="text-danger">{errors.district}</p>}
+
                         </CCol>
 
 
 
                         <CCol md={6}>
-                          <CInputGroup className="mb-3">
-                            <CInputGroupText>Division</CInputGroupText>
-                            <CFormSelect
-                              name="division"
-                              value={formData.division}
-                              onChange={handleChange}
-                          onFocus={handleFocus}
 
-                              aria-label="Select Division"
+                          <CInputGroup className="mb-3">
+                            <CInputGroupText>Discom</CInputGroupText>
+                            <CFormSelect
+                              name="discom"
+                              value={formData.discom}
+                              onChange={handleDiscomChange}
+                              onFocus={handleFocus}
+                              onBlur={handleBlur}
                             >
-                              <option value="" disabled>
-                                Select a division
-                              </option>
-                              {Object.keys(divisionsData).map((division, index) => (
-                                <option key={index} value={division}>
-                                  {division}
-                                </option>
-                              ))}
+                              <option value="">Select Discom</option>
+                              <option value="NBSL">NBSL</option>
+                              <option value="SBPDCL">SBSL</option>
                             </CFormSelect>
                           </CInputGroup>
+                          {errors.discom && <p className="text-danger">{errors.discom}</p>}
+
+
+
                         </CCol>
                       </CRow>
 
@@ -1010,77 +1838,131 @@ const Register = () => {
 
 
 
+                        <CRow className="d-flex">
+                        <CCol md={6}>
 
-                      {formData.division && (
-                        <>
-                          <CRow className="d-flex">
-                            <CCol md={6}>
-                              <CInputGroup className="mb-3">
-                                <CInputGroupText>District</CInputGroupText>
-                                <CFormSelect
-                                  name="district"
-                                  value={formData.district}
-                                  onChange={handleChange}
-                          onFocus={handleFocus}
-
-                                  aria-label="Select District"
-                                  disabled={!formData.division} // Disable until a division is selected
-                                >
-                                  <option value="" disabled>
-                                    Select a district
-                                  </option>
-                                  {districtOptions.map((district, index) => (
-                                    <option key={index} value={district}>
-                                      {district}
-                                    </option>
-                                  ))}
-                                </CFormSelect>
-                              </CInputGroup>
-                            </CCol>
+                        </CCol>
 
 
 
-                            <CCol md={6}>
-                              <CInputGroup className="mb-3">
-                                <CInputGroupText>Sub Division</CInputGroupText>
-                                <CFormSelect
-                                  name="subDivision"
-                                  value={formData.subDivision}
-                                  onChange={handleChange}
-                          onFocus={handleFocus}
+                        <CCol md={6}>
 
-                                  aria-label="Select Sub-Division"
-                                  disabled={!formData.district} // Disable until a district is selected
-                                >
-                                  <option value="" disabled>
-                                    Select a sub-division
-                                  </option>
-                                  {subDivisionOptions.map((subDivision, index) => (
-                                    <option key={index} value={subDivision}>
-                                      {subDivision}
-                                    </option>
-                                  ))}
-                                </CFormSelect>
-                              </CInputGroup>
 
-                            </CCol>
-                          </CRow>
-                        </>
+                        </CCol>
+                      </CRow>
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>Select Any One</CInputGroupText>
+                        <div className="d-flex m-2 align-items-center">
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="selection"
+                            id="consumerId"
+                            label="Consumer Id"
+                            value="ConsumerId"
+                            checked={formData.selection === "ConsumerId"}
+                            onChange={handleRadioChange}
+                          />
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="selection"
+                            id="division"
+                            label="Division"
+                            value="Division"
+                            checked={formData.selection === "Division"}
+                            onChange={handleRadioChange}
+                          />
+                        </div>
+                      </CInputGroup>
+
+                      {/* Conditional rendering based on selection */}
+                      {formData.selection === "ConsumerId" && (
+                        <CInputGroup className="mb-3">
+                          <CInputGroupText>Consumer ID</CInputGroupText>
+                          <CFormInput
+                            type="text"
+                            name="consumerId"
+                            value={formData.consumerId}
+                            onChange={handleChange}
+                            placeholder="Enter Consumer ID"
+                          />
+                        </CInputGroup>
                       )}
 
-<CInputGroup className="mb-3">
-        <CInputGroupText>Consumer ID</CInputGroupText>
-        <CFormInput
-          name="consumerId"
-          placeholder="Enter your Consumer ID"
-          value={formData.consumerId}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          autoComplete="off"
-        />
-      </CInputGroup>
+                      {formData.selection === "Division" && (
+                        <>
+                          <CInputGroup className="mb-3">
+                            <CInputGroupText>Division</CInputGroupText>
+                            <CFormSelect
+                              name="division"
+                              value={formData.division}
+                              onChange={handleChange}
+                            >
+                              <option value="">Select Division</option>
+                              {divisionData && Object.keys(divisionData).map((division) => (
+                                <option key={division} value={division}>
+                                  {division}
+                                </option>
+                              ))}
+                            </CFormSelect>
+                          </CInputGroup>
 
-      {errors.general && <p className="text-danger">{errors.general}</p>}
+                          {/* District Dropdown */}
+                          <CInputGroup className="mb-3">
+                            <CInputGroupText>Sub-Division</CInputGroupText>
+                            <CFormSelect
+                              name="subdivision"
+                              value={formData.subDivision}
+                              onChange={handleChange}
+                              disabled={!formData.division}
+                            >
+                              <option value="">Select Sub-Division</option>
+                              {formData.division && divisionData[formData.division] && Object.keys(divisionData[formData.division]).map((subDivision) => (
+                                <option key={subDivision} value={subDivision}>
+                                  {subDivision}
+                                </option>
+                              ))}
+                            </CFormSelect>
+                          </CInputGroup>
+
+                          {/* Sub-Division Dropdown */}
+                          <CInputGroup className="mb-3">
+                            <CInputGroupText>Select Section</CInputGroupText>
+                            <CFormSelect
+                              name="section"
+                              value={formData.section}
+                              onChange={handleChange}
+                              disabled={!formData.subDivision}
+                            >
+                              <option value="">Select Section</option>
+                              {formData.division && formData.district && formData.subDivision &&
+                                (divisionData[formData.division]?.[formData.subDivision] || []).map((section) => (
+                                  <option key={section} value={section}>
+                                    {section}
+                                  </option>
+                                ))}
+                            </CFormSelect>
+                          </CInputGroup>
+                        </>
+
+                      )}
+
+                      {/* <CInputGroup className="mb-3">
+                        <CInputGroupText>Consumer ID</CInputGroupText>
+                        <CFormInput
+                          name="consumerId"
+                          placeholder="Enter your Consumer ID"
+                          value={formData.consumerId}
+                          onChange={handleChange}
+                          onFocus={handleFocus}
+                          onBlur={handleBlur}
+
+                          autoComplete="off"
+                        />
+                      </CInputGroup> */}
+
+                      {errors.general && <p className="text-danger">{errors.general}</p>}
 
 
                       <CInputGroup className="mb-3">
@@ -1091,6 +1973,7 @@ const Register = () => {
                           value={formData.bank}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
                           autoComplete="off"
                         />
@@ -1107,6 +1990,7 @@ const Register = () => {
                           value={formData.accountno}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
                           autoComplete="off"
                         />
@@ -1123,6 +2007,7 @@ const Register = () => {
                           value={formData.ifsc}
                           onChange={handleChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
                           autoComplete="off"
                         />
@@ -1131,73 +2016,34 @@ const Register = () => {
                         <p className="text-danger">{errors.ifsc}</p>
                       )}
 
-
-
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>Section</CInputGroupText>
-                        <CFormInput
-                          name="section"
-                          placeholder="Section"
-                          value={formData.section}
-                          onChange={handleChange}
-                          onFocus={handleFocus}
-
-                          autoComplete="off"
-                        />
-                      </CInputGroup>
-                      {errors.section && (
-                        <p className="text-danger">{errors.section}</p>
-                      )}
                     </CCol>
 
                     <CCol md={6}>
-                      {/* <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          <CIcon icon={cilImage} />
-                        </CInputGroupText>
-                        <CFormInput
-                          name="aadharCard"
-                          type="file"
-                          onChange={handleFileChange}
-                        />
-                      </CInputGroup> */}
-
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
                           ref={fileInputRefs.aadharCard}
-                          id="aadharCard" // Add an id to the input element
+                          id="aadharCard"
                           name="aadharCard"
                           type="file"
                           onChange={handleFileChange}
                           onFocus={handleFocus}
+                          onBlur={handleBlur}
 
-                          style={{ display: "none" }} // Hide the default file input
+                          style={{ display: "none" }}
                         />
                         <CButton
                           color="secondary"
                           onClick={() => handleButtonClick("aadharCard")}
                         >
                           {fileNames.aadharCard || "AadharCard"}{" "}
-                          {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
                       {errors.aadharCard && (
                         <p className="text-danger">{errors.aadharCard}</p>
                       )}
-
-                      {/* <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          <CIcon icon={cilImage} />
-                        </CInputGroupText>
-                        <CFormInput
-                          name="panCard"
-                          type="file"
-                          onChange={handleFileChange}
-                        />
-                      </CInputGroup> */}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -1205,18 +2051,17 @@ const Register = () => {
                         </CInputGroupText>
                         <CFormInput
                           ref={fileInputRefs.panCard}
-                          id="panCard" // Add an id to the input element
+                          id="panCard"
                           name="panCard"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: "none" }} // Hide the default file input
+                          style={{ display: "none" }} 
                         />
                         <CButton
                           color="secondary"
                           onClick={() => handleButtonClick("panCard")}
                         >
                           {fileNames.panCard || "Pancard"}{" "}
-                          {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
                       {errors.panCard && (
@@ -1225,28 +2070,17 @@ const Register = () => {
                     </CCol>
 
                     <CCol md={6}>
-                      {/* <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          <CIcon icon={cilImage} />
-                        </CInputGroupText>
-                        <CFormInput
-                          name="educationCertificate"
-                          type="file"
-                          onChange={handleFileChange}
-                        />
-                      </CInputGroup> */}
-
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
                           ref={fileInputRefs.educationCertificate}
-                          id="educationCertificate" // Add an id to the input element
+                          id="educationCertificate"
                           name="educationCertificate"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: "none" }} // Hide the default file input
+                          style={{ display: "none" }} 
                         />
                         <CButton
                           color="secondary"
@@ -1256,7 +2090,6 @@ const Register = () => {
                         >
                           {fileNames.educationCertificate ||
                             "EducationCertificate"}{" "}
-                          {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
                       {errors.educationCertificate && (
@@ -1265,35 +2098,23 @@ const Register = () => {
                         </p>
                       )}
 
-                      {/* <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          <CIcon icon={cilImage} />
-                        </CInputGroupText>
-                        <CFormInput
-                          name="cheque"
-                          type="file"
-                          onChange={handleFileChange}
-                        />
-                      </CInputGroup> */}
-
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
                           ref={fileInputRefs.cheque}
-                          id="cheque" // Add an id to the input element
+                          id="cheque" 
                           name="cheque"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: "none" }} // Hide the default file input
+                          style={{ display: "none" }} 
                         />
                         <CButton
                           color="secondary"
                           onClick={() => handleButtonClick("cheque")}
                         >
                           {fileNames.cheque || "Cheque"}{" "}
-                          {/* Display file name or default text */}
                         </CButton>
                       </CInputGroup>
                       {errors.cheque && (
@@ -1324,7 +2145,6 @@ const Register = () => {
         </CRow>
       </CContainer>
 
-      {/* Modal */}
       <CModal visible={modalVisible} onClose={handleModalClose}>
         <CModalHeader onClose={handleModalClose}>
           <CModalTitle>Registration Successful</CModalTitle>
@@ -1338,7 +2158,7 @@ const Register = () => {
           </CButton>
         </CModalFooter>
       </CModal>
-    </div>
+    </div >
   );
 };
 

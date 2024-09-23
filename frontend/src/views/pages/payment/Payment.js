@@ -4,7 +4,6 @@ import {
   CRow,
   CCol,
   CButton,
-  CFormCheck,
   CCard,
   CCardHeader,
   CCardBody,
@@ -14,19 +13,34 @@ import {
   CModalHeader,
   CModalBody,
   CModalFooter,
+  CFormSelect,
 } from '@coreui/react';
+import axios from 'axios';
 
 const Payment = () => {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [consumerId, setConsumerId] = useState('');
-  const [meterId, setMeterId] = useState('');
-  const [amount, setAmount] = useState('');
+  const [billDetails, setBillDetails] = useState(null);
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [amount, setAmount] = useState(500);
+  const [defaultAmount, setDefaultAmount] = useState(500); // State for default amount
+  const [selectedMethod, setSelectedMethod] = useState('');
+  const [remark, setRemark] = useState('');
   const [userId, setUserId] = useState('');
   const [errors, setErrors] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [transactionId, setTransactionId] = useState('');
-  const [formSubmitted, setFormSubmitted] = useState(false); // New state to track form submission
-  const [focusedField, setFocusedField] = useState(''); // New state to track the focused field
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isBillFetched, setIsBillFetched] = useState(false);
+  const [fetchBillSuccess, setFetchBillSuccess] = useState(false);
+  const [responseData, setResponseData] = useState(null);
+
+
+  const MERCHANT_CODE = 'BSPDCL_RAPDRP_16';
+  const MERCHANT_PASSWORD = 'OR1f5pJeM9q@G26TR9nPY';
+
+
+
+
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
@@ -37,24 +51,70 @@ const Payment = () => {
 
   const validate = () => {
     const errors = {};
-    if (!consumerId && !meterId) errors.id = 'Either Consumer ID or Meter ID must be provided.';
-    if (!amount || isNaN(amount) || amount <= 0) errors.amount = 'A valid amount is required.';
-    if (!selectedPaymentMethod) errors.paymentMethod = 'Please select a payment method.';
+    if (!consumerId) errors.consumerId = 'Consumer ID is required.';
+    if (isBillFetched && !mobileNumber) errors.mobileNumber = 'Mobile number is required.';
+    if (isBillFetched && (!amount || isNaN(amount) || amount <= 0)) errors.amount = 'A valid amount is required.';
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handlePaymentSelection = (method) => {
-    setSelectedPaymentMethod(method);
-    console.log(`Selected Payment Method: ${method}`);
-  };
+  const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
 
-  const handleAmountButtonClick = (value) => {
-    setAmount(value);
-  };
+  const soapRequest = (consumerId, amount) => `
+  <?xml version="1.0" encoding="utf-8"?>
+  <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+      <BillDetails xmlns="http://tempuri.org/">
+        <strCANumber>${consumerId}</strCANumber>
+        <strDivision></strDivision>
+        <strSubDivision></strSubDivision>
+        <strLegacyNo></strLegacyNo>
+        <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+        <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+        <Amount>${amount}</Amount>
+      </BillDetails>
+    </soap:Body>
+  </soap:Envelope>
+`;
 
-  const handleProceedToPay = async () => {
-    setFormSubmitted(true); // Set formSubmitted to true when the user attempts to submit
+
+const handleFetchBill = async () => {
+  setFormSubmitted(true);
+  setIsBillFetched(true);
+  setFetchBillSuccess(true);
+
+  try {
+    const response = await axios.post(API_URL, 
+
+      soapRequest(consumerId),
+      {
+        headers: {
+          'Content-Type': 'text/xml',
+          // 'SOAPAction': 'http://tempuri.org/BillDetails',
+        },
+      }
+    );
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(response.data, 'text/xml');
+
+    const amountDue = xmlDoc.getElementsByTagName('Amount')[0]?.textContent; // Adjust this line
+    const dueDate = xmlDoc.getElementsByTagName('DueDate')[0]?.textContent; // Check if this exists in your response
+
+    if (amountDue && dueDate) {
+      setBillDetails({ amountDue, dueDate });
+      setFetchBillSuccess(true);
+    } else {
+      alert('Bill details not found.');
+    }
+  } catch (error) {
+    console.error('Error fetching bill:', error);
+    alert('An error occurred while fetching the bill.');
+  }
+};
+
+     const handleProceedToPay = async () => {
+    setFormSubmitted(true);
 
     if (!validate()) return;
 
@@ -66,26 +126,27 @@ const Payment = () => {
         },
         body: JSON.stringify({
           userId,
-          consumerId: consumerId || '',
-          meterId: meterId || '',
+          consumerId,
+          mobileNumber,
           amount,
-          paymentMethod: selectedPaymentMethod,
+          paymentMethod: selectedMethod,
+          remark,
         }),
       });
 
       const data = await response.json();
-      console.log("Response data:", data);
-
       if (response.ok && data.success) {
-        setTransactionId(data.data.transactionId);
+        setTransactionId(data.data?.transactionId || 'N/A');
         setShowSuccessModal(true);
+        // Reset form fields
         setConsumerId('');
-        setMeterId('');
-        setAmount('');
-        setSelectedPaymentMethod('');
-        setErrors({}); 
+        setMobileNumber('');
+        setAmount(defaultAmount); // Reset to default amount
+        setRemark('');
+        setBillDetails(null);
+        setIsBillFetched(false);
+        setErrors({});
       } else {
-        console.error(`Error from backend: ${data.message}`);
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
@@ -93,19 +154,16 @@ const Payment = () => {
       alert('An error occurred while processing the payment.');
     }
   };
+  // const handleSetDefaultAmount = () => {
+  //   setAmount(defaultAmount);
+  // };
+
+  const handleMethodChange = (e) => {
+    setSelectedMethod(e.target.value);
+  };
 
   const handleCloseModal = () => {
     setShowSuccessModal(false);
-  };
-
-  const handleBlur = (field) => {
-    if (errors[field]) {
-      setErrors(prevErrors => {
-        const { [field]: _, ...rest } = prevErrors;
-        return rest;
-      });
-    }
-    setFocusedField('');
   };
 
   return (
@@ -114,119 +172,116 @@ const Payment = () => {
         <CCardHeader>
           <h2>Payment Information</h2>
         </CCardHeader>
+
         <CCardBody>
+          {fetchBillSuccess && (
+            <div className="mb-4">
+              <h4>Consumer Information</h4>
+              <p><strong>Consumer ID:</strong> {consumerId}</p>
+              {/* <p><strong>Consumer Name:</strong> {consumerName}</p> */}
+              {/* <p><strong>Due Date:</strong> {dueDate}</p> */}
+            </div>
+          )}
           {/* Consumer ID Field */}
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormLabel htmlFor="consumerId">Consumer ID</CFormLabel>
-              <CFormInput
-                type="text"
-                id="consumerId"
-                value={consumerId}
-                onChange={(e) => setConsumerId(e.target.value)}
-                onFocus={() => setFocusedField('consumerId')}
-                onBlur={() => handleBlur('id')}
-                placeholder="Enter Consumer ID"
-              />
-              {(formSubmitted && errors.id && !meterId) && <p className="text-danger">{errors.id}</p>}
-            </CCol>
-          </CRow>
+          {!fetchBillSuccess && (
+            <>
+              <CRow className="mb-3">
+                <CCol md={6}>
+                  <CFormLabel htmlFor="consumerId">Consumer ID</CFormLabel>
+                  <CFormInput
+                    type="text"
+                    id="consumerId"
+                    value={consumerId}
+                    onChange={(e) => setConsumerId(e.target.value)}
+                    placeholder="Enter Consumer ID"
+                  />
+                  {formSubmitted && errors.consumerId && <p className="text-danger">{errors.consumerId}</p>}
+                </CCol>
+              </CRow>
 
-          {/* Meter ID Field */}
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormLabel htmlFor="meterId">Meter ID</CFormLabel>
-              <CFormInput
-                type="text"
-                id="meterId"
-                value={meterId}
-                onChange={(e) => setMeterId(e.target.value)}
-                onFocus={() => setFocusedField('meterId')}
-                onBlur={() => handleBlur('id')}
-                placeholder="Enter Meter ID"
-              />
-              {(formSubmitted && errors.id && !consumerId) && <p className="text-danger">{errors.id}</p>}
-            </CCol>
-          </CRow>
+              {/* Fetch Bill Button */}
+              <CButton color="primary" onClick={handleFetchBill}>
+                Fetch Bill
+              </CButton>
+            </>
+          )}
 
-          {/* Amount Field with Static Values */}
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormLabel htmlFor="amount">Amount</CFormLabel>
-              <CFormInput
-                type="number"
-                id="amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                onFocus={() => setFocusedField('amount')}
-                onBlur={() => handleBlur('amount')}
-                placeholder="Enter or select amount"
-              />
-              {(formSubmitted && errors.amount) && <p className="text-danger">{errors.amount}</p>}
-              <div className="mt-2">
-                {/* Static Value Buttons */}
-                {[100, 500, 1000, 2000].map((value) => (
-                  <CButton
-                    key={value}
-                    color="secondary"
-                    className="me-2 mt-1"
-                    onClick={() => handleAmountButtonClick(value)}
+          {/* Conditional Rendering for Bill Details and Payment Fields */}
+          {isBillFetched && (
+            <>
+              {/* Display Bill Details */}
+              {billDetails && (
+                <div className="mt-4">
+                  <h4>Bill Details</h4>
+                  <p>Amount Due: {billDetails.amountDue}</p>
+                  <p>Due Date: {billDetails.dueDate}</p>
+                </div>
+              )}
+
+              {/* Mobile Number Field */}
+              <CRow className="mb-3">
+                <CCol md={6}>
+                  <CFormLabel htmlFor="mobileNumber">Mobile Number</CFormLabel>
+                  <CFormInput
+                    type="text"
+                    id="mobileNumber"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value)}
+                    placeholder="Enter Mobile Number"
+                  />
+                  {formSubmitted && errors.mobileNumber && <p className="text-danger">{errors.mobileNumber}</p>}
+                </CCol>
+              </CRow>
+              <CRow className="mb-3">
+                <CCol md={6}>
+                  <label htmlFor="paymentMethod">Payment Method</label>
+                  <CFormSelect
+                    id="paymentMethod"
+                    value={selectedMethod}
+                    onChange={handleMethodChange}
                   >
-                    {value}
-                  </CButton>
-                ))}
-              </div>
-            </CCol>
-          </CRow>
+                    <option value="">Select Payment Method</option>
+                    <option value="wallet">WALLET</option>
+                    <option value="ezetap">EZETAP</option>
+                    <option value="upi-qr">UPI-QR</option>
+                  </CFormSelect>
+                </CCol>
+              </CRow>
 
-           <CRow className="mb-3">
-            <CCol md={8} lg={6}>
-              <CCard>
-                <CCardHeader>Select Payment Method</CCardHeader>
-                <CCardBody>
-                  <CRow>
-                    <CCol>
-                      <CFormCheck
-                        type="radio"
-                        name="paymentMethod"
-                        id="cash"
-                        label="Cash"
-                        onChange={() => handlePaymentSelection('cash')}
-                        checked={selectedPaymentMethod === 'cash'}
-                      />
-                    </CCol>
-                    <CCol>
-                      <CFormCheck
-                        type="radio"
-                        name="paymentMethod"
-                        id="ezytap"
-                        label="Ezetap"
-                        onChange={() => handlePaymentSelection('ezytap')}
-                        checked={selectedPaymentMethod === 'ezytap'}
-                      />
-                    </CCol>
-                    <CCol>
-                      <CFormCheck
-                        type="radio"
-                        name="paymentMethod"
-                        id="ccard"
-                        label="Card"
-                        onChange={() => handlePaymentSelection('ccard')}
-                        checked={selectedPaymentMethod === 'ccard'}
-                      />
-                    </CCol>
-                  </CRow>
-                  {errors.paymentMethod && <p className="text-danger mt-2">{errors.paymentMethod}</p>}
-                </CCardBody>
-              </CCard>
-            </CCol>
-          </CRow>
+              {/* Amount Field */}
+              <CRow className="mb-3">
+                <CCol md={6}>
+                  <CFormLabel htmlFor="defaultAmount">Amount</CFormLabel>
+                  <CFormInput
+                    type="number"
+                    id="amount"
+                    value={amount}
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                    placeholder="Enter amount"
+                  />
+                </CCol>
+              </CRow>
 
-          
-          {/* Proceed to Pay Button */}
-          <CButton color="primary" onClick={handleProceedToPay}>
-            Proceed to Pay
-          </CButton>
+              {/* Remark Field */}
+              <CRow className="mb-3">
+                <CCol md={6}>
+                  <CFormLabel htmlFor="remark">Remark</CFormLabel>
+                  <CFormInput
+                    type="text"
+                    id="remark"
+                    value={remark}
+                    onChange={(e) => setRemark(e.target.value)}
+                    placeholder="Enter a remark (optional)"
+                  />
+                </CCol>
+              </CRow>
+
+              {/* Pay Bill Button */}
+              <CButton color="primary" onClick={handleProceedToPay}>
+                Pay Bill
+              </CButton>
+            </>
+          )}
         </CCardBody>
       </CCard>
 

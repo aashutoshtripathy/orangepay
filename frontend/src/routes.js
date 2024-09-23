@@ -29,6 +29,7 @@ const FundReport = React.lazy(() => import('./views/pages/reports/FundReport'))
 const RejectedUser = React.lazy(() => import('./views/pages/usermangement/RejectedUser.js'))
 const UpdateUser = React.lazy(() => import('./views/pages/profile/UpdateProfile.js'))
 const Payment = React.lazy(() => import('./views/pages/payment/Payment.js'))
+const ViewDetails = React.lazy(() => import('./views/pages/requesteduser/ViewTable.js'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -64,6 +65,7 @@ const Layout = React.lazy(() => import('./views/forms/layout/Layout'))
 const Range = React.lazy(() => import('./views/forms/range/Range'))
 const Select = React.lazy(() => import('./views/forms/select/Select'))
 const Validation = React.lazy(() => import('./views/forms/validation/Validation'))
+const TransactionHistory = React.lazy(() => import('./views/pages/usermangement/TransactionHistory.js'))
 
 const Charts = React.lazy(() => import('./views/charts/Charts'))
 
@@ -91,6 +93,7 @@ const routes = [
   { path: '/requests', name: 'RequestedUser', element: RequestedUser },
   { path: '/fundrequests', name: 'Fund Request', element: FundRequests },
   { path: '/view-user', name: 'VIEW USER', element: ViewUser },
+  { path: '/transaction-history', name: 'TRANSACTION HISTORY', element: TransactionHistory },
   { path: '/call-me', name: 'CALL ME', element: CallMe },
   { path: '/query', name: 'QUERY', element: Query },
   { path: '/active', name: 'ACTIVE', element: Active },
@@ -111,6 +114,7 @@ const routes = [
   { path: '/reject-user', name: 'Rejected User', element: RejectedUser },
   { path: '/payment', name: 'Payment', element: Payment },
   { path: '/update-user/:userId', name: 'Update User', element: UpdateUser },
+  { path: '/view-details/:userId', name: 'View Details', element: ViewDetails },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

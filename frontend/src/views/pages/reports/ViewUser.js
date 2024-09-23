@@ -347,7 +347,7 @@ const DataTableComponent = () => {
     {
       name: 'Actions',
       cell: (row) => (
-        <div className="button-containerr">
+        <div className="actions-cell">
       <button 
       className="button-Accept" 
       onClick={() => handleBlockUnblock(row)}
@@ -387,9 +387,11 @@ const DataTableComponent = () => {
 // ];
   
 
-const filteredItems = data.filter(
-  item => item.userId.toLowerCase().includes(filterText.toLowerCase())
-);
+const filteredItems = data.filter(item => {
+  return item.userId && typeof item.userId === 'string' &&
+         item.userId.toLowerCase().includes(filterText.toLowerCase());
+});
+
   
 
   if (loading) {
