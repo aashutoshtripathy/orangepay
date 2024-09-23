@@ -263,14 +263,22 @@ const DataTableComponent = () => {
     { name: 'Actions', 
       cell: (row) => (
         <div className="actions-cell">
+          {row.isBlocked ? (
           <button 
-            className={`block-unblock-btn ${row.isBlocked ? 'unblock-btn' : 'block-btn'}`} 
-            onClick={() => handleBlockUnblock(row, row.isBlocked ? 'unblock' : 'block')}
-
+            className="block-unblock-btn unblock-btn" 
+            onClick={() => handleBlockUnblock(row, 'unblock')}
           >
-            {row.isBlocked ? "Unblock" : "Block"}
+            Unblock
           </button>
-        </div>
+        ) : (
+          <button 
+            className="block-unblock-btn block-btn" 
+            onClick={() => handleBlockUnblock(row, 'block')}
+          >
+            Block
+          </button>
+        )}
+      </div>
       ),
       ignoreRowClick: true,
       allowOverflow: true,

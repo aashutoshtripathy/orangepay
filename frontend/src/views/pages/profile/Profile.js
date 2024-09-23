@@ -16,6 +16,10 @@ import {
   CFormLabel,
   CFormInput,
   CFormSelect,
+  CInputGroup,
+  CInputGroupText,
+  CIcon,
+  cilImage
 } from "@coreui/react";
 
 const Profile = () => {
@@ -295,6 +299,23 @@ const Profile = () => {
                 )}
               </>
             )}
+            <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          {/* <CIcon  /> */}
+                        </CInputGroupText>
+                        <CFormInput
+                          id="photograph"
+                          name="photograph"
+                          type="file"
+
+                          style={{ display: "none" }}
+                        />
+                        <CButton
+                          color="secondary"
+                        >
+                          
+                        </CButton>
+                      </CInputGroup>
 
 
 

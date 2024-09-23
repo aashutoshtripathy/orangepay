@@ -8,7 +8,7 @@ import {
   CTableDataCell,
   CContainer,
   CButton,
-  CModal, CModalBody, CModalHeader,
+  CModal, CModalBody, CModalHeader,CModalFooter,
 } from '@coreui/react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -22,6 +22,12 @@ const ViewTable = () => {
 
  const [modal, setModal] = useState(false);
  const [selectedImage, setSelectedImage] = useState('');
+ const [showRejectModal, setShowRejectModal] = useState(false);
+const [remarks, setRemarks] = useState('');
+const [selectedUser, setSelectedUser] = useState(null);
+const [validationMessage, setValidationMessage] = useState('');
+
+
 
   // Fetch data from API when the component mounts
   useEffect(() => {
@@ -60,7 +66,7 @@ const ViewTable = () => {
   };
 
   // Handle Reject Fund Request
-  const handleReject = async (row) => {
+  const handleRejects = async (row) => {
     try {
       const response = await axios.patch(`/users/${row._id}/reject`);
       if (response.status === 200) {
@@ -89,6 +95,31 @@ const ViewTable = () => {
       console.error('Error downloading file', error);
     }
   };
+
+  const handleReject = (user) => {
+    setSelectedUser(user);
+    setShowRejectModal(true);
+  };
+
+
+  const submitRejection = async (user, remarks) => {
+    if (!remarks.trim()) {
+      setValidationMessage('Remarks cannot be empty.'); // Set validation message
+      return; 
+    }
+
+    try {
+      const response = await axios.patch(`/users/${user._id}/reject`, { remarks });
+      if (response.status === 200) {
+        setTableData((prevData) => prevData.filter((item) => item._id !== user._id));
+        setShowRejectModal(false);
+        navigate('/requests');
+      }
+    } catch (error) {
+      console.error("Error rejecting fund request", error);
+    }
+  };
+  
 
 
 
@@ -375,6 +406,27 @@ const ViewTable = () => {
 
         </CTableBody>
       </CTable>
+      <CModal visible={showRejectModal} onClose={() => setShowRejectModal(false)}>
+  <CModalHeader onClose={() => setShowRejectModal(false)}>Add Remarks</CModalHeader>
+  <CModalBody>
+    <textarea
+      value={remarks}
+      onChange={(e) => setRemarks(e.target.value)}
+      rows="4"
+      style={{ width: '100%' }}
+      placeholder="Enter your remarks here..."
+    />
+    {validationMessage && <div style={{ color: 'red' }}>{validationMessage}</div>}
+  </CModalBody>
+  <CModalFooter>
+    <CButton color="secondary" onClick={() => setShowRejectModal(false)}>Cancel</CButton>
+    <CButton color="danger" onClick={async () => {
+      await submitRejection(selectedUser, remarks);
+      // Do not close the modal here; handle it in submitRejection
+    }} >Submit</CButton>
+  </CModalFooter>
+</CModal>
+
       <CModal visible={modal} onClose={() => setModal(false)}>
           <CModalHeader onClose={() => setModal(false)}>Image Preview</CModalHeader>
           <CModalBody>

@@ -65,6 +65,7 @@ const Layout = React.lazy(() => import('./views/forms/layout/Layout'))
 const Range = React.lazy(() => import('./views/forms/range/Range'))
 const Select = React.lazy(() => import('./views/forms/select/Select'))
 const Validation = React.lazy(() => import('./views/forms/validation/Validation'))
+const TransactionHistory = React.lazy(() => import('./views/pages/usermangement/TransactionHistory.js'))
 
 const Charts = React.lazy(() => import('./views/charts/Charts'))
 
@@ -92,6 +93,7 @@ const routes = [
   { path: '/requests', name: 'RequestedUser', element: RequestedUser },
   { path: '/fundrequests', name: 'Fund Request', element: FundRequests },
   { path: '/view-user', name: 'VIEW USER', element: ViewUser },
+  { path: '/transaction-history', name: 'TRANSACTION HISTORY', element: TransactionHistory },
   { path: '/call-me', name: 'CALL ME', element: CallMe },
   { path: '/query', name: 'QUERY', element: Query },
   { path: '/active', name: 'ACTIVE', element: Active },

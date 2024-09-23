@@ -720,7 +720,8 @@ const fetchFundRequests = asyncHandler(async (req, res) => {
 const fetchUserList = asyncHandler(async (req, res) => {
     try {
         // Find all users with status 'approved' from the database
-        const fetchUser = await Register.find({ status: 'Approved' }).exec();
+        // const fetchUser = await Register.find({ status: 'Approved' }).exec();
+        const fetchUser = await Register.find().exec();
 
         console.log("Approved Users: ", fetchUser);
 
