@@ -264,6 +264,8 @@ const DataTableComponent = () => {
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [filterText, setFilterText] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
@@ -297,8 +299,16 @@ const DataTableComponent = () => {
       item.userId &&
       item.userId.toString().toLowerCase().includes(filterText.toLowerCase());
   
-      return (matchesStatus || statusFilter === 'all') && 
-      (matchesUserId || filterText.trim() === '');
+      const itemDate = new Date(item.createdAt);
+    const fromDateMatch = fromDate ? new Date(fromDate) <= itemDate : true;
+    const toDateMatch = toDate ? new Date(toDate) >= itemDate : true;
+
+    return (
+      matchesStatus &&
+      matchesUserId &&
+      fromDateMatch &&
+      toDateMatch
+    );
   });
 
   const handleBlockUnblock = async (row) => {
@@ -467,6 +477,20 @@ const DataTableComponent = () => {
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
+        <div className="date-filter-container">
+        <label>From Date:</label>
+        <input
+          type="date"
+          value={fromDate}
+          onChange={e => setFromDate(e.target.value)}
+        />
+        <label>To Date:</label>
+        <input
+          type="date"
+          value={toDate}
+          onChange={e => setToDate(e.target.value)}
+        />
+      </div>
       </div>
       <DataTable
         title="View Users"
