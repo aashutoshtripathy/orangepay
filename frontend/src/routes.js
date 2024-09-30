@@ -15,6 +15,8 @@ const Active = React.lazy(() => import('./views/pages/mynetwork/ActiveAgent'))
 const InActive = React.lazy(() => import('./views/pages/mynetwork/InActiveAgent'))
 const ChangePassword = React.lazy(() => import('./views/pages/profile/ChangePassword'))
 const MonthlyBill = React.lazy(() => import('./views/pages/databasemanagement/MonthlyBilling'))
+const SwitchDatabase = React.lazy(() => import('./views/pages/databasemanagement/SwitchDatabase'))
+const SwitchGetway = React.lazy(() => import('./views/pages/databasemanagement/SwitchGetway'))
 const Reports = React.lazy(() => import('./views/pages/reports/Reports'))
 const AddUser = React.lazy(() => import('./views/pages/usermangement/AddUser'))
 const ManageUser = React.lazy(() => import('./views/pages/usermangement/ManageUser'))
@@ -29,6 +31,10 @@ const FundReport = React.lazy(() => import('./views/pages/reports/FundReport'))
 const RejectedUser = React.lazy(() => import('./views/pages/usermangement/RejectedUser.js'))
 const UpdateUser = React.lazy(() => import('./views/pages/profile/UpdateProfile.js'))
 const Payment = React.lazy(() => import('./views/pages/payment/Payment.js'))
+const Topup = React.lazy(() => import('./views/pages/payment/Topup.js'))
+const Prepaid = React.lazy(() => import('./views/pages/payment/Prepaid.js'))
+const Cancelation = React.lazy(() => import('./views/pages/payment/Cancelation.js'))
+const Permission = React.lazy(() => import('./views/pages/payment/Permission.js'))
 const ViewDetails = React.lazy(() => import('./views/pages/requesteduser/ViewTable.js'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -106,6 +112,8 @@ const routes = [
   { path: '/manage-user-service', name: 'Report', element: ManageUserService },
   { path: '/manage-reposting-bill', name: 'Report', element: ManageRePosting },
   { path: '/manage-bill-fetch', name: 'Report', element: ManageBillFetch },
+  { path: '/switch-database', name: 'Report', element: SwitchDatabase },
+  { path: '/switch-getway', name: 'Report', element: SwitchGetway },
   { path: '/manage-rrf-mobile', name: 'Report', element: ManageRRF },
   { path: '/view-consumer-details', name: 'Report', element: ConsumerDetails },
   { path: '/manage-rrf-limit', name: 'Report', element: ManageRRFLimit },
@@ -113,6 +121,10 @@ const routes = [
   { path: '/fund-report', name: 'Report', element: FundReport },
   { path: '/reject-user', name: 'Rejected User', element: RejectedUser },
   { path: '/payment', name: 'Payment', element: Payment },
+  { path: '/permission/:userId', name: 'Payment', element: Permission },
+  { path: '/topup', name: 'TopUp', element: Topup },
+  { path: '/prepaid-services', name: 'Prepaid-Balance', element: Prepaid },
+  { path: '/request-cancelation', name: 'Request-Cancelation', element: Cancelation },
   { path: '/update-user/:userId', name: 'Update User', element: UpdateUser },
   { path: '/view-details/:userId', name: 'View Details', element: ViewDetails },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },

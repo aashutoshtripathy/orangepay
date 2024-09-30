@@ -51,7 +51,7 @@ const fundRequestSchema = new Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["bank-transfer", "upi", "card", "paypal", "cash"],
+      enum: ["bank-transfer","cdm", "upi", "card", "paypal", "cash"],
       required: true,
     },
     bankName: {

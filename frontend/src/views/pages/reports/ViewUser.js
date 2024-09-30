@@ -8,6 +8,7 @@ import 'jspdf-autotable';
 import { CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react'; // Import CoreUI components
 import * as XLSX from 'xlsx';  // Import XLSX for Excel export
 import '../../../scss/dataTable.scss';
+import { useNavigate } from 'react-router-dom';
 
 // Define custom styles for the table
 const customStyles = {
@@ -267,6 +268,7 @@ const DataTableComponent = () => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const userId = localStorage.getItem('userId');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -285,6 +287,26 @@ const DataTableComponent = () => {
     fetchData();
   }, [userId]);
 
+
+ 
+
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await axios.get('/fetch_data'); 
+  //       const result = response.data.data || []; // Access the data array from the nested data object
+  //       setData(result);
+  //     } catch (error) {
+  //       setError(error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+
   const filteredItems = data.filter(item => {
     // Check status filter
     const matchesStatus =
@@ -294,15 +316,16 @@ const DataTableComponent = () => {
       (statusFilter === 'Rejected' && item.status === 'Rejected') ||
       (statusFilter === 'Pending' && item.status === 'Pending');
   
-    // Check userId filter
+    // Handle users with missing userId for Pending or Rejected status
     const matchesUserId =
-      item.userId &&
-      item.userId.toString().toLowerCase().includes(filterText.toLowerCase());
+      (item.status === 'Pending' || item.status === 'Rejected') ||
+      (item.userId && item.userId.toString().toLowerCase().includes(filterText.toLowerCase()));
   
-      const itemDate = new Date(item.createdAt);
+    // Date range filtering (if applicable)
+    const itemDate = new Date(item.createdAt);
     const fromDateMatch = fromDate ? new Date(fromDate) <= itemDate : true;
     const toDateMatch = toDate ? new Date(toDate) >= itemDate : true;
-
+  
     return (
       matchesStatus &&
       matchesUserId &&
@@ -310,6 +333,7 @@ const DataTableComponent = () => {
       toDateMatch
     );
   });
+  
 
   const handleBlockUnblock = async (row) => {
     try {
@@ -329,15 +353,39 @@ const DataTableComponent = () => {
 
 
 
+  const handlePermission = async (row) => {
+    console.log("User ID:", row._id);
+
+   navigate(`/permission/${row._id}`)
+  };
 
 
 
 
 
 
-  const handleDownload = (row) => {
-    console.log('Downloading file for:', row);
-    // Implement download logic here
+
+
+
+  const handleDownload = async (row) => {
+    try {
+      const response = await axios.get(`/download-images/${row.aadharNumber}`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `photos_${row.aadharNumber}.zip`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading file', error);
+    }   
+  };
+
+  const handleView = (row) => {
+    navigate(`/view-details/${row._id}`)
   };
 
   const handleSearch = () => {
@@ -378,12 +426,56 @@ const DataTableComponent = () => {
       name: 'Actions',
       cell: (row) => (
         <div className="actions-cell">
-      <button 
-      className="button-Accept" 
-      onClick={() => handleBlockUnblock(row)}
-    >
-      {row.isBlocked ? 'Details' : 'Details'}
-    </button>
+      <div>
+        {row.status === 'Blocked' ? (
+          row.isBlocked ? (
+            <button 
+              className="block-unblock-btn unblock-btn" 
+              onClick={() => handleBlockUnblock(row, 'unblock')}
+            >
+              Unblock
+            </button>
+          ) : (
+            <button 
+              className="block-unblock-btn block-btn" 
+              onClick={() => handleBlockUnblock(row, 'block')}
+            >
+              Block
+            </button>
+          )
+  ) : row.status === 'Approved' ? (
+    <>
+      <button onClick={() => handleBlockUnblock(row)} className="block-btn">
+        <FontAwesomeIcon icon={faLock} /> Block
+      </button>
+      <button onClick={() => handleBlockUnblock(row)} className="view-btn">
+        <FontAwesomeIcon icon={faLock} /> View Details
+      </button>
+      <button onClick={() => handlePermission(row)} className="view-btn">
+        <FontAwesomeIcon icon={faLock} /> Permissions
+      </button>
+    </>
+  ) : row.status === 'Rejected' ? (
+    <>
+      <button onClick={() => handleBlockUnblock(row)} className="accept-btn">
+        <FontAwesomeIcon icon={faCheckCircle} /> Accept
+      </button>
+      <button onClick={() => handleBlockUnblock(row)} className="download-btn">
+        <FontAwesomeIcon icon={faDownload} /> Download
+      </button>
+    </>
+  ) : row.status === 'Pending' ? (
+    <>
+       <button 
+            className="button-search" 
+            onClick={() => handleView(row)}
+          >
+            <FontAwesomeIcon icon={faCheckCircle} /> View Details
+          </button>
+    </>
+  ) : null}
+</div>
+
     </div>
       ),
     }
@@ -453,8 +545,7 @@ const DataTableComponent = () => {
              statusFilter === 'Approved' ? 'Active Users' :
              statusFilter === 'Blocked' ? 'Blocked Users' :
              statusFilter === 'Rejected' ? 'Rejected Users' : 
-             statusFilter === 'Pending' ? 'Pending Users' : 
-             'Pending Users'}
+             statusFilter === 'Pending' ? 'Pending Users' : ''}
           </CDropdownToggle>
           <CDropdownMenu>
           <CDropdownItem onClick={() => setStatusFilter('all')}>All Users</CDropdownItem>

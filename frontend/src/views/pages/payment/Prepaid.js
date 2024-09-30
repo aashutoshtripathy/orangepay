@@ -13,7 +13,6 @@ import {
   CModalHeader,
   CModalBody,
   CModalFooter,
-  CFormCheck,
   CFormSelect,
 } from '@coreui/react';
 import axios from 'axios';
@@ -35,12 +34,6 @@ const Payment = () => {
   const [isBillFetched, setIsBillFetched] = useState(false);
   const [fetchBillSuccess, setFetchBillSuccess] = useState(false);
   const [responseData, setResponseData] = useState(null);
-  const [selectedOptions, setSelectedOptions] = useState({});
-  const [fundRequestMethods, setFundRequestMethods] = useState({});
-  const [billPaymentMethods, setBillPaymentMethods] = useState({});
-  const [commission, setCommission] = useState('');
-
-
 
 
 
@@ -57,50 +50,6 @@ const Payment = () => {
       setUserId(storedUserId);
     }
   }, []);
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`/fetchUserList/${userId}`);
-        const result = response.data.fetchUser || {};
-
-        // Update state with the fetched data
-        setSelectedOptions({
-          topup: result.topup || false,
-          billPayment: result.billPayment || false,
-          requestCancellation: result.requestCancellation || false,
-          getPrepaidBalance: result.getPrepaidBalance || false,
-          fundRequest: result.fundRequest || false,
-        });
-
-        setFundRequestMethods({
-          bankTransfer: result.bankTransfer || false,
-          upi: result.upi || false,
-          cash: result.cash || false,
-          cdm: result.cdm || false,
-        });
-
-        setBillPaymentMethods({
-          wallet: result.wallet || false,
-          ezetap: result.ezetap || false,
-          upiQr: result.upiQr || false,
-          rrn: result.rrn || false,
-        });
-
-        setCommission(result.margin || '');
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-
-    if (userId) {
-      fetchData();
-    }
-  }, [userId]);
-
-
-
 
   const validate = () => {
     const errors = {};
@@ -181,8 +130,6 @@ const Payment = () => {
 
     if (!validate()) return;
 
-
-
     try {
       const response = await fetch('/payment', {
         method: 'POST',
@@ -198,7 +145,7 @@ const Payment = () => {
           remark,
           consumerName: billDetails.consumerName,
           divisionName: billDetails.divisionName,
-          subDivision: billDetails.subDivision,
+          subDivision: billDetails.subDivision
         }),
       });
 
@@ -216,79 +163,19 @@ const Payment = () => {
         setIsBillFetched(false);
         setErrors({});
       } else {
-        alert(`Error: ${result.message}`); // Use result.message instead of data.message
+        alert(`Error: ${data.message}`);
       }
     } catch (error) {
       console.error('Error processing payment:', error);
       alert('An error occurred while processing the payment.');
     }
   };
-
-  const createRazorpayOrder = async () => {
-    if (!validate()) return; // Validate before creating order
-
-    const data = {
-      amount: Number(amount), // Razorpay requires amount in paise
-      currency: "INR",
-    };
-
-    try {
-      const response = await axios.post("/ezetap", data);
-      if (response.data.id) {
-        handleRazorpayScreen(response.data.amount);
-      } else {
-        alert('Failed to create Razorpay order');
-      }
-    } catch (error) {
-      console.error('Error creating order:', error);
-      alert('An error occurred while creating the order. Please try again.');
-    }
-  };
-
-  const handleRazorpayScreen = async (amount) => {
-    const options = {
-      key: 'rzp_test_GcZZFDPP0jHtC4',
-      amount: amount * 100,
-      currency: 'INR',
-      name: "OrangePay",
-      description: "Payment to OrangePay",
-      handler: function (response) {
-        // Handle the response here
-      },
-      prefill: {
-        name: "OrangePay",
-        email: "OrangePay@gmail.com"
-      },
-      theme: {
-        color: "#F4C430"
-      }
-    };
-
-    const paymentObject = new window.Razorpay(options);
-    paymentObject.open();
-  };
-
   // const handleSetDefaultAmount = () => {
   //   setAmount(defaultAmount);
   // };
-  const handlePayment = async () => {
-    setFormSubmitted(true);
-    if (!validate()) return;
-
-    if (selectedMethod === 'wallet') {
-      await handleProceedToPay();
-    } else {
-      await createRazorpayOrder();
-    }
-  };
 
   const handleMethodChange = (e) => {
-    const selectedValue = e.target.value;
-    setSelectedMethod(selectedValue);
-    if (selectedValue === "ezetap") {
-      // Perform action for credit method
-      console.log("Credit method selected.");
-    }
+    setSelectedMethod(e.target.value);
   };
 
   const handleCloseModal = () => {
@@ -308,7 +195,7 @@ const Payment = () => {
     <CContainer className="p-4">
       <CCard>
         <CCardHeader>
-          <h2>Payment Information</h2>
+          <h2>Check Prepaid Balance</h2>
         </CCardHeader>
 
         <CCardBody>
@@ -324,15 +211,30 @@ const Payment = () => {
           {/* Consumer ID Field */}
           {!fetchBillSuccess && (
             <>
+            <CRow className="mb-3">
+                <CCol md={6}>
+                  <label htmlFor="paymentMethod">Select Meter Type</label>
+                  <CFormSelect
+                    id="paymentMethod"
+                    value={selectedMethod}
+                    onChange={handleMethodChange}
+                  >
+                    <option value="">Select Meter Type</option>
+                    <option value="secure">Secure</option>
+                    <option value="eesl">EESL</option>
+                    <option value="genus">Genus</option>
+                  </CFormSelect>
+                </CCol>
+              </CRow>
               <CRow className="mb-3">
                 <CCol md={6}>
-                  <CFormLabel htmlFor="consumerId">Consumer ID</CFormLabel>
+                  <CFormLabel htmlFor="consumerId">Enter Consumer Number</CFormLabel>
                   <CFormInput
                     type="text"
                     id="consumerId"
                     value={consumerId}
                     onChange={(e) => setConsumerId(e.target.value)}
-                    placeholder="Enter Consumer ID"
+                    placeholder="Enter Consumer Number"
                   />
                   {formSubmitted && errors.consumerId && <p className="text-danger">{errors.consumerId}</p>}
                 </CCol>
@@ -340,7 +242,7 @@ const Payment = () => {
 
               {/* Fetch Bill Button */}
               <CButton color="primary" onClick={handleFetchBill}>
-                Fetch Bill
+                Get Balance
               </CButton>
             </>
           )}
@@ -358,7 +260,7 @@ const Payment = () => {
               )} */}
 
               {/* Mobile Number Field */}
-              <CRow className="mb-3">
+              {/* <CRow className="mb-3">
                 <CCol md={6}>
                   <CFormLabel htmlFor="mobileNumber">Mobile Number</CFormLabel>
                   <CFormInput
@@ -371,7 +273,7 @@ const Payment = () => {
                   {formSubmitted && errors.mobileNumber && <p className="text-danger">{errors.mobileNumber}</p>}
                 </CCol>
               </CRow>
-              {/* <CRow className="mb-3">
+              <CRow className="mb-3">
                 <CCol md={6}>
                   <label htmlFor="paymentMethod">Payment Method</label>
                   <CFormSelect
@@ -387,85 +289,8 @@ const Payment = () => {
                 </CCol>
               </CRow> */}
 
-
-              <CRow className="mb-3">
-                <CCol md={6}>
-                  <label htmlFor="paymentMethod">Payment Method</label>
-                  <div className="d-flex justify-content-between mt-2">
-                    {billPaymentMethods.wallet && (
-                      <CCard className={`mb-3 ${selectedMethod === 'wallet' ? 'border-primary' : ''}`} onClick={() => handleMethodChange({ target: { value: 'wallet' } })}>
-                        <CCardBody>
-                          <CFormCheck
-                            type="radio"
-                            name="paymentMethod"
-                            id="wallet"
-                            value="wallet"
-                            label="Wallet"
-                            checked={selectedMethod === 'wallet'}
-                            onChange={handleMethodChange}
-                            className="d-none" // Hide the default radio button
-                          />
-                          <span className="ms-2">Wallet</span>
-                        </CCardBody>
-                      </CCard>
-                    )}
-                    {billPaymentMethods.ezetap && (
-                      <CCard className={`mb-3 ${selectedMethod === 'ezetap' ? 'border-primary' : ''}`} onClick={() => handleMethodChange({ target: { value: 'ezetap' } })}>
-                        <CCardBody>
-                          <CFormCheck
-                            type="radio"
-                            name="paymentMethod"
-                            id="ezetap"
-                            value="ezetap"
-                            label="EZETAP"
-                            checked={selectedMethod === 'ezetap'}
-                            onChange={handleMethodChange}
-                            className="d-none" // Hide the default radio button
-                          />
-                          <span className="ms-2">EZETAP</span>
-                        </CCardBody>
-                      </CCard>
-                    )}
-                    {billPaymentMethods.upiQr && (
-                      <CCard className={`mb-3 ${selectedMethod === 'upi-qr' ? 'border-primary' : ''}`} onClick={() => handleMethodChange({ target: { value: 'upi-qr' } })}>
-                        <CCardBody>
-                          <CFormCheck
-                            type="radio"
-                            name="paymentMethod"
-                            id="upi-qr"
-                            value="upi-qr"
-                            label="UPI-QR"
-                            checked={selectedMethod === 'upi-qr'}
-                            onChange={handleMethodChange}
-                            className="d-none" // Hide the default radio button
-                          />
-                          <span className="ms-2">UPI-QR</span>
-                        </CCardBody>
-                      </CCard>
-                    )}
-                    {billPaymentMethods.rrn && (
-                      <CCard className={`mb-3 ${selectedMethod === 'rrn' ? 'border-primary' : ''}`} onClick={() => handleMethodChange({ target: { value: 'rrn' } })}>
-                        <CCardBody>
-                          <CFormCheck
-                            type="radio"
-                            name="paymentMethod"
-                            id="rrn"
-                            value="rrn"
-                            label="RRN"
-                            checked={selectedMethod === 'rrn'}
-                            onChange={handleMethodChange}
-                            className="d-none" // Hide the default radio button
-                          />
-                          <span className="ms-2">RRN</span>
-                        </CCardBody>
-                      </CCard>
-                    )}
-                  </div>
-                </CCol>
-              </CRow>
-
               {/* Amount Field */}
-              <CRow className="mb-3">
+              {/* <CRow className="mb-3">
                 <CCol md={6}>
                   <CFormLabel htmlFor="defaultAmount">Amount</CFormLabel>
                   <CFormInput
@@ -476,10 +301,10 @@ const Payment = () => {
                     placeholder="Enter amount"
                   />
                 </CCol>
-              </CRow>
+              </CRow> */}
 
               {/* Remark Field */}
-              <CRow className="mb-3">
+              {/* <CRow className="mb-3">
                 <CCol md={6}>
                   <CFormLabel htmlFor="remark">Remark</CFormLabel>
                   <CFormInput
@@ -490,12 +315,12 @@ const Payment = () => {
                     placeholder="Enter a remark (optional)"
                   />
                 </CCol>
-              </CRow>
+              </CRow> */}
 
               {/* Pay Bill Button */}
-              <CButton color="primary" onClick={handlePayment}>
+              {/* <CButton color="primary" onClick={handleProceedToPay}>
                 Pay Bill
-              </CButton>
+              </CButton> */}
             </>
           )}
         </CCardBody>

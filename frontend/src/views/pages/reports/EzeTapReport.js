@@ -106,6 +106,8 @@ const EzeTapReport = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [filterText, setFilterText] = useState('');
 
   useEffect(() => {
@@ -196,6 +198,20 @@ const EzeTapReport = () => {
         <button className="button-download-excel" onClick={() => downloadExcel(filteredItems)}>
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
+        <div className="date-filter-container">
+        <label>From Date:</label>
+        <input
+          type="date"
+          value={fromDate}
+          onChange={e => setFromDate(e.target.value)}
+        />
+        <label>To Date:</label>
+        <input
+          type="date"
+          value={toDate}
+          onChange={e => setToDate(e.target.value)}
+        />
+      </div>
       </div>
       <DataTable
         title="Ezetap Payment Reports"

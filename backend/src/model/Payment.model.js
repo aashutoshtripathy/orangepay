@@ -155,6 +155,22 @@ const paymentSchema = new Schema({
   subdivision: {
     type: String, // Sub-division details
     required: false
+  },
+  consumerName: {
+    type: String,
+    required: false
+  },
+  commission: {
+    type: String,
+    required: false
+  },
+  tds: {
+    type: String,
+    required: false
+  },
+  netCommission: {
+    type: String,
+    required: false
   }
 });
 

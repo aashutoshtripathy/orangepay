@@ -111,10 +111,16 @@ const OrangePayReport = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/getPayment/${userId}`);
-        const result = response.data.balance ? response.data.balance : [];
-        setData(result);
+        const response = await axios.get(`/getpayment/${userId}`);
+        const balanceData = Array.isArray(response.data.balance) ? response.data.balance : [];
+
+        const sortedData = balanceData.sort((a, b) => {
+          return new Date(a.createdon) - new Date(b.createdon);
+        });
+
+        setData(sortedData);
       } catch (error) {
+        console.error('Fetch error:', error);
         setError(error);
       } finally {
         setLoading(false);
@@ -122,8 +128,12 @@ const OrangePayReport = () => {
     };
 
     fetchData();
-  }, []);
+  }, [userId]);
+  
+  
+  
 
+  // Filtering and rendering the data table...
   const filteredItems = data.filter(item =>
     Object.values(item).some(val =>
       val && val.toString().toLowerCase().includes(filterText.toLowerCase())
@@ -131,42 +141,18 @@ const OrangePayReport = () => {
   );
 
   const columns = [
-    { name: 'ID', selector: 'userId', sortable: true },
-    { name: 'CANumber', selector: 'canumber', sortable: true },
-    { name: 'InvoiceNO', selector: 'invoicenumber', sortable: true }, // Format date
-    { name: 'BillMonth', selector: 'billmonth', sortable: true },
-    { name: 'TxnId', selector: 'transactionId', sortable: true },
-    { name: 'BankReferenceCode', selector: 'refrencenumber', sortable: true },
-    { name: 'BankID', selector: 'bankid', sortable: true },
-    { name: 'PaymentMode', selector: 'paymentmode', sortable: true },
-    { name: 'PaymentStatus', selector: 'paymentstatus', sortable: true },
-    { name: 'CreatedOn', selector: 'createdon', sortable: true , format: row => new Date(row.createdon).toLocaleDateString() },
-    { name: 'CreatedBy', selector: 'createdby', sortable: true },
-    { name: 'BillPostStatus', selector: 'billpoststatus', sortable: true },
-    { name: 'PaidAmount', selector: 'billamount', sortable: true },
-    { name: 'ReceiptNo', selector: 'reciptno', sortable: true,}, 
-    { name: 'BillPostOn', selector: 'billposton', sortable: true },
-    { name: 'Gateway', selector: 'getway', sortable: true },
-    { name: 'cardTxnTypeDesc', selector: 'cardtxntype', sortable: true },
-    { name: 'TerminalID', selector: 'terminalid', sortable: true },
-    { name: 'MId', selector: 'mid', sortable: true },
-    { name: 'nameOnCard', selector: 'nameoncard', sortable: true },
-    { name: 'Remarks', selector: 'remarks', sortable: true },
-    { name: 'LoginId', selector: 'loginid', sortable: true },
-    { name: 'RRN', selector: 'rrn', sortable: true },
-    { name: 'VPA', selector: 'vpa', sortable: true },
-    { name: 'BillAmount', selector: 'billamount', sortable: true },
-    { name: 'paymentDate', selector: 'paymentdate', sortable: true   },
-    { name: 'latitude', selector: 'latitude', sortable: true },
-    { name: 'longitude', selector: 'longitude', sortable: true },
-    { name: 'FetchType', selector: 'fetchtype', sortable: true },
-    { name: 'ConsumerMobileNo', selector: 'consumermob', sortable: true },
-    { name: 'LT_HT', selector: 'ltht', sortable: true },
-    { name: 'DueDate', selector: 'duedate', sortable: true },
-    { name: 'BrandCode', selector: 'brandcode', sortable: true },
-    { name: 'Division', selector: 'division', sortable: true },
-    { name: 'SubDiv', selector: 'subdivision', sortable: true },
-    ];
+    { name: 'Transaction ID', selector: row => row.transactionId, sortable: true },
+    { name: 'CANumber', selector: row => row.canumber, sortable: true },
+    { name: 'Paid Amount', selector: row => row.paidamount, sortable: true },
+    { name: 'Commission', selector: row => row.commission, sortable: true },
+    { name: 'TDS', selector: row => row.tds, sortable: true },
+    { name: 'Net Commission', selector: row => row.netCommission, sortable: true },
+    { name: 'Payment Date', selector: row => row.paymentdate, sortable: true },
+  ];
+
+  const rows = data.map(row => columns.map(col => row[col.dataKey]));
+
+  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;

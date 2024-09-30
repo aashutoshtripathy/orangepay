@@ -24,7 +24,7 @@ import { isValidObjectId } from "mongoose";
 
 
 
-const sessionStore = new Map(); 
+const sessionStore = new Map();
 
 
 
@@ -40,146 +40,146 @@ const sessionStore = new Map();
 
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const aadharNumber = req.body.aadharNumber;
-        const dir = path.join('public/images',aadharNumber);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        cb(null, dir); // Destination folder for uploaded files
-    },
-    filename: function (req, file, cb) {
-        cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`); // Unique filename with timestamp
+  destination: function (req, file, cb) {
+    const aadharNumber = req.body.aadharNumber;
+    const dir = path.join('public/images', aadharNumber);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
+    cb(null, dir); // Destination folder for uploaded files
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`); // Unique filename with timestamp
+  }
 });
 
 // Initialize Multer upload middleware
 const upload = multer({ storage }).fields([
-    { name: 'photograph', maxCount: 1 },
-    { name: 'aadharCard', maxCount: 1 },
-    { name: 'panCard', maxCount: 1 },
-    { name: 'educationCertificate', maxCount: 1 },
-    { name: 'cheque', maxCount: 1 },
-    { name: 'signature', maxCount: 1 }
+  { name: 'photograph', maxCount: 1 },
+  { name: 'aadharCard', maxCount: 1 },
+  { name: 'panCard', maxCount: 1 },
+  { name: 'educationCertificate', maxCount: 1 },
+  { name: 'cheque', maxCount: 1 },
+  { name: 'signature', maxCount: 1 }
 ]);
 
 // User registration handler
 const registerUser = asyncHandler(async (req, res) => {
-    upload(req, res, async (err) => {
-        if (err) {
-            return res.status(400).json(new ApiError(400, "File upload failed"));
-        }
+  upload(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json(new ApiError(400, "File upload failed"));
+    }
 
-        const {
-            name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
-            gender, maritalStatus, education, address, salaryBasis, email, division,
-            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,consumerId,role,discom,
-        } = req.body;
-        console.log(req.body)
-        // Check for existing user
-        // const existedUser = await Register.findOne({
-        //     $or: [{ mobileNumber }, { aadharNumber }]
-        // });
+    const {
+      name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+      gender, maritalStatus, education, address, salaryBasis, email, division,
+      subDivision, section, sectionType, ifsc, district, pincode, bank, accountno, consumerId, role, discom,
+    } = req.body;
+    console.log(req.body)
+    // Check for existing user
+    // const existedUser = await Register.findOne({
+    //     $or: [{ mobileNumber }, { aadharNumber }]
+    // });
 
-        // if (existedUser) {
-        //     throw new ApiError(400, "Mobile number or Aadhar number already exists");
-        // }
+    // if (existedUser) {
+    //     throw new ApiError(400, "Mobile number or Aadhar number already exists");
+    // }
 
-        // Create new user
-        const user = await Register.create({
-            name, fatherOrHusbandName, dob, role, aadharNumber, panNumber, mobileNumber,
-            gender, maritalStatus, education, address, salaryBasis, email, division,
-            subDivision, section, sectionType, ifsc, district, pincode, bank ,accountno,discom,consumerId,
-            photograph: req.files['photograph'] ? req.files['photograph'][0].path : null,
-            aadharCard: req.files['aadharCard'] ? req.files['aadharCard'][0].path : null,
-            panCard: req.files['panCard'] ? req.files['panCard'][0].path : null,
-            educationCertificate: req.files['educationCertificate'] ? req.files['educationCertificate'][0].path : null,
-            cheque: req.files['cheque'] ? req.files['cheque'][0].path : null,
-            signature: req.files['signature'] ? req.files['signature'][0].path : null
-        });
-            console.log(req.files)
-        // Send success response
-        return res.status(201).json(
-            new ApiResponse(201, user, "User Registered Successfully")
-        );
+    // Create new user
+    const user = await Register.create({
+      name, fatherOrHusbandName, dob, role, aadharNumber, panNumber, mobileNumber,
+      gender, maritalStatus, education, address, salaryBasis, email, division,
+      subDivision, section, sectionType, ifsc, district, pincode, bank, accountno, discom, consumerId,
+      photograph: req.files['photograph'] ? req.files['photograph'][0].path : null,
+      aadharCard: req.files['aadharCard'] ? req.files['aadharCard'][0].path : null,
+      panCard: req.files['panCard'] ? req.files['panCard'][0].path : null,
+      educationCertificate: req.files['educationCertificate'] ? req.files['educationCertificate'][0].path : null,
+      cheque: req.files['cheque'] ? req.files['cheque'][0].path : null,
+      signature: req.files['signature'] ? req.files['signature'][0].path : null
     });
+    console.log(req.files)
+    // Send success response
+    return res.status(201).json(
+      new ApiResponse(201, user, "User Registered Successfully")
+    );
+  });
 });
 
 
 
 const generateRandomId = (name) => {
-    const randomSuffix = Math.floor(Math.random() * 100000); // Generate a random 4-digit number
-    const namePart = name ? name.substring(0, 4).toUpperCase() : 'USER'; // Take the first 4 letters of the name
-    return `${99999}${randomSuffix}`;
+  const randomSuffix = Math.floor(Math.random() * 100000); // Generate a random 4-digit number
+  const namePart = name ? name.substring(0, 4).toUpperCase() : 'USER'; // Take the first 4 letters of the name
+  return `${99999}${randomSuffix}`;
 };
 
 const generateRandomPassword = (length = 10) => {
-    return crypto.randomBytes(length).toString('base64').slice(0, length); // Generate a random password of specified length
+  return crypto.randomBytes(length).toString('base64').slice(0, length); // Generate a random password of specified length
 };
 
 
 
 const updateProfile = asyncHandler(async (req, res) => {
   upload(req, res, async (err) => {
-    const  userId  = req.params.id; // Assuming userId is passed as a parameter in the request
+    const userId = req.params.id; // Assuming userId is passed as a parameter in the request
     console.log(userId)
 
 
-      if (err) {
-          return res.status(400).json(new ApiError(400, "File upload failed"));
+    if (err) {
+      return res.status(400).json(new ApiError(400, "File upload failed"));
+    }
+
+    const {
+      name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
+      gender, maritalStatus, education, address, salaryBasis, email, division,
+      subDivision, section, sectionType, ifsc, district, pincode, bank, accountno,
+    } = req.body;
+    console.log(req.body)
+
+
+    try {
+      // Find the existing user by ID
+      const user = await Register.findById(userId);
+      if (!user) {
+        throw new ApiError(404, "User not found");
       }
 
-      const {
-          name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
-          gender, maritalStatus, education, address, salaryBasis, email, division,
-          subDivision, section, sectionType, ifsc, district, pincode, bank, accountno,
-      } = req.body;
-      console.log(req.body)
+      // Update user fields
+      user.name = name || user.name;
+      user.fatherOrHusbandName = fatherOrHusbandName || user.fatherOrHusbandName;
+      user.dob = dob || user.dob;
+      user.aadharNumber = aadharNumber || user.aadharNumber;
+      user.panNumber = panNumber || user.panNumber;
+      user.mobileNumber = mobileNumber || user.mobileNumber;
+      user.gender = gender || user.gender;
+      user.maritalStatus = maritalStatus || user.maritalStatus;
+      user.education = education || user.education;
+      user.address = address || user.address;
+      user.salaryBasis = salaryBasis || user.salaryBasis;
+      user.email = email || user.email;
+      user.division = division || user.division;
+      user.subDivision = subDivision || user.subDivision;
+      user.section = section || user.section;
+      user.sectionType = sectionType || user.sectionType;
+      user.ifsc = ifsc || user.ifsc;
+      user.district = district || user.district;
+      user.pincode = pincode || user.pincode;
+      user.bank = bank || user.bank;
+      user.accountno = accountno || user.accountno;
 
 
-      try {
-          // Find the existing user by ID
-          const user = await Register.findById(userId);
-          if (!user) {
-              throw new ApiError(404, "User not found");
-          }
+      // Save the updated user
+      await user.save();
 
-          // Update user fields
-          user.name = name || user.name;
-          user.fatherOrHusbandName = fatherOrHusbandName || user.fatherOrHusbandName;
-          user.dob = dob || user.dob;
-          user.aadharNumber = aadharNumber || user.aadharNumber;
-          user.panNumber = panNumber || user.panNumber;
-          user.mobileNumber = mobileNumber || user.mobileNumber;
-          user.gender = gender || user.gender;
-          user.maritalStatus = maritalStatus || user.maritalStatus;
-          user.education = education || user.education;
-          user.address = address || user.address;
-          user.salaryBasis = salaryBasis || user.salaryBasis;
-          user.email = email || user.email;
-          user.division = division || user.division;
-          user.subDivision = subDivision || user.subDivision;
-          user.section = section || user.section;
-          user.sectionType = sectionType || user.sectionType;
-          user.ifsc = ifsc || user.ifsc;
-          user.district = district || user.district;
-          user.pincode = pincode || user.pincode;
-          user.bank = bank || user.bank;
-          user.accountno = accountno || user.accountno;
+      // Send success response
+      return res.status(200).json(
+        new ApiResponse(200, user, "User updated successfully")
+      );
 
-
-          // Save the updated user
-          await user.save();
-
-          // Send success response
-          return res.status(200).json(
-              new ApiResponse(200, user, "User updated successfully")
-          );
-
-      } catch (error) {
-          // Handle errors
-          return res.status(error.statusCode || 500).json(new ApiError(error.statusCode || 500, error.message));
-      }
+    } catch (error) {
+      // Handle errors
+      return res.status(error.statusCode || 500).json(new ApiError(error.statusCode || 500, error.message));
+    }
   });
 });
 
@@ -189,66 +189,66 @@ const updateProfile = asyncHandler(async (req, res) => {
 
 
 const registeredUser = asyncHandler(async (req, res) => {
-    const { id } = req.params; // Get user ID from request parameters
+  const { id } = req.params; // Get user ID from request parameters
 
-    try {
-        // Find the user in the Register collection
-        const user = await Register.findById(id);
-        if (!user) {
-            return res.status(404).json(new ApiError(404, "User not found"));
-        }
-
-        const generatedUserId = generateRandomId(user.name);
-        const generatedPassword = generateRandomPassword(12);
-
-        // Create a new entry in the Registered collection with the user's data
-        const acceptedUser = await Registered.create({
-            name: user.name,
-            fatherOrHusbandName: user.fatherOrHusbandName,
-            dob: user.dob,
-            aadharNumber: user.aadharNumber,
-            panNumber: user.panNumber,
-            mobileNumber: user.mobileNumber,
-            gender: user.gender,
-            maritalStatus: user.maritalStatus,
-            education: user.education,
-            address: user.address,
-            salaryBasis: user.salaryBasis,
-            email: user.email,
-            division: user.division,
-            subDivision: user.subDivision,
-            section: user.section,
-            sectionType: user.sectionType,
-            userId: generatedUserId,
-            password: generatedPassword,
-            
-        });
-
-
-        const wallet = new Wallet({
-            userId: acceptedUser._id, // Use the ID of the newly created user
-        });
-
-        await wallet.save();
-
-
-        // const smsMessage = `Your account has been created. User ID: ${generatedUserId}, Password: ${generatedPassword}`;
-        
-        // await twilioClient.messages.create({
-        //     body: smsMessage,
-        //     from: twilioPhoneNumber,
-        //     to: user.mobileNumber, 
-        // });
-
-        // Delete the user from the Register collection
-        await Register.findByIdAndDelete(id);
-
-        // Send a success response
-        return res.status(200).json(new ApiResponse(200, acceptedUser, "User Accepted and Moved to Registered Collection"));
-    } catch (error) {
-        // Handle errors
-        return res.status(500).json(new ApiError(500, "Server Error"));
+  try {
+    // Find the user in the Register collection
+    const user = await Register.findById(id);
+    if (!user) {
+      return res.status(404).json(new ApiError(404, "User not found"));
     }
+
+    const generatedUserId = generateRandomId(user.name);
+    const generatedPassword = generateRandomPassword(12);
+
+    // Create a new entry in the Registered collection with the user's data
+    const acceptedUser = await Registered.create({
+      name: user.name,
+      fatherOrHusbandName: user.fatherOrHusbandName,
+      dob: user.dob,
+      aadharNumber: user.aadharNumber,
+      panNumber: user.panNumber,
+      mobileNumber: user.mobileNumber,
+      gender: user.gender,
+      maritalStatus: user.maritalStatus,
+      education: user.education,
+      address: user.address,
+      salaryBasis: user.salaryBasis,
+      email: user.email,
+      division: user.division,
+      subDivision: user.subDivision,
+      section: user.section,
+      sectionType: user.sectionType,
+      userId: generatedUserId,
+      password: generatedPassword,
+
+    });
+
+
+    const wallet = new Wallet({
+      userId: acceptedUser._id, // Use the ID of the newly created user
+    });
+
+    await wallet.save();
+
+
+    // const smsMessage = `Your account has been created. User ID: ${generatedUserId}, Password: ${generatedPassword}`;
+
+    // await twilioClient.messages.create({
+    //     body: smsMessage,
+    //     from: twilioPhoneNumber,
+    //     to: user.mobileNumber, 
+    // });
+
+    // Delete the user from the Register collection
+    await Register.findByIdAndDelete(id);
+
+    // Send a success response
+    return res.status(200).json(new ApiResponse(200, acceptedUser, "User Accepted and Moved to Registered Collection"));
+  } catch (error) {
+    // Handle errors
+    return res.status(500).json(new ApiError(500, "Server Error"));
+  }
 });
 
 const __filename = fileURLToPath(import.meta.url);
@@ -258,7 +258,7 @@ const __dirname = path.dirname(__filename);
 // Function to download user images
 const downloadUserImages = asyncHandler(async (req, res) => {
   const aadharNumber = req.params.aadharNumber;
-  
+
   // Corrected path to go up to the root directory
   const userDir = path.join(__dirname, '..', '..', 'public', 'images', aadharNumber);
 
@@ -313,44 +313,44 @@ const downloadUserImages = asyncHandler(async (req, res) => {
 
 
 const registerTransaction = asyncHandler(async (req, res) => {
-    // Destructure the fields from the request body
-    const {
-        transaction_id, reference_number, lower_level, upper_level,
-        transaction_datetime, service_name, amount_before_due_date, request_amount,
-        total_service_charge, total_commission, net_amount, action_on_amount,
-        status, final_bal_amount, update_date, portal_name, gst_charge
-    } = req.body;
+  // Destructure the fields from the request body
+  const {
+    transaction_id, reference_number, lower_level, upper_level,
+    transaction_datetime, service_name, amount_before_due_date, request_amount,
+    total_service_charge, total_commission, net_amount, action_on_amount,
+    status, final_bal_amount, update_date, portal_name, gst_charge
+  } = req.body;
 
-    try {
-        // Create new transaction
-        const transaction = await Transaction.create({
-            transaction_id,
-            reference_number,
-            lower_level,
-            upper_level,
-            transaction_datetime,
-            service_name,
-            amount_before_due_date,
-            request_amount,
-            total_service_charge,
-            total_commission,
-            net_amount,
-            action_on_amount,
-            status,
-            final_bal_amount,
-            update_date,
-            portal_name,
-            gst_charge
-        });
+  try {
+    // Create new transaction
+    const transaction = await Transaction.create({
+      transaction_id,
+      reference_number,
+      lower_level,
+      upper_level,
+      transaction_datetime,
+      service_name,
+      amount_before_due_date,
+      request_amount,
+      total_service_charge,
+      total_commission,
+      net_amount,
+      action_on_amount,
+      status,
+      final_bal_amount,
+      update_date,
+      portal_name,
+      gst_charge
+    });
 
-        // Return the created transaction
-        return res.status(201).json(
-            new ApiResponse(201, transaction, "Transaction created successfully")
-        );
-    } catch (error) {
-        // Catch any errors and send error response
-        return res.status(400).json(new ApiError(400, error.message));
-    }
+    // Return the created transaction
+    return res.status(201).json(
+      new ApiResponse(201, transaction, "Transaction created successfully")
+    );
+  } catch (error) {
+    // Catch any errors and send error response
+    return res.status(400).json(new ApiError(400, error.message));
+  }
 });
 
 
@@ -358,61 +358,61 @@ const registerTransaction = asyncHandler(async (req, res) => {
 // Function to block a user
 const blockUser = asyncHandler(async (req, res) => {
   const { userId } = req.body; // Assuming user ID is sent in the request body
-  console.log("id",userId)
+  console.log("id", userId)
 
   try {
-      // Find the user and update their status to 'Blocked'
-      const user = await Register.findOneAndUpdate(
-        { _id: userId },
-        { $set: { isBlocked: true, status: 'Blocked' } },
-        { new: true }
-      );
+    // Find the user and update their status to 'Blocked'
+    const user = await Register.findOneAndUpdate(
+      { _id: userId },
+      { $set: { isBlocked: true, status: 'Blocked' } },
+      { new: true }
+    );
 
-      // If user not found
-      if (!user) {
-          return res.status(404).json(new ApiError(404, 'User not found'));
-      }
+    // If user not found
+    if (!user) {
+      return res.status(404).json(new ApiError(404, 'User not found'));
+    }
 
-      // Return a successful response
-      return res.status(200).json(
-          new ApiResponse(200, user, "User blocked successfully")
-      );
+    // Return a successful response
+    return res.status(200).json(
+      new ApiResponse(200, user, "User blocked successfully")
+    );
   } catch (error) {
-      // Handle errors and send a structured error response
-      return res.status(400).json(
-          new ApiError(400, error.message)
-      );
+    // Handle errors and send a structured error response
+    return res.status(400).json(
+      new ApiError(400, error.message)
+    );
   }
 });
 
 // Function to unblock a user
 const unblockUser = asyncHandler(async (req, res) => {
   const { userId } = req.body; // Assuming user ID is sent in the request body
-  console.log("id",userId)
+  console.log("id", userId)
 
 
   try {
-      // Find the user and update their status to 'Approved'
-      const user = await Register.findOneAndUpdate(
-        { _id: userId },
-        { $set: { isBlocked: false, status: 'Approved' } },
-        { new: true }
-      );
+    // Find the user and update their status to 'Approved'
+    const user = await Register.findOneAndUpdate(
+      { _id: userId },
+      { $set: { isBlocked: false, status: 'Approved' } },
+      { new: true }
+    );
 
-      // If user not found
-      if (!user) {
-          return res.status(404).json(new ApiError(404, 'User not found'));
-      }
+    // If user not found
+    if (!user) {
+      return res.status(404).json(new ApiError(404, 'User not found'));
+    }
 
-      // Return a successful response
-      return res.status(200).json(
-          new ApiResponse(200, user, "User unblocked successfully")
-      );
+    // Return a successful response
+    return res.status(200).json(
+      new ApiResponse(200, user, "User unblocked successfully")
+    );
   } catch (error) {
-      // Handle errors and send a structured error response
-      return res.status(400).json(
-          new ApiError(400, error.message)
-      );
+    // Handle errors and send a structured error response
+    return res.status(400).json(
+      new ApiError(400, error.message)
+    );
   }
 });
 
@@ -421,29 +421,29 @@ const unblockUser = asyncHandler(async (req, res) => {
 
 
 const fetchWalletBalance = asyncHandler(async (req, res) => {
-    const { userId } = req.params;
+  const { userId } = req.params;
 
-    // Validate that the userId is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-        console.log("Invalid userId format:", userId);
-        return res.status(400).json({ success: false, message: 'Invalid userId' });
+  // Validate that the userId is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    console.log("Invalid userId format:", userId);
+    return res.status(400).json({ success: false, message: 'Invalid userId' });
+  }
+
+  try {
+    const wallet = await Wallet.findOne({ userId }).exec();
+
+    if (!wallet) {
+      return res.status(404).json({ success: false, message: 'Wallet not found' });
     }
 
-    try {
-        const wallet = await Wallet.findOne({ userId }).exec();
-        
-        if (!wallet) {
-            return res.status(404).json({ success: false, message: 'Wallet not found' });
-        }
+    console.log("Fetched wallet balance:", wallet.balance);
 
-        console.log("Fetched wallet balance:", wallet.balance);
+    return res.status(200).json({ success: true, balance: wallet.balance });
 
-        return res.status(200).json({ success: true, balance: wallet.balance });
-        
-    } catch (error) {
-        console.error("Error fetching wallet balance:", error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
+  } catch (error) {
+    console.error("Error fetching wallet balance:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 });
 
 
@@ -453,41 +453,41 @@ const fetchWalletBalance = asyncHandler(async (req, res) => {
 
 
 const fundRequest = asyncHandler(async (req, res) => {
-    const { userId, fundAmount, bankReference, paymentMethod, datePayment, bankName } = req.body;
+  const { userId, fundAmount, bankReference, paymentMethod, datePayment, bankName } = req.body;
 
-    try {
-        // Validate required fields
-        if (!userId || !fundAmount || !paymentMethod) {
-            throw new Error('All fields are required');
-        }
-
-        // Validate that the user exists in the Register table
-        const user = await Register.findById(userId); // Use findById to find the user by _id
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-
-        // Create a new fund request
-        const newFundRequest = new FundRequest({
-            // userId: user.userId, // Correctly set userId from the fetched user document
-            userId: user._id,
-            uniqueId: user.userId,
-            fundAmount,
-            bankReference,
-            paymentMethod,
-            bankName,
-            datePayment,
-        });
-
-        // Save the document to the database
-        const savedFundRequest = await newFundRequest.save();
-
-        // Return the created transaction
-        return res.status(201).json({ success: true, data: savedFundRequest, message: 'Fund request created successfully' });
-    } catch (error) {
-        // Catch any errors and send error response
-        return res.status(400).json({ success: false, message: error.message });
+  try {
+    // Validate required fields
+    if (!userId || !fundAmount || !paymentMethod) {
+      throw new Error('All fields are required');
     }
+
+    // Validate that the user exists in the Register table
+    const user = await Register.findById(userId); // Use findById to find the user by _id
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Create a new fund request
+    const newFundRequest = new FundRequest({
+      // userId: user.userId, // Correctly set userId from the fetched user document
+      userId: user._id,
+      uniqueId: user.userId,
+      fundAmount,
+      bankReference,
+      paymentMethod,
+      bankName,
+      datePayment,
+    });
+
+    // Save the document to the database
+    const savedFundRequest = await newFundRequest.save();
+
+    // Return the created transaction
+    return res.status(201).json({ success: true, data: savedFundRequest, message: 'Fund request created successfully' });
+  } catch (error) {
+    // Catch any errors and send error response
+    return res.status(400).json({ success: false, message: error.message });
+  }
 });
 
 
@@ -523,97 +523,97 @@ const fundRequest = asyncHandler(async (req, res) => {
 
 
 const approveUserRequest = asyncHandler(async (req, res) => {
-    try {
-        const customId = generateRandomId()
-      // Find the user by ID and update the status to "approved" along with generating userId and password
-      const updatedUser = await Register.findByIdAndUpdate(
-        req.params.id,
-        {
-          status: 'Approved',
-          userId: customId, // Generate a random userId
-          password: generateRandomPassword(12), // Generate a random password
-        },
-        { new: true } // Return the updated document
-      ).exec();
-  
-      // If the user request is not found, return a 404 error
-      if (!updatedUser) {
-        return res.status(404).json({ success: false, message: 'User request not found' });
-      }
-  
-      // Create a wallet for the approved user
-      const wallet = new Wallet({
-        userId: updatedUser._id, // Use the ID of the updated user
-        uniqueId: customId
-      });
-  
-      // Save the new wallet
-      await wallet.save();
-  
-      // Optionally, send an SMS or email with the new credentials
-      // const smsMessage = `Your account has been approved. User ID: ${updatedUser.userId}, Password: ${updatedUser.password}`;
-      // await twilioClient.messages.create({
-      //     body: smsMessage,
-      //     from: twilioPhoneNumber,
-      //     to: updatedUser.mobileNumber,
-      // });
-  
-      // Return the updated user and wallet creation confirmation
-      return res.status(200).json({
-        success: true,
-        message: 'User approved successfully',
-        user: {
-          id: updatedUser._id,
-          userId: updatedUser.userId,
-          password: updatedUser.password,
-        },
-        wallet,
-      });
-    } catch (error) {
-      console.error("Error approving user request:", error.message);
-      return res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
+  try {
+    const customId = generateRandomId()
+    // Find the user by ID and update the status to "approved" along with generating userId and password
+    const updatedUser = await Register.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: 'Approved',
+        userId: customId, // Generate a random userId
+        password: generateRandomPassword(12), // Generate a random password
+      },
+      { new: true } // Return the updated document
+    ).exec();
+
+    // If the user request is not found, return a 404 error
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'User request not found' });
     }
-  });
-  
+
+    // Create a wallet for the approved user
+    const wallet = new Wallet({
+      userId: updatedUser._id, // Use the ID of the updated user
+      uniqueId: customId
+    });
+
+    // Save the new wallet
+    await wallet.save();
+
+    // Optionally, send an SMS or email with the new credentials
+    // const smsMessage = `Your account has been approved. User ID: ${updatedUser.userId}, Password: ${updatedUser.password}`;
+    // await twilioClient.messages.create({
+    //     body: smsMessage,
+    //     from: twilioPhoneNumber,
+    //     to: updatedUser.mobileNumber,
+    // });
+
+    // Return the updated user and wallet creation confirmation
+    return res.status(200).json({
+      success: true,
+      message: 'User approved successfully',
+      user: {
+        id: updatedUser._id,
+        userId: updatedUser.userId,
+        password: updatedUser.password,
+      },
+      wallet,
+    });
+  } catch (error) {
+    console.error("Error approving user request:", error.message);
+    return res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
+  }
+});
+
 
 
 const rejectUserRequest = asyncHandler(async (req, res) => {
-    try {
-      // Find the user by ID and update the status to "rejected"
-      const updatedUser = await Register.findByIdAndUpdate(
-        req.params.id,
-        { status: 'Rejected' }, // Set the status to "rejected"
-        { new: true } // Return the updated document
-      ).exec();
-  
-      // If the user request is not found, return a 404 error
-      if (!updatedUser) {
-        return res.status(404).json({ success: false, message: 'User request not found' });
-      }
-  
-      // Optionally, send an SMS or email notifying the user of rejection (code commented out)
-      // const smsMessage = `Your account request has been rejected.`;
-      // await twilioClient.messages.create({
-      //     body: smsMessage,
-      //     from: twilioPhoneNumber,
-      //     to: updatedUser.mobileNumber,
-      // });
-  
-      // Send a success response
-      return res.status(200).json({
-        success: true,
-        message: 'User rejected successfully',
-        user: {
-          id: updatedUser._id,
-          status: updatedUser.status,
-        },
-      });
-    } catch (error) {
-      console.error("Error rejecting user request:", error.message); // Log the error for debugging
-      return res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
+  try {
+    // Find the user by ID and update the status to "rejected"
+    const updatedUser = await Register.findByIdAndUpdate(
+      req.params.id,
+      { status: 'Rejected' }, // Set the status to "rejected"
+      { new: true } // Return the updated document
+    ).exec();
+
+    // If the user request is not found, return a 404 error
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'User request not found' });
     }
-  });
-  
+
+    // Optionally, send an SMS or email notifying the user of rejection (code commented out)
+    // const smsMessage = `Your account request has been rejected.`;
+    // await twilioClient.messages.create({
+    //     body: smsMessage,
+    //     from: twilioPhoneNumber,
+    //     to: updatedUser.mobileNumber,
+    // });
+
+    // Send a success response
+    return res.status(200).json({
+      success: true,
+      message: 'User rejected successfully',
+      user: {
+        id: updatedUser._id,
+        status: updatedUser.status,
+      },
+    });
+  } catch (error) {
+    console.error("Error rejecting user request:", error.message); // Log the error for debugging
+    return res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
+  }
+});
+
 
 
 
@@ -656,108 +656,133 @@ const rejectUserRequest = asyncHandler(async (req, res) => {
 
 
 const fetchFundRequest = asyncHandler(async (req, res) => {
-    const { userId } = req.params; // Get the user ID from the request parameters
-    console.log('User ID from params:', userId);
-  
-    try {
-        // Check if the user exists in the Register collection
-        const user = await Register.findById(userId);
-        if (!user) {
-            console.log('User not found for ID:', userId);
-            return res.status(404).json({ success: false, message: 'User not found.' });
-        }
+  const { userId } = req.params; // Get the user ID from the request parameters
+  console.log('User ID from params:', userId);
 
-        console.log('User ID found:', user._id); // Log the user ID from the Register collection
-
-        // Find all fund requests related to this user
-        const fundRequests = await FundRequest.find({ userId });
-        console.log('Fetched Fund Requests:', fundRequests);
-
-        // Check if any fund requests exist
-        if (!fundRequests || fundRequests.length === 0) {
-            console.log('No fund requests found for user ID:', userId);
-            return res.status(200).json({ success: false, message: 'No fund requests found for this user ID', fundRequest: [] });
-        }
-
-        // Return the fund requests
-        return res.status(200).json({ success: true, fundRequest: fundRequests });
-
-    } catch (error) {
-        console.error('Error fetching fund request:', error.message);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  try {
+    // Check if the user exists in the Register collection
+    const user = await Register.findById(userId);
+    if (!user) {
+      console.log('User not found for ID:', userId);
+      return res.status(404).json({ success: false, message: 'User not found.' });
     }
+
+    console.log('User ID found:', user._id); // Log the user ID from the Register collection
+
+    // Find all fund requests related to this user
+    const fundRequests = await FundRequest.find({ userId });
+    console.log('Fetched Fund Requests:', fundRequests);
+
+    // Check if any fund requests exist
+    if (!fundRequests || fundRequests.length === 0) {
+      console.log('No fund requests found for user ID:', userId);
+      return res.status(200).json({ success: false, message: 'No fund requests found for this user ID', fundRequest: [] });
+    }
+
+    // Return the fund requests
+    return res.status(200).json({ success: true, fundRequest: fundRequests });
+
+  } catch (error) {
+    console.error('Error fetching fund request:', error.message);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 });
 
-  
-  
-  
+
+
+
 
 
 
 
 const fetchFundRequests = asyncHandler(async (req, res) => {
-    try {
-        // Find all fund requests from the database
-        const fundRequests = await FundRequest.find({});
+  try {
+    // Find all fund requests from the database
+    const fundRequests = await FundRequest.find({});
 
-        console.log("Fund Requests: ", fundRequests);
+    console.log("Fund Requests: ", fundRequests);
 
-        // If no fund requests are found, return a message indicating no requests
-        if (fundRequests.length === 0) {
-            return res.status(404).json({ success: false, message: 'No fund requests found' });
-        }
-
-        // Return the list of all fund requests
-        return res.status(200).json({ success: true, fundRequests });
-        
-    } catch (error) {
-        console.error("Error fetching fund requests:", error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    // If no fund requests are found, return a message indicating no requests
+    if (fundRequests.length === 0) {
+      return res.status(404).json({ success: false, message: 'No fund requests found' });
     }
+
+    // Return the list of all fund requests
+    return res.status(200).json({ success: true, fundRequests });
+
+  } catch (error) {
+    console.error("Error fetching fund requests:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 });
 
 
 const fetchUserList = asyncHandler(async (req, res) => {
-    try {
-        // Find all users with status 'approved' from the database
-        // const fetchUser = await Register.find({ status: 'Approved' }).exec();
-        const fetchUser = await Register.find({}).exec();
+  try {
+    // Find all users with status 'approved' from the database
+    // const fetchUser = await Register.find({ status: 'Approved' }).exec();
+    const fetchUser = await Register.find({}).exec();
 
-        console.log("Approved Users: ", fetchUser);
+    console.log("Approved Users: ", fetchUser);
 
-        // If no approved users are found, return a message indicating no users found
-        if (fetchUser.length === 0) {
-            return res.status(404).json({ success: false, message: 'No approved users found' });
-        }
-
-        // Return the list of approved users
-        return res.status(200).json({ success: true, fetchUser });
-        
-    } catch (error) {
-        console.error("Error fetching approved users:", error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    // If no approved users are found, return a message indicating no users found
+    if (fetchUser.length === 0) {
+      return res.status(404).json({ success: false, message: 'No approved users found' });
     }
+
+    // Return the list of approved users
+    return res.status(200).json({ success: true, fetchUser });
+
+  } catch (error) {
+    console.error("Error fetching approved users:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 });
+
+
+
+
+const fetchUserListbyId = asyncHandler(async (req, res) => {
+  const { userId } = req.params; // Extract userId from request params
+
+  try {
+    // Find the user with the given userId
+    const fetchUser = await Register.findOne({ _id: userId }).exec(); // Use findOne to get a single user by userId
+
+    // If no user is found, return a message indicating user not found
+    if (!fetchUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Return the user details
+    return res.status(200).json({ success: true, fetchUser });
+
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
 
 
 const blockUserList = asyncHandler(async (req, res) => {
   try {
-      // Find all users with status 'approved' from the database
-      const fetchUser = await Register.find({ status: 'Blocked' }).exec();
+    // Find all users with status 'approved' from the database
+    const fetchUser = await Register.find({ status: 'Blocked' }).exec();
 
-      console.log("Approved Users: ", fetchUser);
+    console.log("Approved Users: ", fetchUser);
 
-      // If no approved users are found, return a message indicating no users found
-      if (fetchUser.length === 0) {
-          return res.status(404).json({ success: false, message: 'No approved users found' });
-      }
+    // If no approved users are found, return a message indicating no users found
+    if (fetchUser.length === 0) {
+      return res.status(404).json({ success: false, message: 'No approved users found' });
+    }
 
-      // Return the list of approved users
-      return res.status(200).json({ success: true, fetchUser });
-      
+    // Return the list of approved users
+    return res.status(200).json({ success: true, fetchUser });
+
   } catch (error) {
-      console.error("Error fetching approved users:", error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    console.error("Error fetching approved users:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 });
 
@@ -818,73 +843,73 @@ const blockUserList = asyncHandler(async (req, res) => {
 
 
 const approveFundRequest = asyncHandler(async (req, res) => {
-    try {
-      // Find the fund request by ID and update the status to "approved"
-      const updatedFundRequest = await FundRequest.findByIdAndUpdate(
-        req.params.id,
-        { status: 'approved' },
-        { new: true }
-      ).exec();
-      // If the fund request is not found, return a 404 error
-      if (!updatedFundRequest) {
-        return res.status(404).json({ success: false, message: 'Fund request not found' });
-      }
-  
-      // Retrieve the user's wallet associated with the fund request
-      const userWallet = await Wallet.findOne({ uniqueId: updatedFundRequest.uniqueId });
-  
-      // If the wallet is not found, return a 404 error
-      if (!userWallet) {
-        return res.status(404).json({ success: false, message: 'Wallet not found' });
-      }
-  
-      // Add the fund amount to the wallet balance
-      userWallet.balance += updatedFundRequest.fundAmount;
-  
-      // Save the updated wallet
-      await userWallet.save();
-  
-      // Return the updated fund request and wallet balance
-      return res.status(200).json({ 
-        success: true, 
-        message: 'Fund request approved and wallet updated', 
-        fundRequest: updatedFundRequest,
-        wallet: userWallet 
-      });
-  
-    } catch (error) {
-      console.error("Error approving fund request:", error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  try {
+    // Find the fund request by ID and update the status to "approved"
+    const updatedFundRequest = await FundRequest.findByIdAndUpdate(
+      req.params.id,
+      { status: 'approved' },
+      { new: true }
+    ).exec();
+    // If the fund request is not found, return a 404 error
+    if (!updatedFundRequest) {
+      return res.status(404).json({ success: false, message: 'Fund request not found' });
     }
-  });
-  
 
-  
+    // Retrieve the user's wallet associated with the fund request
+    const userWallet = await Wallet.findOne({ uniqueId: updatedFundRequest.uniqueId });
 
-
-  const rejectFundRequest = asyncHandler(async (req, res) => {
-    try {
-      // Find the fund request by ID and update the status to "rejected"
-      const updatedFundRequest = await FundRequest.findByIdAndUpdate(
-        req.params.id,
-        { status: 'rejected' },
-        { new: true }
-      ).exec();
-  
-      // If the fund request is not found, return a 404 error
-      if (!updatedFundRequest) {
-        return res.status(404).json({ success: false, message: 'Fund request not found' });
-      }
-  
-      // Return the updated fund request
-      return res.status(200).json({ success: true, fundRequest: updatedFundRequest });
-  
-    } catch (error) {
-      console.error("Error rejecting fund request:", error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    // If the wallet is not found, return a 404 error
+    if (!userWallet) {
+      return res.status(404).json({ success: false, message: 'Wallet not found' });
     }
-  });
-  
+
+    // Add the fund amount to the wallet balance
+    userWallet.balance += updatedFundRequest.fundAmount;
+
+    // Save the updated wallet
+    await userWallet.save();
+
+    // Return the updated fund request and wallet balance
+    return res.status(200).json({
+      success: true,
+      message: 'Fund request approved and wallet updated',
+      fundRequest: updatedFundRequest,
+      wallet: userWallet
+    });
+
+  } catch (error) {
+    console.error("Error approving fund request:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
+
+
+
+const rejectFundRequest = asyncHandler(async (req, res) => {
+  try {
+    // Find the fund request by ID and update the status to "rejected"
+    const updatedFundRequest = await FundRequest.findByIdAndUpdate(
+      req.params.id,
+      { status: 'rejected' },
+      { new: true }
+    ).exec();
+
+    // If the fund request is not found, return a 404 error
+    if (!updatedFundRequest) {
+      return res.status(404).json({ success: false, message: 'Fund request not found' });
+    }
+
+    // Return the updated fund request
+    return res.status(200).json({ success: true, fundRequest: updatedFundRequest });
+
+  } catch (error) {
+    console.error("Error rejecting fund request:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
 
 
 
@@ -913,16 +938,16 @@ const approveFundRequest = asyncHandler(async (req, res) => {
 
 
 const fetchData = asyncHandler(async (req, res) => {
-    try {
-        // Fetch only the users where the status is 'pending'
-        const pendingUsers = await Register.find({ status: 'Pending' });
-        console.log("Fetched users with pending status:", pendingUsers);
-        
-        // Return the filtered data
-        return res.status(200).json({ success: true, data: pendingUsers });
-    } catch (error) {
-        return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
-    }
+  try {
+    // Fetch only the users where the status is 'pending'
+    const pendingUsers = await Register.find({ status: 'Pending' });
+    console.log("Fetched users with pending status:", pendingUsers);
+
+    // Return the filtered data
+    return res.status(200).json({ success: true, data: pendingUsers });
+  } catch (error) {
+    return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
+  }
 });
 
 
@@ -1006,33 +1031,33 @@ const fetchDataa = asyncHandler(async (req, res) => {
 
 
 const fetchData_reject = asyncHandler(async (req, res) => {
-    try {
-        // Fetch only the users where the status is 'pending'
-        const pendingUsers = await Register.find({ status: 'Rejected' });
-        console.log("Fetched users with pending status:", pendingUsers);
-        
-        // Return the filtered data
-        return res.status(200).json({ success: true, data: pendingUsers });
-    } catch (error) {
-        return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
-    }
+  try {
+    // Fetch only the users where the status is 'pending'
+    const pendingUsers = await Register.find({ status: 'Rejected' });
+    console.log("Fetched users with pending status:", pendingUsers);
+
+    // Return the filtered data
+    return res.status(200).json({ success: true, data: pendingUsers });
+  } catch (error) {
+    return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
+  }
 });
 
 
 
 
-const reports = asyncHandler(async(req,res)  => {
-    try {
-        const allUser = await Transaction.find({})
-        // console.log(allUser);
-        console.log("Fetched users:", allUser);
-        return res.status(200).json({ success: true, data: allUser });
-        // return res.status(200).json(new ApiResponse(200,"Form Submitted Successfully"))
-        // return allUser;
-    }
-     catch (error) {
-        return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
-    }
+const reports = asyncHandler(async (req, res) => {
+  try {
+    const allUser = await Transaction.find({})
+    // console.log(allUser);
+    console.log("Fetched users:", allUser);
+    return res.status(200).json({ success: true, data: allUser });
+    // return res.status(200).json(new ApiResponse(200,"Form Submitted Successfully"))
+    // return allUser;
+  }
+  catch (error) {
+    return res.status(500).json(new ApiError(500, "error", "Internal Server Error"));
+  }
 })
 
 
@@ -1086,36 +1111,36 @@ const reports = asyncHandler(async(req,res)  => {
 
 
 // const registerUser = asyncHandler(async (req, res) => {
-    // Single file uploads for each field
+// Single file uploads for each field
 
 
-    // app.post('/api/v1/users', upload.fields([
-    //     { name: 'photograph', maxCount: 1 },
-    //     { name: 'aadharCard', maxCount: 1 },
-    //     { name: 'panCard', maxCount: 1 },
-    //     { name: 'educationCertificate', maxCount: 1 },
-    //     { name: 'cheque', maxCount: 1 }
-    //   ]), registerUser);
+// app.post('/api/v1/users', upload.fields([
+//     { name: 'photograph', maxCount: 1 },
+//     { name: 'aadharCard', maxCount: 1 },
+//     { name: 'panCard', maxCount: 1 },
+//     { name: 'educationCertificate', maxCount: 1 },
+//     { name: 'cheque', maxCount: 1 }
+//   ]), registerUser);
 
 
 
-    // upload.fields([
-    //   { name: 'photograph', maxCount: 1 },
-    //   { name: 'aadharCard', maxCount: 1 },
-    //   { name: 'panCard', maxCount: 1 },
-    //   { name: 'educationCertificate', maxCount: 1 },
-    //   { name: 'cheque', maxCount: 1 }
-    // ])(req, res, async (err) => {
-    //   if (err) {
-    //     return res.status(400).json({ message: err });
-    //   }
-  
+// upload.fields([
+//   { name: 'photograph', maxCount: 1 },
+//   { name: 'aadharCard', maxCount: 1 },
+//   { name: 'panCard', maxCount: 1 },
+//   { name: 'educationCertificate', maxCount: 1 },
+//   { name: 'cheque', maxCount: 1 }
+// ])(req, res, async (err) => {
+//   if (err) {
+//     return res.status(400).json({ message: err });
+//   }
+
 //       const {
 //         name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
 //         gender, maritalStatus, education, address, salaryBasis, email, division,
 //         subDivision, section, sectionType
 //       } = req.body;
-  
+
 //       const user = await Register.create({
 //         name, fatherOrHusbandName, dob, aadharNumber, panNumber, mobileNumber,
 //         gender, maritalStatus, education, address, salaryBasis, email, division,
@@ -1127,7 +1152,7 @@ const reports = asyncHandler(async(req,res)  => {
 //         cheque: req.files['cheque'] ? req.files['cheque'][0].path : null
 //       });
 //       console.log(req.files)
-  
+
 //       return res.status(201).json(
 //         new ApiResponse(201, user, "User Registered Successfully")
 //       );
@@ -1192,6 +1217,13 @@ const loginUser = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Invalid User Credentials");
     }
 
+
+
+    await Register.findByIdAndUpdate(user._id, { loggedOut: false });
+
+
+
+
     // Save session details
     req.session.user = { id: user._id, username: user.username, email: user.email };
     console.log('Session ID:', req.sessionID);
@@ -1224,7 +1256,7 @@ const loginUser = asyncHandler(async (req, res) => {
         success: true,
         message: "User Logged in Successfully",
         user: {
-          id: user._id, 
+          id: user._id,
           username: user.username,
           email: user.email
         },
@@ -1245,15 +1277,39 @@ const loginUser = asyncHandler(async (req, res) => {
 
 
 
+const statuss = asyncHandler(async (req, res) => {
+  try {
+    // Extract userId from the URL parameters
+    const { userId } = req.params;
+
+    // Find the user in the database
+    const user = await Register.findOne({ _id: userId });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the user is logged out
+    const hasChanged = user.loggedOut;
+
+    return res.status(200).json({ hasChanged });
+  } catch (error) {
+    console.error("Error checking user status:", error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+
 
 const fetchIdData = asyncHandler(async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const fetchedData = await User.findById(userId);
-        return res.status(200).json(new ApiResponse(200, fetchedData, "ok"));
-    } catch (error) {
-        res.status(500).json(new ApiError(500, "error", "internal server error"));
-    }
+  try {
+    const userId = req.params.id;
+    const fetchedData = await User.findById(userId);
+    return res.status(200).json(new ApiResponse(200, fetchedData, "ok"));
+  } catch (error) {
+    res.status(500).json(new ApiError(500, "error", "internal server error"));
+  }
 });
 
 
@@ -1304,63 +1360,196 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 
 
-const updateUser = asyncHandler(async(req,res) => {
-    try {
-        const userId = req.params.id;
-        const {name,empnumber,email,role,status} = req.body
-    
-        const updatedUser = await User.findByIdAndUpdate( userId, {
-            name,
-            empnumber,
-            email,
-            role,
-            status
-        },{new:true})
-    
-        if(!updatedUser){
-            throw new ApiError(404,"User not found")
-        }
-        return res.status(200).json(new ApiResponse(200,updateUser,"User updated Successfully"))
-    } catch (error) {
-        return res.status(500).json(new ApiError(500,"error","Internal Server Error"))
+const updateUser = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { name, empnumber, email, role, status } = req.body
+
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      name,
+      empnumber,
+      email,
+      role,
+      status
+    }, { new: true })
+
+    if (!updatedUser) {
+      throw new ApiError(404, "User not found")
     }
+    return res.status(200).json(new ApiResponse(200, updateUser, "User updated Successfully"))
+  } catch (error) {
+    return res.status(500).json(new ApiError(500, "error", "Internal Server Error"))
+  }
 })
 
 
-const deleteUser = asyncHandler(async(req,res) => {
-    try {
-        const userId = req.params.id;
-        const deletedUser = await User.findByIdAndDelete(userId)
-        if(!deletedUser){
-            return res.status(404).json(new ApiError(404,"error","User not found"))
-        }
-        return res.status(200).json(new ApiResponse(200,deleteUser,"Deleted Successfully"))
-    } catch (error) {
-        return res.status(500).json(new ApiError(500,"error","Internal server error"))
+const updateUserPermissions = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { topup, billPayment, requestCancellation, getPrepaidBalance, fundRequest,
+    bankTransfer,
+    upi,
+    cash,
+    cdm,
+    wallet,
+    ezetap,
+    upiQr,
+    rrn } = req.body;
+  console.log(userId)
+  console.log("user details:",req.body)
+
+  try {
+    const updatedUser = await Register.findByIdAndUpdate(
+      userId,
+      {
+        topup,
+        billPayment,
+        requestCancellation,
+        getPrepaidBalance,
+        fundRequest,
+        bankTransfer,
+        upi,
+        cash,
+        cdm,
+        wallet,
+        ezetap,
+        upiQr,
+        rrn,
+        loggedOut: true,
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
+
+    res.json({ success: true, updatedUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
+
+const updateUserCommission = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { commission } = req.body;
+  console.log(userId)
+  console.log(commission)
+
+  try {
+    const updatedUser = await Register.findByIdAndUpdate(
+      userId,
+      {
+        margin: commission
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.json({ success: true, updatedUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+// const updateUserPermissions = asyncHandler(async (req, res) => {
+//   const { userId } = req.params;
+//   const { topup, billPayment, requestCancellation, getPrepaidBalance, fundRequest } = req.body;
+
+//   try {
+//     // Find the user before updating to check for changes
+//     const user = await Register.findById(userId);
+
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: 'User not found' });
+//     }
+
+//     // Create a variable to track if any permissions have changed
+//     let hasChanges = false;
+
+//     // Check for changes in permissions
+//     if (user.topup !== topup) hasChanges = true;
+//     if (user.billPayment !== billPayment) hasChanges = true;
+//     if (user.requestCancellation !== requestCancellation) hasChanges = true;
+//     if (user.getPrepaidBalance !== getPrepaidBalance) hasChanges = true;
+//     if (user.fundRequest !== fundRequest) hasChanges = true;
+
+//     // Update the user's permissions
+//     const updatedUser = await Register.findByIdAndUpdate(
+//       userId,
+//       {
+//         topup,
+//         billPayment,
+//         requestCancellation,
+//         getPrepaidBalance,
+//         fundRequest,
+//       },
+//       { new: true }
+//     );
+
+//     // If the user is found but no changes were made, respond accordingly
+//     if (!updatedUser) {
+//       return res.status(404).json({ success: false, message: 'User not found' });
+//     }
+
+//     // If there were changes, delete the session cookie
+//     if (hasChanges) {
+//       res.clearCookie('sessionID', {
+//         path: '/', // Ensure this path matches the cookie path
+//         httpOnly: true,
+//         secure: process.env.NODE_ENV === 'production',
+//         sameSite: 'Strict',
+//       });
+//     }
+
+//     res.json({ success: true, updatedUser });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, message: 'Server error' });
+//   }
+// });
+
+
+
+const deleteUser = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const deletedUser = await User.findByIdAndDelete(userId)
+    if (!deletedUser) {
+      return res.status(404).json(new ApiError(404, "error", "User not found"))
+    }
+    return res.status(200).json(new ApiResponse(200, deleteUser, "Deleted Successfully"))
+  } catch (error) {
+    return res.status(500).json(new ApiError(500, "error", "Internal server error"))
+  }
 })
 
 
 // Define the API endpoint using asyncHandler
 const fetchUserById = asyncHandler(async (req, res) => {
-    const { id } = req.params; // Get the ID from the request parameters
-  
-    try {
-      const user = await Register.findById(id); // Find the user by ID
-  
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-  
-      console.log("User found: ", user); // Log the user object
-  
-      res.status(200).json({ success: true, user }); // Return the user data
-  
-    } catch (error) {
-      console.error('Error finding user:', error);
-      res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-  });
+  const { id } = req.params; // Get the ID from the request parameters
 
-export { registerUser, fetchWalletBalance,blockUserList,fetchDataa,images, registerTransaction , loginUser , reports  , fetchData , updateUser , fetchIdData , deleteUser , registeredUser , fundRequest , fetchData_reject , fetchFundRequest , fetchFundRequests , approveFundRequest , rejectFundRequest , fetchUserList , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser };
+  try {
+    const user = await Register.findById(id); // Find the user by ID
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    console.log("User found: ", user); // Log the user object
+
+    res.status(200).json({ success: true, user }); // Return the user data
+
+  } catch (error) {
+    console.error('Error finding user:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+export { registerUser, fetchWalletBalance, updateUserCommission, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 

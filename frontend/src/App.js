@@ -20,12 +20,22 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const userId = localStorage.getItem('userId');
 
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+};
+
+
+const sessionCookie = getCookie('sessionID'); // Adjust the cookie name as necessary
+
+
 
   useEffect(() => {
     // Check for authentication status
     const token = localStorage.getItem('token');
     const expirationTime = localStorage.getItem('expirationTime');
-    if (token && expirationTime && new Date().getTime() < expirationTime) {
+    if (token && expirationTime && new Date().getTime() < expirationTime ) {
       setIsAuthenticated(true); // User is authenticated
     } else {
       setIsAuthenticated(false); // Token is expired or not found
@@ -42,7 +52,7 @@ const App = () => {
     if (!isColorModeSet()) {
       setColorMode(storedTheme);
     }
-  }, [setColorMode, storedTheme]);
+  }, [setColorMode, storedTheme ]);
 
   return (
     <Router>

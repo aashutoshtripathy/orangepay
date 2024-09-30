@@ -22,6 +22,7 @@ import { AppSidebarNav } from './AppSidebarNav'
 import navigation from '../_nav'
 // import { _nav as navigation } from '../_nav';
 import { adminNavItems, distributorNavItems, agentNavItems } from '../_nav'; // Adjust import as necessary
+import axios from 'axios'
 
 
 
@@ -38,6 +39,9 @@ const AppSidebar = () => {
   const [sidebarShow, setSidebarShow] = useState(true);
   const [unfoldable, setUnfoldable] = useState(false);
   const [role, setRole] = useState(null);
+  const [permissions, setPermissions] = useState({}) // To store API response for permissions
+  const userId = localStorage.getItem('userId')
+
 
 
   useEffect(() => {
@@ -60,23 +64,63 @@ const AppSidebar = () => {
     localStorage.setItem('sidebarUnfoldable', unfoldable);
   }, [sidebarShow, unfoldable]);
 
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`/fetchUserList/${userId}`);
+        const result = response.data.fetchUser || {};
+  
+        // Store the permissions for sidebar visibility
+        setPermissions({
+          topup: result.topup || false,
+          billPayment: result.billPayment || false,
+          requestCancellation: result.requestCancellation || false,
+          getPrepaidBalance: result.getPrepaidBalance || false,
+          fundRequest: result.fundRequest || false,
+        });
+      } catch (error) {
+        console.error('Error fetching permissions:', error);
+      }
+    };
+  
+    fetchData();
+  }, [userId]);
+
   // const role = useSelector((state) => state.userRole); // Access the correct property
-  let navigation;
+  let navItems = [];
 
   switch (role) {
-    case 'dummy':   
-      navigation = adminNavItems;
+    case 'dummy':
+      navItems = adminNavItems;
       break;
-    // case 'TEST7982':
-    //   navigation = distributorNavItems;
-    //   break;
     // case 'agent':
-    //   navigation = agentNavItems;
+    //   navItems = agentNavItems;
     //   break;
     default:
-      navigation = distributorNavItems; // Default or empty navigation
+      navItems = distributorNavItems(permissions,userId); // Use the distributorNavItems function if it takes permissions
       break;
-  }   
+  }
+ 
+
+  const filteredNavItems = navItems.filter(item => {
+    // Example: check if the item needs certain permissions
+    if (item.name === 'Topup' && !permissions.topup) {
+      return false;
+    }
+    if (item.name === 'Bill Payment' && !permissions.billPayment) {
+      return false;
+    }
+    if (item.name === 'Bill Payment' && !permissions.getPrepaidBalance) {
+      return false;
+    }
+    if (item.name === 'Bill Payment' && !permissions.requestCancellation) {
+      return false;
+    }
+    // Add other permission checks as needed
+    return !item.hidden; // Filter out hidden items
+  });
+  
 
   return (
     <CSidebar
@@ -100,7 +144,7 @@ const AppSidebar = () => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
-      <AppSidebarNav items={navigation} />
+      <AppSidebarNav items={filteredNavItems} />
       <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}

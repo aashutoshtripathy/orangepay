@@ -150,12 +150,100 @@ const registerSchema = new Schema({
   isBlocked: { 
     type: Boolean, 
     default: false 
-  }
+  },
+
+
+  topup: {
+    type: Boolean,
+    default: true
+  },
+  billPayment: {
+    type: Boolean,
+    default: true
+  },
+  requestCancellation: {
+    type: Boolean,
+    default: true
+  },
+  getPrepaidBalance: {
+    type: Boolean,
+    default: true
+  },
+  fundRequest: {
+    type: Boolean,
+    default: true
+  },
+  bankTransfer: {
+    type: Boolean,
+    default: true
+  },
+  upi: {
+    type: Boolean,
+    default: true
+  },
+  cash: {
+    type: Boolean,
+    default: true
+  },
+  cdm: {
+    type: Boolean,
+    default: true
+  },
+  wallet: {
+    type: Boolean,
+    default: true
+  },
+  ezetap: {
+    type: Boolean,
+    default: true
+  },
+  upiQr: {
+    type: Boolean,
+    default: true
+  },
+  rrn: {
+    type: Boolean,
+    default: true
+  },
+
+  loggedOut: {
+    type: Boolean,
+    default: false // Default to false
+  },
+  margin:{
+    type: Number,
+    default: 0
+  },
   
 
 }, {
   timestamps: true
 });
+
+
+// Pre-update hook to set loggedOut to true conditionally
+// registerSchema.pre(['findOneAndUpdate', 'updateOne'], function (next) {
+//   const update = this.getUpdate();
+  
+//   // Handle $set, $unset, or direct updates
+//   const setFields = update.$set || update;
+
+//   // Check if any of the specific fields are included in the update
+//   const shouldLogoutUser = ['topup', 'billPayment', 'requestCancellation', 'getPrepaidBalance', 'fundRequest'].some(field => {
+//     return Object.keys(setFields).includes(field);
+//   });
+
+//   if (shouldLogoutUser) {
+//     // Ensure that loggedOut is updated when any of these fields are modified
+//     if (!update.$set) {
+//       update.$set = {};
+//     }
+//     update.$set.loggedOut = true; // Set loggedOut to true
+//   }
+
+//   next();
+// });
+
 
 // Create the model from the schema
 export const Register = mongoose.model('Register', registerSchema);

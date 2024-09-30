@@ -192,6 +192,8 @@ const DataTableComponent = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [filterText, setFilterText] = useState('');
   const userIdd = localStorage.getItem('userId');
 
@@ -218,6 +220,21 @@ const DataTableComponent = () => {
     setFilterText(event.target.value); // Update filter text on input change
   };
 
+  const filterByDate = (item) => {
+    const itemDate = new Date(item.createdAt); // Use 'createdAt' field for filtering
+    const start = fromDate ? new Date(fromDate) : null;
+    const end = toDate ? new Date(toDate) : null;
+
+    if (start && end) {
+      return itemDate >= start && itemDate <= end;
+    } else if (start) {
+      return itemDate >= start;
+    } else if (end) {
+      return itemDate <= end;
+    }
+    return true; // No date filter applied
+  };
+
   const columns = [
     { name: 'userId', selector: 'uniqueId', sortable: true },
     { name: 'fundAmount', selector: 'fundAmount', sortable: true },
@@ -230,9 +247,12 @@ const DataTableComponent = () => {
     { name: 'updatedAt', selector: 'updatedAt', sortable: true },
   ];
 
-  const filteredItems = data.filter((item) =>
-    item.uniqueId && item.uniqueId.toLowerCase().includes(filterText.toLowerCase())
-  );
+  const filteredItems = data.filter((item) => {
+    return (
+      item.uniqueId && item.uniqueId.toLowerCase().includes(filterText.toLowerCase()) &&
+      filterByDate(item) // Apply date filter
+    );
+  });
 
   if (loading) {
     return <div>Loading...</div>;
@@ -269,6 +289,20 @@ const DataTableComponent = () => {
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
+        <div className="date-filter-container">
+        <label>From Date:</label>
+        <input
+          type="date"
+          value={fromDate}
+          onChange={e => setFromDate(e.target.value)}
+        />
+        <label>To Date:</label>
+        <input
+          type="date"
+          value={toDate}
+          onChange={e => setToDate(e.target.value)}
+        />
+      </div>
       </div>
       <DataTable
         title="My Data Table"

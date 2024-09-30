@@ -9,12 +9,14 @@ import { Invoice } from '../model/Invoice.model.js';  // If using ES modules
 import mongoose from "mongoose";
 import { Register } from "../model/Register.model.js";
 import { TransactionHistory } from "../model/TransactionHistory.model.js";
+import { SbData } from "../model/SbData.model.js";
+import { Reward } from "../model/Reward.model.js";
 
 
 
 const processPayment = asyncHandler(async (req, res) => {
   const {
-    userId, consumerId, amount, paymentMethod,
+    userId, consumerId, amount, paymentMethod, divisionName,subDivision,consumerName
   } = req.body;
 
   // Log the request body for debugging
@@ -37,9 +39,21 @@ const processPayment = asyncHandler(async (req, res) => {
   try {
     console.log(`Processing payment for userId: ${userId}, amount: ${amount}`);
 
-    const marginRate = 0.035; // 3.5% margin
-    const marginAmount = amount * marginRate / (1 + marginRate); // Extract margin
-    const originalAmount = amount - marginAmount; // Deduct margin to get original amount
+      // Retrieve the user to get the margin rate
+      const users = await Register.findOne({ _id: userId });
+      if (!users) {
+        console.error('User not found for userId:', userId);
+        return res.status(404).json(new ApiError(404, "User not found"));
+      }
+
+
+
+    const marginRate = users.margin/100;
+    const tdsRate = 0.05; // 5% TDS on commission
+
+    const commissionAmount = amount * marginRate; // Calculate 1% commission
+    const tdsAmount = commissionAmount * tdsRate; // Calculate TDS (5% of commission)
+    const netCommission = commissionAmount - tdsAmount;// Deduct margin to get original amount
 
     // Find the user's wallet
     const wallet = await Wallet.findOne({ userId });
@@ -50,15 +64,15 @@ const processPayment = asyncHandler(async (req, res) => {
     const user = await Register.findOne({ _id:userId });
 
     // Check if there is sufficient balance
-    if (wallet.balance < originalAmount) {
+    if (wallet.balance < amount) {
       console.error('Insufficient balance. Wallet balance:', wallet.balance, 'Requested amount:', amount);
       return res.status(400).json(new ApiError(400, "Insufficient balance"));
     }
 
     // Log before deducting amount from wallet
-    console.log(`Deducting ${originalAmount} from wallet. Original balance: ${wallet.balance}`);
+    console.log(`Deducting ${amount} from wallet. Original balance: ${wallet.balance}`);
 
-    wallet.balance -= originalAmount;
+    wallet.balance -= amount;
     await wallet.save();
 
     console.log(`Wallet balance updated. New balance: ${wallet.balance}`);
@@ -68,7 +82,7 @@ const processPayment = asyncHandler(async (req, res) => {
       userId: wallet.uniqueId,
       canumber: consumerId,
       invoicenumber:"",
-      billmonth:"Pending",
+      billmonth: "N/A",
       transactionId: `TXN-${Date.now()}`,
       refrencenumber: ``,
       bankid: '', // Assuming bank id is not available at this point, set it as empty or fetch if applicable
@@ -77,7 +91,7 @@ const processPayment = asyncHandler(async (req, res) => {
       createdon: Date.now(),
       createdby: wallet.uniqueId, // Assuming the user creating the payment is also `createdby`
       billpoststatus: 'Pending', // 'Bill Payment', 'Recharge', 'Other Services' depending on your use case
-      paidamount: originalAmount,
+      paidamount: amount,
       reciptno: 'Pending', // 'Success', 'Pending', 'Failed'
       billposton: Date.now(), // Set to current date or leave empty initially
       getway: 'wallet', // Gateway processing time, set as per requirement
@@ -98,8 +112,13 @@ const processPayment = asyncHandler(async (req, res) => {
       ltht: '', // Low tension/high tension value, populate if applicable
       duedate: '', // Populate the due date if available, otherwise leave empty
       brandcode: user.discom || '', // If brand code is available, populate, otherwise leave empty
-      division: '', // Populate division if applicable
-      subdivision: '' // Populate subdivision if applicable
+      division: divisionName, // Populate division if applicable
+      subdivision: subDivision, // Populate subdivision if applicable
+      consumerName:consumerName,
+
+      commission: commissionAmount,
+      tds: tdsAmount,
+      netCommission: netCommission
     });
     
 
@@ -110,9 +129,35 @@ const processPayment = asyncHandler(async (req, res) => {
     invoice.PaymentStatus = 'Completed';
     await invoice.save();
 
-    console.log(`Invoice payment status updated to Completed. Invoice ID: ${invoice._id}`);
+    // console.log(`Invoice payment status updated to Completed. Invoice ID: ${invoice._id}`);
 
-    return res.status(200).json(new ApiResponse(200, invoice, "Payment processed successfully"));
+    // return res.status(200).json(new ApiResponse(200, invoice, "Payment processed successfully"));
+
+    wallet.balance += netCommission;
+    await wallet.save();
+
+    console.log(`Net commission of ${netCommission} credited back to wallet. New balance: ${wallet.balance}`);
+
+    // Add the reward to the reward report
+    const rewardReport = new Reward({
+      userId: userId,
+      rewardAmount: netCommission, // This is the net commission after TDS
+      transactionId: invoice.transactionId,
+      rewardDate: new Date()
+    });
+
+    await rewardReport.save();
+
+    console.log(`Reward report created. Reward Amount: ${netCommission}, User ID: ${userId}`);
+
+    // Return the response with commission and TDS details
+    return res.status(200).json(new ApiResponse(200, {
+      invoice,
+      commission: commissionAmount,
+      tds: tdsAmount,
+      netCommission
+    }, "Payment processed successfully. Commission credited after TDS"));
+    
 
   } catch (error) {
     console.error("Error processing payment:", error);
@@ -148,5 +193,44 @@ const getPayment = asyncHandler(async (req, res) => {
 });
 
 
-export { processPayment, getPayment };
+const BiharService = asyncHandler(async (req, res) => {
+  const { consumerId } = req.body;
+
+  // Validate if consumerId is provided
+  if (!consumerId) {
+    return res.status(400).json({ message: 'consumerId is required' });
+  }
+
+  try {
+    // Find the details in the database using the provided consumerId (adjust the field name to match your database)
+    const details = await SbData.find({ ConsumeId: Number(consumerId) }); // Cast to number if necessary
+
+    // If no details found, return a 404 status with an error message
+    if (details.length === 0) {
+      return res.status(404).json({ message: 'Details not found for the provided consumerId' });
+    }
+
+    // If details are found, return them as the response
+    res.status(200).json(details);
+  } catch (error) {
+    // Handle any potential errors
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+const fetchReward = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const rewards = await Reward.find({ userId: userId });
+  if (!rewards) {
+    res.status(404).json({ message: 'No rewards found for this user' });
+  } else {
+    res.status(200).json(rewards);
+  }
+});
+
+
+export { processPayment, getPayment ,BiharService , fetchReward };
 

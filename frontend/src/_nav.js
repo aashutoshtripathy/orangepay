@@ -73,14 +73,15 @@ export const adminNavItems = [
     to: '/buttons',
     icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
   },
-  // {
-  //   component: CNavGroup,
-  //   name: 'Database Management',
-  //   icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
-  //   items: [
-  //     { component: CNavItem, name: 'Monthly Billing Master' , to: '/monthly-billing' },
-  //   ],
-  // },
+  {
+    component: CNavGroup,
+    name: 'Database Management',
+    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+    items: [
+      { component: CNavItem, name: 'Switch Dataase' , to: '/switch-database' },
+      { component: CNavItem, name: 'Switch getway' , to: '/switch-getway' },
+    ],
+  },
   {
     component: CNavGroup,
     name: 'Reports',
@@ -92,10 +93,10 @@ export const adminNavItems = [
   },
 ];
 
-export const distributorNavItems = [
+export const distributorNavItems = (permissions , userId) =>  [
   // Distributor-specific navigation items
   {
-    component: CNavItem,  
+    component: CNavItem,
     name: 'OrangePay',
     to: `/dashboard/${userId}`,
     //  to: '/dashboard',
@@ -107,11 +108,14 @@ export const distributorNavItems = [
   },
   {
     component: CNavGroup,
-    name: 'Payment',
+    name: 'Services',
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Payment', to: '/Payment' },
+      { component: CNavItem, name: 'Bill Payment', to: '/Payment' , hidden: !permissions.billPayment,},
+      { component: CNavItem, name: 'Topup', to: '/topup' , hidden: !permissions.topup, },
+      { component: CNavItem, name: 'Get Prepaid Balance', to: '/prepaid-services' ,   hidden: !permissions.getPrepaidBalance, },
+      { component: CNavItem, name: 'Cancelation Request', to: '/request-cancelation' ,   hidden: !permissions.requestCancellation, },
     ],
   },
   {

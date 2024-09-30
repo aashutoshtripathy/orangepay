@@ -3,6 +3,7 @@ import DataTable from 'react-data-table-component';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faTimesCircle, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { CCard, CCardBody, CCardHeader, CCol, CRow, CCardTitle, CCardText } from '@coreui/react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx'; // Import XLSX for Excel export
@@ -105,6 +106,8 @@ const OrangePayReport = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [filterText, setFilterText] = useState('');
   const userId = localStorage.getItem('userId');
 
@@ -124,14 +127,31 @@ const OrangePayReport = () => {
     fetchData();
   }, []);
 
-  const filteredItems = data.filter(item =>
-    Object.values(item).some(val =>
+  const filteredItems = data.filter(item => {
+    const isTextMatch = Object.values(item).some(val =>
       val && val.toString().toLowerCase().includes(filterText.toLowerCase())
-    )
-  );
+    );
+  
+    // Ensure transactionDateTime is a valid date before filtering
+    const transactionDate = new Date(item.createdon);
+    const isDateMatch = (!fromDate || transactionDate >= new Date(fromDate)) &&
+                        (!toDate || transactionDate <= new Date(toDate));
+  
+    return isTextMatch && isDateMatch;
+  });
+  
+
+
+  const totalPaidAmount = filteredItems.reduce((total, item) => total + (parseFloat(item.billamount) || 0), 0);
+  const totalCommission = filteredItems.reduce((total, item) => total + (parseFloat(item.totalCommission) || 0), 0);
+
+  // Calculate the overall commission, TDS, and net commission
+  const overallCommission = totalPaidAmount * 0.01;
+  const overallTDS = overallCommission * 0.05;
+  const overallNetCommission = overallCommission - overallTDS;
 
   const columns = [
-    { name: 'ID', selector: 'userId', sortable: true },
+    // { name: 'ID', selector: 'userId', sortable: true },
     { name: 'CANumber', selector: 'canumber', sortable: true },
     { name: 'InvoiceNO', selector: 'invoicenumber', sortable: true }, // Format date
     { name: 'BillMonth', selector: 'billmonth', sortable: true },
@@ -176,7 +196,7 @@ const OrangePayReport = () => {
     { name: 'DueDate', selector: 'duedate', sortable: true },
     { name: 'BrandCode', selector: 'brandcode', sortable: true },
     { name: 'Division', selector: 'division', sortable: true },
-    { name: 'SubDiv', selector: 'subdivision', sortable: true },
+    { name: 'SubDivision', selector: 'subdivision', sortable: true },
   ];
 
   if (loading) return <div>Loading...</div>;
@@ -200,6 +220,20 @@ const OrangePayReport = () => {
         <button className="button-download-excel" onClick={() => downloadExcel(filteredItems)}>
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
+        <div className="date-filter-container">
+        <label>From Date:</label>
+        <input
+          type="date"
+          value={fromDate}
+          onChange={e => setFromDate(e.target.value)}
+        />
+        <label>To Date:</label>
+        <input
+          type="date"
+          value={toDate}
+          onChange={e => setToDate(e.target.value)}
+        />
+      </div>
       </div>
       <DataTable
         title="Bill Payment"
@@ -209,6 +243,61 @@ const OrangePayReport = () => {
         highlightOnHover
         customStyles={customStyles}
       />
+
+      <div>
+
+        <CRow className="my-4">
+          <CCol sm="6" md="3">
+            <CCard>
+              <CCardHeader>
+                <CCardTitle>Total Paid Amount</CCardTitle>
+              </CCardHeader>
+              <CCardBody>
+                <CCardText className="h4 text-success">
+                  ₹{totalPaidAmount.toFixed(2)}
+                </CCardText>
+              </CCardBody>
+            </CCard>
+          </CCol>
+          <CCol sm="6" md="3">
+            <CCard>
+              <CCardHeader>
+                <CCardTitle>Total Commission</CCardTitle>
+              </CCardHeader>
+              <CCardBody>
+                <CCardText className="h4 text-primary">
+                  ₹{overallCommission.toFixed(2)}
+                </CCardText>
+              </CCardBody>
+            </CCard>
+          </CCol>
+          <CCol sm="6" md="3">
+            <CCard>
+              <CCardHeader>
+                <CCardTitle>TDS (5% of Commission)</CCardTitle>
+              </CCardHeader>
+              <CCardBody>
+                <CCardText className="h4 text-danger">
+                  ₹{overallTDS.toFixed(2)}
+                </CCardText>
+              </CCardBody>
+            </CCard>
+          </CCol>
+          <CCol sm="6" md="3">
+            <CCard>
+              <CCardHeader>
+                <CCardTitle>Net Commission</CCardTitle>
+              </CCardHeader>
+              <CCardBody>
+                <CCardText className="h4 text-warning">
+                  ₹{overallNetCommission.toFixed(2)}
+                </CCardText>
+              </CCardBody>
+            </CCard>
+          </CCol>
+        </CRow>
+      </div>
+
     </div>
   );
 };

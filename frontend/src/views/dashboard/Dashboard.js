@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import classNames from 'classnames'
+import axios from 'axios';
 
 import {
   CAvatar,
@@ -91,8 +92,14 @@ const Dashboard = () => {
   // }, [])
 
 
+  const [userCount, setUserCount] = useState(0);
+
 
   const [userRole, setUserRole] = useState('')
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+ 
 
   useEffect(() => {
     // Retrieve the user role from localStorage
@@ -103,6 +110,31 @@ const Dashboard = () => {
     }
   }, [])
 
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`/fetchUserList`); 
+        const result = response.data.fetchUser || [];
+        
+        // Filter the users with an existing (truthy) userId
+        const usersWithUserId = result.filter(user => user.userId && user.userId.length>0); 
+  
+        // Set the filtered user data
+        setData(usersWithUserId);
+  
+        // Log or set the count of users with an existing userId
+        console.log(`Number of users with userId: ${usersWithUserId.length}`);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, []);
+  
  
 
 
@@ -122,7 +154,7 @@ const Dashboard = () => {
 
 
   const progressExample = [
-    { title: 'users', value: '29.703 Users', percent: 40, color: 'success' },
+    { title: 'users', value: userCount, percent: 40, color: 'success' },
     { title: 'Distributers', value: '24.093 Users', percent: 20, color: 'info' },
     { title: 'Agents', value: '78.706 Views', percent: 60, color: 'warning' },
     { title: 'New User', value: '22.123 Users', percent: 80, color: 'danger' },
@@ -248,6 +280,34 @@ const Dashboard = () => {
       activity: 'Last week',
     },
   ]
+  const userId = localStorage.getItem('userId');
+
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        console.log('User ID:', userId); // Debugging line
+        const response = await axios.get(`/status/${userId}`); // Updated API endpoint
+  
+        if (response.data.hasChanged) {
+          alert('Your account has been updated, logging you out.');
+          // Call the logout API
+          await axios.post('/logout');
+          // Clear local storage and redirect to login
+          localStorage.clear();
+          window.location.href = '/login'; // Redirect to login page
+        }
+      } catch (error) {
+        console.error('Failed to check user status:', error.response ? error.response.data : error);
+      }
+    };
+  
+    // Poll every 5 seconds
+    const interval = setInterval(checkUserStatus, 5000);
+  
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+  
 
   return (
     <>

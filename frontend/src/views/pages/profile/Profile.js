@@ -38,6 +38,7 @@ const Profile = () => {
   const [bankName, setBankName] = useState("");
   const [datePayment, setDatePayment] = useState(""); // State for datePayment
   const [errors, setErrors] = useState({});
+  const [fundRequestMethods, setFundRequestMethods] = useState({});
   // const userName = "Test";
   const availableBalance = "0";
 
@@ -78,10 +79,37 @@ const Profile = () => {
     fetchBalance();
   }, [userId]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`/fetchUserList/${userId}`);
+        const result = response.data.fetchUser || {};
+
+        // Update state with the fetched data
+
+
+        setFundRequestMethods({
+          bankTransfer: result.bankTransfer || false,
+          upi: result.upi || false,
+          cash: result.cash || false,
+          cdm: result.cdm || false,
+        });
+
+
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    if (userId) {
+      fetchData();
+    }
+  }, [userId]);
+
   const handleRequestFund = async (e) => {
     e.preventDefault();
     const newErrors = {};
-  
+
     if (!fundAmount) newErrors.fundAmount = "Amount is required";
     if (paymentMethod !== "cash") {
       if (!bankReference) newErrors.bankReference = "Bank Reference Number is required";
@@ -92,7 +120,7 @@ const Profile = () => {
         newErrors.bankName = "Bank Name is required";
     }
     if (!datePayment) newErrors.datePayment = "Date of deposit is required";
-  
+
     // If there are errors, display them and stop submission
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -133,39 +161,39 @@ const Profile = () => {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-  
+
     // Update state based on the input field
     if (id === "fund-amount") setFundAmount(value);
     if (id === "bank-reference") setBankReference(value);
     if (id === "payment-method") setPaymentMethod(value);
     if (id === "bank-name") setBankName(value);
     if (id === "date-payment") setDatePayment(value);
-  
+
     // Clear error for the specific field being changed
     setErrors((prevErrors) => ({
       ...prevErrors,
       [id]: "", // Clear only the error related to the field being changed
     }));
   };
-  
+
   const handleInputFocus = (e) => {
     const { id } = e.target;
-  
+
     // Clear error for the specific field being focused
     setErrors((prevErrors) => {
       const newErrors = { ...prevErrors };
-      
+
       // Map input IDs to the corresponding error keys
       if (id === "fund-amount") delete newErrors.fundAmount;
       if (id === "bank-reference") delete newErrors.bankReference;
       if (id === "payment-method") delete newErrors.paymentMethod;
       if (id === "bank-name") delete newErrors.bankName;
       if (id === "date-payment") delete newErrors.datePayment;
-  
+
       return newErrors;
     });
   };
-  
+
 
   const date = new Date();
   const month = date.toLocaleString("default", { month: "long" });
@@ -260,7 +288,91 @@ const Profile = () => {
             <CFormLabel htmlFor="payment-method" className="mt-3">
               Payment Method
             </CFormLabel>
-            <CFormSelect
+            <div className="d-flex justify-content-between mt-2">
+              {fundRequestMethods.bankTransfer && (
+                <div className={`card p-3 m-1 ${paymentMethod === "bank-transfer" ? "border-primary" : "border-light"}`}>
+                  <input
+                    type="radio"
+                    id="payment-method-bank-transfer"
+                    name="paymentMethod"
+                    value="bank-transfer"
+                    checked={paymentMethod === "bank-transfer"}
+                    onChange={handleInputChange} // Directly handle input change here
+                    className="d-none" // Hide the default radio button
+                  />
+                  <label
+                    htmlFor="payment-method-bank-transfer"
+                    className="text-center w-100"
+                    onClick={() => setPaymentMethod("bank-transfer")} // Simplified setting state
+                  >
+                    Bank Transfer
+                  </label>
+                </div>
+              )}
+              {fundRequestMethods.upi && (
+                <div className={`card p-3 m-1 ${paymentMethod === "upi" ? "border-primary" : "border-light"}`}>
+                  <input
+                    type="radio"
+                    id="payment-method-upi"
+                    name="paymentMethod"
+                    value="upi"
+                    checked={paymentMethod === "upi"}
+                    onChange={handleInputChange}
+                    className="d-none"
+                  />
+                  <label
+                    htmlFor="payment-method-upi"
+                    className="text-center w-100"
+                    onClick={() => setPaymentMethod("upi")}
+                  >
+                    UPI
+                  </label>
+                </div>
+              )}
+              {fundRequestMethods.cash && (
+                <div className={`card p-3 m-1 ${paymentMethod === "cash" ? "border-primary" : "border-light"}`}>
+                  <input
+                    type="radio"
+                    id="payment-method-cash"
+                    name="paymentMethod"
+                    value="cash"
+                    checked={paymentMethod === "cash"}
+                    onChange={handleInputChange}
+                    className="d-none"
+                  />
+                  <label
+                    htmlFor="payment-method-cash"
+                    className="text-center w-100"
+                    onClick={() => setPaymentMethod("cash")}
+                  >
+                    Cash
+                  </label>
+                </div>
+              )}
+              {fundRequestMethods.cdm && (
+                <div className={`card p-3 m-1 ${paymentMethod === "cdm" ? "border-primary" : "border-light"}`}>
+                  <input
+                    type="radio"
+                    id="payment-method-cdm"
+                    name="paymentMethod"
+                    value="cdm"
+                    checked={paymentMethod === "cdm"}
+                    onChange={handleInputChange}
+                    className="d-none"
+                  />
+                  <label
+                    htmlFor="payment-method-cdm"
+                    className="text-center w-100"
+                    onClick={() => setPaymentMethod("cdm")}
+                  >
+                    CDM
+                  </label>
+                </div>
+              )}
+            </div>
+
+
+            {/* <CFormSelect
               name="paymentMethod"
               id="payment-method"
               value={paymentMethod}
@@ -272,7 +384,7 @@ const Profile = () => {
               <option value="upi">UPI</option>
               <option value="cdm">CDM</option>
               <option value="cash">Cash</option>
-            </CFormSelect>
+            </CFormSelect> */}
             {errors.paymentMethod && (
               <div className="text-danger">{errors.paymentMethod}</div>
             )}
@@ -298,7 +410,7 @@ const Profile = () => {
                 )}
               </>
             )}
-             {paymentMethod === "cdm" && (
+            {paymentMethod === "cdm" && (
               <>
                 <CFormLabel htmlFor="bank-reference" className="mt-3">
                   Serial Number
@@ -317,7 +429,7 @@ const Profile = () => {
                 )}
               </>
             )}
-        
+
 
 
 
@@ -348,25 +460,25 @@ const Profile = () => {
 
             {paymentMethod !== "upi" && (
               <>
-              <CInputGroup className="mb-3">
-                                    <CInputGroupText>
-                                      {/* <CIcon  /> */}
-                                    </CInputGroupText>
-                                    <CFormInput
-                                      id="photograph"
-                                      name="photograph"
-                                      type="file"
+                <CInputGroup className="mb-3">
+                  <CInputGroupText>
+                    {/* <CIcon  /> */}
+                  </CInputGroupText>
+                  <CFormInput
+                    id="photograph"
+                    name="photograph"
+                    type="file"
 
-                                      style={{ display: "none" }}
-                                    />
-                                    <CButton
-                                      color="secondary"
-                                    >
-                                      
-                                    </CButton>
-                                  </CInputGroup>
-                                  </>
-                                )}
+                    style={{ display: "none" }}
+                  />
+                  <CButton
+                    color="secondary"
+                  >
+
+                  </CButton>
+                </CInputGroup>
+              </>
+            )}
 
             <CModalFooter>
               <CButton
