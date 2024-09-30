@@ -140,11 +140,22 @@ const OrangePayReport = () => {
     { name: 'BankID', selector: 'bankid', sortable: true },
     { name: 'PaymentMode', selector: 'paymentmode', sortable: true },
     { name: 'PaymentStatus', selector: 'paymentstatus', sortable: true },
-    { name: 'CreatedOn', selector: 'createdon', sortable: true , format: row => new Date(row.createdon).toLocaleDateString() },
+    {
+      name: 'CreatedOn', selector: 'createdon', sortable: true, format: row => new Date(row.createdon).toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      })
+    },
     { name: 'CreatedBy', selector: 'createdby', sortable: true },
     { name: 'BillPostStatus', selector: 'billpoststatus', sortable: true },
     { name: 'PaidAmount', selector: 'billamount', sortable: true },
-    { name: 'ReceiptNo', selector: 'reciptno', sortable: true,}, 
+    { name: 'ReceiptNo', selector: 'reciptno', sortable: true, },
     { name: 'BillPostOn', selector: 'billposton', sortable: true },
     { name: 'Gateway', selector: 'getway', sortable: true },
     { name: 'cardTxnTypeDesc', selector: 'cardtxntype', sortable: true },
@@ -156,7 +167,7 @@ const OrangePayReport = () => {
     { name: 'RRN', selector: 'rrn', sortable: true },
     { name: 'VPA', selector: 'vpa', sortable: true },
     { name: 'BillAmount', selector: 'billamount', sortable: true },
-    { name: 'paymentDate', selector: 'paymentdate', sortable: true   },
+    { name: 'paymentDate', selector: 'paymentdate', sortable: true },
     { name: 'latitude', selector: 'latitude', sortable: true },
     { name: 'longitude', selector: 'longitude', sortable: true },
     { name: 'FetchType', selector: 'fetchtype', sortable: true },
@@ -166,7 +177,7 @@ const OrangePayReport = () => {
     { name: 'BrandCode', selector: 'brandcode', sortable: true },
     { name: 'Division', selector: 'division', sortable: true },
     { name: 'SubDiv', selector: 'subdivision', sortable: true },
-    ];
+  ];
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;

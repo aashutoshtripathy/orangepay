@@ -267,11 +267,10 @@ const Profile = () => {
               onChange={handleInputChange}
               onFocus={handleInputFocus}
             >
-              <option value="">Select Payment Method</option>
+              <option value="" disabled>Select Payment Method</option>
               <option value="bank-transfer">Bank Transfer</option>
               <option value="upi">UPI</option>
-              <option value="card">Card</option>
-              <option value="paypal">PayPal</option>
+              <option value="cdm">CDM</option>
               <option value="cash">Cash</option>
             </CFormSelect>
             {errors.paymentMethod && (
@@ -280,7 +279,7 @@ const Profile = () => {
 
 
 
-            {paymentMethod !== "cash" && (
+            {paymentMethod !== "cdm" && (
               <>
                 <CFormLabel htmlFor="bank-reference" className="mt-3">
                   Bank Reference Number
@@ -299,23 +298,26 @@ const Profile = () => {
                 )}
               </>
             )}
-            <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          {/* <CIcon  /> */}
-                        </CInputGroupText>
-                        <CFormInput
-                          id="photograph"
-                          name="photograph"
-                          type="file"
-
-                          style={{ display: "none" }}
-                        />
-                        <CButton
-                          color="secondary"
-                        >
-                          
-                        </CButton>
-                      </CInputGroup>
+             {paymentMethod === "cdm" && (
+              <>
+                <CFormLabel htmlFor="bank-reference" className="mt-3">
+                  Serial Number
+                </CFormLabel>
+                <CFormInput
+                  name="bankReference"
+                  id="bank-reference"
+                  type="text"
+                  value={bankReference}
+                  onChange={handleInputChange}
+                  onFocus={handleInputFocus}
+                  style={{ textTransform: "uppercase" }}
+                />
+                {errors.bankReference && (
+                  <div className="text-danger">{errors.bankReference}</div>
+                )}
+              </>
+            )}
+        
 
 
 
@@ -342,6 +344,29 @@ const Profile = () => {
                 )}
               </>
             )}
+
+
+            {paymentMethod !== "upi" && (
+              <>
+              <CInputGroup className="mb-3">
+                                    <CInputGroupText>
+                                      {/* <CIcon  /> */}
+                                    </CInputGroupText>
+                                    <CFormInput
+                                      id="photograph"
+                                      name="photograph"
+                                      type="file"
+
+                                      style={{ display: "none" }}
+                                    />
+                                    <CButton
+                                      color="secondary"
+                                    >
+                                      
+                                    </CButton>
+                                  </CInputGroup>
+                                  </>
+                                )}
 
             <CModalFooter>
               <CButton

@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faTimesCircle, faUnlock, faLock, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react'; // Import CoreUI components
 import * as XLSX from 'xlsx';  // Import XLSX for Excel export
 import '../../../scss/dataTable.scss';
 
@@ -54,6 +55,7 @@ const downloadPDF = (data) => {
     { header: 'Ifsc Code', dataKey: 'ifsc' },
     { header: 'Job Type', dataKey: 'salaryBasis' },
     { header: 'Email', dataKey: 'email' },
+    { header: 'Satus', dataKey: 'status' },
     { header: 'Division', dataKey: 'division' },
     { header: 'Sub-Division', dataKey: 'subDivision' },
     { header: 'Section', dataKey: 'section' },
@@ -260,14 +262,17 @@ const DataTableComponent = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
   const [filterText, setFilterText] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/fetchUserList`); 
-        const result = response.data.fetchUser || []; // Access the data array from the nested data object
+        const result = response.data.fetchUser || [];
         console.log(result)
         setData(result);
       } catch (error) {
@@ -280,7 +285,31 @@ const DataTableComponent = () => {
     fetchData();
   }, [userId]);
 
+  const filteredItems = data.filter(item => {
+    // Check status filter
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'Approved' && item.status === 'Approved') ||
+      (statusFilter === 'Blocked' && item.status === 'Blocked') ||
+      (statusFilter === 'Rejected' && item.status === 'Rejected') ||
+      (statusFilter === 'Pending' && item.status === 'Pending');
+  
+    // Check userId filter
+    const matchesUserId =
+      item.userId &&
+      item.userId.toString().toLowerCase().includes(filterText.toLowerCase());
+  
+      const itemDate = new Date(item.createdAt);
+    const fromDateMatch = fromDate ? new Date(fromDate) <= itemDate : true;
+    const toDateMatch = toDate ? new Date(toDate) >= itemDate : true;
 
+    return (
+      matchesStatus &&
+      matchesUserId &&
+      fromDateMatch &&
+      toDateMatch
+    );
+  });
 
   const handleBlockUnblock = async (row) => {
     try {
@@ -336,6 +365,7 @@ const DataTableComponent = () => {
     { name: 'Ifsc Code', selector: 'ifsc', sortable: true },
     { name: 'Job Type', selector: 'salaryBasis', sortable: true },
     { name: 'Email', selector: 'email', sortable: true },
+    { name: 'Status', selector: 'status', sortable: true },
     { name: 'Division', selector: 'division', sortable: true },
     { name: 'Sub-Division', selector: 'subDivision', sortable: true },
     { name: 'Section', selector: 'section', sortable: true },
@@ -352,7 +382,6 @@ const DataTableComponent = () => {
       className="button-Accept" 
       onClick={() => handleBlockUnblock(row)}
     >
-      <FontAwesomeIcon icon={row.isBlocked ? faUnlock : faLock} /> 
       {row.isBlocked ? 'Details' : 'Details'}
     </button>
     </div>
@@ -387,10 +416,10 @@ const DataTableComponent = () => {
 // ];
   
 
-const filteredItems = data.filter(item => {
-  return item.userId && typeof item.userId === 'string' &&
-         item.userId.toLowerCase().includes(filterText.toLowerCase());
-});
+// const filteredItems = data.filter(item => {
+//   return item.userId && typeof item.userId === 'string' &&
+//          item.userId.toLowerCase().includes(filterText.toLowerCase());
+// });
 
   
 
@@ -417,6 +446,25 @@ const filteredItems = data.filter(item => {
         >
           <FontAwesomeIcon icon={faSearch} /> Search
         </button>
+
+        <CDropdown>
+          <CDropdownToggle color="secondary">
+            {statusFilter === 'all' ? 'All Users' : 
+             statusFilter === 'Approved' ? 'Active Users' :
+             statusFilter === 'Blocked' ? 'Blocked Users' :
+             statusFilter === 'Rejected' ? 'Rejected Users' : 
+             statusFilter === 'Pending' ? 'Pending Users' : 
+             'Pending Users'}
+          </CDropdownToggle>
+          <CDropdownMenu>
+          <CDropdownItem onClick={() => setStatusFilter('all')}>All Users</CDropdownItem>
+          <CDropdownItem onClick={() => setStatusFilter('Approved')}>Active Users</CDropdownItem>
+          <CDropdownItem onClick={() => setStatusFilter('Blocked')}>Blocked Users</CDropdownItem>
+          <CDropdownItem onClick={() => setStatusFilter('Rejected')}>Rejected Users</CDropdownItem>
+          <CDropdownItem onClick={() => setStatusFilter('Pending')}>Requested Users</CDropdownItem>
+          </CDropdownMenu>
+        </CDropdown>
+
         <button 
           className="button-download" 
           onClick={() => downloadPDF(data)}
@@ -429,6 +477,20 @@ const filteredItems = data.filter(item => {
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
+        <div className="date-filter-container">
+        <label>From Date:</label>
+        <input
+          type="date"
+          value={fromDate}
+          onChange={e => setFromDate(e.target.value)}
+        />
+        <label>To Date:</label>
+        <input
+          type="date"
+          value={toDate}
+          onChange={e => setToDate(e.target.value)}
+        />
+      </div>
       </div>
       <DataTable
         title="View Users"
