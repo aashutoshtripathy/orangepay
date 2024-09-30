@@ -34,13 +34,8 @@ const Payment = () => {
   const [fetchBillSuccess, setFetchBillSuccess] = useState(false);
   const [responseData, setResponseData] = useState(null);
 
-
   const MERCHANT_CODE = 'BSPDCL_RAPDRP_16';
   const MERCHANT_PASSWORD = 'OR1f5pJeM9q@G26TR9nPY';
-
-
-
-
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
@@ -52,8 +47,10 @@ const Payment = () => {
   const validate = () => {
     const errors = {};
     if (!consumerId) errors.consumerId = 'Consumer ID is required.';
-    if (isBillFetched && !mobileNumber) errors.mobileNumber = 'Mobile number is required.';
-    if (isBillFetched && (!amount || isNaN(amount) || amount <= 0)) errors.amount = 'A valid amount is required.';
+    if (isBillFetched && !mobileNumber)
+      errors.mobileNumber = 'Mobile number is required.';
+    if (isBillFetched && (!amount || isNaN(amount) || amount <= 0))
+      errors.amount = 'A valid amount is required.';
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -61,59 +58,54 @@ const Payment = () => {
   const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
 
   const soapRequest = (consumerId, amount) => `
-  <?xml version="1.0" encoding="utf-8"?>
-  <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Body>
-      <BillDetails xmlns="http://tempuri.org/">
-        <strCANumber>${consumerId}</strCANumber>
-        <strDivision></strDivision>
-        <strSubDivision></strSubDivision>
-        <strLegacyNo></strLegacyNo>
-        <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
-        <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
-        <Amount>${amount}</Amount>
-      </BillDetails>
-    </soap:Body>
-  </soap:Envelope>
-`;
+    <?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <BillDetails xmlns="http://tempuri.org/">
+          <strCANumber>${consumerId}</strCANumber>
+          <strDivision></strDivision>
+          <strSubDivision></strSubDivision>
+          <strLegacyNo></strLegacyNo>
+          <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+          <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+          <Amount>${amount}</Amount>
+        </BillDetails>
+      </soap:Body>
+    </soap:Envelope>
+  `;
 
+  const handleFetchBill = async () => {
+    setFormSubmitted(true);
+    setIsBillFetched(true);
+    setFetchBillSuccess(true);
 
-const handleFetchBill = async () => {
-  setFormSubmitted(true);
-  setIsBillFetched(true);
-  setFetchBillSuccess(true);
-
-  try {
-    const response = await axios.post(API_URL, 
-
-      soapRequest(consumerId),
-      {
+    try {
+      const response = await axios.post(API_URL, soapRequest(consumerId, amount), {
         headers: {
           'Content-Type': 'text/xml',
-          // 'SOAPAction': 'http://tempuri.org/BillDetails',
+          SOAPAction: 'http://tempuri.org/BillDetails', // SOAP action is important
         },
+      });
+
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(response.data, 'text/xml');
+
+      const amountDue = xmlDoc.getElementsByTagName('Amount')[0]?.textContent;
+      const dueDate = xmlDoc.getElementsByTagName('DueDate')[0]?.textContent;
+
+      if (amountDue && dueDate) {
+        setBillDetails({ amountDue, dueDate });
+        setFetchBillSuccess(true);
+      } else {
+        alert('Bill details not found.');
       }
-    );
-
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(response.data, 'text/xml');
-
-    const amountDue = xmlDoc.getElementsByTagName('Amount')[0]?.textContent; // Adjust this line
-    const dueDate = xmlDoc.getElementsByTagName('DueDate')[0]?.textContent; // Check if this exists in your response
-
-    if (amountDue && dueDate) {
-      setBillDetails({ amountDue, dueDate });
-      setFetchBillSuccess(true);
-    } else {
-      alert('Bill details not found.');
+    } catch (error) {
+      console.error('Error fetching bill:', error);
+      alert('An error occurred while fetching the bill.');
     }
-  } catch (error) {
-    console.error('Error fetching bill:', error);
-    alert('An error occurred while fetching the bill.');
-  }
-};
+  };
 
-     const handleProceedToPay = async () => {
+  const handleProceedToPay = async () => {
     setFormSubmitted(true);
 
     if (!validate()) return;
@@ -154,9 +146,6 @@ const handleFetchBill = async () => {
       alert('An error occurred while processing the payment.');
     }
   };
-  // const handleSetDefaultAmount = () => {
-  //   setAmount(defaultAmount);
-  // };
 
   const handleMethodChange = (e) => {
     setSelectedMethod(e.target.value);
@@ -177,12 +166,12 @@ const handleFetchBill = async () => {
           {fetchBillSuccess && (
             <div className="mb-4">
               <h4>Consumer Information</h4>
-              <p><strong>Consumer ID:</strong> {consumerId}</p>
-              {/* <p><strong>Consumer Name:</strong> {consumerName}</p> */}
-              {/* <p><strong>Due Date:</strong> {dueDate}</p> */}
+              <p>
+                <strong>Consumer ID:</strong> {consumerId}
+              </p>
             </div>
           )}
-          {/* Consumer ID Field */}
+
           {!fetchBillSuccess && (
             <>
               <CRow className="mb-3">
@@ -195,21 +184,20 @@ const handleFetchBill = async () => {
                     onChange={(e) => setConsumerId(e.target.value)}
                     placeholder="Enter Consumer ID"
                   />
-                  {formSubmitted && errors.consumerId && <p className="text-danger">{errors.consumerId}</p>}
+                  {formSubmitted && errors.consumerId && (
+                    <p className="text-danger">{errors.consumerId}</p>
+                  )}
                 </CCol>
               </CRow>
 
-              {/* Fetch Bill Button */}
               <CButton color="primary" onClick={handleFetchBill}>
                 Fetch Bill
               </CButton>
             </>
           )}
 
-          {/* Conditional Rendering for Bill Details and Payment Fields */}
           {isBillFetched && (
             <>
-              {/* Display Bill Details */}
               {billDetails && (
                 <div className="mt-4">
                   <h4>Bill Details</h4>
@@ -218,7 +206,6 @@ const handleFetchBill = async () => {
                 </div>
               )}
 
-              {/* Mobile Number Field */}
               <CRow className="mb-3">
                 <CCol md={6}>
                   <CFormLabel htmlFor="mobileNumber">Mobile Number</CFormLabel>
@@ -229,9 +216,12 @@ const handleFetchBill = async () => {
                     onChange={(e) => setMobileNumber(e.target.value)}
                     placeholder="Enter Mobile Number"
                   />
-                  {formSubmitted && errors.mobileNumber && <p className="text-danger">{errors.mobileNumber}</p>}
+                  {formSubmitted && errors.mobileNumber && (
+                    <p className="text-danger">{errors.mobileNumber}</p>
+                  )}
                 </CCol>
               </CRow>
+
               <CRow className="mb-3">
                 <CCol md={6}>
                   <label htmlFor="paymentMethod">Payment Method</label>
@@ -248,7 +238,6 @@ const handleFetchBill = async () => {
                 </CCol>
               </CRow>
 
-              {/* Amount Field */}
               <CRow className="mb-3">
                 <CCol md={6}>
                   <CFormLabel htmlFor="defaultAmount">Amount</CFormLabel>
@@ -262,7 +251,6 @@ const handleFetchBill = async () => {
                 </CCol>
               </CRow>
 
-              {/* Remark Field */}
               <CRow className="mb-3">
                 <CCol md={6}>
                   <CFormLabel htmlFor="remark">Remark</CFormLabel>
@@ -276,21 +264,18 @@ const handleFetchBill = async () => {
                 </CCol>
               </CRow>
 
-              {/* Pay Bill Button */}
-              <CButton color="primary" onClick={handleProceedToPay}>
-                Pay Bill
+              <CButton color="success" onClick={handleProceedToPay}>
+                Proceed to Pay
               </CButton>
             </>
           )}
         </CCardBody>
       </CCard>
 
-      {/* Success Modal */}
       <CModal visible={showSuccessModal} onClose={handleCloseModal}>
         <CModalHeader>Payment Successful</CModalHeader>
         <CModalBody>
-          <p>Your payment was processed successfully!</p>
-          <p>Transaction ID: {transactionId}</p>
+          <p>Your transaction ID is: {transactionId}</p>
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={handleCloseModal}>
