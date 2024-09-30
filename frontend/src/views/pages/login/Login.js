@@ -163,7 +163,7 @@
 
                       <CRow>
                         <CCol xs={6}>
-                          <CButton type="submit" color="warning" className="px-4">
+                          <CButton style={{ backgroundColor: 'orange', borderColor: 'orange' }}  type="submit"  className="px-4">
                             Login
                           </CButton>
                         </CCol>
@@ -176,22 +176,46 @@
                     </CForm>
                   </CCardBody>
                 </CCard>
-                <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
-                  <CCardBody className="text-center">
-                    <div>
-                      <h2>Sign up</h2>
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                        tempor incididunt ut labore et dolore magna aliqua.
-                      </p>
-                      <Link to="/register">
-                        <CButton color="warning" className="mt-3" active tabIndex={-1}>
-                          Register Now!
-                        </CButton>
-                      </Link>
-                    </div>
-                  </CCardBody>
-                </CCard>    
+                <CCard className="text-white bg-primary py-5 mx-auto" style={{ maxWidth: '100%', width: '100%', maxHeight: '600px' }}>
+  <CCardBody className="text-center">
+    <div>
+      <h2
+        style={{
+          color: 'orange',
+          fontSize: '36px',
+          fontWeight: 'bold',
+          fontFamily: 'Arial, sans-serif',
+          textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+        }}
+      >
+        Orange Pay
+      </h2>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua.
+      </p>
+      <Link to="/register">
+        <CButton color="warning"
+          style={{
+            backgroundColor: 'orange',
+            borderColor: 'orange',
+            color: 'white',
+            transition: 'all 0.3s ease', // Smooth transition for hover effects
+            position: 'relative', // Required for pseudo-element positioning
+            overflow: 'hidden', // This sets the text color to white
+          }}
+          className="mt-3"
+          active
+          tabIndex={-1}
+        >
+          Register Now!
+        </CButton>
+      </Link>
+    </div>
+  </CCardBody>
+</CCard>
+
+
               </CCardGroup>
             </CCol>
           </CRow>

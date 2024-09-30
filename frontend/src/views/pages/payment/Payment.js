@@ -257,7 +257,7 @@ const Payment = () => {
       },
       prefill: {
         name: "OrangePay",
-        email: "OrangePay@gmail.com"
+        email: "orangepay@gmail.com"
       },
       theme: {
         color: "#F4C430"
@@ -316,12 +316,11 @@ const Payment = () => {
             <div className="mb-4">
               <h4>Consumer Information</h4>
               <p><strong>Consumer ID:</strong> {consumerId}</p>
-              <p><strong>Consumer Name:</strong> {billDetails.consumerName || 'N/A'}</p> {/* Fallback if null */}
+              <p><strong>Consumer Name:</strong> {billDetails.consumerName || 'N/A'}</p>
               <p><strong>Mobile No:</strong> {billDetails.mobileNo || 'N/A'}</p>
               <p><strong>Address:</strong> {billDetails.address || 'N/A'}</p>
             </div>
           )}
-          {/* Consumer ID Field */}
           {!fetchBillSuccess && (
             <>
               <CRow className="mb-3">
@@ -338,17 +337,14 @@ const Payment = () => {
                 </CCol>
               </CRow>
 
-              {/* Fetch Bill Button */}
               <CButton color="primary" onClick={handleFetchBill}>
                 Fetch Bill
               </CButton>
             </>
           )}
 
-          {/* Conditional Rendering for Bill Details and Payment Fields */}
           {isBillFetched && (
             <>
-              {/* Display Bill Details */}
               {/* {billDetails && (
                 <div className="mt-4">
                   <h4>Bill Details</h4>
@@ -357,7 +353,6 @@ const Payment = () => {
                 </div>
               )} */}
 
-              {/* Mobile Number Field */}
               <CRow className="mb-3">
                 <CCol md={6}>
                   <CFormLabel htmlFor="mobileNumber">Mobile Number</CFormLabel>
@@ -464,7 +459,6 @@ const Payment = () => {
                 </CCol>
               </CRow>
 
-              {/* Amount Field */}
               <CRow className="mb-3">
                 <CCol md={6}>
                   <CFormLabel htmlFor="defaultAmount">Amount</CFormLabel>
@@ -478,7 +472,7 @@ const Payment = () => {
                 </CCol>
               </CRow>
 
-              {/* Remark Field */}
+
               <CRow className="mb-3">
                 <CCol md={6}>
                   <CFormLabel htmlFor="remark">Remark</CFormLabel>
@@ -492,7 +486,6 @@ const Payment = () => {
                 </CCol>
               </CRow>
 
-              {/* Pay Bill Button */}
               <CButton color="primary" onClick={handlePayment}>
                 Pay Bill
               </CButton>
@@ -501,34 +494,25 @@ const Payment = () => {
         </CCardBody>
       </CCard>
 
-      {/* Success Modal */}
       <CModal visible={showSuccessModal} onClose={handleCloseModal}>
         <CModalHeader>Payment Successful</CModalHeader>
         <CModalBody>
           <p>Your payment was processed successfully!</p>
 
-          {/* Date/Time: Provide fallback if paymentdate is not available or invalid */}
           <p><strong>Date/Time:</strong>  {""}</p>
 
-          {/* Receipt No. */}
           <p><strong>Receipt No.:</strong> {data.transactionId || 'N/A'}</p>
 
-          {/* Consumer No.: Check if consumer number (canumber) is available */}
           <p><strong>Consumer No.:</strong> {data.canumber || 'N/A'}</p>
 
-          {/* Consumer Name: Provide fallback if consumer name is not available */}
           <p><strong>Consumer Name:</strong> {data.consumerName || 'N/A'}</p>
 
-          {/* Payment Amount */}
           <p><strong>Payment Amt.:</strong> {data.billamount || 'N/A'}</p>
 
-          {/* Payment Mode */}
           <p><strong>Payment Mode:</strong> {data.getway || 'N/A'}</p>
 
-          {/* Transaction ID */}
           <p><strong>Transaction ID:</strong> {data.transactionId || 'N/A'}</p>
 
-          {/* Payment Status */}
           <p><strong>Payment Status:</strong> Transaction success</p>
 
           <p>Thanks for Payment!</p>

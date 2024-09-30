@@ -33,11 +33,11 @@ import axios from 'axios'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
-  // const unfoldable = useSelector((state) => state.sidebarUnfoldable)
-  // const sidebarShow = useSelector((state) => state.sidebarShow)
+    const unfoldable = useSelector((state) => state.sidebarUnfoldable)
+    const sidebarShow = useSelector((state) => state.sidebarShow)
 
-  const [sidebarShow, setSidebarShow] = useState(true);
-  const [unfoldable, setUnfoldable] = useState(false);
+  // const [sidebarShow, setSidebarShow] = useState(true);
+  // const [unfoldable, setUnfoldable] = useState(false);
   const [role, setRole] = useState(null);
   const [permissions, setPermissions] = useState({}) // To store API response for permissions
   const userId = localStorage.getItem('userId')
@@ -52,17 +52,17 @@ const AppSidebar = () => {
     }
 
     // Retrieve sidebar visibility and unfoldable state from localStorage (optional)
-    const storedSidebarShow = localStorage.getItem('sidebarShow') === 'true';
-    const storedUnfoldable = localStorage.getItem('sidebarUnfoldable') === 'true';
-    setSidebarShow(storedSidebarShow || true);
-    setUnfoldable(storedUnfoldable || false);
+    // const storedSidebarShow = localStorage.getItem('sidebarShow') === 'true';
+    // const storedUnfoldable = localStorage.getItem('sidebarUnfoldable') === 'true';
+    // setSidebarShow(storedSidebarShow || true);
+    // setUnfoldable(storedUnfoldable || false);
   }, []);
 
-  useEffect(() => {
-    // Store sidebar visibility and unfoldable state in localStorage
-    localStorage.setItem('sidebarShow', sidebarShow);
-    localStorage.setItem('sidebarUnfoldable', unfoldable);
-  }, [sidebarShow, unfoldable]);
+  // useEffect(() => {
+  //   // Store sidebar visibility and unfoldable state in localStorage
+  //   localStorage.setItem('sidebarShow', sidebarShow);
+  //   localStorage.setItem('sidebarUnfoldable', unfoldable);
+  // }, [sidebarShow, unfoldable]);
 
 
   useEffect(() => {
