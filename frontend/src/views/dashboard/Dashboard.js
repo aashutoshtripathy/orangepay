@@ -94,6 +94,7 @@ const Dashboard = () => {
 
   const [userCount, setUserCount] = useState(0);
   const [userCounts, setUserCounts] = useState(0);
+  const [userCountss, setUserCountss] = useState(0);
 
 
   const [userRole, setUserRole] = useState('')
@@ -136,15 +137,46 @@ const Dashboard = () => {
 
 
         const totalBalanceResponse = await axios.get(`/getTotalBalance`);
-        setTotalBalance(totalBalanceResponse.data.totalBalance);
-
-        console.log(`Total Balance: ${totalBalanceResponse.data.totalBalance}`);
+        const roundedBalance = Math.round(totalBalanceResponse.data.totalBalance);
+        
+        // Set the total balance as the rounded value
+        setTotalBalance(roundedBalance);
+        
+        console.log(`Total Balance: ${roundedBalance}`);
+        
 
 
         const fetchData = await axios.get(`/fetch_data`);
-        const results = fetchData.data || [];
-        const usersWithUserIdd = results.filter(user => user.userId && user.userId.length>0); 
-        setUserCounts(usersWithUserIdd.length);
+        const results = fetchData.data.data || [];
+
+        // If you want to filter users that have a specific condition, like having an `_id`:
+        const usersWithId = results.filter(user => user._id && user._id.length > 0); 
+
+        // If you want to filter by another field, such as `status` being 'Pending':
+        const pendingUsers = results.filter(user => user.status === 'Pending');
+
+        // Set the count based on the filtered users
+        setUserCounts(pendingUsers.length);
+
+        console.log(`Total Users with Pending status: ${pendingUsers.length}`);
+
+
+
+
+        const fetchDataa = await axios.get(`/fetch_data_rejected`);
+        const resultss = fetchDataa.data.data || [];
+
+        // If you want to filter users that have a specific condition, like having an `_id`:
+        const usersWithIddd = resultss.filter(user => user._id && user._id.length > 0); 
+
+        // If you want to filter by another field, such as `status` being 'Pending':
+        const rejectedUsers = resultss.filter(user => user.status === 'Rejected');
+
+        // Set the count based on the filtered users
+        setUserCountss(rejectedUsers.length);
+
+        console.log(`Total Users with Pending status: ${pendingUsers.length}`);
+
 
 
 
@@ -188,10 +220,9 @@ const Dashboard = () => {
 
 
   const progressExample = [
-    { title: 'Total Amount', value: `${totalBalance} Rupees`, percent: 20, color: 'info' },
+    { title: 'Total Amount', value: `${totalBalance}`, percent: 20, color: 'info' },
     { title: 'Agents', value:  `${userCount} Users`, percent: calculatePercentage(userCount, maxUsers), color: 'success' },
-    { title: 'Agents', value: '78.706 Views', percent: 60, color: 'warning' },
-    { title: 'New User', value: '22.123 Users', percent: 80, color: 'danger' },
+    { title: 'Rejected User', value: `${userCountss} Users`, percent: 80, color: 'danger' },
     { title: 'New Request', value: `${userCounts}`, percent: 40.15, color: 'primary' },
   ]
   const progressExamples = [

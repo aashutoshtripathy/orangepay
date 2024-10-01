@@ -335,19 +335,16 @@ const DataTableComponent = () => {
   });
   
 
-  const handleBlockUnblock = async (row) => {
+  const handleBlockUnblock = async (row, action) => {
     try {
-      const action = row.isBlocked ? 'unblock' : 'block';
-      const response = await axios.patch(`/users/${row._id}/${action}`);
-      const updatedUser = response.data;
-      // Update the data after block/unblock
-      setData((prevData) =>
-        prevData.map((item) =>
-          item._id === updatedUser._id ? updatedUser : item
-        )
-      );
+      const url = action === 'block' ? `/block/${row._id}` : `/unblock/${row._id}`;
+      console.log(url)
+      const response = await axios.post(url , { userId: row._id });
+      if (response.status === 200) {
+        setData((prevData) => prevData.filter((r) => r._id !== row._id));
+      }
     } catch (error) {
-      console.error(`Error ${row.isBlocked ? 'unblocking' : 'blocking'} user`, error);
+      console.error(`Error ${action}ing user:`, error);
     }
   };
 
@@ -361,28 +358,56 @@ const DataTableComponent = () => {
 
 
 
+  const handleAccept = async (row) => {
+    try {
+      const response = await axios.patch(`/users/${row._id}/approve`);
 
-
+      if (response.status === 200) {  // Check if the response is successful
+        setData((prevData) => prevData.filter((item) => item._id !== row._id));
+      }
+    } catch (error) {
+      console.error("Error approving fund request", error);
+    }
+  };
 
 
 
 
   const handleDownload = async (row) => {
     try {
+      // Use the Aadhar number from the row object to request the ZIP file
       const response = await axios.get(`/download-images/${row.aadharNumber}`, {
-        responseType: 'blob',
+        responseType: 'blob', // Important for binary response type (like a ZIP file)
       });
+  
+      // Create a URL for the file blob
       const url = window.URL.createObjectURL(new Blob([response.data]));
+      
+      // Create a link element and set the URL to download
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `photos_${row.aadharNumber}.zip`);
+      link.setAttribute('download', `photos_${row.aadharNumber}.zip`); // Use Aadhar number for file name
+  
+      // Append the link to the body and trigger the click
       document.body.appendChild(link);
       link.click();
+  
+      // Clean up
       link.parentNode.removeChild(link);
     } catch (error) {
       console.error('Error downloading file', error);
-    }   
+    }
   };
+
+
+
+
+
+
+
+
+
+  
 
   const handleView = (row) => {
     navigate(`/view-details/${row._id}`)
@@ -398,30 +423,30 @@ const DataTableComponent = () => {
     { name: 'userId', selector: 'userId', sortable: true },
     { name: 'Name', selector: 'name', sortable: true },
     { name: 'Father/Husband Name', selector: 'fatherOrHusbandName', sortable: true },
-    { name: 'Date of Birth', selector: 'dob', sortable: true },
+    // { name: 'Date of Birth', selector: 'dob', sortable: true },
     { name: 'Aadhar Number', selector: 'aadharNumber', sortable: true },
     { name: 'PAN Number', selector: 'panNumber', sortable: true },
     { name: 'Mobile Number', selector: 'mobileNumber', sortable: true },
-    { name: 'Gender', selector: 'gender', sortable: true },
-    { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
-    { name: 'Education', selector: 'education', sortable: true },
-    { name: 'Address', selector: 'address', sortable: true },
-    { name: 'District', selector: 'district', sortable: true },
-    { name: 'Pin Code', selector: 'pincode', sortable: true },
-    { name: 'Bank Name', selector: 'bank', sortable: true },
-    { name: 'Account no', selector: 'accountno', sortable: true },
-    { name: 'Ifsc Code', selector: 'ifsc', sortable: true },
-    { name: 'Job Type', selector: 'salaryBasis', sortable: true },
-    { name: 'Email', selector: 'email', sortable: true },
-    { name: 'Status', selector: 'status', sortable: true },
-    { name: 'Division', selector: 'division', sortable: true },
-    { name: 'Sub-Division', selector: 'subDivision', sortable: true },
-    { name: 'Section', selector: 'section', sortable: true },
-    // { name: 'userId', selector: 'userId', sortable: true },
-    { name: 'password', selector: 'password', sortable: true },
-    { name: 'Section Type', selector: 'sectionType', sortable: true },
-    { name: 'Created At', selector: 'createdAt', sortable: true },
-    { name: 'Updated At', selector: 'updatedAt', sortable: true },
+    // { name: 'Gender', selector: 'gender', sortable: true },
+    // { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
+    // { name: 'Education', selector: 'education', sortable: true },
+    // { name: 'Address', selector: 'address', sortable: true },
+    // { name: 'District', selector: 'district', sortable: true },
+    // { name: 'Pin Code', selector: 'pincode', sortable: true },
+    // { name: 'Bank Name', selector: 'bank', sortable: true },
+    // { name: 'Account no', selector: 'accountno', sortable: true },
+    // { name: 'Ifsc Code', selector: 'ifsc', sortable: true },
+    // { name: 'Job Type', selector: 'salaryBasis', sortable: true },
+    // { name: 'Email', selector: 'email', sortable: true },
+    // { name: 'Status', selector: 'status', sortable: true },
+    // { name: 'Division', selector: 'division', sortable: true },
+    // { name: 'Sub-Division', selector: 'subDivision', sortable: true },
+    // { name: 'Section', selector: 'section', sortable: true },
+    // // { name: 'userId', selector: 'userId', sortable: true },
+    // { name: 'password', selector: 'password', sortable: true },
+    // { name: 'Section Type', selector: 'sectionType', sortable: true },
+    // { name: 'Created At', selector: 'createdAt', sortable: true },
+    // { name: 'Updated At', selector: 'updatedAt', sortable: true },
     {
       name: 'Actions',
       cell: (row) => (
@@ -445,24 +470,46 @@ const DataTableComponent = () => {
           )
   ) : row.status === 'Approved' ? (
     <>
-      <button onClick={() => handleBlockUnblock(row)} className="block-btn">
-        <FontAwesomeIcon icon={faLock} /> Block
-      </button>
-      <button onClick={() => handleBlockUnblock(row)} className="view-btn">
-        <FontAwesomeIcon icon={faLock} /> View Details
-      </button>
+       {row.isBlocked ? (
+        <button 
+          className="block-unblock-btn unblock-btn" 
+          onClick={() => handleBlockUnblock(row, 'unblock')}
+        >
+          Unblock
+        </button>
+      ) : (
+        <button 
+          className="block-unblock-btn block-btn" 
+          onClick={() => handleBlockUnblock(row, 'block')}
+        >
+          Block
+        </button>
+      )}
+      <button 
+            className="button-search" 
+            onClick={() => handleView(row)}
+          >
+            <FontAwesomeIcon icon={faCheckCircle} /> View Details
+          </button>
       <button onClick={() => handlePermission(row)} className="view-btn">
         <FontAwesomeIcon icon={faLock} /> Permissions
       </button>
     </>
   ) : row.status === 'Rejected' ? (
     <>
-      <button onClick={() => handleBlockUnblock(row)} className="accept-btn">
-        <FontAwesomeIcon icon={faCheckCircle} /> Accept
-      </button>
-      <button onClick={() => handleBlockUnblock(row)} className="download-btn">
-        <FontAwesomeIcon icon={faDownload} /> Download
-      </button>
+                <button
+            className="button-search"
+            onClick={() => handleAccept(row)}
+          >
+            <FontAwesomeIcon icon={faCheckCircle} /> Accept
+          </button>
+
+          <button
+            className="button-download"
+            onClick={() => handleDownload(row)}
+          >
+            <FontAwesomeIcon icon={faDownload} /> Download File
+          </button>
     </>
   ) : row.status === 'Pending' ? (
     <>

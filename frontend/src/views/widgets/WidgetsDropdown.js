@@ -68,8 +68,12 @@ const WidgetsDropdown = (props) => {
 
 
         const totalBalanceResponse = await axios.get(`/getTotalBalance`);
-        setTotalBalance(totalBalanceResponse.data.totalBalance);
-
+        const roundedBalance = Math.round(totalBalanceResponse.data.totalBalance);
+        
+        // Set the total balance as the rounded value
+        setTotalBalance(roundedBalance);
+        
+        console.log(`Total Balance: ${roundedBalance}`);
         console.log(`Total Balance: ${totalBalanceResponse.data.totalBalance}`);
       } catch (error) {
         setError(error);
