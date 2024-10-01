@@ -232,5 +232,32 @@ const fetchReward = asyncHandler(async (req, res) => {
 });
 
 
-export { processPayment, getPayment ,BiharService , fetchReward };
+
+const getTotalBalance = asyncHandler(async (req, res) => {
+  try {
+    // Fetch all wallet records from the database
+    const wallets = await Wallet.find({}); // Retrieve all wallets
+
+    if (!wallets || wallets.length === 0) {
+      return res.status(404).json({ success: false, message: 'No wallets found' });
+    }
+
+    // Log the retrieved wallets for debugging
+    console.log('Retrieved wallets:', wallets);
+
+    // Calculate the total balance by summing up the balance field of all wallets
+    const totalBalance = wallets.reduce((sum, wallet) => sum + wallet.balance, 0);
+
+    // Return the total balance
+    return res.status(200).json({ success: true, totalBalance });
+    
+  } catch (error) {
+    console.error('Error fetching wallet balances:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
+
+export { processPayment, getPayment ,BiharService , fetchReward , getTotalBalance };
 

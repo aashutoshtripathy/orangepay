@@ -15,12 +15,21 @@ import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import { useSelector, useDispatch } from 'react-redux';
 import CIcon from '@coreui/icons-react'
 import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
+import axios from 'axios'
 // import { setUserRole } from '../../store'
 
 const WidgetsDropdown = (props) => {
   const widgetChartRef1 = useRef(null)
   const widgetChartRef2 = useRef(null)
   const [userRole, setUserRole] = useState('');
+  const [userCount, setUserCount] = useState(0);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [totalBalance, setTotalBalance] = useState(0); // State to store total balance
+  const [data, setData] = useState(null);
+
+
+
 
 
 
@@ -38,6 +47,40 @@ const WidgetsDropdown = (props) => {
       setUserRole(role);
     }
   }, []);
+
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`/fetchUserList`); 
+        const result = response.data.fetchUser || [];
+        
+        // Filter the users with an existing (truthy) userId
+        const usersWithUserId = result.filter(user => user.userId && user.userId.length>0); 
+  
+        // Set the filtered user data
+        setData(usersWithUserId);
+        setUserCount(usersWithUserId.length);
+  
+        // Log or set the count of users with an existing userId
+        console.log(`Number of users with userId: ${usersWithUserId.length}`);
+
+
+        const totalBalanceResponse = await axios.get(`/getTotalBalance`);
+        setTotalBalance(totalBalanceResponse.data.totalBalance);
+
+        console.log(`Total Balance: ${totalBalanceResponse.data.totalBalance}`);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, []);
+
 
 
 
@@ -70,9 +113,9 @@ const WidgetsDropdown = (props) => {
           color="primary"
           value={
             <>
-              26K{' '}
+             {userCount}{' '}
               <span className="fs-6 fw-normal">
-                (-12.4% <CIcon icon={cilArrowBottom} />)
+                (<CIcon icon={cilArrowTop} />)
               </span>
             </>
           }
@@ -166,9 +209,9 @@ const WidgetsDropdown = (props) => {
           color="info"
           value={
             <>
-              $6.200{' '}
+              {totalBalance}{' '}
               <span className="fs-6 fw-normal">
-                (40.9% <CIcon icon={cilArrowTop} />)
+                (<CIcon icon={cilArrowTop} />)
               </span>
             </>
           }
@@ -198,7 +241,7 @@ const WidgetsDropdown = (props) => {
                 labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                 datasets: [
                   {
-                    label: 'My First dataset',
+                    label: 'Recharge amount',
                     backgroundColor: 'transparent',
                     borderColor: 'rgba(255,255,255,.55)',
                     pointBackgroundColor: getStyle('--cui-info'),

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
 import { deleteUser, fetchData, fetchWalletBalance,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser } from "../controller/user.controller.js";
-import {processPayment, getPayment , fetchReward , BiharService} from "../controller/payment.controller.js"
+import {processPayment, getPayment , fetchReward , BiharService , getTotalBalance} from "../controller/payment.controller.js"
 import { initiateEzetapPayment } from "../controller/ezetap.controller.js";
 
 
@@ -16,6 +16,7 @@ router.route("/balance/:userId").get(fetchWalletBalance)
 router.route("/fund-request/:userId").get(fetchFundRequest)
 router.route("/fundrequests").get(fetchFundRequests)
 router.route("/fetchUserList").get(fetchUserList)
+router.route("/getTotalBalance").get(getTotalBalance)
 router.route("/fetchUserList/:userId").get(fetchUserListbyId)
 router.route("/status/:userId").get(statuss)
 router.route("/blockUserList").get(blockUserList)
