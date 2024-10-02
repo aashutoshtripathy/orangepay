@@ -341,7 +341,12 @@ const DataTableComponent = () => {
       console.log(url)
       const response = await axios.post(url , { userId: row._id });
       if (response.status === 200) {
-        setData((prevData) => prevData.filter((r) => r._id !== row._id));
+        // setData((prevData) => prevData.filter((r) => r._id !== row._id));
+        setData((prevData) => 
+          prevData.map((item) => 
+            item._id === row._id ? { ...item, status: action === 'block' ? 'blocked' : 'active' } : item
+          )
+        );
       }
     } catch (error) {
       console.error(`Error ${action}ing user:`, error);

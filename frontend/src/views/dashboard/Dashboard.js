@@ -95,6 +95,7 @@ const Dashboard = () => {
   const [userCount, setUserCount] = useState(0);
   const [userCounts, setUserCounts] = useState(0);
   const [userCountss, setUserCountss] = useState(0);
+  const [userCountsss, setUserCountsss] = useState(0);
 
 
   const [userRole, setUserRole] = useState('')
@@ -171,9 +172,11 @@ const Dashboard = () => {
 
         // If you want to filter by another field, such as `status` being 'Pending':
         const rejectedUsers = resultss.filter(user => user.status === 'Rejected');
+        const blockedUsers = resultss.filter(user => user.status === 'Blocked');
 
         // Set the count based on the filtered users
         setUserCountss(rejectedUsers.length);
+        setUserCountsss(blockedUsers.length);
 
         console.log(`Total Users with Pending status: ${pendingUsers.length}`);
 
@@ -224,6 +227,7 @@ const Dashboard = () => {
     { title: 'Agents', value:  `${userCount} Users`, percent: calculatePercentage(userCount, maxUsers), color: 'success' },
     { title: 'Rejected User', value: `${userCountss} Users`, percent: 80, color: 'danger' },
     { title: 'New Request', value: `${userCounts}`, percent: 40.15, color: 'primary' },
+    { title: 'Blocked User', value: `${userCountss}`, percent: 40.15, color: 'danger' },
   ]
   const progressExamples = [
     { title: 'Agents', value: '29.703 Users', percent: 40, color: 'success' },
