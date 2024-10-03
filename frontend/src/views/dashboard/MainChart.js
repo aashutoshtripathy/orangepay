@@ -37,6 +37,8 @@ const MainChart = () => {
     ],
   });
 
+
+
   const fetchData = async () => {
     try {
       const userResponse = await axios.get(`/fetchUserList`);
@@ -58,22 +60,10 @@ const MainChart = () => {
         ...prevData,
         datasets: prevData.datasets.map((dataset, index) => {
           const updatedData = [...dataset.data];
-          // Shift all values to the left
-          updatedData.shift(); // Remove the first value
-          // Add the new value at the end
-          switch (index) {
-            case 0: // Active Users
-              updatedData.push(totalUsers); // Update current hour
-              break;
-            case 1: // Pending Users
-              updatedData.push(pendingUsers); // Update current hour
-              break;
-            case 2: // Rejected Users
-              updatedData.push(rejectedUsers); // Update current hour
-              break;
-            default:
-              break;
-          }
+  
+          // Update the current hour's data
+          updatedData[currentHour] = index === 0 ? totalUsers : index === 1 ? pendingUsers : rejectedUsers;
+  
           return { ...dataset, data: updatedData };
         }),
       }));

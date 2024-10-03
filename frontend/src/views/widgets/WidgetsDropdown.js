@@ -113,99 +113,7 @@ const WidgetsDropdown = (props) => {
       {userRole === 'dummy' && (
         <>
           <CRow className={props.className} xs={{ gutter: 4 }}>
-            <CCol sm={6} xl={4} xxl={3}>
-              <CWidgetStatsA
-                color="primary"
-                value={
-                  <>
-                    {userCount}{' '}
-                    <span className="fs-6 fw-normal">
-                      (<CIcon icon={cilArrowTop} />)
-                    </span>
-                  </>
-                }
-                title="User Management"
-                action={
-                  <CDropdown alignment="end">
-                    <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-                      <CIcon icon={cilOptions} />
-                    </CDropdownToggle>
-                    <CDropdownMenu>
-    <CDropdownItem>
-      <Link to="/add-user">Add User</Link>
-    </CDropdownItem>
-    <CDropdownItem>
-      <Link to="/view-user">View User</Link>
-    </CDropdownItem>
-                    </CDropdownMenu>
-                  </CDropdown>
-                }
-                chart={
-                  <CChartLine
-                    ref={widgetChartRef1}
-                    className="mt-3 mx-3"
-                    style={{ height: '70px' }}
-                    data={{
-                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                      datasets: [
-                        {
-                          label: 'My First dataset',
-                          backgroundColor: 'transparent',
-                          borderColor: 'rgba(255,255,255,.55)',
-                          pointBackgroundColor: getStyle('--cui-primary'),
-                          data: [65, 59, 84, 84, 51, 55, 40],
-                        },
-                      ],
-                    }}
-                    options={{
-                      plugins: {
-                        legend: {
-                          display: false,
-                        },
-                      },
-                      maintainAspectRatio: false,
-                      scales: {
-                        x: {
-                          border: {
-                            display: false,
-                          },
-                          grid: {
-                            display: false,
-                            drawBorder: false,
-                          },
-                          ticks: {
-                            display: false,
-                          },
-                        },
-                        y: {
-                          min: 30,
-                          max: 89,
-                          display: false,
-                          grid: {
-                            display: false,
-                          },
-                          ticks: {
-                            display: false,
-                          },
-                        },
-                      },
-                      elements: {
-                        line: {
-                          borderWidth: 1,
-                          tension: 0.4,
-                        },
-                        point: {
-                          radius: 4,
-                          hitRadius: 10,
-                          hoverRadius: 4,
-                        },
-                      },
-                    }}
-                  />
-                }
-              />
-            </CCol>
-            <CCol sm={6} xl={4} xxl={3}>
+          <CCol sm={6} xl={4} xxl={3}>
               <CWidgetStatsA
                 color="info"
                 value={
@@ -216,17 +124,17 @@ const WidgetsDropdown = (props) => {
                     </span>
                   </>
                 }
-                title="Service Management"
-                action={
-                  <CDropdown alignment="end">
-                    <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-                      <CIcon icon={cilOptions} />
-                    </CDropdownToggle>
-                    <CDropdownMenu>
-                      <CDropdownItem>Agent Management</CDropdownItem>
-                    </CDropdownMenu>
-                  </CDropdown>
-                }
+                title="Fund Management"
+                // action={
+                //   <CDropdown alignment="end">
+                //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                //       <CIcon icon={cilOptions} />
+                //     </CDropdownToggle>
+                //     <CDropdownMenu>
+                //       <CDropdownItem><Link to="/active" style={{textDecoration:"none"}}>Agent Management</Link></CDropdownItem>
+                //     </CDropdownMenu>
+                //   </CDropdown>
+                // }
                 chart={
                   <CChartLine
                     ref={widgetChartRef2}
@@ -293,6 +201,184 @@ const WidgetsDropdown = (props) => {
             </CCol>
             <CCol sm={6} xl={4} xxl={3}>
               <CWidgetStatsA
+                color="primary"
+                value={
+                  <>
+                    {userCount}{' '}
+                    <span className="fs-6 fw-normal">
+                      (<CIcon icon={cilArrowTop} />)
+                    </span>
+                  </>
+                }
+                title="User Management"
+                // action={
+                //   <CDropdown alignment="end">
+                //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                //       <CIcon icon={cilOptions} />
+                //     </CDropdownToggle>
+                //     <CDropdownMenu>
+                //     <CDropdownItem>
+                //       <Link to="/add-user" style={{textDecoration:"none"}}>Add User</Link>
+                //     </CDropdownItem>
+                //     <CDropdownItem>
+                //       <Link to="/view-user" style={{textDecoration:"none"}}>View User</Link>
+                //     </CDropdownItem>
+                //     </CDropdownMenu>
+                //   </CDropdown>
+                // }
+                chart={
+                  <CChartLine
+                    ref={widgetChartRef1}
+                    className="mt-3 mx-3"
+                    style={{ height: '70px' }}
+                    data={{
+                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                      datasets: [
+                        {
+                          label: 'My First dataset',
+                          backgroundColor: 'transparent',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          pointBackgroundColor: getStyle('--cui-primary'),
+                          data: [65, 59, 84, 84, 51, 55, 40],
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          border: {
+                            display: false,
+                          },
+                          grid: {
+                            display: false,
+                            drawBorder: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                        y: {
+                          min: 30,
+                          max: 89,
+                          display: false,
+                          grid: {
+                            display: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 1,
+                          tension: 0.4,
+                        },
+                        point: {
+                          radius: 4,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }}
+                  />
+                }
+              />
+            </CCol>
+            {/* <CCol sm={6} xl={4} xxl={3}>
+              <CWidgetStatsA
+                color="info"
+                value={
+                  <>
+                    {totalBalance}{' '}
+                    <span className="fs-6 fw-normal">
+                      (<CIcon icon={cilArrowTop} />)
+                    </span>
+                  </>
+                }
+                title="Fund Management"
+                // action={
+                //   <CDropdown alignment="end">
+                //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                //       <CIcon icon={cilOptions} />
+                //     </CDropdownToggle>
+                //     <CDropdownMenu>
+                //       <CDropdownItem><Link to="/active" style={{textDecoration:"none"}}>Agent Management</Link></CDropdownItem>
+                //     </CDropdownMenu>
+                //   </CDropdown>
+                // }
+                chart={
+                  <CChartLine
+                    ref={widgetChartRef2}
+                    className="mt-3 mx-3"
+                    style={{ height: '70px' }}
+                    data={{
+                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                      datasets: [
+                        {
+                          label: 'Recharge amount',
+                          backgroundColor: 'transparent',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          pointBackgroundColor: getStyle('--cui-info'),
+                          data: [1, 18, 9, 17, 34, 22, 11],
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          border: {
+                            display: false,
+                          },
+                          grid: {
+                            display: false,
+                            drawBorder: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                        y: {
+                          min: -9,
+                          max: 39,
+                          display: false,
+                          grid: {
+                            display: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 1,
+                        },
+                        point: {
+                          radius: 4,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }}
+                  />
+                }
+              />
+            </CCol> */}
+            <CCol sm={6} xl={4} xxl={3}>
+              <CWidgetStatsA
                 color="warning"
                 value={
                   <>
@@ -303,17 +389,17 @@ const WidgetsDropdown = (props) => {
                   </>
                 }
                 title="Database Management"
-                action={
-                  <CDropdown alignment="end">
-                    <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-                      <CIcon icon={cilOptions} />
-                    </CDropdownToggle>
-                    <CDropdownMenu>
-                      <CDropdownItem>Switch Database</CDropdownItem>
-                      <CDropdownItem>Switch Getway</CDropdownItem>
-                    </CDropdownMenu>
-                  </CDropdown>
-                }
+                // action={
+                //   <CDropdown alignment="end">
+                //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                //       <CIcon icon={cilOptions} />
+                //     </CDropdownToggle>
+                //     <CDropdownMenu>
+                //     <CDropdownItem><Link to="/switch-database" style={{textDecoration:"none"}}>Switch Database</Link></CDropdownItem>
+                //     <CDropdownItem><Link to="/switch-getway" style={{textDecoration:"none"}}>Switch Getway</Link></CDropdownItem>
+                //     </CDropdownMenu>
+                //   </CDropdown>
+                // }
                 chart={
                   <CChartLine
                     className="mt-3"
@@ -373,17 +459,17 @@ const WidgetsDropdown = (props) => {
                   </>
                 }
                 title="Reports"
-                action={
-                  <CDropdown alignment="end">
-                    <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-                      <CIcon icon={cilOptions} />
-                    </CDropdownToggle>
-                    <CDropdownMenu>
-                      <CDropdownItem>Reports</CDropdownItem>
-                      <CDropdownItem>Fund Reports</CDropdownItem>
-                    </CDropdownMenu>
-                  </CDropdown>
-                }
+                // action={
+                //   <CDropdown alignment="end">
+                //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                //       <CIcon icon={cilOptions} />
+                //     </CDropdownToggle>
+                //     <CDropdownMenu>
+                //     <CDropdownItem><Link to="" style={{textDecoration:"none"}}>Reports</Link></CDropdownItem>
+                //     <CDropdownItem><Link to="/fund-report" style={{textDecoration:"none"}}>Fund Reports</Link></CDropdownItem>
+                //     </CDropdownMenu>
+                //   </CDropdown>
+                // }
                 chart={
                   <CChartBar
                     className="mt-3 mx-3"
@@ -465,21 +551,23 @@ const WidgetsDropdown = (props) => {
                 color="primary"
                 value={
                   <>
-                    26K{' '}
+                    4 Types of{' '}
                     <span className="fs-6 fw-normal">
-                      (-12.4% <CIcon icon={cilArrowBottom} />)
+                      {/* (-12.4% <CIcon icon={cilArrowBottom} />) */}
                     </span>
                   </>
                 }
-                title="My Network"
+                title="Servicves"
                 action={
                   <CDropdown alignment="end">
                     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
                       <CIcon icon={cilOptions} />
                     </CDropdownToggle>
                     <CDropdownMenu>
-                      <CDropdownItem>Active Agent</CDropdownItem>
-                      <CDropdownItem>Inactive Agent</CDropdownItem>
+                      <CDropdownItem>Bill Payment</CDropdownItem>
+                      <CDropdownItem>Topup</CDropdownItem>
+                      <CDropdownItem>Get Prepaid Balance</CDropdownItem>
+                      <CDropdownItem>Cancelation Request</CDropdownItem>
                     </CDropdownMenu>
                   </CDropdown>
                 }
