@@ -3,9 +3,9 @@ import { CChartLine } from '@coreui/react-chartjs';
 import { getStyle } from '@coreui/utils';
 import axios from 'axios';
 
-const MainChart = () => {
+const MainChart = ({selectedInterval}) => {
   const chartRef = useRef(null);
-  const [selectedInterval, setSelectedInterval] = useState('Month'); // Default to Month
+  // const [selectedInterval, setSelectedInterval] = useState('Month'); // Default to Month
   const [data, setData] = useState({
     labels: [],
     datasets: [
@@ -101,16 +101,16 @@ const MainChart = () => {
   }, [selectedInterval]); // Re-fetch data when selected interval changes
 
   const handleIntervalChange = (interval) => {
-    setSelectedInterval(interval);
+    selectedInterval(interval);
   };
 
   return (
     <>
-      <div>
+      {/* <div>
         <button onClick={() => handleIntervalChange('Day')}>Day</button>
         <button onClick={() => handleIntervalChange('Month')}>Month</button>
         <button onClick={() => handleIntervalChange('Year')}>Year</button>
-      </div>
+      </div> */}
       <CChartLine
         ref={chartRef}
         style={{ height: '300px', marginTop: '40px' }}

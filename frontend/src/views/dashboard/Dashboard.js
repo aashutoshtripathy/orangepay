@@ -432,7 +432,7 @@ const Dashboard = () => {
 
                 </CCol>
               </CRow>
-              <MainChart />
+              <MainChart selectedInterval={selectedInterval} />
             </CCardBody>
             <CCardFooter>
               <CRow
