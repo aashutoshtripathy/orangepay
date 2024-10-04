@@ -8,7 +8,7 @@ import 'jspdf-autotable';
 import { CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react'; // Import CoreUI components
 import * as XLSX from 'xlsx';  // Import XLSX for Excel export
 import '../../../scss/dataTable.scss';
-import '../../../scss/viewuser.scss';
+import '../../../scss/viewuser.scss'
 import { useNavigate } from 'react-router-dom';
 
 // Define custom styles for the table

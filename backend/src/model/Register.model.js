@@ -66,6 +66,9 @@ const registerSchema = new Schema({
     type: String, 
     trim: true 
   },
+  remarks:{
+    type: String
+  },
   subDivision: { 
     type: String, 
     trim: true 
@@ -119,7 +122,8 @@ const registerSchema = new Schema({
   educationCertificate: { 
     type: String, 
     trim: true 
-  }, // Path to the education certificate
+  }, 
+ 
   cheque: { 
     type: String, 
     trim: true 

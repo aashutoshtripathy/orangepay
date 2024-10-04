@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -18,9 +18,10 @@ import {
   CFormSelect,
   CInputGroup,
   CInputGroupText,
-  CIcon,
-  cilImage
 } from "@coreui/react";
+import CIcon from '@coreui/icons-react'; // Default import
+import { cilImage } from '@coreui/icons'; // Named import
+
 
 const Profile = () => {
   const { userId } = useParams();
@@ -41,6 +42,11 @@ const Profile = () => {
   const [fundRequestMethods, setFundRequestMethods] = useState({});
   // const userName = "Test";
   const availableBalance = "0";
+  const [imagePreview, setImagePreview] = useState(null);
+  const [fileNames, setFileNames] = useState({ photograph: "" });
+  const fileInputRef = useRef(null);
+
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -152,6 +158,8 @@ const Profile = () => {
       setPaymentMethod("");
       setBankName("");
       setDatePayment(""); // Clear datePayment
+      setImagePreview(null); // Clear the image preview
+    setFileNames((prev) => ({ ...prev, photograph: '' }));
       setModalVisible(false);
     } catch (error) {
       console.error("Error requesting fund:", error);
@@ -195,6 +203,53 @@ const Profile = () => {
   };
 
 
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+
+    // Check if a file is selected
+    if (!file) {
+      setErrors((prev) => ({ ...prev, image: 'File is required.' }));
+      setFileNames((prev) => ({ ...prev, photograph: '' }));
+      setImagePreview(null);
+      return;
+    }
+
+    // Validation: Check file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      setErrors((prev) => ({ ...prev, photograph: 'Please upload a valid image (JPG, PNG, GIF).' }));
+      setFileNames((prev) => ({ ...prev, photograph: '' }));
+      setImagePreview(null);
+      return;
+    }
+
+    // Validation: Check file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      setErrors((prev) => ({ ...prev, photograph: 'File size must be less than 5MB.' }));
+      setFileNames((prev) => ({ ...prev, photograph: '' }));
+      setImagePreview(null);
+      return;
+    }
+
+    // If valid, set file name and preview
+    setFileNames((prev) => ({ ...prev, photograph: file.name }));
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+
+  const handleButtonClick = (inputId) => {
+    if (inputId === "photograph") {
+      fileInputRef.current.click();
+    }
+  };
+
+
+
   const date = new Date();
   const month = date.toLocaleString("default", { month: "long" });
   const year = date.getFullYear();
@@ -215,7 +270,7 @@ const Profile = () => {
                 <>
                   <h5>Account ID : {user.userId}</h5>
                   <h5>
-                    Agency Firm Name : {process.env.REACT_APP_COMPANY_NAME}
+                    Agency Firm Name : {"OrangePay"}
                   </h5>
                   <h5>Registered Name: {user.name}</h5>
                   <h5>Registered E-Mail ID : {user.email}</h5>
@@ -460,25 +515,39 @@ const Profile = () => {
 
             {paymentMethod !== "upi" && (
               <>
-                <CInputGroup className="mb-3">
+                <CInputGroup className="mb-3 mt-3">
                   <CInputGroupText>
-                    {/* <CIcon  /> */}
+                    <CIcon icon={cilImage} />
                   </CInputGroupText>
                   <CFormInput
+                    ref={fileInputRef}
                     id="photograph"
                     name="photograph"
                     type="file"
-
+                    onChange={handleFileChange}
                     style={{ display: "none" }}
                   />
                   <CButton
                     color="secondary"
+                    onClick={() => handleButtonClick("photograph")}
                   >
-
+                    {fileNames.photograph || " Upload Image"}
                   </CButton>
+
                 </CInputGroup>
+                {errors.photograph && (
+                  <div className="text-danger">{errors.photograph}</div>
+                )}
               </>
             )}
+
+
+
+
+
+
+
+
 
             <CModalFooter>
               <CButton

@@ -102,7 +102,7 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedInterval, setSelectedInterval] = useState('Day'); // Default interval
+  const [selectedInterval, setSelectedInterval] = useState('Month'); // Default interval
   const [chartData, setChartData] = useState(null); // State to hold chart data
   const maxUsers = 100; // Define the total/maximum number of users
   const [totalBalance, setTotalBalance] = useState(0); // State to store total balance
@@ -432,7 +432,7 @@ const Dashboard = () => {
 
                 </CCol>
               </CRow>
-              <MainChart />
+              <MainChart selectedInterval={selectedInterval} />
             </CCardBody>
             <CCardFooter>
               <CRow
