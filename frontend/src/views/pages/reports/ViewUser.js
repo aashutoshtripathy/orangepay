@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faTimesCircle, faUnlock, faLock, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react'; // Import CoreUI components
+import { CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem,CButton } from '@coreui/react'; // Import CoreUI components
 import * as XLSX from 'xlsx';  // Import XLSX for Excel export
 import '../../../scss/dataTable.scss';
 import { useNavigate } from 'react-router-dom';
@@ -273,7 +273,7 @@ const DataTableComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList`); 
+        const response = await axios.get(`/fetchUserList`);
         const result = response.data.fetchUser || [];
         console.log(result)
         setData(result);
@@ -288,7 +288,7 @@ const DataTableComponent = () => {
   }, [userId]);
 
 
- 
+
 
 
   // useEffect(() => {
@@ -315,17 +315,17 @@ const DataTableComponent = () => {
       (statusFilter === 'Blocked' && item.status === 'Blocked') ||
       (statusFilter === 'Rejected' && item.status === 'Rejected') ||
       (statusFilter === 'Pending' && item.status === 'Pending');
-  
+
     // Handle users with missing userId for Pending or Rejected status
     const matchesUserId =
       (item.status === 'Pending' || item.status === 'Rejected') ||
       (item.userId && item.userId.toString().toLowerCase().includes(filterText.toLowerCase()));
-  
+
     // Date range filtering (if applicable)
     const itemDate = new Date(item.createdAt);
     const fromDateMatch = fromDate ? new Date(fromDate) <= itemDate : true;
     const toDateMatch = toDate ? new Date(toDate) >= itemDate : true;
-  
+
     return (
       matchesStatus &&
       matchesUserId &&
@@ -333,17 +333,17 @@ const DataTableComponent = () => {
       toDateMatch
     );
   });
-  
+
 
   const handleBlockUnblock = async (row, action) => {
     try {
       const url = action === 'block' ? `/block/${row._id}` : `/unblock/${row._id}`;
       console.log(url)
-      const response = await axios.post(url , { userId: row._id });
+      const response = await axios.post(url, { userId: row._id });
       if (response.status === 200) {
         // setData((prevData) => prevData.filter((r) => r._id !== row._id));
-        setData((prevData) => 
-          prevData.map((item) => 
+        setData((prevData) =>
+          prevData.map((item) =>
             item._id === row._id ? { ...item, status: action === 'block' ? 'blocked' : 'active' } : item
           )
         );
@@ -358,7 +358,7 @@ const DataTableComponent = () => {
   const handlePermission = async (row) => {
     console.log("User ID:", row._id);
 
-   navigate(`/permission/${row._id}`)
+    navigate(`/permission/${row._id}`)
   };
 
 
@@ -384,19 +384,19 @@ const DataTableComponent = () => {
       const response = await axios.get(`/download-images/${row.aadharNumber}`, {
         responseType: 'blob', // Important for binary response type (like a ZIP file)
       });
-  
+
       // Create a URL for the file blob
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      
+
       // Create a link element and set the URL to download
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `photos_${row.aadharNumber}.zip`); // Use Aadhar number for file name
-  
+
       // Append the link to the body and trigger the click
       document.body.appendChild(link);
       link.click();
-  
+
       // Clean up
       link.parentNode.removeChild(link);
     } catch (error) {
@@ -408,11 +408,21 @@ const DataTableComponent = () => {
 
 
 
+  const clearDateFilters = () => {
+    setFromDate('');
+    setToDate('');
+    // Optionally, you might want to refetch the data or reset the table data here
+    // fetchData(); // Uncomment if needed
+  };
 
 
 
 
-  
+
+
+
+
+
 
   const handleView = (row) => {
     navigate(`/view-details/${row._id}`)
@@ -456,116 +466,123 @@ const DataTableComponent = () => {
       name: 'Actions',
       cell: (row) => (
         <div className="actions-cell">
-      <div>
-        {row.status === 'Blocked' ? (
-          row.isBlocked ? (
-            <button 
-              className="block-unblock-btn unblock-btn" 
-              onClick={() => handleBlockUnblock(row, 'unblock')}
-            >
-              Unblock
-            </button>
-          ) : (
-            <button 
-              className="block-unblock-btn block-btn" 
-              onClick={() => handleBlockUnblock(row, 'block')}
-            >
-              Block
-            </button>
-          )
-  ) : row.status === 'Approved' ? (
-    <>
-       {row.isBlocked ? (
-        <button 
-          className="block-unblock-btn unblock-btn" 
-          onClick={() => handleBlockUnblock(row, 'unblock')}
-        >
-          Unblock
-        </button>
-      ) : (
-        <button 
-          className="block-unblock-btn block-btn" 
-          onClick={() => handleBlockUnblock(row, 'block')}
-        >
-          Block
-        </button>
-      )}
-      <button 
-            className="button-search" 
-            onClick={() => handleView(row)}
-          >
-            <FontAwesomeIcon icon={faCheckCircle} /> View Details
-          </button>
-      <button onClick={() => handlePermission(row)} className="view-btn">
-        <FontAwesomeIcon icon={faLock} /> Permissions
-      </button>
-    </>
-  ) : row.status === 'Rejected' ? (
-    <>
+          <div>
+            {row.status === 'Blocked' ? (
+              row.isBlocked ? (
                 <button
-            className="button-search"
-            onClick={() => handleAccept(row)}
-          >
-            <FontAwesomeIcon icon={faCheckCircle} /> Accept
-          </button>
+                  className="block-unblock-btn unblock-btn"
+                  onClick={() => handleBlockUnblock(row, 'unblock')}
+                >
+                  Unblock
+                </button>
+              ) : (
+                <button
+                  className="block-unblock-btn block-btn"
+                  onClick={() => handleBlockUnblock(row, 'block')}
+                >
+                  Block
+                </button>
+              )
+            ) : row.status === 'Approved' ? (
+              <>
+                {row.isBlocked ? (
+                  <button
+                    className="block-unblock-btn unblock-btn"
+                    onClick={() => handleBlockUnblock(row, 'unblock')}
+                  >
+                    Unblock
+                  </button>
+                ) : (
+                  <button
+                    className="block-unblock-btn block-btn"
+                    onClick={() => handleBlockUnblock(row, 'block')}
+                  >
+                    Block
+                  </button>
+                )}
+                <button
+                  className="button-search"
+                  onClick={() => handleView(row)}
+                >
+                  <FontAwesomeIcon icon={faCheckCircle} /> View Details
+                </button>
+                <button onClick={() => handlePermission(row)} className="view-btn">
+                  <FontAwesomeIcon icon={faLock} /> Permissions
+                </button>
+              </>
+            ) : row.status === 'Rejected' ? (
+              <>
+                <button
+                  className="button-search"
+                  onClick={() => handleAccept(row)}
+                >
+                  <FontAwesomeIcon icon={faCheckCircle} /> Accept
+                </button>
 
-          <button
-            className="button-download"
-            onClick={() => handleDownload(row)}
-          >
-            <FontAwesomeIcon icon={faDownload} /> Download File
-          </button>
-    </>
-  ) : row.status === 'Pending' ? (
-    <>
-       <button 
-            className="button-search" 
-            onClick={() => handleView(row)}
-          >
-            <FontAwesomeIcon icon={faCheckCircle} /> View Details
-          </button>
-    </>
-  ) : null}
-</div>
+                <button
+                  className="button-search"
+                  onClick={() => handleView(row)}
+                >
+                  <FontAwesomeIcon icon={faCheckCircle} /> View Details
+                </button>
 
-    </div>
+                <button
+                  className="button-download"
+                  onClick={() => handleDownload(row)}
+                >
+                  <FontAwesomeIcon icon={faDownload} /> Download File
+                </button>
+              </>
+            ) : row.status === 'Pending' ? (
+              <>
+                <button
+                  className="button-search"
+                  onClick={() => handleView(row)}
+                >
+                  <FontAwesomeIcon icon={faCheckCircle} /> View Details
+                </button>
+              </>
+            ) : null}
+          </div>
+
+        </div>
       ),
     }
   ];
-//   {
-//     name: 'Actions',
-//     cell: (row) => (
-//       <div className="button-containerr">
-//         <button 
-//           className="button-search" 
-//           onClick={() => handleAccept(row)}
-//         >
-//           <FontAwesomeIcon icon={faCheckCircle} /> Accept
-//         </button>
-//         <button 
-//           className="button-reject" 
-//           onClick={() => handleReject(row)}
-//         >
-//           <FontAwesomeIcon icon={faTimesCircle} /> Reject
-//         </button>
-//         <button 
-//           className="button-download" 
-//           onClick={() => handleDownload(row)}
-//         >
-//           <FontAwesomeIcon icon={faDownload} /> Download File
-//         </button>
-//       </div>
-//     ),
-//   },
-// ];
-  
+  //   {
+  //     name: 'Actions',
+  //     cell: (row) => (
+  //       <div className="button-containerr">
+  //         <button 
+  //           className="button-search" 
+  //           onClick={() => handleAccept(row)}
+  //         >
+  //           <FontAwesomeIcon icon={faCheckCircle} /> Accept
+  //         </button>
+  //         <button 
+  //           className="button-reject" 
+  //           onClick={() => handleReject(row)}
+  //         >
+  //           <FontAwesomeIcon icon={faTimesCircle} /> Reject
+  //         </button>
+  //         <button 
+  //           className="button-download" 
+  //           onClick={() => handleDownload(row)}
+  //         >
+  //           <FontAwesomeIcon icon={faDownload} /> Download File
+  //         </button>
+  //       </div>
+  //     ),
+  //   },
+  // ];
 
-// const filteredItems = data.filter(item => {
-//   return item.userId && typeof item.userId === 'string' &&
-//          item.userId.toLowerCase().includes(filterText.toLowerCase());
-// });
 
-  
+  // const filteredItems = data.filter(item => {
+  //   return item.userId && typeof item.userId === 'string' &&
+  //          item.userId.toLowerCase().includes(filterText.toLowerCase());
+  // });
+
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -584,8 +601,8 @@ const DataTableComponent = () => {
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
-        <button 
-          className="button-search" 
+        <button
+          className="button-search"
           onClick={handleSearch}
         >
           <FontAwesomeIcon icon={faSearch} /> Search
@@ -593,47 +610,52 @@ const DataTableComponent = () => {
 
         <CDropdown>
           <CDropdownToggle color="secondary">
-            {statusFilter === 'all' ? 'All Users' : 
-             statusFilter === 'Approved' ? 'Active Users' :
-             statusFilter === 'Blocked' ? 'Blocked Users' :
-             statusFilter === 'Rejected' ? 'Rejected Users' : 
-             statusFilter === 'Pending' ? 'Pending Users' : ''}
+            {statusFilter === 'all' ? 'All Users' :
+              statusFilter === 'Approved' ? 'Active Users' :
+                statusFilter === 'Blocked' ? 'Blocked Users' :
+                  statusFilter === 'Rejected' ? 'Rejected Users' :
+                    statusFilter === 'Pending' ? 'Pending Users' : ''}
           </CDropdownToggle>
           <CDropdownMenu>
-          <CDropdownItem onClick={() => setStatusFilter('all')}>All Users</CDropdownItem>
-          <CDropdownItem onClick={() => setStatusFilter('Approved')}>Active Users</CDropdownItem>
-          <CDropdownItem onClick={() => setStatusFilter('Blocked')}>Blocked Users</CDropdownItem>
-          <CDropdownItem onClick={() => setStatusFilter('Rejected')}>Rejected Users</CDropdownItem>
-          <CDropdownItem onClick={() => setStatusFilter('Pending')}>Requested Users</CDropdownItem>
+            <CDropdownItem onClick={() => setStatusFilter('all')}>All Users</CDropdownItem>
+            <CDropdownItem onClick={() => setStatusFilter('Approved')}>Active Users</CDropdownItem>
+            <CDropdownItem onClick={() => setStatusFilter('Blocked')}>Blocked Users</CDropdownItem>
+            <CDropdownItem onClick={() => setStatusFilter('Rejected')}>Rejected Users</CDropdownItem>
+            <CDropdownItem onClick={() => setStatusFilter('Pending')}>Requested Users</CDropdownItem>
           </CDropdownMenu>
         </CDropdown>
 
-        <button 
-          className="button-download" 
+        <button
+          className="button-download"
           onClick={() => downloadPDF(data)}
         >
           <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
-        <button 
-          className="button-download-excel" 
+        <button
+          className="button-download-excel"
           onClick={() => downloadExcel(data)}
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
         <div className="date-filter-container">
-        <label>From Date:</label>
-        <input
-          type="date"
-          value={fromDate}
-          onChange={e => setFromDate(e.target.value)}
-        />
-        <label>To Date:</label>
-        <input
-          type="date"
-          value={toDate}
-          onChange={e => setToDate(e.target.value)}
-        />
-      </div>
+          <label>From Date:</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={e => setFromDate(e.target.value)}
+          />
+          <label>To Date:</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={e => setToDate(e.target.value)}
+          />
+          <CButton color="secondary" onClick={clearDateFilters}>
+            Clear Date Filter
+          </CButton>
+
+        </div>
+
       </div>
       <DataTable
         title="View Users"

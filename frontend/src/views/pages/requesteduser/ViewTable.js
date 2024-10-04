@@ -102,6 +102,9 @@ const [validationMessage, setValidationMessage] = useState('');
   };
 
 
+ 
+
+
   const submitRejection = async (user, remarks) => {
     if (!remarks.trim()) {
       setValidationMessage('Remarks cannot be empty.'); // Set validation message
@@ -188,6 +191,12 @@ const [validationMessage, setValidationMessage] = useState('');
             <CTableHeaderCell scope="row">Education</CTableHeaderCell>
             {tableData.map((user) => (
               <CTableDataCell key={user.id}>{user.education}</CTableDataCell>
+            ))}
+          </CTableRow>
+          <CTableRow>
+            <CTableHeaderCell scope="row">Remarks</CTableHeaderCell>
+            {tableData.map((user) => (
+              <CTableDataCell key={user.id}>{user.remarks}</CTableDataCell>
             ))}
           </CTableRow>
           <CTableRow>

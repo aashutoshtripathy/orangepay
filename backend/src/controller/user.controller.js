@@ -579,11 +579,15 @@ const approveUserRequest = asyncHandler(async (req, res) => {
 
 const rejectUserRequest = asyncHandler(async (req, res) => {
   try {
+    const { remarks } = req.body;
     // Find the user by ID and update the status to "rejected"
     const updatedUser = await Register.findByIdAndUpdate(
       req.params.id,
-      { status: 'Rejected' }, // Set the status to "rejected"
-      { new: true } // Return the updated document
+      { 
+        status: 'Rejected',
+        remarks: remarks
+      }, 
+      { new: true }, 
     ).exec();
 
     // If the user request is not found, return a 404 error
