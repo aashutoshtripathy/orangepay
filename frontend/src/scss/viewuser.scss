@@ -1,0 +1,23 @@
+.block-unblock-btn {
+  width: 120px; /* Set the width of all buttons */
+  padding: 10px;
+  margin: 5px 0; /* Add margin for spacing between buttons */
+  border: none;
+  background-color: orange !important; /* Set the button color to orange */
+  color: white; /* Set text color to white */
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  display: inline-block;
+  border-radius: 5px;
+  transition: background-color 0.3s ease; /* Smooth transition for hover */
+}
+
+.block-unblock-btn:hover {
+  background-color: darkorange !important; /* Darker shade for hover effect */
+}
+
+.action-btn {
+  display: inline-block;
+  width: 100%; /* Make buttons align parallel with the same width */
+}

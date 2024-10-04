@@ -8,6 +8,7 @@ import 'jspdf-autotable';
 import { CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react'; // Import CoreUI components
 import * as XLSX from 'xlsx';  // Import XLSX for Excel export
 import '../../../scss/dataTable.scss';
+import '../../../scss/viewuser.scss';
 import { useNavigate } from 'react-router-dom';
 
 // Define custom styles for the table
@@ -341,12 +342,7 @@ const DataTableComponent = () => {
       console.log(url)
       const response = await axios.post(url , { userId: row._id });
       if (response.status === 200) {
-        // setData((prevData) => prevData.filter((r) => r._id !== row._id));
-        setData((prevData) => 
-          prevData.map((item) => 
-            item._id === row._id ? { ...item, status: action === 'block' ? 'blocked' : 'active' } : item
-          )
-        );
+        setData((prevData) => prevData.filter((r) => r._id !== row._id));
       }
     } catch (error) {
       console.error(`Error ${action}ing user:`, error);
@@ -491,12 +487,13 @@ const DataTableComponent = () => {
         </button>
       )}
       <button 
-            className="button-search" 
+            className="block-unblock-btn block-btn" 
             onClick={() => handleView(row)}
           >
             <FontAwesomeIcon icon={faCheckCircle} /> View Details
           </button>
-      <button onClick={() => handlePermission(row)} className="view-btn">
+          
+      <button onClick={() => handlePermission(row)} className="block-unblock-btn block-btn">
         <FontAwesomeIcon icon={faLock} /> Permissions
       </button>
     </>
