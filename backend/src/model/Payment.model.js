@@ -26,7 +26,7 @@ const paymentSchema = new Schema({
   transactionId: {
     type: String,
     required: true,
-    unique: true // Ensure this is set to enforce uniqueness
+    unique: true 
   },
   refrencenumber: {
     type: String,
@@ -38,58 +38,58 @@ const paymentSchema = new Schema({
     required: false
   },
   paymentmode: {
-    type: String, // Payment mode could be an enum if more clarity is needed
+    type: String, 
     // required: false
-    // enum: ['Cash', 'Upi', 'Card'], // Enum for predefined statuses
+    // enum: ['Cash', 'Upi', 'Card'], 
 
   },
   paymentstatus: {
-    type: String, // Typically an enum for payment status, such as (0 - Failed, 1 - Success, etc.)
+    type: String, 
     // required: false
   },
   createdon: {
-    type: Date, // Use Date type for timestamps
+    type: Date, 
     default: Date.now
   },
   createdby: {
-    type: String, // Store the creator's ID or name as String
+    type: String, 
     required: false
   },
   billpoststatus: {
     type: String,
-    enum: ['Success', 'Pending', 'Failed'], // Enum for predefined statuses
+    enum: ['Success', 'Pending', 'Failed'], 
     // required: false
   },
   paidamount: {
-    type: String, // Typically you'd want to store paid amount as a number (Decimal128)
+    type: String, 
     required: false
   },
   reciptno: {
     type: String,
-    enum: ['Success', 'Pending', 'Failed'], // Enum for receipt statuses
+    enum: ['Success', 'Pending', 'Failed'], 
     required: false
   },
   billposton: {
-    type: Date, // Date when the bill was posted
+    type: Date, 
     default: Date.now
   },
   getway: {
-    type: String, // Payment gateway, usually stored as a string (e.g., gateway name)
+    type: String, 
     // required: false
-    enum: ['wallet', 'ezetap', 'Upi-Qr'], // Enum for predefined statuses
+    enum: ['wallet', 'ezetap', 'Upi-Qr'], 
 
   },
   cardtxntype: {
     type: String,
-    required: false // Optional field, could be null if not using card
+    required: false 
   },
   terminalid: {
-    type: String, // Store as String in case of terminal-specific information
+    type: String, 
     required: false
   },
   mid: {
     type: String,
-    // enum: ['cash', 'ezytap', 'ccard'], // Enum for modes of transaction
+    // enum: ['cash', 'ezytap', 'ccard'], 
     required: false
   },
   nameoncard: {
@@ -105,15 +105,15 @@ const paymentSchema = new Schema({
     required: false
   },
   rrn: {
-    type: String, // RRN (Reference Retrieval Number) as a string
+    type: String, 
     required: false
   },
   vpa: {
-    type: String, // VPA (Virtual Payment Address) for UPI transactions
+    type: String,
     required: false
   },
   billamount: {
-    type: Number, // Bill amount should be stored as a number
+    type: Number,
     required: false
   },
   paymentdate: {
@@ -121,7 +121,7 @@ const paymentSchema = new Schema({
     default: Date.now
   },
   latitude: {
-    type: Number, // Geolocation coordinates as Number
+    type: Number,
     required: false
   },
   longitude: {
@@ -129,31 +129,31 @@ const paymentSchema = new Schema({
     required: false
   },
   fetchtype: {
-    type: String, // How the data was fetched, e.g., 'Manual', 'API'
+    type: String,
     required: false
   },
   consumermob: {
-    type: String, // Consumer mobile number
+    type: String, 
     required: false
   },
   ltht: {
-    type: String, // Low Tension (LT) or High Tension (HT) customer type
+    type: String, 
     required: false
   },
   duedate: {
-    type: String, // Bill due date
+    type: String, 
     required: false
   },
   brandcode: {
-    type: String, // Brand-specific code, if applicable
+    type: String,
     required: false
   },
   division: {
-    type: String, // Division details
+    type: String,
     required: false
   },
   subdivision: {
-    type: String, // Sub-division details
+    type: String,
     required: false
   },
   consumerName: {
@@ -171,8 +171,10 @@ const paymentSchema = new Schema({
   netCommission: {
     type: String,
     required: false
-  }
+  },
+  balanceAfterDeduction: { type: Number },
+  balanceAfterCommission: { type: Number },
 });
 
-// Export the model
+
 export const Payment = mongoose.model('Payment', paymentSchema);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {
   CButton,
   CCard,
@@ -15,66 +15,63 @@ import {
   CModalHeader,
   CModalTitle,
   CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked } from '@coreui/icons'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
+import { cilLockLocked } from '@coreui/icons';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const ChangePassword = () => {
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState(null)
-  const [modalVisible, setModalVisible] = useState(false)
-  const [modalMessage, setModalMessage] = useState('')
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const userId = localStorage.getItem('userId'); // Get userId from localStorage
 
-  const navigate = useNavigate() // Initialize useNavigate hook
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+    setError(null);
 
-    // Reset error
-    setError(null)
-
-    // Validation checks
+    // Validate input fields
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setError("All fields are required.")
-      return
+      setError('All fields are required.');
+      return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("New password and confirm password do not match.")
-      return
+      setError('New password and confirm password do not match.');
+      return;
     }
 
     try {
-      // Call API to change the password
       const response = await axios.post('/change-password', {
+        userId,
         currentPassword,
         newPassword,
-      })
+      });
 
       if (response.data.success) {
-        setModalMessage('Congratulations, your password has been changed!')
+        setModalMessage('Congratulations, your password has been changed!');
       } else {
-        setModalMessage('Something went wrong, please enter the correct password.')
+        setModalMessage('Something went wrong, please enter the correct password.');
       }
-      setModalVisible(true)
+      setModalVisible(true);
     } catch (err) {
-      setModalMessage('An error occurred: ' + (err.response?.data?.message || err.message))
-      setModalVisible(true)
+      setModalMessage('An error occurred: ' + (err.response?.data?.message || err.message));
+      setModalVisible(true);
     }
-  }
+  };
 
   const handleClose = () => {
-    setModalVisible(false)
-
-    // If the password change was successful, navigate to the login page
+    setModalVisible(false);
     if (modalMessage === 'Congratulations, your password has been changed!') {
-      navigate('/login') // Redirect to login page
+      navigate('/login');
     }
-  }
+  };
 
   return (
     <div className="bg-body-tertiary min-vh-90 d-flex flex-row align-items-center">
@@ -157,7 +154,7 @@ const ChangePassword = () => {
         </CModal>
       </CContainer>
     </div>
-  )
-}
+  );
+};
 
-export default ChangePassword
+export default ChangePassword;

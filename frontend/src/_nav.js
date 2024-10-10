@@ -55,16 +55,16 @@ export const adminNavItems = [
     items: [
       { component: CNavItem, name: 'Add User' , to: '/add-user' },
       { component: CNavItem, name: 'Fund Request', to: `/fundrequests` },
-      { component: CNavItem, name: 'Manage User', to: '/manage-user' },
-      { component: CNavItem, name: 'Manage User Service', to: '/manage-user-service' },
-      { component: CNavItem, name: 'Manage RePosting Bill', to: '/manage-reposting-bill' },
-      { component: CNavItem, name: 'Manage Bill Fetch', to: '/manage-bill-fetch' },
-      { component: CNavItem, name: 'Manage RRF Mobile No.', to: '/manage-rrf-mobile' },
-      { component: CNavItem, name: 'Manage RRF Limit' , to: '/manage-rrf-limit' },
-      { component: CNavItem, name: 'Manage Unclaimed Txn', to: '/manage-unclaimed-txn'  },
+      // { component: CNavItem, name: 'Manage User', to: '/manage-user' },
+      // { component: CNavItem, name: 'Manage User Service', to: '/manage-user-service' },
+      // { component: CNavItem, name: 'Manage RePosting Bill', to: '/manage-reposting-bill' },
+      // { component: CNavItem, name: 'Manage Bill Fetch', to: '/manage-bill-fetch' },
+      // { component: CNavItem, name: 'Manage RRF Mobile No.', to: '/manage-rrf-mobile' },
+      // { component: CNavItem, name: 'Manage RRF Limit' , to: '/manage-rrf-limit' },
+      // { component: CNavItem, name: 'Manage Unclaimed Txn', to: '/manage-unclaimed-txn'  },
       { component: CNavItem, name: 'Rejected User',  to: '/reject-user' },
       { component: CNavItem, name: 'View User',  to: '/view-user' },
-      { component: CNavItem, name: 'View Consumer Details', to: '/view-consumer-details' },
+      // { component: CNavItem, name: 'View Consumer Details', to: '/view-consumer-details' },
     ],
   },
   {
@@ -131,7 +131,7 @@ export const distributorNavItems = (permissions , userId) =>  [
       { component: CNavItem, name: 'Fund Report', to: `/fundrequest/${userId}` },
       { component: CNavItem, name: 'Reports', to: '/report-OrangePay' },
       { component: CNavItem, name: 'Top-Up Report', to: '/report-OrangePay' },
-      { component: CNavItem, name: 'Transaction History',  to: '/transaction-history' },
+      { component: CNavItem, name: 'Commission History',  to: '/transaction-history' },
     ],
   },
   {
@@ -140,7 +140,9 @@ export const distributorNavItems = (permissions , userId) =>  [
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
       { component: CNavItem,  to: `/profile/${userId}` , name: 'View Profile',},
+      { component: CNavItem,  to: `/passbook/${userId}` , name: 'Passbook',},
       { component: CNavItem, name: 'Change Password' , to: '/change-password' },
+      { component: CNavItem, name: 'Change TPIN' , to: '/change-password' },
     ],
   },
   {

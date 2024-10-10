@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';  // Import XLSX for Excel export
 import '../../../scss/dataTable.scss';
+import { useNavigate } from 'react-router-dom';
 
 // Define custom styles for the table
 const customStyles = {
@@ -142,6 +143,7 @@ const DataTableComponent = () => {
   const [toDate, setToDate] = useState('');
   const [filterText, setFilterText] = useState('');
   const userId = localStorage.getItem('userId');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -163,45 +165,29 @@ const DataTableComponent = () => {
 
 
 
-
- // Handle Accept Fund Request
-const handleAccept = async (row) => {
-  try {
-    const response = await axios.patch(`/fundrequests/${row._id}/approve`);
-
-    if (response.status === 200) {  // Check if the response is successful
-      setData((prevData) =>
-        prevData.filter((item) => item._id !== row._id)
-      );
+  const handleFetch = async (row) => {
+    try {
+      const response = await axios.get(`/fundrequests/${row._id}`);
+  
+      if (response.status === 200) {  // Check if the response is successful
+        setData((prevData) =>
+          prevData.filter((item) => item._id !== row._id)
+        );
+        navigate(`/fund-details/${row._id}`); 
+      }
+    } catch (error) {
+      console.error("Error approving fund request", error);
     }
-  } catch (error) {
-    console.error("Error approving fund request", error);
-  }
-};
-
-// Handle Reject Fund Request
-const handleReject = async (row) => {
-  try {
-    const response = await axios.patch(`/fundrequests/${row._id}/reject`);
-
-    if (response.status === 200) {  // Check if the response is successful
-      setData((prevData) =>
-        prevData.filter((item) => item._id !== row._id)
-      );
-    }
-  } catch (error) {
-    console.error("Error rejecting fund request", error);
-  }
-};
-
-
-
-
-
-  const handleDownload = (row) => {
-    console.log('Downloading file for:', row);
-    // Implement download logic here
   };
+
+
+
+
+
+
+
+
+
 
   const handleSearch = () => {
     // Search logic is already implemented with the filter, just trigger re-render
@@ -211,18 +197,24 @@ const handleReject = async (row) => {
   const columns = [
     { name: 'userId', selector: 'uniqueId', sortable: true },
     { name: 'fundAmount', selector: 'fundAmount', sortable: true },
-    { name: 'bankReference', selector: 'bankReference', sortable: true },
+    // { name: 'bankReference', selector: 'bankReference', sortable: true },
     { name: 'paymentMethod', selector: 'paymentMethod', sortable: true },
     { name: 'bankName', selector: 'bankName', sortable: true },
-    { name: 'Date of Payment', selector: 'datePayment', sortable: true }, 
-    { name: 'status', selector: 'status', sortable: true },
-    { name: 'createdAt', selector: 'createdAt', sortable: true },
-    { name: 'updatedAt', selector: 'updatedAt', sortable: true },
+    // { name: 'Date of Payment', selector: 'datePayment', sortable: true }, 
+    // { name: 'status', selector: 'status', sortable: true },
+    // { name: 'createdAt', selector: 'createdAt', sortable: true },
+    // { name: 'updatedAt', selector: 'updatedAt', sortable: true },
     {
       name: 'Actions',
       cell: (row) => (
-        <div className="button-containerr">
+        <div className="actions-cell">
           <button 
+            className="button-search" 
+            onClick={() => handleFetch(row)}
+          >
+            <FontAwesomeIcon icon={faCheckCircle} /> View Details
+          </button>
+          {/* <button 
             className="button-search" 
             onClick={() => handleAccept(row)}
           >
@@ -233,7 +225,7 @@ const handleReject = async (row) => {
             onClick={() => handleReject(row)}
           >
             <FontAwesomeIcon icon={faTimesCircle} /> Reject
-          </button>
+          </button> */}
         </div>
       ),
     },

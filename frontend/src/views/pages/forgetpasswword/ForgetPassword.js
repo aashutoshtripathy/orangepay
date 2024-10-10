@@ -21,63 +21,106 @@ import { cilLockLocked } from '@coreui/icons'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
-const ForgetPassword = () => {
+const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState(null)
   const [modalVisible, setModalVisible] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
+  const [email, setEmail] = useState('') // New state for email input
+  const [resetMode, setResetMode] = useState(false) // To toggle between change password and reset password
+  const [aadhaarLastFour, setAadhaarLastFour] = useState('') // State for Aadhar last four digits
+  const [aadhaarVerified, setAadhaarVerified] = useState(false) // State for Aadhar verification
+  // const userId = localStorage.getItem('userId')
+  const [userId, setUserId] = useState(''); 
 
-  const navigate = useNavigate() // Initialize useNavigate hook
+
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Reset error
     setError(null)
 
-    // Validation checks
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setError("All fields are required.")
-      return
-    }
+    if (resetMode) {
+      // Reset password request logic...
+    } else {
+      if (!aadhaarVerified) {
+        // Verify Aadhar number
+        if (!aadhaarLastFour) {
+          setError("Aadhar last four digits are required.")
+          return
+        }
 
-    if (newPassword !== confirmPassword) {
-      setError("New password and confirm password do not match.")
-      return
-    }
+        try {
+          const response = await axios.post('/verify-aadhaar', {
+           
+            aadhaarLastFour,
+          })
 
-    try {
-      // Call API to change the password
-      const response = await axios.post('/change-password', {
-        currentPassword,
-        newPassword,
-      })
-
-      if (response.data.success) {
-        setModalMessage('Congratulations, your password has been changed!')
+          if (response.data.success) {
+            setAadhaarVerified(true);
+            setUserId(response.data.userId);
+          } else {
+            setError('Aadhar verification failed. Please try again.')
+          }
+        } catch (err) {
+          setError('An error occurred: ' + (err.response?.data?.message || err.message))
+        }
       } else {
-        setModalMessage('Something went wrong, please enter the correct password.')
+        
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          setError("All fields are required.")
+          return
+        }
+
+        if (newPassword !== confirmPassword) {
+          setError("New password and confirm password do not match.")
+          return
+        }
+
+        try {
+          const response = await axios.post('/change-password', {
+            userId,
+            currentPassword,
+            newPassword,
+          })
+
+          if (response.data.success) {
+            setModalMessage('Congratulations, your password has been changed!')
+          } else {
+            setModalMessage('Something went wrong, please enter the correct password.')
+          }
+          setModalVisible(true)
+        } catch (err) {
+          setModalMessage('An error occurred: ' + (err.response?.data?.message || err.message))
+          setModalVisible(true)
+        }
       }
-      setModalVisible(true)
-    } catch (err) {
-      setModalMessage('An error occurred: ' + (err.response?.data?.message || err.message))
-      setModalVisible(true)
     }
   }
 
   const handleClose = () => {
     setModalVisible(false)
-
-    // If the password change was successful, navigate to the login page
     if (modalMessage === 'Congratulations, your password has been changed!') {
-      navigate('/login') // Redirect to login page
+      navigate('/login')
     }
   }
 
+  const toggleResetMode = () => {
+    setResetMode(!resetMode)
+    setCurrentPassword('')
+    setNewPassword('')
+    setConfirmPassword('')
+    setEmail('')
+    setAadhaarLastFour('')
+    setError(null)
+    setAadhaarVerified(false)
+  }
+
   return (
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
+    <div className="bg-body-tertiary min-vh-90 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
           <CCol md={6}>
@@ -89,49 +132,70 @@ const ForgetPassword = () => {
 
                   {error && <p style={{ color: 'red' }}>{error}</p>}
 
-                  {/* Current Password input */}
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="Current Password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                    />
-                  </CInputGroup>
+                  
+                  {!aadhaarVerified && (
+                    <CInputGroup className="mb-3">
+                      <CInputGroupText>
+                        <CIcon icon={cilLockLocked} />
+                      </CInputGroupText>
+                      <CFormInput
+                        type="text"
+                        placeholder="Last 4 Digits of Aadhar"
+                        value={aadhaarLastFour}
+                        onChange={(e) => setAadhaarLastFour(e.target.value)}
+                      />
+                    </CInputGroup>
+                  )}
 
-                  {/* New Password input */}
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="New Password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                    />
-                  </CInputGroup>
+                  
+                  {aadhaarVerified && (
+                    <CInputGroup className="mb-3">
+                      <CInputGroupText>
+                        <CIcon icon={cilLockLocked} />
+                      </CInputGroupText>
+                      <CFormInput
+                        type="password"
+                        placeholder="Current Password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                      />
+                    </CInputGroup>
+                  )}
 
-                  {/* Confirm Password input */}
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="Confirm Password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
-                  </CInputGroup>
+                 
+                  {aadhaarVerified && (
+                    <CInputGroup className="mb-3">
+                      <CInputGroupText>
+                        <CIcon icon={cilLockLocked} />
+                      </CInputGroupText>
+                      <CFormInput
+                        type="password"
+                        placeholder="New Password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                      />
+                    </CInputGroup>
+                  )}
+
+                  
+                  {aadhaarVerified && (
+                    <CInputGroup className="mb-3">
+                      <CInputGroupText>
+                        <CIcon icon={cilLockLocked} />
+                      </CInputGroupText>
+                      <CFormInput
+                        type="password"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                    </CInputGroup>
+                  )}
 
                   <CRow>
                     <CCol xs={6}>
                       <CButton type="submit" color="primary" className="px-4">
-                        Change Password
+                        {aadhaarVerified ? 'Change Password' : 'Verify Aadhar'}
                       </CButton>
                     </CCol>
                   </CRow>
@@ -141,7 +205,7 @@ const ForgetPassword = () => {
           </CCol>
         </CRow>
 
-        {/* Success/Error Modal */}
+        
         <CModal visible={modalVisible} onClose={handleClose}>
           <CModalHeader>
             <CModalTitle>Password Change</CModalTitle>
@@ -160,4 +224,4 @@ const ForgetPassword = () => {
   )
 }
 
-export default ForgetPassword
+export default ChangePassword

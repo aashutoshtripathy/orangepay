@@ -36,6 +36,8 @@ const Prepaid = React.lazy(() => import('./views/pages/payment/Prepaid.js'))
 const Cancelation = React.lazy(() => import('./views/pages/payment/Cancelation.js'))
 const Permission = React.lazy(() => import('./views/pages/payment/Permission.js'))
 const ViewDetails = React.lazy(() => import('./views/pages/requesteduser/ViewTable.js'))
+const FundDetails = React.lazy(() => import('./views/pages/fundrequest/FundRequestDatails.js'))
+const Passbook = React.lazy(() => import('./views/pages/passbook/Passbook.js'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -99,7 +101,7 @@ const routes = [
   { path: '/requests', name: 'RequestedUser', element: RequestedUser },
   { path: '/fundrequests', name: 'Fund Request', element: FundRequests },
   { path: '/view-user', name: 'VIEW USER', element: ViewUser },
-  { path: '/transaction-history', name: 'TRANSACTION HISTORY', element: TransactionHistory },
+  { path: '/transaction-history', name: 'COMISSION HISTORY', element: TransactionHistory },
   { path: '/call-me', name: 'CALL ME', element: CallMe },
   { path: '/query', name: 'QUERY', element: Query },
   { path: '/active', name: 'ACTIVE', element: Active },
@@ -127,6 +129,8 @@ const routes = [
   { path: '/request-cancelation', name: 'Request-Cancelation', element: Cancelation },
   { path: '/update-user/:userId', name: 'Update User', element: UpdateUser },
   { path: '/view-details/:userId', name: 'View Details', element: ViewDetails },
+  { path: '/fund-details/:userId', name: 'Fund Details', element: FundDetails },
+  { path: '/passbook/:userId', name: 'Passbook', element: Passbook },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

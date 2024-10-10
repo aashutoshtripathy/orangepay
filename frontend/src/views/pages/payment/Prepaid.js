@@ -206,12 +206,16 @@ const Payment = () => {
               <p><strong>Consumer Name:</strong> {billDetails.consumerName || 'N/A'}</p> {/* Fallback if null */}
               <p><strong>Mobile No:</strong> {billDetails.mobileNo || 'N/A'}</p>
               <p><strong>Address:</strong> {billDetails.address || 'N/A'}</p>
+              <p>
+                <strong>Service:</strong> <span className="text-danger">Temporarily Unavailable</span>
+              </p>
+
             </div>
           )}
           {/* Consumer ID Field */}
           {!fetchBillSuccess && (
             <>
-            <CRow className="mb-3">
+              <CRow className="mb-3">
                 <CCol md={6}>
                   <label htmlFor="paymentMethod">Select Meter Type</label>
                   <CFormSelect

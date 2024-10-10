@@ -65,7 +65,7 @@ const Permission = () => {
         });
 
         
-        setCommission(result.margin || '');
+        setCommission(result.margin || '0');
       } catch (error) {
         setError(error);
       } finally {

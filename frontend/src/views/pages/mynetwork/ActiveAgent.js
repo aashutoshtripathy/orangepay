@@ -240,26 +240,26 @@ const DataTableComponent = () => {
     { name: 'userId', selector: 'userId', sortable: true },
     { name: 'Name', selector: 'name', sortable: true },
     { name: 'Father/Husband Name', selector: 'fatherOrHusbandName', sortable: true },
-    { name: 'Date of Birth', selector: 'dob', sortable: true },
+    // { name: 'Date of Birth', selector: 'dob', sortable: true },
     { name: 'Aadhar Number', selector: 'aadharNumber', sortable: true },
     { name: 'PAN Number', selector: 'panNumber', sortable: true },
     { name: 'Mobile Number', selector: 'mobileNumber', sortable: true },
-    { name: 'Gender', selector: 'gender', sortable: true },
-    { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
-    { name: 'Education', selector: 'education', sortable: true },
-    { name: 'Address', selector: 'address', sortable: true },
-    { name: 'District', selector: 'district', sortable: true },
-    { name: 'Pin Code', selector: 'pincode', sortable: true },
-    { name: 'Bank Name', selector: 'bank', sortable: true },
-    { name: 'Account no', selector: 'accountno', sortable: true },
-    { name: 'Ifsc Code', selector: 'ifsc', sortable: true },
-    { name: 'Job Type', selector: 'salaryBasis', sortable: true },
-    { name: 'Email', selector: 'email', sortable: true },
-    { name: 'Division', selector: 'division', sortable: true },
-    { name: 'Sub-Division', selector: 'subDivision', sortable: true },
-    { name: 'Section', selector: 'section', sortable: true },
-    { name: 'userId', selector: 'userId', sortable: true },
-    { name: 'password', selector: 'password', sortable: true },
+    // { name: 'Gender', selector: 'gender', sortable: true },
+    // { name: 'Marital Status', selector: 'maritalStatus', sortable: true },
+    // { name: 'Education', selector: 'education', sortable: true },
+    // { name: 'Address', selector: 'address', sortable: true },
+    // { name: 'District', selector: 'district', sortable: true },
+    // { name: 'Pin Code', selector: 'pincode', sortable: true },
+    // { name: 'Bank Name', selector: 'bank', sortable: true },
+    // { name: 'Account no', selector: 'accountno', sortable: true },
+    // { name: 'Ifsc Code', selector: 'ifsc', sortable: true },
+    // { name: 'Job Type', selector: 'salaryBasis', sortable: true },
+    // { name: 'Email', selector: 'email', sortable: true },
+    // { name: 'Division', selector: 'division', sortable: true },
+    // { name: 'Sub-Division', selector: 'subDivision', sortable: true },
+    // { name: 'Section', selector: 'section', sortable: true },
+    // { name: 'userId', selector: 'userId', sortable: true },
+    // { name: 'password', selector: 'password', sortable: true },
     { name: 'Actions', 
       cell: (row) => (
         <div className="actions-cell">
@@ -324,7 +324,7 @@ const DataTableComponent = () => {
         data={filteredItems}
         customStyles={customStyles}
         pagination
-        selectableRows
+        // selectableRows
         progressPending={loading}
         highlightOnHover
         striped

@@ -18,6 +18,7 @@ import { FundRequest } from "../model/FundRequest.model.js";
 import archiver from "archiver";
 import { fileURLToPath } from 'url';
 import { isValidObjectId } from "mongoose";
+import axios from "axios";
 // import path from 'path';
 
 // Define __dirname in ES module
@@ -86,6 +87,15 @@ const registerUser = asyncHandler(async (req, res) => {
     // }
 
     // Create new user
+
+
+    const existedUser = await Register.findOne({ aadharNumber });
+
+    if (existedUser) {
+      throw new ApiError(400, "Aadhar number already exists");
+    }
+
+
     const user = await Register.create({
       name, fatherOrHusbandName, dob, role, aadharNumber, panNumber, mobileNumber,
       gender, maritalStatus, education, address, salaryBasis, email, division,
@@ -230,6 +240,9 @@ const registeredUser = asyncHandler(async (req, res) => {
     });
 
     await wallet.save();
+
+
+  
 
 
     // const smsMessage = `Your account has been created. User ID: ${generatedUserId}, Password: ${generatedPassword}`;
@@ -549,7 +562,42 @@ const approveUserRequest = asyncHandler(async (req, res) => {
 
     // Save the new wallet
     await wallet.save();
+    
 
+    // const smsMessage = `Your account has been created. User ID: ${customId}, Password: ${updatedUser.password}`;
+    const smsMessage = `Welcome to ORANGEPAY Thank You for registration.  Your login details username:${customId}, Password: ${updatedUser.password} `;
+    const mobileNumber = updatedUser.mobileNumber;
+    const senderName = 'OrgPay'; // Replace with appropriate sender name
+    const apiKey =  'e7d09e93-0dd3-4a00-9cfc-2c53854033f2'; // Use environment variable for API key
+
+    const smsUrl = `http://login.aquasms.com/sendSMS?username=7004142281&message=${smsMessage}&sendername=${senderName}&smstype=TRANS&numbers=${mobileNumber}&apikey=e7d09e93-0dd3-4a00-9cfc-2c53854033f2`;
+    // const smsUrl = `http://login.aquasms.com/sendSMS?username=7004142281&message=${encodeURIComponent(smsMessage)}&sendername=${senderName}&smstype=TRANS&numbers=${mobileNumber}&apikey=${apiKey}`;
+    
+    console.log("Sending SMS to URL:", smsUrl); // Log the complete URL
+
+    const smsResponse = await axios.get(smsUrl);
+    console.log("SMS API Response:", smsResponse.data);
+    console.log("Sending to mobile number:", mobileNumber);
+    
+    // Check for successful SMS sending based on responseCode
+    if (Array.isArray(smsResponse.data) && smsResponse.data.length > 0) {
+      const responseCode = smsResponse.data[0].responseCode;
+      
+      if (responseCode === 'Message SuccessFully Submitted') {
+        console.log("SMS sent successfully.");
+      } else {
+        console.error("Failed to send SMS:", smsResponse.data);
+      }
+    } else {
+      console.error("Unexpected SMS API response format:", smsResponse.data);
+    }
+    
+    // Add additional error handling/logging
+    if (smsResponse.status !== 200) {
+      console.error("Failed to communicate with SMS API:", smsResponse.statusText);
+    }
+    
+    
     // Optionally, send an SMS or email with the new credentials
     // const smsMessage = `Your account has been approved. User ID: ${updatedUser.userId}, Password: ${updatedUser.password}`;
     // await twilioClient.messages.create({
@@ -574,6 +622,66 @@ const approveUserRequest = asyncHandler(async (req, res) => {
     return res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
   }
 });
+
+
+const changePassword = asyncHandler(async (req, res) => {
+  const { userId, currentPassword, newPassword } = req.body; // Accepting userId in the request body
+
+  try {
+    // Find the user by ID
+    const user = await Register.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Check if the current password is correct
+    if (user.password !== currentPassword) {
+      return res.status(400).json({ message: 'Current password is incorrect.' });
+    }
+
+    // Update the password
+    user.password = newPassword; // You should ideally hash the new password before saving
+
+    // Save the user with the new password
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Password changed successfully.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'An error occurred while changing the password.' });
+  }
+});
+
+
+
+const verifyAadhaar = asyncHandler(async (req, res) => {
+  const { aadhaarLastFour } = req.body;
+
+  // Input validation
+  if (!aadhaarLastFour || aadhaarLastFour.length !== 4) {
+    return res.status(400).json({ success: false, message: 'Last four digits of Aadhar are required.' });
+  }
+
+  try {
+    // Find users whose Aadhaar last four digits match and status is active
+    const matchedUser = await Register.findOne({
+      status: 'Approved',
+      aadharNumber: { $regex: `${aadhaarLastFour}$` } // Use regex to match last four digits
+    });
+
+    if (matchedUser) {
+      return res.status(200).json({ success: true, message: 'Aadhar verification successful.', userId: matchedUser._id });
+    } else {
+      return res.status(401).json({ success: false, message: 'Aadhar verification failed or user is not active.' });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'An error occurred during Aadhar verification.' });
+  }
+});
+
+
+
 
 
 
@@ -680,6 +788,42 @@ const fetchFundRequest = asyncHandler(async (req, res) => {
     // Check if any fund requests exist
     if (!fundRequests || fundRequests.length === 0) {
       console.log('No fund requests found for user ID:', userId);
+      return res.status(200).json({ success: false, message: 'No fund requests found for this user ID', fundRequest: [] });
+    }
+
+    // Return the fund requests
+    return res.status(200).json({ success: true, fundRequest: fundRequests });
+
+  } catch (error) {
+    console.error('Error fetching fund request:', error.message);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
+
+
+const fetchFundRequestsById = asyncHandler(async (req, res) => {
+  const { id } = req.body; // Get the user ID from the request parameters
+  console.log('User ID from params:', id);
+
+  try {
+    // Check if the user exists in the Register collection
+    // const user = await Register.findById(_id);
+    // if (!user) {
+    //   console.log('User not found for ID:', _id);
+    //   return res.status(404).json({ success: false, message: 'User not found.' });
+    // }
+
+    // console.log('User ID found:', user._id); // Log the user ID from the Register collection
+
+    // Find all fund requests related to this user
+    const fundRequests = await FundRequest.find({ _id: id });
+    console.log('Fetched Fund Requests:', fundRequests);
+
+    // Check if any fund requests exist
+    if (!fundRequests || fundRequests.length === 0) {
+      console.log('No fund requests found for user ID:', id);
       return res.status(200).json({ success: false, message: 'No fund requests found for this user ID', fundRequest: [] });
     }
 
@@ -1555,5 +1699,27 @@ const fetchUserById = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, fetchWalletBalance, updateUserCommission, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+
+// Define the API endpoint using asyncHandler
+const fetchUserByIdd = asyncHandler(async (req, res) => {
+  const { id } = req.params; // Get the ID from the request parameters
+
+  try {
+    const user = await FundRequest.findById({_id:id}); // Find the user by ID
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    console.log("User found: ", user); // Log the user object
+
+    res.status(200).json({ success: true, user }); // Return the user data
+
+  } catch (error) {
+    console.error('Error finding user:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+export { registerUser, fetchWalletBalance, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 

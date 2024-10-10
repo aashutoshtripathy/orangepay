@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
-import { deleteUser, fetchData, fetchWalletBalance,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser } from "../controller/user.controller.js";
+import { deleteUser, fetchData, fetchWalletBalance,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd } from "../controller/user.controller.js";
 import {processPayment, getPayment , fetchReward , BiharService , getTotalBalance} from "../controller/payment.controller.js"
 import { initiateEzetapPayment } from "../controller/ezetap.controller.js";
 
@@ -15,6 +15,7 @@ router.route("/getPayment/:userId").get(getPayment)
 router.route("/balance/:userId").get(fetchWalletBalance)
 router.route("/fund-request/:userId").get(fetchFundRequest)
 router.route("/fundrequests").get(fetchFundRequests)
+router.route("/fundrequests/:id").get(fetchFundRequestsById)
 router.route("/fetchUserList").get(fetchUserList)
 router.route("/getTotalBalance").get(getTotalBalance)
 router.route("/fetchUserList/:userId").get(fetchUserListbyId)
@@ -22,6 +23,7 @@ router.route("/status/:userId").get(statuss)
 router.route("/blockUserList").get(blockUserList)
 router.route("/download-images/:aadharNumber").get(downloadUserImages)
 router.route("/fetchUserById/:id").get(fetchUserById)
+router.route("/fetchUserByIdd/:id").get(fetchUserByIdd)
 router.route("/updateProfile/:id").put(updateProfile)
 router.route("/fundrequests/:id/approve").patch(approveFundRequest)
 router.route("/fundrequests/:id/reject").patch(rejectFundRequest)
@@ -31,6 +33,8 @@ router.route("/registered/:id").post(registeredUser)
 router.route("/fund-request").post(fundRequest)
 router.route('/logout').post(logoutUser); 
 router.route("/payment").post(processPayment)
+router.route("/change-password").post(changePassword)
+router.route("/verify-aadhaar").post(verifyAadhaar)
 router.route("/BiharService/BillInterface").post(BiharService)
 router.route("/block/:userId").post(blockUser)
 router.route("/unblock/:userId").post(unblockUser)

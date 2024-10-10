@@ -147,7 +147,6 @@ const MainChart = ({selectedInterval}) => {
           },
         }}
       />
-      <button onClick={fetchData}>Refresh Data</button> {/* Manual refresh button */}
     </>
   );
 };

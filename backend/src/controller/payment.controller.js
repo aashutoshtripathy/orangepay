@@ -72,6 +72,7 @@ const processPayment = asyncHandler(async (req, res) => {
     // Log before deducting amount from wallet
     console.log(`Deducting ${amount} from wallet. Original balance: ${wallet.balance}`);
 
+    const balanceBeforeDeduction = wallet.balance;
     wallet.balance -= amount;
     await wallet.save();
 
@@ -83,7 +84,7 @@ const processPayment = asyncHandler(async (req, res) => {
       canumber: consumerId,
       invoicenumber:"",
       billmonth: "N/A",
-      transactionId: `TXN-${Date.now()}`,
+      transactionId: `OP${Date.now()}`,
       refrencenumber: ``,
       bankid: '', // Assuming bank id is not available at this point, set it as empty or fetch if applicable
       paymentmode: paymentMethod,
@@ -118,7 +119,7 @@ const processPayment = asyncHandler(async (req, res) => {
 
       commission: commissionAmount,
       tds: tdsAmount,
-      netCommission: netCommission
+      netCommission: netCommission,
     });
     
 
@@ -126,8 +127,7 @@ const processPayment = asyncHandler(async (req, res) => {
 
     console.log(`Invoice record created. Invoice ID: ${invoice._id}`);
 
-    invoice.PaymentStatus = 'Completed';
-    await invoice.save();
+
 
     // console.log(`Invoice payment status updated to Completed. Invoice ID: ${invoice._id}`);
 
@@ -136,7 +136,14 @@ const processPayment = asyncHandler(async (req, res) => {
     wallet.balance += netCommission;
     await wallet.save();
 
-    console.log(`Net commission of ${netCommission} credited back to wallet. New balance: ${wallet.balance}`);
+
+
+    invoice.balanceAfterDeduction = balanceBeforeDeduction ; // Set balance after deduction
+    invoice.balanceAfterCommission = wallet.balance; // Set balance after commission
+    invoice.paymentstatus = 'Completed';
+    await invoice.save();
+
+    
 
     // Add the reward to the reward report
     const rewardReport = new Reward({
@@ -153,6 +160,8 @@ const processPayment = asyncHandler(async (req, res) => {
     // Return the response with commission and TDS details
     return res.status(200).json(new ApiResponse(200, {
       invoice,
+      balanceAfterDeduction: balanceBeforeDeduction - amount, // Balance after deduction
+      balanceAfterCommission: wallet.balance,
       commission: commissionAmount,
       tds: tdsAmount,
       netCommission

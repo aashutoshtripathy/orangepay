@@ -8,24 +8,26 @@ import {
   CTableDataCell,
   CContainer,
   CButton,
-  CModal, CModalBody, CModalHeader,CModalFooter,
+  CModal, CModalBody, CModalHeader, CModalFooter,
 } from '@coreui/react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 
 const ViewTable = () => {
   // State to hold the fetched table data
   const [tableData, setTableData] = useState([]);
   const { userId } = useParams();
- const navigate = useNavigate();
+  const navigate = useNavigate();
 
- const [modal, setModal] = useState(false);
- const [selectedImage, setSelectedImage] = useState('');
- const [showRejectModal, setShowRejectModal] = useState(false);
-const [remarks, setRemarks] = useState('');
-const [selectedUser, setSelectedUser] = useState(null);
-const [validationMessage, setValidationMessage] = useState('');
+  const [modal, setModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState('');
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [remarks, setRemarks] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [validationMessage, setValidationMessage] = useState('');
+  const location = useLocation();
+  const { status } = location.state || {};
 
 
 
@@ -102,13 +104,13 @@ const [validationMessage, setValidationMessage] = useState('');
   };
 
 
- 
+
 
 
   const submitRejection = async (user, remarks) => {
     if (!remarks.trim()) {
       setValidationMessage('Remarks cannot be empty.'); // Set validation message
-      return; 
+      return;
     }
 
     try {
@@ -122,13 +124,14 @@ const [validationMessage, setValidationMessage] = useState('');
       console.error("Error rejecting fund request", error);
     }
   };
-  
+
 
 
 
 
   return (
     <CContainer fluid>
+      <CButton color="secondary" onClick={() => navigate(-1)}>Back</CButton>
       <CTable striped hover bordered responsive>
         <CTableHead>
           <CTableRow>
@@ -354,7 +357,7 @@ const [validationMessage, setValidationMessage] = useState('');
                 </CTableDataCell>
               );
             })}
-           
+
           </CTableRow>
           <CTableRow>
             <CTableHeaderCell scope="row">Cheque</CTableHeaderCell>
@@ -376,7 +379,7 @@ const [validationMessage, setValidationMessage] = useState('');
                 </CTableDataCell>
               );
             })}
-           
+
           </CTableRow>
           <CTableRow>
             <CTableHeaderCell scope="row">Signature</CTableHeaderCell>
@@ -398,16 +401,30 @@ const [validationMessage, setValidationMessage] = useState('');
                 </CTableDataCell>
               );
             })}
-           
+
           </CTableRow>
           <CTableRow>
             <CTableHeaderCell scope="row">Actions</CTableHeaderCell>
             {tableData.map((user) => (
               <CTableDataCell key={user._id}>
                 <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
-                  <CButton color="success" onClick={() => handleAccept(user)}>Accept</CButton>{' '}
-                  <CButton color="danger" onClick={() => handleReject(user)}>Reject</CButton>{' '}
-                  <CButton color="info" onClick={() => handleDownload(user)}>Download</CButton>
+                  {/* Check if the user is rejected */}
+                  {user.status === 'Rejected' ? (
+                    <>
+                      <CButton color="success" onClick={() => handleAccept(user)}>Accept</CButton>{' '}
+                      <CButton color="info" onClick={() => handleDownload(user)}>Download</CButton>
+                    </>
+                  ) : (
+                    <>
+                      {user.status !== 'Approved' && (
+                        <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
+                          <CButton color="success" onClick={() => handleAccept(user)}>Accept</CButton>{' '}
+                          <CButton color="danger" onClick={() => handleReject(user)}>Reject</CButton>{' '}
+                        </div>
+                      )}
+                      <CButton color="info" onClick={() => handleDownload(user)}>Download</CButton>
+                    </>
+                  )}
                 </div>
               </CTableDataCell>
             ))}
@@ -416,32 +433,32 @@ const [validationMessage, setValidationMessage] = useState('');
         </CTableBody>
       </CTable>
       <CModal visible={showRejectModal} onClose={() => setShowRejectModal(false)}>
-  <CModalHeader onClose={() => setShowRejectModal(false)}>Add Remarks</CModalHeader>
-  <CModalBody>
-    <textarea
-      value={remarks}
-      onChange={(e) => setRemarks(e.target.value)}
-      rows="4"
-      style={{ width: '100%' }}
-      placeholder="Enter your remarks here..."
-    />
-    {validationMessage && <div style={{ color: 'red' }}>{validationMessage}</div>}
-  </CModalBody>
-  <CModalFooter>
-    <CButton color="secondary" onClick={() => setShowRejectModal(false)}>Cancel</CButton>
-    <CButton color="danger" onClick={async () => {
-      await submitRejection(selectedUser, remarks);
-      // Do not close the modal here; handle it in submitRejection
-    }} >Submit</CButton>
-  </CModalFooter>
-</CModal>
+        <CModalHeader onClose={() => setShowRejectModal(false)}>Add Remarks</CModalHeader>
+        <CModalBody>
+          <textarea
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            rows="4"
+            style={{ width: '100%' }}
+            placeholder="Enter your remarks here..."
+          />
+          {validationMessage && <div style={{ color: 'red' }}>{validationMessage}</div>}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setShowRejectModal(false)}>Cancel</CButton>
+          <CButton color="danger" onClick={async () => {
+            await submitRejection(selectedUser, remarks);
+            // Do not close the modal here; handle it in submitRejection
+          }} >Submit</CButton>
+        </CModalFooter>
+      </CModal>
 
       <CModal visible={modal} onClose={() => setModal(false)}>
-          <CModalHeader onClose={() => setModal(false)}>Image Preview</CModalHeader>
-          <CModalBody>
-            <img src={selectedImage} alt="Full Size" style={{ width: '100%' }} />
-          </CModalBody>
-        </CModal>
+        <CModalHeader onClose={() => setModal(false)}>Image Preview</CModalHeader>
+        <CModalBody>
+          <img src={selectedImage} alt="Full Size" style={{ width: '100%' }} />
+        </CModalBody>
+      </CModal>
     </CContainer>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   CContainer,
   CRow,
@@ -17,6 +17,9 @@ import {
   CFormSelect,
 } from '@coreui/react';
 import axios from 'axios';
+import log from "../.././../assets/images/log (1).png";
+import nb from "../.././../assets/images/nb.png";
+
 
 const Payment = () => {
   const [consumerId, setConsumerId] = useState('');
@@ -39,6 +42,27 @@ const Payment = () => {
   const [fundRequestMethods, setFundRequestMethods] = useState({});
   const [billPaymentMethods, setBillPaymentMethods] = useState({});
   const [commission, setCommission] = useState('');
+  const [showPrintView, setShowPrintView] = useState(false);
+  const printRef = useRef();
+  const [consumerIdError, setConsumerIdError] = useState('');
+
+
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pin, setPin] = useState('');
+  const [pinError, setPinError] = useState('');
+
+const validateConsumerId = (value) => {
+  if (!value) {
+    return 'Consumer ID is required.';
+  } else if (value.length < 5) { // Example validation
+    return 'Consumer ID must be at least 5 characters long.';
+  }
+  return ''; // No error
+};
+
+
+
+
 
 
 
@@ -134,6 +158,11 @@ const Payment = () => {
 
   const handleFetchBill = async () => {
     setFormSubmitted(true);
+    const error = validateConsumerId(consumerId);
+    if (error) {
+      setConsumerIdError(error);
+      return; // Exit if there's an error
+    }
     setIsBillFetched(true);
     setFetchBillSuccess(false); // Set to false initially to indicate fetching process
 
@@ -224,6 +253,62 @@ const Payment = () => {
     }
   };
 
+
+  // const handlePinSubmit = async () => {
+  //   // Assuming '1234' is the correct PIN for this example; replace with your logic
+  //   if (pin === '1234') {
+  //     setShowPinModal(false); // Close the PIN modal
+  //     await handleProceedToPay(); // Proceed to payment
+  //   } else {
+  //     setPinError('Incorrect PIN. Please try again.');
+  //   }
+  // };
+
+  const handleClosePinModal = () => {
+    setShowPinModal(false); // Close the PIN modal
+    setPin(''); // Clear the PIN
+    setPinError(''); // Clear any PIN errors
+  };
+
+
+  
+const handleConsumerIdBlur = () => {
+  const error = validateConsumerId(consumerId);
+  setConsumerIdError(error); // Set error state
+};
+
+const handleConsumerIdFocus = () => {
+  setConsumerIdError(''); // Clear error on focus
+};
+
+
+  const handlePrint = () => {
+    const printContent = printRef.current.innerHTML; // Get the content to print
+    const printWindow = window.open('', '', 'width=600,height=400');
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print</title>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            h4 { margin: 0; }
+            p { margin: 5px 0; }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.onload = () => {
+      printWindow.print(); // Ensure the content is fully loaded before printing
+      printWindow.close();
+    };
+  };
+
+
   const createRazorpayOrder = async () => {
     if (!validate()) return; // Validate before creating order
 
@@ -243,6 +328,20 @@ const Payment = () => {
       console.error('Error creating order:', error);
       alert('An error occurred while creating the order. Please try again.');
     }
+  };
+
+
+  const formatKolkataTime = (dateString) => {
+    if (!dateString) return "N/A"; // Handle cases where dateString is null or undefined
+
+    const date = new Date(dateString);
+    // Convert to IST (UTC +5:30)
+    const istOffset = 5.5 * 60; // 5 hours 30 minutes in minutes
+    const utcOffset = date.getTimezoneOffset(); // Get the local timezone offset in minutes
+    const istTime = new Date(date.getTime() + (istOffset + utcOffset) * 60000); // Adjust the time
+
+    // Format the date to a readable string
+    return istTime.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
   };
 
   const handleRazorpayScreen = async (amount) => {
@@ -273,12 +372,21 @@ const Payment = () => {
   // };
   const handlePayment = async () => {
     setFormSubmitted(true);
+    
+    // Validate form inputs
     if (!validate()) return;
-
-    if (selectedMethod === 'wallet') {
-      await handleProceedToPay();
+  
+    // Show PIN modal before proceeding
+    setShowPinModal(true);
+  };
+  
+  const handlePinSubmit = async () => {
+    // Check if the entered PIN is correct
+    if (pin === '1234') { // Replace with your actual PIN logic
+      setShowPinModal(false); // Close the PIN modal
+      await handleProceedToPay(); // Proceed to payment
     } else {
-      await createRazorpayOrder();
+      setPinError('Incorrect PIN. Please try again.'); // Show error if PIN is incorrect
     }
   };
 
@@ -331,10 +439,12 @@ const Payment = () => {
                     id="consumerId"
                     value={consumerId}
                     onChange={(e) => setConsumerId(e.target.value)}
+                    onBlur={handleConsumerIdBlur} // Validate on blur
+                    onFocus={handleConsumerIdFocus}
                     placeholder="Enter Consumer ID"
                   />
-                  {formSubmitted && errors.consumerId && <p className="text-danger">{errors.consumerId}</p>}
-                </CCol>
+    {formSubmitted && consumerIdError && <p className="text-danger">{consumerIdError}</p>}
+    </CCol>
               </CRow>
 
               <CButton color="primary" onClick={handleFetchBill}>
@@ -494,12 +604,41 @@ const Payment = () => {
         </CCardBody>
       </CCard>
 
-      <CModal visible={showSuccessModal} onClose={handleCloseModal}>
-        <CModalHeader>Payment Successful</CModalHeader>
+      <CModal visible={showPinModal} onClose={handleClosePinModal}>
+        <CModalHeader>Enter PIN</CModalHeader>
         <CModalBody>
+          <CFormInput
+            type="password"
+            id="pin"
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            placeholder="Enter 4-digit PIN"
+            maxLength="4"
+          />
+          {pinError && <p className="text-danger">{pinError}</p>}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="primary" onClick={handlePinSubmit}>
+            Submit
+          </CButton>
+          <CButton color="secondary" onClick={handleClosePinModal}>
+            Cancel
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
+      <CModal visible={showSuccessModal} onClose={handleCloseModal}>
+
+
+
+        <CModalBody ref={printRef}>
+          <CModalHeader>Payment Successful</CModalHeader>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
+            <img src={nb} alt="Thank You" style={{ width: '20%', maxWidth: '300px' }} />
+          </div>
           <p>Your payment was processed successfully!</p>
 
-          <p><strong>Date/Time:</strong>  {""}</p>
+          <p><strong>Date/Time:</strong>  {formatKolkataTime(data.billposton) || "N/A"}</p>
 
           <p><strong>Receipt No.:</strong> {data.transactionId || 'N/A'}</p>
 
@@ -516,8 +655,15 @@ const Payment = () => {
           <p><strong>Payment Status:</strong> Transaction success</p>
 
           <p>Thanks for Payment!</p>
+
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
+            <img src={log} alt="Thank You" style={{ width: '100%', maxWidth: '300px', marginTop: '20px' }} />
+          </div>
         </CModalBody>
         <CModalFooter>
+          <CButton color="secondary" onClick={handlePrint}>
+            Print
+          </CButton>
           <CButton color="secondary" onClick={handleCloseModal}>
             Close
           </CButton>
