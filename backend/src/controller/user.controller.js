@@ -19,6 +19,9 @@ import archiver from "archiver";
 import { fileURLToPath } from 'url';
 import { isValidObjectId } from "mongoose";
 import axios from "axios";
+import { Invoice } from "../model/Invoice.model.js";
+import { Payment } from "../model/Payment.model.js";
+import { CancellationDetail } from "../model/CancellationDetail.model.js";
 // import path from 'path';
 
 // Define __dirname in ES module
@@ -61,7 +64,8 @@ const upload = multer({ storage }).fields([
   { name: 'panCard', maxCount: 1 },
   { name: 'educationCertificate', maxCount: 1 },
   { name: 'cheque', maxCount: 1 },
-  { name: 'signature', maxCount: 1 }
+  { name: 'signature', maxCount: 1 },
+  
 ]);
 
 // User registration handler
@@ -1663,6 +1667,45 @@ const updateUserCommission = asyncHandler(async (req, res) => {
 // });
 
 
+const getCancellation = asyncHandler(async (req, res) => {
+  const { consumerId, userId } = req.body; // Include userId in the destructuring
+
+  if (!consumerId || !userId) {
+      return res.status(400).json({ message: 'Both Consumer ID and User ID are required' });
+  }
+
+  // Get current date and set time to 00:00:00 (12 AM)
+  const startDate = new Date();
+  startDate.setHours(0, 0, 0, 0);
+
+  console.log('Consumer ID:', consumerId);
+  console.log('User ID:', userId);
+  console.log('Start Date:', startDate);
+
+  // Find cancellation in the database after today's date at 12 AM
+  try {
+      const cancellation = await Payment.find({
+        canumber: consumerId,
+          id: userId, // Add UserID to the query
+          createdon: { $gte: startDate }
+      });
+
+      console.log('Cancellation Results:', cancellation);
+
+      if (cancellation.length === 0) {
+          return res.status(404).json({ message: 'No records found.' });
+      }
+
+      res.status(200).json(cancellation);
+  } catch (error) {
+      console.error('Error fetching cancellation:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+
 
 const deleteUser = asyncHandler(async (req, res) => {
   try {
@@ -1700,6 +1743,105 @@ const fetchUserById = asyncHandler(async (req, res) => {
 });
 
 
+
+
+const storagee = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // const aadharNumber = req.body.aadharNumber;
+    const dir = path.join('public/images');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir); // Destination folder for uploaded files
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`); // Unique filename with timestamp
+  }
+});
+
+// Initialize Multer upload middleware
+const uploads = multer({ storagee }).fields([
+  
+  { name: 'input1', maxCount: 1 },
+  { name: 'input2', maxCount: 1 },
+  { name: 'input3', maxCount: 1 },
+]);
+
+
+const cancellationDetails = asyncHandler(async (req, res) => {
+
+  uploads(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json(new ApiError(400, "File upload failed"));
+    }
+
+
+    const {userId, transactionId, consumerNumber, consumerName, paymentMode, paymentAmount, paymentStatus, createdOn, selectedOption } = req.body;
+    console.log(userId)
+    console.log(req.body)
+
+
+  try {
+    
+
+    const files = {
+      input1: req.files['input1'] ? req.files['input1'][0].path : null,
+      input2: req.files['input2'] ? req.files['input2'][0].path : null,
+      input3: req.files['input3'] ? req.files['input3'][0].path : null,
+    };
+    console.log(files)
+
+
+
+    const cancellationDetail = new CancellationDetail({
+      transactionId,
+      consumerNumber,
+      consumerName,
+      paymentMode,
+      paymentAmount,
+      paymentStatus,
+      createdOn,
+      selectedOption,
+      files,
+    });
+
+    await cancellationDetail.save();
+
+    // Ensure paymentAmount is a number
+    const amountToAdd = Number(paymentAmount);
+    if (isNaN(amountToAdd)) {
+      return res.status(400).json({ message: "Invalid payment amount" });
+    }
+
+
+
+
+    const wallet = await Wallet.findOne({ uniqueId:userId });
+    if (!wallet) {
+      return res.status(404).json({ message: "Wallet not found for the consumer" });
+    }
+
+    // Add the paymentAmount back to the wallet
+    wallet.balance += amountToAdd;
+
+    // Save the updated wallet balance
+    await wallet.save();
+
+    res.status(201).json({
+      message: 'Cancellation details saved successfully, and money added back to the wallet',
+      data: {
+        cancellationDetail,
+        walletBalance: wallet.balance
+      }
+    });
+    // res.status(201).json({ message: 'Cancellation details saved successfully', data: cancellationDetail });
+  } catch (error) {
+    res.status(500).json({ message: 'Error saving cancellation details', error: error.message });
+  }
+})
+});
+
+
 // Define the API endpoint using asyncHandler
 const fetchUserByIdd = asyncHandler(async (req, res) => {
   const { id } = req.params; // Get the ID from the request parameters
@@ -1721,5 +1863,5 @@ const fetchUserByIdd = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, fetchWalletBalance, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+export { registerUser, fetchWalletBalance,cancellationDetails, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 

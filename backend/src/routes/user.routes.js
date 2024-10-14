@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
-import { deleteUser, fetchData, fetchWalletBalance,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd } from "../controller/user.controller.js";
+import { deleteUser, fetchData, fetchWalletBalance,cancellationDetails,getCancellation,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd } from "../controller/user.controller.js";
 import {processPayment, getPayment , fetchReward , BiharService , getTotalBalance} from "../controller/payment.controller.js"
 import { initiateEzetapPayment } from "../controller/ezetap.controller.js";
 
@@ -10,6 +10,7 @@ const router = Router();
 router.route("/register").post(registerUser)
 router.route("/login").post(loginUser)
 router.route("/transaction").post(registerTransaction)
+router.route("/cancellation-details").post(cancellationDetails)
 router.route("/reports").get(reports)
 router.route("/getPayment/:userId").get(getPayment)
 router.route("/balance/:userId").get(fetchWalletBalance)
@@ -21,6 +22,7 @@ router.route("/getTotalBalance").get(getTotalBalance)
 router.route("/fetchUserList/:userId").get(fetchUserListbyId)
 router.route("/status/:userId").get(statuss)
 router.route("/blockUserList").get(blockUserList)
+router.route("/get-cancellation").post(getCancellation)
 router.route("/download-images/:aadharNumber").get(downloadUserImages)
 router.route("/fetchUserById/:id").get(fetchUserById)
 router.route("/fetchUserByIdd/:id").get(fetchUserByIdd)

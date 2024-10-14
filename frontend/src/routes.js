@@ -34,6 +34,7 @@ const Payment = React.lazy(() => import('./views/pages/payment/Payment.js'))
 const Topup = React.lazy(() => import('./views/pages/payment/Topup.js'))
 const Prepaid = React.lazy(() => import('./views/pages/payment/Prepaid.js'))
 const Cancelation = React.lazy(() => import('./views/pages/payment/Cancelation.js'))
+const CancellationDetails = React.lazy(() => import('./views/pages/payment/CancellationDetails.js'))
 const Permission = React.lazy(() => import('./views/pages/payment/Permission.js'))
 const ViewDetails = React.lazy(() => import('./views/pages/requesteduser/ViewTable.js'))
 const FundDetails = React.lazy(() => import('./views/pages/fundrequest/FundRequestDatails.js'))
@@ -127,6 +128,7 @@ const routes = [
   { path: '/topup', name: 'TopUp', element: Topup },
   { path: '/prepaid-services', name: 'Prepaid-Balance', element: Prepaid },
   { path: '/request-cancelation', name: 'Request-Cancelation', element: Cancelation },
+  { path: '/request-cancelation-details', name: 'Cancelation-Details', element: CancellationDetails },
   { path: '/update-user/:userId', name: 'Update User', element: UpdateUser },
   { path: '/view-details/:userId', name: 'View Details', element: ViewDetails },
   { path: '/fund-details/:userId', name: 'Fund Details', element: FundDetails },
