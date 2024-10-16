@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   CContainer,
@@ -9,15 +9,23 @@ import {
   CFormSelect,
   CFormInput,
   CButton,
-  CFormText
+  CFormText,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
 } from '@coreui/react';
 
 const CancellationDetails = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { selectedItem } = location.state || {};
   const [option, setOption] = useState('');
   const [files, setFiles] = useState({ input1: null, input2: null, input3: null });
   const [errors, setErrors] = useState({ option: '', files: { input1: '', input2: '', input3: '' } });
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // State for modal visibility
+
 
   const handleFileChange = (e, inputName) => {
     const file = e.target.files[0];
@@ -80,21 +88,30 @@ const CancellationDetails = () => {
     
     formData.append('selectedOption', option);
     formData.append('userId', selectedItem.userId);
+    formData.append('tds', selectedItem.tds);
+    formData.append('commission', selectedItem.commission);
+    formData.append('netCommission', selectedItem.netCommission);
     formData.append('transactionId', selectedItem.transactionId);
     formData.append('consumerNumber', selectedItem.canumber);
     formData.append('consumerName', selectedItem.consumerName);
     formData.append('paymentMode', selectedItem.paymentmode || 'N/A');
     formData.append('paymentAmount', selectedItem.paidamount || 'N/A');
-    formData.append('paymentStatus', selectedItem.paymentstatus || 'N/A');
+    // formData.append('paymentStatus', selectedItem.paymentstatus || 'N/A');
     formData.append('createdOn', new Date(selectedItem.createdon).toISOString());
 
     try {
       console.log("Sending data:", Array.from(formData.entries()));
       const response = await axios.post('/cancellation-details', formData);
       console.log('Data sent successfully:', response.data);
+      setShowSuccessModal(true);
     } catch (error) {
       console.error('Error sending data:', error);
     }
+  };
+
+  const closeModal = () => {
+    setShowSuccessModal(false);
+    navigate(-1); // Navigate back to the previous page
   };
 
   return (
@@ -168,6 +185,17 @@ const CancellationDetails = () => {
           <CButton color="primary" type="submit">Submit</CButton>
         </form>
       )}
+       <CModal visible={showSuccessModal} onClose={closeModal}>
+        <CModalHeader>
+          <CModalTitle>Success</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          Cancellation has been successfully done.
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="primary" onClick={closeModal}>OK</CButton>
+        </CModalFooter>
+      </CModal>
     </CContainer>
   );
 };

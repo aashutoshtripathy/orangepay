@@ -39,6 +39,9 @@ const Permission = React.lazy(() => import('./views/pages/payment/Permission.js'
 const ViewDetails = React.lazy(() => import('./views/pages/requesteduser/ViewTable.js'))
 const FundDetails = React.lazy(() => import('./views/pages/fundrequest/FundRequestDatails.js'))
 const Passbook = React.lazy(() => import('./views/pages/passbook/Passbook.js'))
+const CancellationHistory = React.lazy(() => import('./views/pages/usermangement/CancellationHistory.js'))
+const CancellationRequest = React.lazy(() => import('./views/pages/usermangement/CancellationRequest.js'))
+const CancellationDetailss = React.lazy(() => import('./views/pages/usermangement/CancellationDetailss.js'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -133,6 +136,9 @@ const routes = [
   { path: '/view-details/:userId', name: 'View Details', element: ViewDetails },
   { path: '/fund-details/:userId', name: 'Fund Details', element: FundDetails },
   { path: '/passbook/:userId', name: 'Passbook', element: Passbook },
+  { path: '/cancellattion-history', name: 'Cancellation History', element: CancellationHistory },
+  { path: '/cancellationrequests', name: 'Cancellation Request', element: CancellationRequest },
+  { path: '/cancellation-details', name: 'Cancellation Details', element: CancellationDetailss },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

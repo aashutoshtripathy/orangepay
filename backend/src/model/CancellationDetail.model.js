@@ -5,180 +5,44 @@ import { Schema } from "mongoose";
 const cancellationDetailSchema = new Schema({
   userId: {
     type: String,
-    required: false
-  },
-  id: {
-    type: String,
-    // unique: false,
-    required: false
-  },
-  canumber: {
-    type: String,
-    required: false
-  },
-  invoicenumber: {
-    type: String,
-    required: false
-  },
-  billmonth: {
-    type: String,
-    required: false
+    required: false, // Assuming userId is a required field
   },
   transactionId: {
     type: String,
-    required: true,
-    unique: true 
-  },
-  refrencenumber: {
-    type: String,
-    required: false
-  },
-  bankid: {
-    type: String,
-    trim: false,
-    required: false
-  },
-  paymentmode: {
-    type: String, 
-    // required: false
-    // enum: ['Cash', 'Upi', 'Card'], 
-
-  },
-  paymentstatus: {
-    type: String, 
-    // required: false
-  },
-  createdon: {
-    type: Date, 
-    default: Date.now
-  },
-  createdby: {
-    type: String, 
-    required: false
-  },
-  billpoststatus: {
-    type: String,
-    enum: ['Success', 'Pending', 'Failed'], 
-    // required: false
-  },
-  paidamount: {
-    type: String, 
-    required: false
-  },
-  reciptno: {
-    type: String,
-    enum: ['Success', 'Pending', 'Failed'], 
-    required: false
-  },
-  billposton: {
-    type: Date, 
-    default: Date.now
-  },
-  getway: {
-    type: String, 
-    // required: false
-    enum: ['wallet', 'ezetap', 'Upi-Qr'], 
-
-  },
-  cardtxntype: {
-    type: String,
-    required: false 
-  },
-  terminalid: {
-    type: String, 
-    required: false
-  },
-  mid: {
-    type: String,
-    // enum: ['cash', 'ezytap', 'ccard'], 
-    required: false
-  },
-  nameoncard: {
-    type: String,
-    required: false
+    required: false, // Assuming transactionId is a required field
   },
   remarks: {
     type: String,
-    required: false
+    required: false, // Assuming transactionId is a required field
   },
-  loginid: {
+  consumerNumber: {
     type: String,
-    required: false
-  },
-  rrn: {
-    type: String, 
-    required: false
-  },
-  vpa: {
-    type: String,
-    required: false
-  },
-  billamount: {
-    type: Number,
-    required: false
-  },
-  paymentdate: {
-    type: Date,
-    default: Date.now
-  },
-  latitude: {
-    type: Number,
-    required: false
-  },
-  longitude: {
-    type: Number,
-    required: false
-  },
-  fetchtype: {
-    type: String,
-    required: false
-  },
-  consumermob: {
-    type: String, 
-    required: false
-  },
-  ltht: {
-    type: String, 
-    required: false
-  },
-  duedate: {
-    type: String, 
-    required: false
-  },
-  brandcode: {
-    type: String,
-    required: false
-  },
-  division: {
-    type: String,
-    required: false
-  },
-  subdivision: {
-    type: String,
-    required: false
+    required: false, // Assuming consumerNumber is a required field
   },
   consumerName: {
     type: String,
-    required: false
+    required: false, // Assuming consumerName is a required field
   },
-  commission: {
+  paymentMode: {
     type: String,
-    required: false
+    required: false, // Assuming paymentMode is a required field
   },
-  tds: {
+  paymentAmount: {
+    type: Number,
+    required: false, // Assuming paymentAmount is a required field
+  },
+  paymentStatus: {
     type: String,
-    required: false
+    required: false, // Assuming paymentStatus is a required field
   },
-  netCommission: {
+  createdOn: {
+    type: Date,
+    default: Date.now, // Set the default to current date
+  },
+  selectedOption: {
     type: String,
-    required: false
-  },
- 
-    files: {
-      input1: { type: String, required: false },
-      input2: { type: String, required: false },
-      input3: { type: String, required: false },
-    },
+    required: false, // Assuming selectedOption is a required field
+  }
   });
 
 

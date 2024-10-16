@@ -1769,31 +1769,13 @@ const uploads = multer({ storagee }).fields([
 
 
 const cancellationDetails = asyncHandler(async (req, res) => {
-
   uploads(req, res, async (err) => {
     if (err) {
       return res.status(400).json(new ApiError(400, "File upload failed"));
     }
 
-
-    const {userId, transactionId, consumerNumber, consumerName, paymentMode, paymentAmount, paymentStatus, createdOn, selectedOption } = req.body;
-    console.log(userId)
-    console.log(req.body)
-
-
-  try {
-    
-
-    const files = {
-      input1: req.files['input1'] ? req.files['input1'][0].path : null,
-      input2: req.files['input2'] ? req.files['input2'][0].path : null,
-      input3: req.files['input3'] ? req.files['input3'][0].path : null,
-    };
-    console.log(files)
-
-
-
-    const cancellationDetail = new CancellationDetail({
+    const {
+      userId,
       transactionId,
       consumerNumber,
       consumerName,
@@ -1802,44 +1784,193 @@ const cancellationDetails = asyncHandler(async (req, res) => {
       paymentStatus,
       createdOn,
       selectedOption,
-      files,
-    });
+      tds,
+      netCommission,
+    } = req.body;
 
-    await cancellationDetail.save();
+    console.log(userId);
+    console.log(req.body);
 
-    // Ensure paymentAmount is a number
-    const amountToAdd = Number(paymentAmount);
-    if (isNaN(amountToAdd)) {
-      return res.status(400).json({ message: "Invalid payment amount" });
-    }
+    try {
+      const files = {
+        input1: req.files['input1'] ? req.files['input1'][0].path : null,
+        input2: req.files['input2'] ? req.files['input2'][0].path : null,
+        input3: req.files['input3'] ? req.files['input3'][0].path : null,
+      };
+      console.log(files);
 
+      // Create cancellation detail with initial status "Pending"
+      const cancellationDetail = new CancellationDetail({
+        userId,
+        transactionId,
+        consumerNumber,
+        consumerName,
+        paymentMode,
+        paymentAmount,
+        paymentStatus: "Pending", // Set initial status to "Pending"
+        createdOn,
+        selectedOption,
+        files,
+      });
 
+      await cancellationDetail.save();
 
+      // Only update wallet balance if paymentStatus is "Accepted"
+      if (paymentStatus === "Completed") {
+        const amountToAdd = parseFloat(paymentAmount); // Use parseFloat for amounts with decimals
+        const tdsAmount = parseFloat(tds); // Ensure TDS can be in paise
+        const commissionAmount = parseFloat(netCommission); // Ensure commission can be in paise
 
-    const wallet = await Wallet.findOne({ uniqueId:userId });
-    if (!wallet) {
-      return res.status(404).json({ message: "Wallet not found for the consumer" });
-    }
+        // Ensure paymentAmount is a number
+        const finalAmountToAdd = amountToAdd - (tdsAmount + commissionAmount);
+        if (finalAmountToAdd < 0) {
+          return res.status(400).json({ message: "Amount to add cannot be negative after deductions" });
+        }
 
-    // Add the paymentAmount back to the wallet
-    wallet.balance += amountToAdd;
+        const wallet = await Wallet.findOne({ uniqueId: userId });
+        if (!wallet) {
+          return res.status(404).json({ message: "Wallet not found for the consumer" });
+        }
 
-    // Save the updated wallet balance
-    await wallet.save();
+        // Add the paymentAmount back to the wallet
+        wallet.balance += finalAmountToAdd;
 
-    res.status(201).json({
-      message: 'Cancellation details saved successfully, and money added back to the wallet',
-      data: {
-        cancellationDetail,
-        walletBalance: wallet.balance
+        // Save the updated wallet balance
+        await wallet.save();
       }
-    });
-    // res.status(201).json({ message: 'Cancellation details saved successfully', data: cancellationDetail });
-  } catch (error) {
-    res.status(500).json({ message: 'Error saving cancellation details', error: error.message });
-  }
-})
+
+      const paymentRecord = await Payment.findOneAndDelete({ transactionId });
+      if (!paymentRecord) {
+        return res.status(404).json({ message: "Payment record not found for the transaction" });
+      }
+
+      res.status(201).json({
+        message: 'Cancellation details saved successfully' + (paymentStatus === "Accepted" ? ', and money added back to the wallet' : ''),
+        data: {
+          cancellationDetail,
+          walletBalance: paymentStatus === "Accepted" ? (await Wallet.findOne({ uniqueId: userId })).balance : null,
+          deletedPayment: paymentRecord,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Error saving cancellation details', error: error.message });
+    }
+  });
 });
+
+
+
+// Controller function to approve a fund cancellation request
+ // Controller function to accept a fund cancellation request
+const cancelAccept = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Find the request by its ID and update the status to 'Completed'
+    const updatedRequest = await CancellationDetail.findByIdAndUpdate(
+      id,
+      { paymentStatus: 'Completed' }, // Update status to 'Completed'
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return res.status(404).json({ message: 'Fund request not found' });
+    }
+
+    res.status(200).json({
+      message: 'Fund cancellation request approved successfully',
+      updatedRequest,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error approving fund cancellation request',
+      error: error.message,
+    });
+  }
+});
+
+// Controller function to reject a fund cancellation request
+const cancelReject = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { remarks } = req.body; // Capture remarks from the request body
+
+  try {
+    // Find the request by its ID and update the status to 'Rejected' with optional remarks
+    const updatedRequest = await CancellationDetail.findByIdAndUpdate(
+      id,
+      { paymentStatus: 'Rejected', remarks: remarks || 'No remarks provided' }, // Update status to 'Rejected' and set remarks
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return res.status(404).json({ message: 'Fund request not found' });
+    }
+
+    res.status(200).json({
+      message: 'Fund cancellation request rejected successfully',
+      updatedRequest,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error rejecting fund cancellation request',
+      error: error.message,
+    });
+  }
+});
+
+
+
+
+const cancellationHistory = asyncHandler(async (req, res) => {
+  // Use req.query to get username from query parameters
+  const { username } = req.query; 
+
+  try {
+    // Fetch cancellation details where userId matches the username
+    const history = await CancellationDetail.find({ userId: username }); 
+
+    if (!history || history.length === 0) {
+      return res.status(404).json({ message: 'No cancellation history found for this user.' });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: history,
+    });
+  } catch (error) {
+    console.error('Error fetching cancellation history:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Unable to retrieve cancellation history.',
+    });
+  }
+});
+
+
+const cancellationHistoryy = asyncHandler(async (req, res) => {
+  try {
+    const history = await CancellationDetail.find({}); 
+    console.log('Fetched history:', history); // Add this line to log the retrieved data
+
+    if (!history || history.length === 0) {
+      return res.status(404).json({ message: 'No cancellation history found.' });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: history,
+    });
+  } catch (error) {
+    console.error('Error fetching cancellation history:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Unable to retrieve cancellation history.',
+    });
+  }
+});
+
+
+
+
 
 
 // Define the API endpoint using asyncHandler
@@ -1863,5 +1994,5 @@ const fetchUserByIdd = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, fetchWalletBalance,cancellationDetails, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+export { registerUser,cancellationHistoryy,cancelAccept,cancelReject, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 

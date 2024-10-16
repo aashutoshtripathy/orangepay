@@ -55,6 +55,7 @@ export const adminNavItems = [
     items: [
       { component: CNavItem, name: 'Add User' , to: '/add-user' },
       { component: CNavItem, name: 'Fund Request', to: `/fundrequests` },
+      { component: CNavItem, name: 'Cancellation Request', to: `/cancellationrequests` },
       // { component: CNavItem, name: 'Manage User', to: '/manage-user' },
       // { component: CNavItem, name: 'Manage User Service', to: '/manage-user-service' },
       // { component: CNavItem, name: 'Manage RePosting Bill', to: '/manage-reposting-bill' },
@@ -132,6 +133,7 @@ export const distributorNavItems = (permissions , userId) =>  [
       { component: CNavItem, name: 'Reports', to: '/report-OrangePay' },
       { component: CNavItem, name: 'Top-Up Report', to: '/report-OrangePay' },
       { component: CNavItem, name: 'Commission History',  to: '/transaction-history' },
+      { component: CNavItem, name: 'Cancellattion History',  to: '/cancellattion-history' },
     ],
   },
   {
