@@ -143,6 +143,7 @@ export const distributorNavItems = (permissions , userId) =>  [
     items: [
       { component: CNavItem,  to: `/profile/${userId}` , name: 'View Profile',},
       { component: CNavItem,  to: `/passbook/${userId}` , name: 'Passbook',},
+      { component: CNavItem,  to: `/Wallet-details/${userId}` , name: 'Wallet Report',},
       { component: CNavItem, name: 'Change Password' , to: '/change-password' },
       { component: CNavItem, name: 'Change TPIN' , to: '/change-password' },
     ],

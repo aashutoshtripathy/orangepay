@@ -1,0 +1,53 @@
+.table-container {
+    margin: 20px;
+    background-color: #f8f9fa; // Light background for contrast
+    border-radius: 8px; // Rounded corners
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); // Subtle shadow
+    padding: 20px; // Padding around the table
+  }
+  
+  table {
+    border-collapse: collapse; // Collapse borders
+    width: 100%; // Full width
+  }
+  
+  th {
+    background-color: #007bff; // Primary color for headers
+    color: white; // White text for contrast
+    text-align: left; // Left-align text
+    padding: 12px; // Padding inside header cells
+    border-bottom: 2px solid #0056b3; // Darker border for separation
+  }
+  
+  td {
+    padding: 12px; // Padding inside data cells
+    border-bottom: 1px solid #ddd; // Light gray border for separation
+  }
+  
+  tr:hover {
+    background-color: #f1f1f1; // Highlight row on hover
+  }
+  
+  img {
+    border-radius: 4px; // Rounded images
+    transition: transform 0.2s; // Smooth scaling effect
+  }
+  
+  img:hover {
+    transform: scale(1.05); // Scale up on hover
+  }
+  
+  button {
+    margin-right: 10px; // Spacing between buttons
+    transition: background-color 0.3s; // Smooth transition for hover
+  }
+  
+  button:hover {
+    background-color: #0056b3; // Darker blue on hover
+  }
+  
+  .modal-header, .modal-footer {
+    background-color: #007bff; // Primary color for modals
+    color: white; // White text for contrast
+  }
+  

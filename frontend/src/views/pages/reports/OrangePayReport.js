@@ -9,14 +9,20 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx'; // Import XLSX for Excel export
 import '../../../scss/dataTable.scss';
 
+
+// Define custom styles for the table
 const customStyles = {
   rows: {
     style: {
-      minHeight: '72px',
+      minHeight: '72px', // Set the minimum row height
     },
   },
   headCells: {
     style: {
+      // backgroundColor: '#333', // Dark background for header cells
+      color: 'black', // Set font color to orange for header cells
+      fontSize: '16px', // Adjust font size for header
+      fontWeight: 'bold', // Make the header bold
       paddingLeft: '8px',
       paddingRight: '8px',
     },
@@ -114,9 +120,10 @@ const OrangePayReport = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/getPayment/${userId}`);
+        const response = await axios.get(`/getPayments/${userId}`);
         const result = response.data.balance ? response.data.balance : [];
-        setData(result);
+        const reversedResult = result.reverse();
+    setData(reversedResult);
       } catch (error) {
         setError(error);
       } finally {
@@ -139,6 +146,14 @@ const OrangePayReport = () => {
   
     return isTextMatch && isDateMatch;
   });
+
+
+  
+  const handleClearDates = () => {
+    setFromDate(''); // Clear fromDate
+    setToDate('');   // Clear toDate
+  };
+
   
 
 
@@ -207,36 +222,52 @@ const OrangePayReport = () => {
       <div className="button-container">
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search by status..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
-        <button className="button-search">
+        {/* <button 
+          className="button-search" 
+          onClick={handleSearch}
+        >
           <FontAwesomeIcon icon={faSearch} /> Search
-        </button>
-        <button className="button-download" onClick={() => downloadPDF(filteredItems)}>
+        </button> */}
+        <button
+          className="button-download"
+          onClick={() => downloadPDF(data)}
+        >
           <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
-        <button className="button-download-excel" onClick={() => downloadExcel(filteredItems)}>
+        <button
+          className="button-download-excel"
+          onClick={() => downloadExcel(data)}
+        >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
         <div className="date-filter-container">
-        <label>From Date:</label>
-        <input
-          type="date"
-          value={fromDate}
-          onChange={e => setFromDate(e.target.value)}
-        />
-        <label>To Date:</label>
-        <input
-          type="date"
-          value={toDate}
-          onChange={e => setToDate(e.target.value)}
-        />
+          <label>From Date:</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={e => setFromDate(e.target.value)}
+          />
+          <label>To Date:</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={e => setToDate(e.target.value)}
+          />
+          <button
+            className="button-clear-dates"
+            onClick={handleClearDates}
+          >
+            Clear Dates
+          </button>
+        </div>
       </div>
-      </div>
+      <div className="data-table-container">
       <DataTable
-        title="Bill Payment"
+          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>Bill Payment</h2>}
         columns={columns}
         data={filteredItems}
         pagination
@@ -245,6 +276,7 @@ const OrangePayReport = () => {
       />
 
       <div>
+        </div>
 
         <CRow className="my-4">
           <CCol sm="6" md="3">

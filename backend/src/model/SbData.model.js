@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 
-const SbDataSchema = new Schema({
-    ConsumeId: {
-      type: Number,  // Use Number for Int32
+const SbdataSchema = new Schema({
+  ConsumerId: {
+      type: String,  // Use Number for Int32
       required: true,
       unique: true,
     },
@@ -67,4 +67,4 @@ const SbDataSchema = new Schema({
   });
   
   // Create the model
-  export const SbData = mongoose.model('SbData', SbDataSchema);
+  export const Sbdata = mongoose.model('Sbdata', SbdataSchema);

@@ -42,6 +42,7 @@ const Passbook = React.lazy(() => import('./views/pages/passbook/Passbook.js'))
 const CancellationHistory = React.lazy(() => import('./views/pages/usermangement/CancellationHistory.js'))
 const CancellationRequest = React.lazy(() => import('./views/pages/usermangement/CancellationRequest.js'))
 const CancellationDetailss = React.lazy(() => import('./views/pages/usermangement/CancellationDetailss.js'))
+const WalletReport = React.lazy(() => import('./views/pages/reports/WalletReport.js'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -139,6 +140,7 @@ const routes = [
   { path: '/cancellattion-history', name: 'Cancellation History', element: CancellationHistory },
   { path: '/cancellationrequests', name: 'Cancellation Request', element: CancellationRequest },
   { path: '/cancellation-details', name: 'Cancellation Details', element: CancellationDetailss },
+  { path: '/Wallet-details/:userId', name: 'Wallet Details', element: WalletReport },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

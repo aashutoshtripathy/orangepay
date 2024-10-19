@@ -18,6 +18,10 @@ const customStyles = {
   },
   headCells: {
     style: {
+      // backgroundColor: '#333', // Dark background for header cells
+      color: 'black', // Set font color to orange for header cells
+      fontSize: '16px', // Adjust font size for header
+      fontWeight: 'bold', // Make the header bold
       paddingLeft: '8px',
       paddingRight: '8px',
     },
@@ -182,7 +186,10 @@ const DataTableComponent = () => {
 
 
 
-
+  const handleClearDates = () => {
+    setFromDate(''); // Clear fromDate
+    setToDate('');   // Clear toDate
+  };
 
 
 
@@ -249,32 +256,32 @@ const DataTableComponent = () => {
 
   return (
     <div>
-      <div className="button-container">
-        <input
-          type="text"
-          placeholder="Search by userId or Ref..."
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
-        />
-        <button 
-          className="button-search" 
-          onClick={handleSearch}
-        >
-          <FontAwesomeIcon icon={faSearch} /> Search
-        </button>
-        <button 
-          className="button-download" 
-          onClick={() => downloadPDF(data)}
-        >
-          <FontAwesomeIcon icon={faDownload} /> Download PDF
-        </button>
-        <button 
-          className="button-download-excel" 
-          onClick={() => downloadExcel(data)}
-        >
-          <FontAwesomeIcon icon={faFileExcel} /> Download Excel
-        </button>
-        <div className="date-filter-container">
+    <div className="button-container">
+      <input
+        type="text"
+        placeholder="Search by status..."
+        value={filterText}
+        onChange={(e) => setFilterText(e.target.value)}
+      />
+      {/* <button 
+        className="button-search" 
+        onClick={handleSearch}
+      >
+        <FontAwesomeIcon icon={faSearch} /> Search
+      </button> */}
+      <button
+        className="button-download"
+        onClick={() => downloadPDF(data)}
+      >
+        <FontAwesomeIcon icon={faDownload} /> Download PDF
+      </button>
+      <button
+        className="button-download-excel"
+        onClick={() => downloadExcel(data)}
+      >
+        <FontAwesomeIcon icon={faFileExcel} /> Download Excel
+      </button>
+      <div className="date-filter-container">
         <label>From Date:</label>
         <input
           type="date"
@@ -287,16 +294,24 @@ const DataTableComponent = () => {
           value={toDate}
           onChange={e => setToDate(e.target.value)}
         />
+        <button
+          className="button-clear-dates"
+          onClick={handleClearDates}
+        >
+          Clear Dates
+        </button>
       </div>
-      </div>
+    </div>
+    <div className="data-table-container">
       <DataTable
-        title="Fund Requests"
+          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>Fund Requests</h2>}
         columns={columns}
         data={filteredItems}
         pagination
         highlightOnHover
         customStyles={customStyles}
       />
+    </div>
     </div>
   );
 };

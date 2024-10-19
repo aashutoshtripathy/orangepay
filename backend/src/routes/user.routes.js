@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
-import { deleteUser, fetchData, fetchWalletBalance,cancellationDetails,cancelAccept,cancelReject,getCancellation,cancellationHistoryy,cancellationHistory,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd } from "../controller/user.controller.js";
-import {processPayment, getPayment , fetchReward , BiharService , getTotalBalance} from "../controller/payment.controller.js"
+import { deleteUser, fetchData, fetchWalletBalance,sbData,cancellationDetails,cancelAccept,cancelReject,getCancellation,cancellationHistoryy,cancellationHistory,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd } from "../controller/user.controller.js";
+import {processPayment, getPayment , getPayments , fetchReward , BiharService , getTotalBalance} from "../controller/payment.controller.js"
 import { initiateEzetapPayment } from "../controller/ezetap.controller.js";
 
 
@@ -13,6 +13,7 @@ router.route("/transaction").post(registerTransaction)
 router.route("/cancellation-details").post(cancellationDetails)
 router.route("/reports").get(reports)
 router.route("/getPayment/:userId").get(getPayment)
+router.route("/getPayments/:userId").get(getPayments)
 router.route("/cancellationHistory").get(cancellationHistory)
 router.route("/cancellationHistoryy").get(cancellationHistoryy)
 router.route("/balance/:userId").get(fetchWalletBalance)
@@ -55,6 +56,10 @@ router.route("/updateCommission/:userId").put(updateUserCommission)
 router.route("/ezetap").post(initiateEzetapPayment)
 router.route("/cancel/:id/approve").patch(cancelAccept);
 router.route("/cancel/:id/reject").patch(cancelReject);
+
+
+router.route("/sbdata").get(sbData)
+
 
 
 

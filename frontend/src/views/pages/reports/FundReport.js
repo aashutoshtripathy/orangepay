@@ -17,6 +17,10 @@ const customStyles = {
   },
   headCells: {
     style: {
+      // backgroundColor: '#333', // Dark background for header cells
+      color: 'black', // Set font color to orange for header cells
+      fontSize: '16px', // Adjust font size for header
+      fontWeight: 'bold', // Make the header bold
       paddingLeft: '8px',
       paddingRight: '8px',
     },
@@ -28,6 +32,7 @@ const customStyles = {
     },
   },
 };
+
 
 const downloadPDF = (data) => {
   const doc = new jsPDF({
@@ -214,6 +219,11 @@ const DataTableComponent = () => {
   }, [userIdd]);
 
 
+  
+  const handleClearDates = () => {
+    setFromDate(''); // Clear fromDate
+    setToDate('');   // Clear toDate
+  };
 
 
   const handleSearch = (event) => {
@@ -267,51 +277,59 @@ const DataTableComponent = () => {
       <div className="button-container">
         <input
           type="text"
-          placeholder="Search by userId..."
+          placeholder="Search by status..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
-        <button 
+        {/* <button 
           className="button-search" 
           onClick={handleSearch}
         >
           <FontAwesomeIcon icon={faSearch} /> Search
-        </button>
-        <button 
-          className="button-download" 
+        </button> */}
+        <button
+          className="button-download"
           onClick={() => downloadPDF(data)}
         >
           <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
-        <button 
-          className="button-download-excel" 
+        <button
+          className="button-download-excel"
           onClick={() => downloadExcel(data)}
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
         <div className="date-filter-container">
-        <label>From Date:</label>
-        <input
-          type="date"
-          value={fromDate}
-          onChange={e => setFromDate(e.target.value)}
-        />
-        <label>To Date:</label>
-        <input
-          type="date"
-          value={toDate}
-          onChange={e => setToDate(e.target.value)}
-        />
+          <label>From Date:</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={e => setFromDate(e.target.value)}
+          />
+          <label>To Date:</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={e => setToDate(e.target.value)}
+          />
+          <button
+            className="button-clear-dates"
+            onClick={handleClearDates}
+          >
+            Clear Dates
+          </button>
+        </div>
       </div>
-      </div>
+      <div className="data-table-container">
       <DataTable
-        title="My Data Table"
-        columns={columns}
+          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>Fund Reports</h2>}
+          columns={columns}
         data={filteredItems} // Use filtered items for the table data
         pagination
         highlightOnHover
         customStyles={customStyles}
       />
+    </div>
     </div>
   );
 };

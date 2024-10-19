@@ -20,6 +20,10 @@ const customStyles = {
   },
   headCells: {
     style: {
+      // backgroundColor: '#333', // Dark background for header cells
+      color: 'black', // Set font color to orange for header cells
+      fontSize: '16px', // Adjust font size for header
+      fontWeight: 'bold', // Make the header bold
       paddingLeft: '8px',
       paddingRight: '8px',
     },
@@ -31,7 +35,6 @@ const customStyles = {
     },
   },
 };
-
 
 const DataTableComponent = () => {
   const [data, setData] = useState([]);
@@ -458,20 +461,16 @@ const DataTableComponent = () => {
     <div>
       <div className="button-container">
         <input
+        style={{width:"120px"}}
           type="text"
           placeholder="Search by userId..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
-        <button
-          className="button-search"
-          onClick={handleSearch}
-        >
-          <FontAwesomeIcon icon={faSearch} /> Search
-        </button>
+     
 
-        <CDropdown>
-          <CDropdownToggle color="secondary">
+        <CDropdown >
+          <CDropdownToggle className="button-download">
             {statusFilter === 'all' ? 'All Users' :
               statusFilter === 'Approved' ? 'Active Users' :
                 statusFilter === 'Blocked' ? 'Blocked Users' :
@@ -513,7 +512,7 @@ const DataTableComponent = () => {
             onChange={e => setToDate(e.target.value)}
           />
           <button
-            className="button-clear-date"
+            className="button-clear-dates"
             onClick={() => {
               setFromDate('');
               setToDate('');
@@ -523,14 +522,16 @@ const DataTableComponent = () => {
           </button>
         </div>
       </div>
+      <div className="data-table-container">
       <DataTable
-        title="View Users"
+          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>View Users</h2>}
         columns={columns}
         data={filteredItems}
         pagination
         highlightOnHover
         customStyles={customStyles}
       />
+    </div>
     </div>
   );
 };

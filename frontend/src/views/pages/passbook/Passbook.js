@@ -1,108 +1,271 @@
 import React, { useEffect, useState } from 'react';
-import {
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CCardTitle,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-  CBadge,
-} from '@coreui/react';
+import DataTable from 'react-data-table-component';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle, faTimesCircle, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { CCard, CCardBody, CCardHeader, CCol, CRow, CCardTitle, CCardText } from '@coreui/react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx'; // Import XLSX for Excel export
+import '../../../scss/dataTable.scss';
+
+
+// Define custom styles for the table
+const customStyles = {
+  rows: {
+    style: {
+      minHeight: '72px', // Set the minimum row height
+    },
+  },
+  headCells: {
+    style: {
+      // backgroundColor: '#333', // Dark background for header cells
+      color: 'black', // Set font color to orange for header cells
+      fontSize: '16px', // Adjust font size for header
+      fontWeight: 'bold', // Make the header bold
+      paddingLeft: '8px',
+      paddingRight: '8px',
+    },
+  },
+  cells: {
+    style: {
+      paddingLeft: '8px',
+      paddingRight: '8px',
+    },
+  },
+};
+
+// Function to generate and download PDF
+const downloadPDF = (data) => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const title = "Table Data";
+  const titleXPos = pageWidth / 2;
+
+  doc.setFontSize(18);
+  doc.text(title, titleXPos, 15, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
+
+  const columns = [
+    { header: 'ID', dataKey: '_id' },
+    { header: 'Transaction ID', dataKey: 'transactionId' },
+    { header: 'Reference Number', dataKey: 'referenceNumber' },
+    { header: 'Transaction DateTime', dataKey: 'transactionDateTime' },
+    { header: 'Service Name', dataKey: 'serviceName' },
+    { header: 'Consumer ID', dataKey: 'consumerId' },
+    { header: 'Meter ID', dataKey: 'meterId' },
+    { header: 'Request Amount', dataKey: 'requestAmount' },
+    { header: 'Total Service Charge', dataKey: 'totalServiceCharge' },
+    { header: 'Total Commission', dataKey: 'totalCommission' },
+    { header: 'Net Amount', dataKey: 'netAmount' },
+    { header: 'Action On Amount', dataKey: 'actionOnAmount' },
+    { header: 'Status', dataKey: 'status' },
+    { header: 'Payment Method', dataKey: 'paymentMethod' },
+    { header: 'Payment Date', dataKey: 'paymentDate' },
+  ];
+
+  const rows = data.map(row => columns.map(col => row[col.dataKey]));
+
+  doc.autoTable({
+    startY: 30,
+    head: [columns.map(col => col.header)],
+    body: rows,
+    styles: {
+      fontSize: 8,
+      cellPadding: 3,
+      overflow: 'linebreak',
+      halign: 'left',
+      valign: 'middle',
+    },
+    headStyles: {
+      fillColor: [52, 58, 64],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+    },
+    alternateRowStyles: {
+      fillColor: [220, 220, 220],
+    },
+    columnStyles: {
+      0: { cellWidth: 'auto' },
+    },
+    didDrawPage: (data) => {
+      const pageCount = doc.internal.getNumberOfPages();
+      doc.setFontSize(10);
+      doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
+    }
+  });
+
+  doc.save('table_data.pdf');
+};
+
+// Function to generate and download Excel
+const downloadExcel = (data) => {
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Table Data");
+  XLSX.writeFile(wb, 'table_data.xlsx');
+};
 
 const Passbook = () => {
-  const [transactions, setTransactions] = useState([]);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [filterText, setFilterText] = useState('');
   const userId = localStorage.getItem('userId');
+  const [transactions, setTransactions] = useState([]);
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/getPayment/${userId}`);
-        const result = response.data.balance ? response.data.balance : [];
-        result.sort((a, b) => new Date(b.createdon) - new Date(a.createdon));
+        const result = response.data.balance
+          ? response.data.balance.flatMap(balance => balance.transactions).reverse() // Merge and reverse transactions
+          : [];
         setTransactions(result);
+        setData(result); // Assuming you use `data` elsewhere for filtered results
       } catch (error) {
+        console.error('Error fetching data:', error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [userId]);
+  
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  const options = { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric', 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit' 
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
   };
+  
+  // Function to limit the amount to two decimal places
+  const formatAmount = (amount) => {
+    return parseFloat(amount).toFixed(2);
+  };
+
+
+  const filteredItems = data.filter(item => {
+    const isTextMatch = Object.values(item).some(val =>
+      val && val.toString().toLowerCase().includes(filterText.toLowerCase())
+    );
+
+    // Ensure transactionDateTime is a valid date before filtering
+    const transactionDate = new Date(item.createdon);
+    const isDateMatch = (!fromDate || transactionDate >= new Date(fromDate)) &&
+      (!toDate || transactionDate <= new Date(toDate));
+
+    return isTextMatch && isDateMatch;
+  });
+
+
+
+  const handleClearDates = () => {
+    setFromDate(''); // Clear fromDate
+    setToDate('');   // Clear toDate
+  };
+
+
+
+
+  const totalPaidAmount = filteredItems.reduce((total, item) => total + (parseFloat(item.billamount) || 0), 0);
+  const totalCommission = filteredItems.reduce((total, item) => total + (parseFloat(item.totalCommission) || 0), 0);
+
+  // Calculate the overall commission, TDS, and net commission
+  const overallCommission = totalPaidAmount * 0.01;
+  const overallTDS = overallCommission * 0.05;
+  const overallNetCommission = overallCommission - overallTDS;
+
+  const columns = [
+
+    { name: 'Date/Time', selector:  row => formatDate(row.date), sortable: true },
+    { name: 'Service', selector: 'description', sortable: true },
+    { name: 'Type', selector: 'type', sortable: true },
+    { name: 'TransactionId', selector: 'transactionId', sortable: true },
+    { name: 'Opening Balance', selector:  row => formatAmount(row.openingBalance), sortable: true },
+    { name: 'Requested Amount', selector: row => formatAmount(row.amount), sortable: true },
+    { name: 'Commission Earned',  selector: row => (parseFloat(row.commission) || 0).toFixed(2), sortable: true },
+    { name: 'Final Balance', selector: row => formatAmount(row.closingBalance), sortable: true },
+  ]
+
+
+
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
-    <CCard>
-      <CCardHeader>
-        <CCardTitle>Passbook</CCardTitle>
-      </CCardHeader>
-      <CCardBody>
-        <CTable striped bordered hover>
-          <CTableHead>
-            <CTableRow>
-              <CTableHeaderCell>Date/Time</CTableHeaderCell>
-              <CTableHeaderCell>Service</CTableHeaderCell>
-              <CTableHeaderCell>TransactionID</CTableHeaderCell>
-              <CTableHeaderCell>Opening Balance</CTableHeaderCell>
-              <CTableHeaderCell>Requested Amount</CTableHeaderCell>
-              <CTableHeaderCell>Commission Earned</CTableHeaderCell>
-              <CTableHeaderCell>Final Balance</CTableHeaderCell>
-            </CTableRow>
-          </CTableHead>
-          <CTableBody>
-            {transactions.map(transaction => (
-              <React.Fragment key={transaction.id}>
-                {/* <CTableRow>
-                  <CTableDataCell>{new Date(transaction.createdon).toLocaleDateString(undefined, options)}</CTableDataCell>
-                  <CTableDataCell>
-                    {transaction.description} + Reward
-                    <CBadge color="success">Credit</CBadge>
-                  </CTableDataCell>
-                  <CTableDataCell>{transaction.transactionId}</CTableDataCell>
-                  <CTableDataCell>{!isNaN(transaction.netCommission) ? Math.abs(transaction.netCommission) : 0} (Reward)</CTableDataCell>
-                  <CTableDataCell>{Math.abs(transaction.balanceAfterCommission).toFixed(2)}</CTableDataCell>
-                </CTableRow> */}
-                <CTableRow>
-                  <CTableDataCell>{new Date(transaction.createdon).toLocaleDateString(undefined, options)}</CTableDataCell>
-                  <CTableDataCell>
-                    {transaction.description} - Bill Payment
-                    <CBadge color="danger">Debit</CBadge>
-                  </CTableDataCell>
-                  <CTableDataCell>{transaction.transactionId}</CTableDataCell>
-                  <CTableDataCell>{Math.abs(transaction.balanceAfterDeduction).toFixed(2)}</CTableDataCell>
-                  <CTableDataCell>{transaction.billamount}</CTableDataCell>
-                  <CTableDataCell>{!isNaN(transaction.netCommission) ? Math.abs(transaction.netCommission).toFixed(2) : '0'} (Reward)</CTableDataCell>
-                  <CTableDataCell>{Math.abs(transaction.balanceAfterCommission).toFixed(2)}</CTableDataCell>
-                </CTableRow>
-              </React.Fragment>
-            ))}
-          </CTableBody>
-        </CTable>
-      </CCardBody>
-    </CCard>
+    <div>
+      <div className="button-container">
+        <input
+          type="text"
+          placeholder="Search by status..."
+          value={filterText}
+          onChange={(e) => setFilterText(e.target.value)}
+        />
+        {/* <button 
+          className="button-search" 
+          onClick={handleSearch}
+        >
+          <FontAwesomeIcon icon={faSearch} /> Search
+        </button> */}
+        <button
+          className="button-download"
+          onClick={() => downloadPDF(data)}
+        >
+          <FontAwesomeIcon icon={faDownload} /> Download PDF
+        </button>
+        <button
+          className="button-download-excel"
+          onClick={() => downloadExcel(data)}
+        >
+          <FontAwesomeIcon icon={faFileExcel} /> Download Excel
+        </button>
+        <div className="date-filter-container">
+          <label>From Date:</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={e => setFromDate(e.target.value)}
+          />
+          <label>To Date:</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={e => setToDate(e.target.value)}
+          />
+          <button
+            className="button-clear-dates"
+            onClick={handleClearDates}
+          >
+            Clear Dates
+          </button>
+        </div>
+      </div>
+      <div className="data-table-container">
+        <DataTable
+          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>Passbook</h2>}
+          columns={columns}
+          data={filteredItems}
+          pagination
+          highlightOnHover
+          progressPending={loading}
+          customStyles={customStyles}
+        />
+
+
+
+
+      </div>
+
+    </div>
   );
 };
 
 export default Passbook;
+

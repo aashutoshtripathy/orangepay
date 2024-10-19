@@ -156,6 +156,17 @@ const AppHeader = () => {
               >
                 <CIcon icon={cilMenu} size="lg" />
               </CHeaderToggler>
+              <h2
+                style={{
+                  color: '#f36c23',
+                  fontSize: '36px',
+                  fontWeight: 'bold',
+                  fontFamily: 'Cooper Black',
+                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+                }}
+              >
+                OrangePay
+              </h2>
               <CHeaderNav className="d-none d-md-flex">
                 <CNavItem>
                   <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
@@ -251,6 +262,17 @@ const AppHeader = () => {
             >
               <CIcon icon={cilMenu} size="lg" />
             </CHeaderToggler>
+            <h2
+              style={{
+                color: '#f36c23',
+                fontSize: '36px',
+                fontWeight: 'bold',
+                fontFamily: 'Cooper Black',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+              }}
+            >
+              OrangePay
+            </h2>
             <CHeaderNav className="d-none d-md-flex">
               <CNavItem>
                 <CNavLink to={`/dashboard/${userId}`} as={NavLink}>

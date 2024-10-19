@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisV, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisV, faCircleInfo, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';  // Import XLSX for Excel export
@@ -23,8 +23,8 @@ const customStyles = {
       fontWeight: 'bold', // Make the header bold
       paddingLeft: '8px',
       paddingRight: '8px',
+    },
   },
-},
   cells: {
     style: {
       paddingLeft: '8px',
@@ -221,6 +221,15 @@ const downloadExcel = (data) => {
   document.body.removeChild(a);
 };
 
+
+const initialColumnsVisibility = {
+  userId: true,
+  transactionId: true,
+  consumerNumber: true,
+  paymentAmount: true,
+  paymentStatus: true,
+};
+
 const DataTableComponent = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -231,6 +240,8 @@ const DataTableComponent = () => {
   const userId = localStorage.getItem('userId');
   const username = localStorage.getItem('username');
   const [menuOpen, setMenuOpen] = useState(null); // State for tracking which menu is open
+  const [columnsVisibility, setColumnsVisibility] = useState(initialColumnsVisibility);
+
 
 
 
@@ -238,23 +249,29 @@ const DataTableComponent = () => {
 
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async () => { 
       try {
         const response = await axios.get(`/cancellationHistory?username=${username}`);
         const result = response.data.data || []; // Ensure to get data array
-        setData(result); // Set the fetched data
+        const reversedResult = result.reverse(); // Reverse the array order
+        setData(reversedResult);
       } catch (error) {
         setError(error);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [username]);
-  
 
 
+  const handleColumnVisibilityChange = (column) => {
+    setColumnsVisibility(prevState => ({
+      ...prevState,
+      [column]: !prevState[column] // Toggle visibility
+    }));
+  };
 
   const handleViewDetails = (row) => {
     // Logic to view details (redirect, modal, etc.)
@@ -275,36 +292,69 @@ const DataTableComponent = () => {
     setFromDate(''); // Clear fromDate
     setToDate('');   // Clear toDate
   };
- 
+
 
   const handleSearch = () => {
     setFilterText(filterText);
   };
 
+  //   const columns = [
+  //     { name: 'userId', selector: 'userId', sortable: true },
+  //     { name: 'transactionId', selector: 'transactionId', sortable: true },
+  //     // { name: 'consumerName', selector: 'consumerName', sortable: true },
+  //     { name: 'consumerNumber', selector: 'consumerNumber', sortable: true },
+  //     // { name: 'billpostonpaymentMode', selector: 'paymentMode', sortable: true },
+  //     { name: 'paymentAmount', selector: 'paymentAmount', sortable: true },
+  //     { name: 'paymentStatus', selector: 'paymentStatus', sortable: true },
+  //     // { name: 'selectedOption', selector: 'selectedOption', sortable: true }, 
+  //     // { name: 'createdOn', selector: 'createdOn', sortable: true }, 
+  //     {
+  //       name: 'Actions',
+  //       center: true, // Center the content
+  //       cell: (row, index) => (
+  //         <div className="action-menu" onMouseLeave={() => setMenuOpen(null)}>
+  //           <FontAwesomeIcon
+  //             icon={faCircleInfo}
+  //             style={{ cursor: 'pointer' }}
+  //             onClick={() => toggleMenu(index)}
+  //           />
+  //           {menuOpen === index && (
+  //             <div className="dropdown-menu">
+  //               <div className="button-container">
+  //   <button className="button-view-details">View Details</button>
+  //   {/* Other buttons */}
+  // </div>
+  //               {/* You can add more actions if needed */}
+  //             </div>
+  //           )}
+  //         </div>
+  //       ),
+  //     },
+  //   ];
+
+
+
   const columns = [
-    { name: 'userId', selector: 'userId', sortable: true },
-    { name: 'transactionId', selector: 'transactionId', sortable: true },
-    // { name: 'consumerName', selector: 'consumerName', sortable: true },
-    { name: 'consumerNumber', selector: 'consumerNumber', sortable: true },
-    // { name: 'billpostonpaymentMode', selector: 'paymentMode', sortable: true },
-    { name: 'paymentAmount', selector: 'paymentAmount', sortable: true }, 
-    { name: 'paymentStatus', selector: 'paymentStatus', sortable: true }, 
-    // { name: 'selectedOption', selector: 'selectedOption', sortable: true }, 
-    // { name: 'createdOn', selector: 'createdOn', sortable: true }, 
+    columnsVisibility.userId && { name: 'User ID', selector: 'userId', sortable: true },
+    columnsVisibility.transactionId && { name: 'Transaction ID', selector: 'transactionId', sortable: true },
+    columnsVisibility.consumerNumber && { name: 'Consumer Number', selector: 'consumerNumber', sortable: true },
+    columnsVisibility.paymentAmount && { name: 'Payment Amount', selector: 'paymentAmount', sortable: true },
+    columnsVisibility.paymentStatus && { name: 'Payment Status', selector: 'paymentStatus', sortable: true },
     {
       name: 'Actions',
       center: true, // Center the content
       cell: (row, index) => (
         <div className="action-menu" onMouseLeave={() => setMenuOpen(null)}>
           <FontAwesomeIcon
-            icon={faEllipsisV}
+            icon={faCircleInfo}
             style={{ cursor: 'pointer' }}
             onClick={() => toggleMenu(index)}
           />
           {menuOpen === index && (
             <div className="dropdown-menu">
-              <div className="dropdown-item" onClick={() => handleViewDetails(row)}>
-                View Details
+              <div className="button-container">
+                <button className="button-view-details">View Details</button>
+                {/* Other buttons */}
               </div>
               {/* You can add more actions if needed */}
             </div>
@@ -312,13 +362,13 @@ const DataTableComponent = () => {
         </div>
       ),
     },
-  ];
+  ].filter(Boolean); // Filter out undefined columns
 
-  const filteredItems = data.filter(item => 
+  const filteredItems = data.filter(item =>
     item.transactionId.toLowerCase().includes(filterText.toLowerCase()) || // Example filter by transactionId
     item.consumerName.toLowerCase().includes(filterText.toLowerCase()) // Example filter by consumerName
   );
-  
+
 
 
   if (loading) {
@@ -331,6 +381,51 @@ const DataTableComponent = () => {
 
   return (
     <div>
+      <div>
+        {/* Checkbox controls for columns */}
+        <div className="column-visibility-controls">
+          <label>
+            <input
+              type="checkbox"
+              checked={columnsVisibility.userId}
+              onChange={() => handleColumnVisibilityChange('userId')}
+            />
+            User ID
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={columnsVisibility.transactionId}
+              onChange={() => handleColumnVisibilityChange('transactionId')}
+            />
+            Transaction ID
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={columnsVisibility.consumerNumber}
+              onChange={() => handleColumnVisibilityChange('consumerNumber')}
+            />
+            Consumer Number
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={columnsVisibility.paymentAmount}
+              onChange={() => handleColumnVisibilityChange('paymentAmount')}
+            />
+            Payment Amount
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={columnsVisibility.paymentStatus}
+              onChange={() => handleColumnVisibilityChange('paymentStatus')}
+            />
+            Payment Status
+          </label>
+        </div>
+      </div>
       <div className="button-container">
         <input
           type="text"
@@ -344,49 +439,51 @@ const DataTableComponent = () => {
         >
           <FontAwesomeIcon icon={faSearch} /> Search
         </button> */}
-        <button 
-          className="button-download" 
+        <button
+          className="button-download"
           onClick={() => downloadPDF(data)}
         >
           <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
-        <button 
-          className="button-download-excel" 
+        <button
+          className="button-download-excel"
           onClick={() => downloadExcel(data)}
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
         <div className="date-filter-container">
-        <label>From Date:</label>
-        <input
-          type="date"
-          value={fromDate}
-          onChange={e => setFromDate(e.target.value)}
-        />
-        <label>To Date:</label>
-        <input
-          type="date"
-          value={toDate}
-          onChange={e => setToDate(e.target.value)}
-        />
-        <button 
-            className="button-clear-dates" 
+          <label>From Date:</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={e => setFromDate(e.target.value)}
+          />
+          <label>To Date:</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={e => setToDate(e.target.value)}
+          />
+          <button
+            className="button-clear-dates"
             onClick={handleClearDates}
           >
             Clear Dates
           </button>
+        </div>
       </div>
+
+
+      <div className="data-table-container">
+        <DataTable
+          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>Cancellation History</h2>}
+          columns={columns}
+          data={filteredItems}
+          pagination
+          highlightOnHover
+          customStyles={customStyles}
+        />
       </div>
-      <div className="data-table-container"> 
-      <DataTable
-         title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif' , fontWeight: '800',          textAlign: 'center' , }}>Cancellation History</h2>}
-        columns={columns}
-        data={filteredItems}
-        pagination
-        highlightOnHover
-        customStyles={customStyles}
-      />
-    </div>
     </div>
   );
 };

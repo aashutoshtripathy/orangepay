@@ -39,6 +39,39 @@ app.use(session({
 }));
 
 
+app.post('/fetch-bill', async (req, res) => {
+  const { consumerId } = req.body;
+
+  const soapPayload = `
+  <?xml version="1.0" encoding="utf-8"?>
+  <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+      <BillDetails xmlns="http://tempuri.org/">
+        <strCANumber>${consumerId}</strCANumber>
+        <strDivision></strDivision>
+        <strSubDivision></strSubDivision>
+        <strLegacyNo></strLegacyNo>
+        <strMerchantCode>BSPDCL_RAPDRP_16</strMerchantCode>
+        <strMerchantPassword>OR1f5pJeM9q@G26TR9nPY</strMerchantPassword>
+      </BillDetails>
+    </soap:Body>
+  </soap:Envelope>`;
+
+  try {
+    const response = await axios.post('http://1.6.61.79/BiharService/BillInterface.asmx', soapPayload, {
+      headers: {
+        'Content-Type': 'text/xml',
+        'SOAPAction': 'http://tempuri.org/BillDetails',
+      },
+    });
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send({ message: 'Error fetching bill', error: error.message });
+  }
+});
+
+
+
 
 import userRouter from "./routes/user.routes.js"
 import bodyParser from "body-parser";

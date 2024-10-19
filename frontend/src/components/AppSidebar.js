@@ -134,10 +134,21 @@ const AppSidebar = () => {
       }}
     >
       <CSidebarHeader className="border-bottom">
-        <CSidebarBrand to="/">
+        {/* <CSidebarBrand to="/"> */}
+        <h2
+              style={{
+                color: '#f36c23',
+                fontSize: '36px',
+                fontWeight: 'bold',
+                fontFamily: 'Cooper Black',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+              }}
+            >
+              OrangePay
+            </h2>
           {/* <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} /> */}
           {/* <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} /> */}
-        </CSidebarBrand>
+        {/* </CSidebarBrand> */}
         <CCloseButton
           className="d-lg-none"
           dark

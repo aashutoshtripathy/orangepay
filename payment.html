@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Test</title>
+</head>
+<body>
+  <h1>Test API Connection</h1>
+  <button id="fetchData">Fetch Bill Details</button>
+  <pre id="response"></pre>
+
+  <script>
+    document.getElementById('fetchData').addEventListener('click', async function () {
+      const consumerId = '12345'; // Replace with the actual consumer ID
+      const MERCHANT_CODE = 'BSPDCL_RAPDRP_16';
+      const MERCHANT_PASSWORD = 'OR1f5pJeM9q@G26TR9nPY';
+      
+      const soapPayload = `
+        <?xml version="1.0" encoding="utf-8"?>
+        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+          <soap:Body>
+            <BillDetails xmlns="http://tempuri.org/">
+              <strCANumber>${consumerId}</strCANumber>
+              <strDivision></strDivision>
+              <strSubDivision></strSubDivision>
+              <strLegacyNo></strLegacyNo>
+              <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+              <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+            </BillDetails>
+          </soap:Body>
+        </soap:Envelope>
+      `;
+
+      try {
+        const response = await fetch('http://1.6.61.79/BiharService/BillInterface.asmx', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/xml',
+            'SOAPAction': 'http://tempuri.org/BillDetails',
+          },
+          body: soapPayload,
+        });
+
+        if (response.ok) {
+          const responseText = await response.text();
+          document.getElementById('response').textContent = responseText;
+        } else {
+          document.getElementById('response').textContent = `Error: ${response.status}`;
+        }
+      } catch (error) {
+        document.getElementById('response').textContent = `Error: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>

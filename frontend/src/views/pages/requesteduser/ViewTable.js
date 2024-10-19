@@ -12,6 +12,8 @@ import {
 } from '@coreui/react';
 import axios from 'axios';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import '../../../scss/tableStyle.scss';
+
 
 
 const ViewTable = () => {
@@ -130,7 +132,7 @@ const ViewTable = () => {
 
 
   return (
-    <CContainer fluid>
+    <CContainer fluid    className="table-container">
       <CButton color="secondary" onClick={() => navigate(-1)}>Back</CButton>
       <CTable striped hover bordered responsive>
         <CTableHead>

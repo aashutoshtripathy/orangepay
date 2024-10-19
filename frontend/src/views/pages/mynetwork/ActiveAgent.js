@@ -11,11 +11,15 @@ import '../../../scss/dataTable.scss';
 const customStyles = {
   rows: {
     style: {
-      minHeight: '72px',
+      minHeight: '72px', // Set the minimum row height
     },
   },
   headCells: {
     style: {
+      // backgroundColor: '#333', // Dark background for header cells
+      color: 'black', // Set font color to orange for header cells
+      fontSize: '16px', // Adjust font size for header
+      fontWeight: 'bold', // Make the header bold
       paddingLeft: '8px',
       paddingRight: '8px',
     },
@@ -187,6 +191,8 @@ const DataTableComponent = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [filterText, setFilterText] = useState('');
   const userId = localStorage.getItem('userId');
 
@@ -229,7 +235,10 @@ const DataTableComponent = () => {
     }
   };
   
-
+  const handleClearDates = () => {
+    setFromDate(''); // Clear fromDate
+    setToDate('');   // Clear toDate
+  };
  
 
   const handleSearch = () => {
@@ -291,35 +300,57 @@ const DataTableComponent = () => {
   );
 
   return (
-    <div className="datatable-container">
+    <div>
       <div className="button-container">
         <input
           type="text"
-          placeholder="Search by User ID"
+          placeholder="Search by status..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
-        <button 
+        {/* <button 
           className="button-search" 
           onClick={handleSearch}
         >
           <FontAwesomeIcon icon={faSearch} /> Search
-        </button>
-        <button 
-          className="button-download" 
+        </button> */}
+        <button
+          className="button-download"
           onClick={() => downloadPDF(data)}
         >
           <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
-        <button 
-          className="button-download-excel" 
+        <button
+          className="button-download-excel"
           onClick={() => downloadExcel(data)}
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
+        <div className="date-filter-container">
+          <label>From Date:</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={e => setFromDate(e.target.value)}
+          />
+          <label>To Date:</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={e => setToDate(e.target.value)}
+          />
+          <button
+            className="button-clear-dates"
+            onClick={handleClearDates}
+          >
+            Clear Dates
+          </button>
+        </div>
       </div>
+      <div className="data-table-container">
+      
       <DataTable
-       title="Active Agents"
+        title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>Active Agents</h2>}
         columns={columns}
         data={filteredItems}
         customStyles={customStyles}
@@ -330,6 +361,7 @@ const DataTableComponent = () => {
         striped
       />
       {error && <p>Error loading data: {error.message}</p>}
+    </div>
     </div>
   );
 };

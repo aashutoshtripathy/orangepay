@@ -9,8 +9,9 @@ import { Invoice } from '../model/Invoice.model.js';  // If using ES modules
 import mongoose from "mongoose";
 import { Register } from "../model/Register.model.js";
 import { TransactionHistory } from "../model/TransactionHistory.model.js";
-import { SbData } from "../model/SbData.model.js";
+import { Sbdata } from "../model/Sbdata.model.js";
 import { Reward } from "../model/Reward.model.js";
+import { WalletTransaction } from "../model/WalletTransaction.model.js";
 
 
 
@@ -125,6 +126,9 @@ const processPayment = asyncHandler(async (req, res) => {
 
     await invoice.save();
 
+
+  
+
     console.log(`Invoice record created. Invoice ID: ${invoice._id}`);
 
 
@@ -142,6 +146,32 @@ const processPayment = asyncHandler(async (req, res) => {
     invoice.balanceAfterCommission = wallet.balance; // Set balance after commission
     invoice.paymentstatus = 'Completed';
     await invoice.save();
+
+
+    const transaction = new WalletTransaction({
+      userId: wallet.userId,
+      uniqueId: wallet.uniqueId,
+      walletId: wallet._id,
+      transactions: [ 
+        {
+          transactionId: invoice.transactionId, 
+          canumber: invoice.canumber, 
+          refrencenumber: invoice.refrencenumber, 
+          bankid: "", 
+          paymentmode: invoice.paymentmode, 
+          paymentstatus: invoice.paymentstatus, 
+          commission: invoice.netCommission,
+          amount: invoice.paidamount, 
+          type: 'Debit', 
+          date: new Date(), 
+          description: 'Bill Payment',
+          openingBalance: invoice.balanceAfterDeduction, // Add the opening balance here
+          closingBalance: invoice.balanceAfterCommission // Add the closing balance here
+        }
+      ]
+    });
+
+    await transaction.save();
 
     
 
@@ -184,8 +214,39 @@ const getPayment = asyncHandler(async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid userId' });
   }
 
+
+  try {
+      const payment = await WalletTransaction.find({ userId:userId }).exec();
+      console.log(userId)
+      
+      if (!payment) {
+          return res.status(404).json({ success: false, message: 'Wallet not found' });
+      }
+
+      console.log("Fetched wallet balance:", payment);
+
+      return res.status(200).json({ success: true, balance: payment });
+      
+  } catch (error) {
+      console.error("Error fetching wallet balance:", error);
+      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
+
+const getPayments = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.log("Invalid userId format:", userId);
+      return res.status(400).json({ success: false, message: 'Invalid userId' });
+  }
+
+
   try {
       const payment = await Payment.find({ id:userId }).exec();
+      console.log(userId)
       
       if (!payment) {
           return res.status(404).json({ success: false, message: 'Wallet not found' });
@@ -212,8 +273,8 @@ const BiharService = asyncHandler(async (req, res) => {
 
   try {
     // Find the details in the database using the provided consumerId (adjust the field name to match your database)
-    const details = await SbData.find({ ConsumeId: Number(consumerId) }); // Cast to number if necessary
-
+    const details = await Sbdata.find({ ConsumerId: consumerId });
+    console.log("conbsumeryuwegj",consumerId)
     // If no details found, return a 404 status with an error message
     if (details.length === 0) {
       return res.status(404).json({ message: 'Details not found for the provided consumerId' });
@@ -268,5 +329,5 @@ const getTotalBalance = asyncHandler(async (req, res) => {
 
 
 
-export { processPayment, getPayment ,BiharService , fetchReward , getTotalBalance };
+export { processPayment, getPayment ,BiharService , getPayments , fetchReward , getTotalBalance };
 

@@ -22,6 +22,9 @@ import axios from "axios";
 import { Invoice } from "../model/Invoice.model.js";
 import { Payment } from "../model/Payment.model.js";
 import { CancellationDetail } from "../model/CancellationDetail.model.js";
+import { Sb } from "../model/Sb.Model.js";
+import { Sbdata } from "../model/Sbdata.model.js";
+import { WalletTransaction } from "../model/WalletTransaction.model.js";
 // import path from 'path';
 
 // Define __dirname in ES module
@@ -93,10 +96,11 @@ const registerUser = asyncHandler(async (req, res) => {
     // Create new user
 
 
-    const existedUser = await Register.findOne({ aadharNumber });
-
+    const existedUser = await Register.findOne({
+      $or: [{ mobileNumber }, { aadharNumber }]
+    });
     if (existedUser) {
-      throw new ApiError(400, "Aadhar number already exists");
+      throw new ApiError(400, "Mobile number or Aadhar number already exists");
     }
 
 
@@ -996,30 +1000,64 @@ const blockUserList = asyncHandler(async (req, res) => {
 
 const approveFundRequest = asyncHandler(async (req, res) => {
   try {
-    // Find the fund request by ID and update the status to "approved"
     const updatedFundRequest = await FundRequest.findByIdAndUpdate(
       req.params.id,
       { status: 'approved' },
       { new: true }
     ).exec();
-    // If the fund request is not found, return a 404 error
     if (!updatedFundRequest) {
       return res.status(404).json({ success: false, message: 'Fund request not found' });
     }
 
-    // Retrieve the user's wallet associated with the fund request
     const userWallet = await Wallet.findOne({ uniqueId: updatedFundRequest.uniqueId });
 
-    // If the wallet is not found, return a 404 error
     if (!userWallet) {
       return res.status(404).json({ success: false, message: 'Wallet not found' });
     }
 
-    // Add the fund amount to the wallet balance
+
+
+
+    const openingBalance = userWallet.balance;
+
+
+
+
+
     userWallet.balance += updatedFundRequest.fundAmount;
 
     // Save the updated wallet
     await userWallet.save();
+
+
+   
+
+
+    const transaction = new WalletTransaction({
+      userId: userWallet.userId,
+      uniqueId: userWallet.uniqueId,
+      walletId: userWallet._id,
+      transactions: [ 
+        {
+          transactionId: 'uniqueTransactionId', 
+          canumber: 'exampleCanumber', 
+          refrencenumber: 'exampleReferenceNumber', 
+          bankid: 'exampleBankId', 
+          paymentmode: 'examplePaymentMode', 
+          paymentstatus: 'Success', 
+          commission:"",
+          amount: updatedFundRequest.fundAmount, 
+          type: 'credit', 
+          date: new Date(), 
+          description: 'Fund request approved',
+          openingBalance: openingBalance, // Add the opening balance here
+          closingBalance: userWallet.balance // Add the closing balance here
+        }
+      ]
+    });
+
+    await transaction.save();
+
 
     // Return the updated fund request and wallet balance
     return res.status(200).json({
@@ -1971,6 +2009,33 @@ const cancellationHistoryy = asyncHandler(async (req, res) => {
 
 
 
+const sbData = asyncHandler(async (req, res) => {
+  try {
+    const history = await Sbdata.find({}); 
+    console.log('Fetched history:', history);
+
+    if (!history || history.length === 0) {
+      return res.status(404).json({ message: 'No cancellation history found.' });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: history,
+    });
+  } catch (error) {
+    console.error('Error fetching cancellation history:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Unable to retrieve cancellation history.',
+    });
+  }
+});
+
+
+
+// const WalletTransaction = asyncHandler(async(req,res) => {
+
+// })
 
 
 // Define the API endpoint using asyncHandler
@@ -1994,5 +2059,5 @@ const fetchUserByIdd = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser,cancellationHistoryy,cancelAccept,cancelReject, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+export { registerUser,cancellationHistoryy,sbData,cancelAccept,cancelReject, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 
