@@ -139,6 +139,26 @@ const AppHeader = () => {
     })
   }, [])
 
+
+
+  function formatBalance(balance) {
+    if (balance === null || isNaN(balance)) return '0.00';
+  
+    // Split the number into whole and decimal parts
+    const [whole, decimal] = balance.toFixed(2).split('.');
+  
+    // Format the whole part with comma every two digits from the right
+    const formattedWhole = whole
+      .replace(/(\d)(?=(\d{2})+(?!\d))/g, '$1,') // Add commas every two digits
+      .replace(/(.*)(?=(\d{3}))/g, '$1,') // Ensure the last three digits are separated
+      .replace(/,([^,]*)$/, '$1'); // Remove the last comma if exists
+  
+    return `₹ ${formattedWhole}.${decimal}`;
+  }
+
+  
+
+
   // let balance = 10;
   { loading && <p>Loading...</p> }
   { error && <p>Error: {error}</p> }
@@ -163,6 +183,8 @@ const AppHeader = () => {
                   fontWeight: 'bold',
                   fontFamily: 'Cooper Black',
                   textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+                  // flexShrink: 0, // Prevent shrinking when the sidebar is toggled
+                  display: !sidebarShow ? 'block' : 'none', // Ensure it doesn't disappear
                 }}
               >
                 OrangePay
@@ -269,6 +291,8 @@ const AppHeader = () => {
                 fontWeight: 'bold',
                 fontFamily: 'Cooper Black',
                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+                flexShrink: 0, // Prevent shrinking when the sidebar is toggled
+                display: !sidebarShow ? 'block' : 'none', // Ensure it doesn't disappear
               }}
             >
               OrangePay
@@ -305,7 +329,8 @@ const AppHeader = () => {
                       }}
                     />
                     <span style={{ fontWeight: 'bold' }}>
-                      ₹ {balance !== null ? balance.toFixed(2) : '0.00'}
+                     {formatBalance(balance)}
+
                     </span>
                   </span>
 

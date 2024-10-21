@@ -14,6 +14,7 @@ const Query = React.lazy(() => import('./views/pages/supportdesk/Query'))
 const Active = React.lazy(() => import('./views/pages/mynetwork/ActiveAgent'))
 const InActive = React.lazy(() => import('./views/pages/mynetwork/InActiveAgent'))
 const ChangePassword = React.lazy(() => import('./views/pages/profile/ChangePassword'))
+const ChangeTpin = React.lazy(() => import('./views/pages/profile/ChangeTpin.js'))
 const MonthlyBill = React.lazy(() => import('./views/pages/databasemanagement/MonthlyBilling'))
 const SwitchDatabase = React.lazy(() => import('./views/pages/databasemanagement/SwitchDatabase'))
 const SwitchGetway = React.lazy(() => import('./views/pages/databasemanagement/SwitchGetway'))
@@ -112,6 +113,7 @@ const routes = [
   { path: '/active', name: 'ACTIVE', element: Active },
   { path: '/inactive', name: 'IN-ACTIVE', element: InActive },
   { path: '/change-password', name: 'CHANGE PASSWORD', element: ChangePassword },
+  { path: '/change-tpin', name: 'CHANGE TPIN', element: ChangeTpin },
   { path: '/monthly-billing', name: 'Monthly Billing Master', element: MonthlyBill },
   { path: '/report', name: 'Report', element: Reports },
   { path: '/add-user', name: 'Add User', element: AddUser },

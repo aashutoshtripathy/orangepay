@@ -263,6 +263,37 @@ const getPayments = asyncHandler(async (req, res) => {
 });
 
 
+
+const getPaymentss = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.log("Invalid userId format:", userId);
+      return res.status(400).json({ success: false, message: 'Invalid userId' });
+  }
+
+
+  try {
+      const payment = await Payment.find({ id:userId }).exec();
+      console.log(userId)
+      
+      if (!payment) {
+          return res.status(404).json({ success: false, message: 'Wallet not found' });
+      }
+
+      console.log("Fetched wallet balance:", payment);
+
+      return res.status(200).json({ success: true, balance: payment });
+      
+  } catch (error) {
+      console.error("Error fetching wallet balance:", error);
+      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
+
+
 const BiharService = asyncHandler(async (req, res) => {
   const { consumerId } = req.body;
 
@@ -329,5 +360,5 @@ const getTotalBalance = asyncHandler(async (req, res) => {
 
 
 
-export { processPayment, getPayment ,BiharService , getPayments , fetchReward , getTotalBalance };
+export { processPayment, getPayment ,BiharService , getPayments , getPaymentss , fetchReward , getTotalBalance };
 

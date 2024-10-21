@@ -101,6 +101,10 @@ const registerSchema = new Schema({
     type: String, 
     trim: true 
   },
+  tpin: { 
+    type: String, 
+    trim: true 
+  },
   ifsc: { 
     type: String, 
     trim: true 

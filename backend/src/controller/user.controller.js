@@ -543,9 +543,15 @@ const fundRequest = asyncHandler(async (req, res) => {
 // });
 
 
+const generateRandomPin = () => {
+  return Math.floor(1000 + Math.random() * 9000).toString(); // Generates a number between 1000 and 9999
+};
+
+
 const approveUserRequest = asyncHandler(async (req, res) => {
   try {
     const customId = generateRandomId()
+    const pin = generateRandomPin(); 
     // Find the user by ID and update the status to "approved" along with generating userId and password
     const updatedUser = await Register.findByIdAndUpdate(
       req.params.id,
@@ -553,6 +559,8 @@ const approveUserRequest = asyncHandler(async (req, res) => {
         status: 'Approved',
         userId: customId, // Generate a random userId
         password: generateRandomPassword(12), // Generate a random password
+        tpin: pin, // Store the generated PIN
+
       },
       { new: true } // Return the updated document
     ).exec();
@@ -633,6 +641,37 @@ const approveUserRequest = asyncHandler(async (req, res) => {
 
 
 const changePassword = asyncHandler(async (req, res) => {
+  const { userId, currentPassword, newPassword } = req.body; // Accepting userId in the request body
+
+  try {
+    // Find the user by ID
+    const user = await Register.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Check if the current password is correct
+    if (user.password !== currentPassword) {
+      return res.status(400).json({ message: 'Current password is incorrect.' });
+    }
+
+    // Update the password
+    user.password = newPassword; // You should ideally hash the new password before saving
+
+    // Save the user with the new password
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Password changed successfully.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'An error occurred while changing the password.' });
+  }
+});
+
+
+
+
+const changeTpin = asyncHandler(async (req, res) => {
   const { userId, currentPassword, newPassword } = req.body; // Accepting userId in the request body
 
   try {
@@ -2059,5 +2098,5 @@ const fetchUserByIdd = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser,cancellationHistoryy,sbData,cancelAccept,cancelReject, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+export { registerUser,cancellationHistoryy,changeTpin,sbData,cancelAccept,cancelReject, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 
