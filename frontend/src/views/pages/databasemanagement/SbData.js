@@ -10,13 +10,12 @@ const SbdataTable = () => {
   const [fromDate, setFromdate] = useState('');
   const [toDate, setToDate] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-
   const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
     const fetchSbdata = async () => {
       try {
-        const response = await axios.get('getAllSbdata');
+        const response = await axios.get('getAllSbdata'); // Fetch your data
         setSbdata(response.data);
         setFilteredData(response.data); // Initialize filtered data
       } catch (err) {
@@ -31,22 +30,6 @@ const SbdataTable = () => {
 
   useEffect(() => {
     const filterData = () => {
-      const newFilteredData = sbdata.filter(item =>
-        Object.values(item).some(value => 
-          value != null && value.toString().toLowerCase().includes(searchTerm.toLowerCase()) // Ensure value is not null
-          
-        )
-      );
-      setFilteredData(newFilteredData);
-    };
-
-    
-
-    filterData();
-  }, [searchTerm, sbdata]);
-
-  useEffect(() => {
-    const filterData = () => {
       let newFilteredData = sbdata;
 
       // Apply search term filtering
@@ -58,21 +41,21 @@ const SbdataTable = () => {
         );
       }
 
-      // Apply date filtering
+      // Apply date filtering based on `createdOn`
       if (fromDate && toDate) {
         newFilteredData = newFilteredData.filter(item => {
-          const itemDate = new Date(item.CreatedOn); // Adjust 'dateField' to the actual date field in your data
-          return itemDate >= new Date(fromDate) && itemDate <= new Date(toDate);
+          const createdOnDate = new Date(item.CreatedOn);
+          return !isNaN(createdOnDate) && createdOnDate >= new Date(fromDate) && createdOnDate <= new Date(toDate);
         });
       } else if (fromDate) {
         newFilteredData = newFilteredData.filter(item => {
-          const itemDate = new Date(item.CreatedOn); // Adjust 'dateField' to the actual date field in your data
-          return itemDate >= new Date(fromDate);
+          const createdOnDate = new Date(item.CreatedOn);
+          return !isNaN(createdOnDate) && createdOnDate >= new Date(fromDate);
         });
       } else if (toDate) {
         newFilteredData = newFilteredData.filter(item => {
-          const itemDate = new Date(item.CreatedOn); // Adjust 'dateField' to the actual date field in your data
-          return itemDate <= new Date(toDate);
+          const createdOnDate = new Date(item.CreatedOn);
+          return !isNaN(createdOnDate) && createdOnDate <= new Date(toDate);
         });
       }
 
@@ -80,7 +63,7 @@ const SbdataTable = () => {
     };
 
     filterData();
-  }, [searchTerm, fromDate, toDate, sbdata ]);
+  }, [searchTerm, fromDate, toDate, sbdata]);
 
   const handleClearDates = () => {
     setFromdate('');
@@ -107,6 +90,12 @@ const SbdataTable = () => {
       selector: 'field2',
       sortable: true,
     },
+    {
+      name: 'Created On',
+      selector: 'CreatedOn', // Ensure you display the `createdOn` field
+      sortable: true,
+      format: row => new Date(row.CreatedOn).toLocaleDateString(), // Optional: format the date
+    },
   ];
 
   if (loading) return <div>Loading...</div>;
@@ -121,26 +110,26 @@ const SbdataTable = () => {
         onChange={(e) => handleSearchChange(e.target.value)}
         style={{ marginBottom: '20px', padding: '10px', width: '100%' }}
       />
-       <div className="date-filter-container">
-          <label>From Date:</label>
-          <input
-            type="date"
-            value={fromDate}
-            onChange={e => setFromdate(e.target.value)}
-          />
-          <label>To Date:</label>
-          <input
-            type="date"
-            value={toDate}
-            onChange={e => setToDate(e.target.value)}
-          />
-          <button
-            className="button-clear-dates"
-            onClick={handleClearDates}
-          >
-            Clear Dates
-          </button>
-          </div>
+      <div className="date-filter-container">
+        <label>From Date:</label>
+        <input
+          type="date"
+          value={fromDate}
+          onChange={e => setFromdate(e.target.value)}
+        />
+        <label>To Date:</label>
+        <input
+          type="date"
+          value={toDate}
+          onChange={e => setToDate(e.target.value)}
+        />
+        <button
+          className="button-clear-dates"
+          onClick={handleClearDates}
+        >
+          Clear Dates
+        </button>
+      </div>
       <DataTable
         title="Sbdata Table"
         columns={columns}

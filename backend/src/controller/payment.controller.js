@@ -216,6 +216,7 @@ const getPayment = asyncHandler(async (req, res) => {
 
 
   try {
+    // Validate the userId from the wallet
       const payment = await WalletTransaction.find({ userId:userId }).exec();
       console.log(userId)
       
