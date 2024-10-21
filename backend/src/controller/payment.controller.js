@@ -171,7 +171,7 @@ const processPayment = asyncHandler(async (req, res) => {
       ]
     });
 
-    await transaction.save();
+    await transaction.save(); 
 
     
 
@@ -232,6 +232,57 @@ const getPayment = asyncHandler(async (req, res) => {
       return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 });
+
+
+
+
+  const getDailyBalance = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+  
+    // Validate userId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.log("Invalid userId format:", userId);
+      return res.status(400).json({ success: false, message: 'Invalid userId' });
+    }
+  
+    try {
+      // Fetch all transactions for the specified user and group by date
+      const dailyReport = await WalletTransaction.aggregate([
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } }, // Match user
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } // Group by date
+            },
+            totalTransactions: { $sum: 1 }, // Count transactions per date
+            totalAmount: { $sum: "$amount" } // Sum of amounts per date
+          }
+        },
+        { $sort: { "_id": 1 } } // Sort by date ascending
+      ]);
+  
+      // Check if any transactions were found
+      if (!dailyReport || dailyReport.length === 0) {
+        return res.status(404).json({ success: false, message: 'No transactions found for this user' });
+      }
+  
+      console.log("Fetched daily report for user:", userId);
+  
+      return res.status(200).json({
+        success: true,
+        userId: userId,
+        report: dailyReport,
+      });
+    } catch (error) {
+      console.error("Error fetching daily report:", error);
+      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+  });
+  
+
+
+
+
 
 
 
@@ -359,6 +410,26 @@ const getTotalBalance = asyncHandler(async (req, res) => {
 });
 
 
+const getAllSbdata = asyncHandler(async (req, res) => {
+  try {
+    // Fetch all records from the Sbdata collection
+    const allData = await Sbdata.find({});
 
-export { processPayment, getPayment ,BiharService , getPayments , getPaymentss , fetchReward , getTotalBalance };
+    // If no records found, return a 404 status with a message
+    if (allData.length === 0) {
+      return res.status(404).json({ message: 'No data found in the Sbdata collection' });
+    }
+
+    // Return the fetched data as a response
+    res.status(200).json(allData);
+  } catch (error) {
+    // Handle any potential errors
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+export { processPayment, getPayment , getAllSbdata , getDailyBalance , BiharService , getPayments , getPaymentss , fetchReward , getTotalBalance };
 

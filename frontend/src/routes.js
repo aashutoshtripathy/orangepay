@@ -18,6 +18,7 @@ const ChangeTpin = React.lazy(() => import('./views/pages/profile/ChangeTpin.js'
 const MonthlyBill = React.lazy(() => import('./views/pages/databasemanagement/MonthlyBilling'))
 const SwitchDatabase = React.lazy(() => import('./views/pages/databasemanagement/SwitchDatabase'))
 const SwitchGetway = React.lazy(() => import('./views/pages/databasemanagement/SwitchGetway'))
+const sbdata = React.lazy(() => import('./views/pages/databasemanagement/SbData.js'))
 const Reports = React.lazy(() => import('./views/pages/reports/Reports'))
 const AddUser = React.lazy(() => import('./views/pages/usermangement/AddUser'))
 const ManageUser = React.lazy(() => import('./views/pages/usermangement/ManageUser'))
@@ -143,6 +144,7 @@ const routes = [
   { path: '/cancellationrequests', name: 'Cancellation Request', element: CancellationRequest },
   { path: '/cancellation-details', name: 'Cancellation Details', element: CancellationDetailss },
   { path: '/Wallet-details/:userId', name: 'Wallet Details', element: WalletReport },
+  { path: '/sbdata', name: 'Data', element: sbdata },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

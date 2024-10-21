@@ -64,7 +64,9 @@ const SbdataSchema = new Schema({
       type: Date,  // Use Date for storing date information
       default: Date.now,
     },
-  });
+  },
+
+);
   
   // Create the model
   export const Sbdata = mongoose.model('Sbdata', SbdataSchema);

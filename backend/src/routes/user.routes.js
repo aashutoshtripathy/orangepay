@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
 import { deleteUser, fetchData, fetchWalletBalance,sbData,cancellationDetails,cancelAccept,cancelReject,getCancellation,cancellationHistoryy,cancellationHistory,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd, changeTpin } from "../controller/user.controller.js";
-import {processPayment, getPayment , getPayments , getPaymentss , fetchReward , BiharService , getTotalBalance} from "../controller/payment.controller.js"
+import {processPayment, getPayment , getAllSbdata , getPayments , getDailyBalance , getPaymentss , fetchReward , BiharService , getTotalBalance} from "../controller/payment.controller.js"
 import { initiateEzetapPayment } from "../controller/ezetap.controller.js";
 
 
@@ -12,7 +12,9 @@ router.route("/login").post(loginUser)
 router.route("/transaction").post(registerTransaction)
 router.route("/cancellation-details").post(cancellationDetails)
 router.route("/reports").get(reports)
+router.route("/getAllSbdata").get(getAllSbdata)
 router.route("/getPayment/:userId").get(getPayment)
+router.route("/getDailyPayment/:userId").get(getDailyBalance)
 router.route("/getPayments/:userId").get(getPayments)
 router.route("/getPaymentss/:userId").get(getPaymentss)
 router.route("/cancellationHistory").get(cancellationHistory)

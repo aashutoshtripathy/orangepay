@@ -44,6 +44,7 @@ export const adminNavItems = [
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
       { component: CNavItem, name: 'Agent Management', to: '/active' },
+      { component: CNavItem, name: 'sbdata', to: '/sbdata' },
       // { component: CNavItem, name: 'Inactive Agent', to: '/inactive' },
     ],
   },

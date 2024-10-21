@@ -2,27 +2,24 @@ import React, { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faTimesCircle, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { CCard, CCardBody, CCardHeader, CCol, CRow, CCardTitle, CCardText } from '@coreui/react';
+import { faDownload, faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import * as XLSX from 'xlsx'; // Import XLSX for Excel export
+import * as XLSX from 'xlsx';
 import '../../../scss/dataTable.scss';
-
 
 // Define custom styles for the table
 const customStyles = {
   rows: {
     style: {
-      minHeight: '72px', // Set the minimum row height
+      minHeight: '72px',
     },
   },
   headCells: {
     style: {
-      // backgroundColor: '#333', // Dark background for header cells
-      color: 'black', // Set font color to orange for header cells
-      fontSize: '16px', // Adjust font size for header
-      fontWeight: 'bold', // Make the header bold
+      color: 'black',
+      fontSize: '16px',
+      fontWeight: 'bold',
       paddingLeft: '8px',
       paddingRight: '8px',
     },
@@ -49,21 +46,9 @@ const downloadPDF = (data) => {
   doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
 
   const columns = [
-    { header: 'ID', dataKey: '_id' },
-    { header: 'Transaction ID', dataKey: 'transactionId' },
-    { header: 'Reference Number', dataKey: 'referenceNumber' },
-    { header: 'Transaction DateTime', dataKey: 'transactionDateTime' },
-    { header: 'Service Name', dataKey: 'serviceName' },
-    { header: 'Consumer ID', dataKey: 'consumerId' },
-    { header: 'Meter ID', dataKey: 'meterId' },
-    { header: 'Request Amount', dataKey: 'requestAmount' },
-    { header: 'Total Service Charge', dataKey: 'totalServiceCharge' },
-    { header: 'Total Commission', dataKey: 'totalCommission' },
-    { header: 'Net Amount', dataKey: 'netAmount' },
-    { header: 'Action On Amount', dataKey: 'actionOnAmount' },
-    { header: 'Status', dataKey: 'status' },
-    { header: 'Payment Method', dataKey: 'paymentMethod' },
-    { header: 'Payment Date', dataKey: 'paymentDate' },
+    { header: 'Date', dataKey: 'date' },
+    { header: 'Opening Balance', dataKey: 'openingBalance' },
+    { header: 'Closing Balance', dataKey: 'closingBalance' },
   ];
 
   const rows = data.map(row => columns.map(col => row[col.dataKey]));
@@ -86,9 +71,6 @@ const downloadPDF = (data) => {
     },
     alternateRowStyles: {
       fillColor: [220, 220, 220],
-    },
-    columnStyles: {
-      0: { cellWidth: 'auto' },
     },
     didDrawPage: (data) => {
       const pageCount = doc.internal.getNumberOfPages();
@@ -118,16 +100,16 @@ const WalletReport = () => {
   const userId = localStorage.getItem('userId');
   const [transactions, setTransactions] = useState([]);
 
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/getPayment/${userId}`);
         const result = response.data.balance
-          ? response.data.balance.flatMap(balance => balance.transactions).reverse() // Merge and reverse transactions
+          ? response.data.balance.flatMap(balance => balance.transactions).reverse()
           : [];
+        console.log(result); // Debugging: Check the format of `createdon`
         setTransactions(result);
-        setData(result); // Assuming you use `data` elsewhere for filtered results
+        setData(result);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError(error.message);
@@ -140,86 +122,105 @@ const WalletReport = () => {
   }, [userId]);
   
 
+  // const formatDate = (dateString) => {
+  //   const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  //   return new Date(dateString).toLocaleDateString('en-US', options);
+  // };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    return new Date(dateString).toLocaleDateString('en-US', options);
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      // Handle cases where the dateString is invalid
+      console.warn(`Invalid date encountered: ${dateString}`);
+      return 'Invalid Date'; // Fallback to a default or message if needed
+    }
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
   };
   
-  // Function to limit the amount to two decimal places
+
   const formatAmount = (amount) => {
     return parseFloat(amount).toFixed(2);
   };
 
 
-  const filteredItems = data.filter(item => {
-    const isTextMatch = Object.values(item).some(val =>
-      val && val.toString().toLowerCase().includes(filterText.toLowerCase())
-    );
+  console.log(transactions)
 
-    // Ensure transactionDateTime is a valid date before filtering
-    const transactionDate = new Date(item.createdon);
+  const groupedTransactions = transactions.reduce((acc, transaction) => {
+    const date = formatDate(transaction.date);
+  
+    // Check if the date is already in the accumulator
+    if (!acc[date]) {
+      // Initialize the current date's entry
+      acc[date] = { 
+        date,
+        openingBalance: transaction.openingBalance, // Set the opening balance to the first transaction's opening balance
+        closingBalance: transaction.closingBalance // Set the closing balance to the first transaction's closing balance
+      };
+    } else {
+      // Update the closing balance to the latest transaction of the day
+      acc[date].closingBalance = transaction.closingBalance;
+    }
+  
+    return acc;
+  }, {});
+  
+  // Convert grouped transactions to an array
+  const dailyBalances = Object.keys(groupedTransactions).map(date => {
+    const todayBalance = groupedTransactions[date];
+    
+    return {
+      date,
+      openingBalance: todayBalance.openingBalance,
+      closingBalance: todayBalance.closingBalance // Use only the last transaction's closing balance
+    };
+  });
+  
+  console.log(dailyBalances);
+  
+  
+  
+
+  // Convert grouped transactions to an array
+  
+
+  // Filter by date range and text
+  const filteredItems = dailyBalances.filter(item => {
+    const transactionDate = new Date(item.date);
     const isDateMatch = (!fromDate || transactionDate >= new Date(fromDate)) &&
       (!toDate || transactionDate <= new Date(toDate));
-
+    const isTextMatch = item.date.includes(filterText.toLowerCase());
     return isTextMatch && isDateMatch;
   });
-
-
+  
 
   const handleClearDates = () => {
-    setFromDate(''); // Clear fromDate
-    setToDate('');   // Clear toDate
+    setFromDate('');
+    setToDate('');
   };
 
-
-
-
-  const totalPaidAmount = filteredItems.reduce((total, item) => total + (parseFloat(item.billamount) || 0), 0);
-  const totalCommission = filteredItems.reduce((total, item) => total + (parseFloat(item.totalCommission) || 0), 0);
-
-  // Calculate the overall commission, TDS, and net commission
-  const overallCommission = totalPaidAmount * 0.01;
-  const overallTDS = overallCommission * 0.05;
-  const overallNetCommission = overallCommission - overallTDS;
-
-
-
-// Function to get opening and closing balances for a specific date
-const groupedTransactions = transactions.reduce((acc, transaction) => {
-  const date = formatDate(transaction.createdon);
-  if (!acc[date]) {
-    acc[date] = { openingBalance: transaction.openingBalance, closingBalance: transaction.closingBalance };
-  } else {
-    // Update the closing balance for the latest transaction of the day
-    acc[date].closingBalance = transaction.closingBalance;
-  }
-  return acc;
-}, {});
-
-// Convert grouped transactions into an array
-const dailyBalances = Object.keys(groupedTransactions).map(date => ({
-  date,
-  openingBalance: groupedTransactions[date].openingBalance,
-  closingBalance: groupedTransactions[date].closingBalance,
-}));
-
-// Filter by date range and text
-// const filteredItems = dailyBalances.filter(item => {
-//   const transactionDate = new Date(item.date);
-//   const isDateMatch = (!fromDate || transactionDate >= new Date(fromDate)) &&
-//     (!toDate || transactionDate <= new Date(toDate));
-//   const isTextMatch = item.date.includes(filterText.toLowerCase());
-//   return isTextMatch && isDateMatch;
-// });
-
-const columns = [
-  { name: 'Date', selector: row => row.date, sortable: true },
-  { name: 'Opening Balance', selector: row => row.openingBalance, sortable: true },
-  { name: 'Closing Balance', selector: row => row.closingBalance, sortable: true },
-];
-
-
+ 
+  const columns = [
+    {
+      name: 'Date',
+      selector: row => formatDate(row.date),
+      sortable: true,
+    },
+    {
+      name: 'Opening Balance',
+      selector: row => formatAmount(row.openingBalance),
+      sortable: true,
+    },
+    {
+      name: 'Closing Balance',
+      selector: row => formatAmount(row.closingBalance),
+      sortable: true,
+    },
+  ];
+  
 
   if (error) return <div>Error: {error.message}</div>;
 
@@ -228,25 +229,19 @@ const columns = [
       <div className="button-container">
         <input
           type="text"
-          placeholder="Search by status..."
+          placeholder="Search by date..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
-        {/* <button 
-          className="button-search" 
-          onClick={handleSearch}
-        >
-          <FontAwesomeIcon icon={faSearch} /> Search
-        </button> */}
         <button
           className="button-download"
-          onClick={() => downloadPDF(data)}
+          onClick={() => downloadPDF(filteredItems)}
         >
           <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
         <button
           className="button-download-excel"
-          onClick={() => downloadExcel(data)}
+          onClick={() => downloadExcel(filteredItems)}
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
@@ -273,7 +268,7 @@ const columns = [
       </div>
       <div className="data-table-container">
         <DataTable
-          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>Walllet Report</h2>}
+          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center' }}>Wallet Report</h2>}
           columns={columns}
           data={filteredItems}
           pagination
@@ -281,15 +276,9 @@ const columns = [
           progressPending={loading}
           customStyles={customStyles}
         />
-
-
-
-
       </div>
-
     </div>
   );
 };
 
 export default WalletReport;
-
