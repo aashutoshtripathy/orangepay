@@ -7,6 +7,14 @@ const cancellationDetailSchema = new Schema({
     type: String,
     required: false, // Assuming userId is a required field
   },
+  uniqueId:{
+    type: String,
+    required: false,
+  },
+  netCommission:{
+    type: String,
+    required:false
+  },
   transactionId: {
     type: String,
     required: false, // Assuming transactionId is a required field

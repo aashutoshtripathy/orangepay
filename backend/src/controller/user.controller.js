@@ -1853,6 +1853,7 @@ const cancellationDetails = asyncHandler(async (req, res) => {
 
     const {
       userId,
+      id,
       transactionId,
       consumerNumber,
       consumerName,
@@ -1879,10 +1880,12 @@ const cancellationDetails = asyncHandler(async (req, res) => {
       // Create cancellation detail with initial status "Pending"
       const cancellationDetail = new CancellationDetail({
         userId,
+        uniqueId: id,
         transactionId,
         consumerNumber,
         consumerName,
         paymentMode,
+        netCommission,
         paymentAmount,
         paymentStatus: "Pending", // Set initial status to "Pending"
         createdOn,
@@ -1937,33 +1940,121 @@ const cancellationDetails = asyncHandler(async (req, res) => {
 
 
 
-// Controller function to approve a fund cancellation request
- // Controller function to accept a fund cancellation request
 const cancelAccept = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  console.log('Cancellation ID:', id);
+
   try {
-    // Find the request by its ID and update the status to 'Completed'
+    // Find the cancellation request by its ID
+    const cancellationRequest = await CancellationDetail.findById(id);
+    if (!cancellationRequest) {
+      return res.status(404).json({ message: 'Fund cancellation request not found' });
+    }
+
+    console.log('Cancellation Request:', cancellationRequest);
+
+    // Parse the amounts safely by checking their type first
+    let cancelAmount = cancellationRequest.paymentAmount;
+    let comission = cancellationRequest.netCommission;
+
+    if (typeof cancelAmount === 'string') {
+      cancelAmount = parseFloat(cancelAmount.replace(/[^0-9.-]+/g, ''));
+    } else if (typeof cancelAmount !== 'number') {
+      return res.status(400).json({ message: 'Invalid cancellation amount' });
+    }
+
+    if (typeof comission === 'string') {
+      comission = parseFloat(comission.replace(/[^0-9.-]+/g, ''));
+    } else if (typeof comission !== 'number') {
+      return res.status(400).json({ message: 'Invalid commission amount' });
+    }
+
+    console.log('Cancel Amount:', cancelAmount);
+    console.log('Commission:', comission);
+
+    if (isNaN(cancelAmount) || isNaN(comission)) {
+      return res.status(400).json({ message: 'Invalid cancellation amount or commission' });
+    }
+
+    // Find the user's wallet
+    const wallet = await Wallet.findOne({ uniqueId: cancellationRequest.userId });
+    if (!wallet) {
+      return res.status(404).json({ message: 'Wallet not found for the user' });
+    }
+
+    // Parse wallet balance safely
+    const openingBalance = parseFloat(wallet.balance);
+    if (isNaN(openingBalance)) {
+      return res.status(400).json({ message: 'Invalid wallet balance' });
+    }
+
+    // Calculate new balance
+    const newBalance = openingBalance + (cancelAmount - comission);
+    console.log('New Balance:', newBalance);
+
+    if (isNaN(newBalance)) {
+      return res.status(400).json({ message: 'Invalid new balance calculation' });
+    }
+
+    // Update wallet balance
+    wallet.balance = newBalance;
+    await wallet.save();
+    console.log('Wallet updated with new balance:', wallet.balance);
+
+    // Create a new wallet transaction
+    const transaction = new WalletTransaction({
+      userId: cancellationRequest.uniqueId,
+      uniqueId: cancellationRequest.userId,
+      transactions: [
+        {
+          transactionId: cancellationRequest.transactionId,
+          canumber: cancellationRequest.canumber,
+          refrencenumber: 'exampleReferenceNumber',
+          bankid: 'exampleBankId',
+          paymentmode: cancellationRequest.paymentMode,
+          paymentstatus: 'Success',
+          commission: cancellationRequest.netCommission,
+          amount: cancellationRequest.paymentAmount,
+          type: 'credit',
+          date: new Date(),
+          description: 'Cancellation approved',
+          openingBalance: openingBalance,
+          closingBalance: newBalance
+        }
+      ]
+    });
+
+    await transaction.save();
+    console.log('Transaction saved:', transaction);
+
+    // Update the payment status
     const updatedRequest = await CancellationDetail.findByIdAndUpdate(
       id,
-      { paymentStatus: 'Completed' }, // Update status to 'Completed'
+      { paymentStatus: 'Completed' },
       { new: true }
     );
 
-    if (!updatedRequest) {
-      return res.status(404).json({ message: 'Fund request not found' });
-    }
-
     res.status(200).json({
-      message: 'Fund cancellation request approved successfully',
+      message: 'Fund cancellation request approved successfully, wallet updated',
       updatedRequest,
+      newBalance: wallet.balance
     });
   } catch (error) {
+    console.error('Error approving cancellation request:', error);
     res.status(500).json({
-      message: 'Error approving fund cancellation request',
-      error: error.message,
+      message: 'Error approving fund cancellation request and updating wallet',
+      error: error.message
     });
   }
 });
+
+
+
+
+
+
+
+
 
 // Controller function to reject a fund cancellation request
 const cancelReject = asyncHandler(async (req, res) => {

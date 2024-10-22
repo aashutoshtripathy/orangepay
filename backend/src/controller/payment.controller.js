@@ -12,7 +12,7 @@ import { TransactionHistory } from "../model/TransactionHistory.model.js";
 import { Sbdata } from "../model/Sbdata.model.js";
 import { Reward } from "../model/Reward.model.js";
 import { WalletTransaction } from "../model/WalletTransaction.model.js";
-
+import { WalletOpeningClosing } from "../model/WalletOpeningClosing.model.js";
 
 
 const processPayment = asyncHandler(async (req, res) => {
@@ -173,6 +173,50 @@ const processPayment = asyncHandler(async (req, res) => {
 
     await transaction.save(); 
 
+
+
+
+    let walletOpeningClosing = await WalletOpeningClosing.findOne({ userId: wallet.userId });
+
+    const paymentDate = new Date(invoice.paymentdate); // Get the payment date
+    
+    if (!walletOpeningClosing) {
+      // This is the first transaction, store both opening and closing balance
+      walletOpeningClosing = new WalletOpeningClosing({
+        userId: wallet.userId,
+        uniqueId: wallet.uniqueId,
+        openingBalance: invoice.balanceAfterDeduction, // First time storing the opening balance
+        closingBalance: invoice.balanceAfterCommission,
+        date: paymentDate, // Store the payment date
+      });
+    } else {
+      const storedDate = new Date(walletOpeningClosing.date); // Get the stored date
+    
+      // Check if the dates are the same (ignoring time)
+      const isSameDate = paymentDate.getFullYear() === storedDate.getFullYear() &&
+                         paymentDate.getMonth() === storedDate.getMonth() &&
+                         paymentDate.getDate() === storedDate.getDate();
+    
+      if (!isSameDate) {
+        // If the payment date is different, create a new row
+        const newWalletOpeningClosing = new WalletOpeningClosing({
+          userId: wallet.userId,
+          uniqueId: wallet.uniqueId,
+          openingBalance: invoice.balanceAfterDeduction, // New opening balance
+          closingBalance: invoice.balanceAfterCommission, // New closing balance
+          date: paymentDate, // Store the new payment date
+        });
+        await newWalletOpeningClosing.save(); // Save the new document
+        console.log(`New wallet opening/closing record created for date: ${paymentDate.toISOString().split('T')[0]}`);
+      } else {
+        // If the dates are the same, update the existing row's closing balance
+        walletOpeningClosing.closingBalance = invoice.balanceAfterCommission;
+        await walletOpeningClosing.save(); // Save the updated document
+        console.log(`Closing balance updated for existing record on date: ${storedDate.toISOString().split('T')[0]}`);
+      }
+    }
+    
+
     
 
     // Add the reward to the reward report
@@ -218,6 +262,37 @@ const getPayment = asyncHandler(async (req, res) => {
   try {
     // Validate the userId from the wallet
       const payment = await WalletTransaction.find({ userId:userId }).exec();
+      console.log(userId)
+      
+      if (!payment) {
+          return res.status(404).json({ success: false, message: 'Wallet not found' });
+      }
+
+      console.log("Fetched wallet balance:", payment);
+
+      return res.status(200).json({ success: true, balance: payment });
+      
+  } catch (error) {
+      console.error("Error fetching wallet balance:", error);
+      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
+
+
+const WalletReport = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.log("Invalid userId format:", userId);
+      return res.status(400).json({ success: false, message: 'Invalid userId' });
+  }
+
+
+  try {
+    // Validate the userId from the wallet
+      const payment = await WalletOpeningClosing.find({ userId:userId }).exec();
       console.log(userId)
       
       if (!payment) {
@@ -432,5 +507,5 @@ const getAllSbdata = asyncHandler(async (req, res) => {
 
 
 
-export { processPayment, getPayment , getAllSbdata , getDailyBalance , BiharService , getPayments , getPaymentss , fetchReward , getTotalBalance };
+export { processPayment, getPayment , WalletReport , getAllSbdata , getDailyBalance , BiharService , getPayments , getPaymentss , fetchReward , getTotalBalance };
 

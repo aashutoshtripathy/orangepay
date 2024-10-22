@@ -103,13 +103,11 @@ const WalletReport = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/getPayment/${userId}`);
-        const result = response.data.balance
-          ? response.data.balance.flatMap(balance => balance.transactions).reverse()
-          : [];
-        console.log(result); // Debugging: Check the format of `createdon`
-        setTransactions(result);
-        setData(result);
+        const response = await axios.get(`/walletreport/${userId}`);
+        const result = response.data.balance || [];
+         const sortedData = result.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      setData(sortedData);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError(error.message);
@@ -117,9 +115,10 @@ const WalletReport = () => {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [userId]);
+
   
 
   // const formatDate = (dateString) => {
@@ -149,37 +148,12 @@ const WalletReport = () => {
 
   console.log(transactions)
 
-  const groupedTransactions = transactions.reduce((acc, transaction) => {
-    const date = formatDate(transaction.date);
+
   
-    // Check if the date is already in the accumulator
-    if (!acc[date]) {
-      // Initialize the current date's entry
-      acc[date] = { 
-        date,
-        openingBalance: transaction.openingBalance, // Set the opening balance to the first transaction's opening balance
-        closingBalance: transaction.closingBalance // Set the closing balance to the first transaction's closing balance
-      };
-    } else {
-      // Update the closing balance to the latest transaction of the day
-      acc[date].closingBalance = transaction.closingBalance;
-    }
   
-    return acc;
-  }, {});
   
   // Convert grouped transactions to an array
-  const dailyBalances = Object.keys(groupedTransactions).map(date => {
-    const todayBalance = groupedTransactions[date];
-    
-    return {
-      date,
-      openingBalance: todayBalance.openingBalance,
-      closingBalance: todayBalance.closingBalance // Use only the last transaction's closing balance
-    };
-  });
-  
-  console.log(dailyBalances);
+ 
   
   
   
@@ -188,7 +162,7 @@ const WalletReport = () => {
   
 
   // Filter by date range and text
-  const filteredItems = dailyBalances.filter(item => {
+  const filteredItems = data.filter(item => {
     const transactionDate = new Date(item.date);
     const isDateMatch = (!fromDate || transactionDate >= new Date(fromDate)) &&
       (!toDate || transactionDate <= new Date(toDate));

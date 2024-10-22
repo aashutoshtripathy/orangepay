@@ -142,20 +142,17 @@ const AppHeader = () => {
 
 
   function formatBalance(balance) {
-    if (balance === null || isNaN(balance)) return '0.00';
+    if (balance === null || isNaN(balance)) return '₹ 0.00';
   
     // Split the number into whole and decimal parts
     const [whole, decimal] = balance.toFixed(2).split('.');
   
-    // Format the whole part with comma every two digits from the right
-    const formattedWhole = whole
-      .replace(/(\d)(?=(\d{2})+(?!\d))/g, '$1,') // Add commas every two digits
-      .replace(/(.*)(?=(\d{3}))/g, '$1,') // Ensure the last three digits are separated
-      .replace(/,([^,]*)$/, '$1'); // Remove the last comma if exists
+    // Format the whole part with commas every three digits
+    const formattedWhole = whole.replace(/(\d)(?=(\d{2})+(\d{1})$)/g, '$1,');
   
     return `₹ ${formattedWhole}.${decimal}`;
   }
-
+  
   
 
 

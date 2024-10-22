@@ -89,6 +89,7 @@ const CancellationDetails = () => {
     formData.append('selectedOption', option);
     formData.append('userId', selectedItem.userId);
     formData.append('tds', selectedItem.tds);
+    formData.append('id', selectedItem.id);
     formData.append('commission', selectedItem.commission);
     formData.append('netCommission', selectedItem.netCommission);
     formData.append('transactionId', selectedItem.transactionId);
