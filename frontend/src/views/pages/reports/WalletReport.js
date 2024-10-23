@@ -90,14 +90,14 @@ const downloadExcel = (data) => {
   XLSX.writeFile(wb, 'table_data.xlsx');
 };
 
-const WalletReport = () => {
+const WalletReport = ({userId}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [filterText, setFilterText] = useState('');
-  const userId = localStorage.getItem('userId');
+  // const userId = localStorage.getItem('userId');
   const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {

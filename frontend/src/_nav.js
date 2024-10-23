@@ -45,6 +45,7 @@ export const adminNavItems = [
     items: [
       { component: CNavItem, name: 'Agent Management', to: '/active' },
       { component: CNavItem, name: 'sbdata', to: '/sbdata' },
+      { component: CNavItem, name: 'Agent Details', to: '/view-detailss' },
       // { component: CNavItem, name: 'Inactive Agent', to: '/inactive' },
     ],
   },

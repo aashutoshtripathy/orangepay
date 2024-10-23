@@ -2,11 +2,11 @@ import React from 'react'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Login = React.lazy(() => import('./views/pages/login/Login'))
-const OrangePayReports = React.lazy(() => import('./views/pages/reports/OrangePayReport'))
+const OrangePayReports = React.lazy(() => import('./views/pages/reports/OrangePayReportt.js'))
 const EzetapReports = React.lazy(() => import('./views/pages/reports/EzeTapReport'))
 const Profile = React.lazy(() => import('./views/pages/profile/Profile'))
 const RequestedUser = React.lazy(() => import('./views/pages/requesteduser/RequestedUser'))
-const FundRequest = React.lazy(() => import('./views/pages/fundrequest/FundRequest'))
+const FundRequest = React.lazy(() => import('./views/pages/fundrequest/FundRequesttt.js'))
 const FundRequests = React.lazy(() => import('./views/pages/fundrequest/fundRequests'))
 const ViewUser = React.lazy(() => import('./views/pages/reports/ViewUser'))
 const CallMe = React.lazy(() => import('./views/pages/supportdesk/CallMe'))
@@ -39,12 +39,15 @@ const Cancelation = React.lazy(() => import('./views/pages/payment/Cancelation.j
 const CancellationDetails = React.lazy(() => import('./views/pages/payment/CancellationDetails.js'))
 const Permission = React.lazy(() => import('./views/pages/payment/Permission.js'))
 const ViewDetails = React.lazy(() => import('./views/pages/requesteduser/ViewTable.js'))
+const ViewDetailss = React.lazy(() => import('./views/pages/reports/ViewDetailss.js'))
 const FundDetails = React.lazy(() => import('./views/pages/fundrequest/FundRequestDatails.js'))
-const Passbook = React.lazy(() => import('./views/pages/passbook/Passbook.js'))
-const CancellationHistory = React.lazy(() => import('./views/pages/usermangement/CancellationHistory.js'))
+const Passbook = React.lazy(() => import('./views/pages/passbook/Passbookk.js'))
+const CancellationHistory = React.lazy(() => import('./views/pages/usermangement/CancellationHistoryyy.js'))
 const CancellationRequest = React.lazy(() => import('./views/pages/usermangement/CancellationRequest.js'))
 const CancellationDetailss = React.lazy(() => import('./views/pages/usermangement/CancellationDetailss.js'))
-const WalletReport = React.lazy(() => import('./views/pages/reports/WalletReport.js'))
+const WalletReport = React.lazy(() => import('./views/pages/reports/WalletReportt.js'))
+const SuperAdminReport = React.lazy(() => import('./views/pages/reports/SuperAdmin.js'))
+
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -80,7 +83,7 @@ const Layout = React.lazy(() => import('./views/forms/layout/Layout'))
 const Range = React.lazy(() => import('./views/forms/range/Range'))
 const Select = React.lazy(() => import('./views/forms/select/Select'))
 const Validation = React.lazy(() => import('./views/forms/validation/Validation'))
-const TransactionHistory = React.lazy(() => import('./views/pages/usermangement/TransactionHistory.js'))
+const TransactionHistory = React.lazy(() => import('./views/pages/usermangement/TransactionHistoryyyy.js'))
 
 const Charts = React.lazy(() => import('./views/charts/Charts'))
 
@@ -145,6 +148,8 @@ const routes = [
   { path: '/cancellation-details', name: 'Cancellation Details', element: CancellationDetailss },
   { path: '/Wallet-details/:userId', name: 'Wallet Details', element: WalletReport },
   { path: '/sbdata', name: 'Data', element: sbdata },
+  { path: '/view-detailss', name: 'View Details', element: ViewDetailss },
+  { path: '/reports/:userId', name: 'View Details', element: SuperAdminReport },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

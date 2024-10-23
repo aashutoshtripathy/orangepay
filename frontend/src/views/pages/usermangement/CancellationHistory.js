@@ -230,15 +230,15 @@ const initialColumnsVisibility = {
   paymentStatus: true,
 };
 
-const DataTableComponent = () => {
+const DataTableComponent = ({userId}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [filterText, setFilterText] = useState('');
-  const userId = localStorage.getItem('userId');
-  const username = localStorage.getItem('username');
+  // const userId = localStorage.getItem('userId');
+  // const username = localStorage.getItem('username');
   const [menuOpen, setMenuOpen] = useState(null); // State for tracking which menu is open
   const [columnsVisibility, setColumnsVisibility] = useState(initialColumnsVisibility);
 
@@ -251,7 +251,7 @@ const DataTableComponent = () => {
   useEffect(() => {
     const fetchData = async () => { 
       try {
-        const response = await axios.get(`/cancellationHistory?username=${username}`);
+        const response = await axios.get(`/cancellationHistory?username=${userId}`);
         const result = response.data.data || []; // Ensure to get data array
         const reversedResult = result.reverse(); // Reverse the array order
         setData(reversedResult);
@@ -263,7 +263,7 @@ const DataTableComponent = () => {
     };
 
     fetchData();
-  }, [username]);
+  }, [userId]);
 
 
   const handleColumnVisibilityChange = (column) => {
