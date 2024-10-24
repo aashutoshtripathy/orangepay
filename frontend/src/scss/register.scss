@@ -1,0 +1,27 @@
+.custom-input {
+    border: 1px solid #ccc; /* Default border */
+    padding: 10px;
+    border-radius: 4px;
+    transition: border-color 0.3s ease, border-width 0.3s ease; /* Smooth transition */
+  }
+  
+  /* Apply styles when the input is focused */
+  .custom-input:focus {
+    border-color: #f36c23; /* Change border color on focus */
+    border-width: 2px; /* Increase border size on focus */
+    outline: none; /* Remove the default outline */
+  }
+  .register-btn {
+    background-color: #f36c23 !important;  /* Initial background color */
+    border-color: orange;      /* Matching border color */
+    color: white !important;              /* Font color */
+    font-weight: bold;         /* Make the text bold */
+    transition: background-color 0.3s ease; /* Smooth transition for background color */
+  }
+  
+  /* Hover effect */
+  .register-btn:hover {
+    background-color: darkorange !important;   /* Change background color on hover */
+    color: white;              /* Keep the text color white (same as before) */
+    border-color: orange;      /* Keep border color the same */
+  }

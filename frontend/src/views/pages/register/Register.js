@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import axios from "axios";
+import '../../../scss/register.scss';
 import {
   CButton,
   CCard,
@@ -1546,7 +1547,7 @@ const Register = () => {
         <CRow className="justify-content-center">
           <CCol md={10} lg={8} xl={7}>
             <CCard className="shadow-lg">
-            <CCardHeader className="text-center" style={{ backgroundColor: 'orange' }}>
+            <CCardHeader className="text-center" style={{ backgroundColor: '#f36c23' }}>
               <h2>Register</h2>
               <p className="text-muted">Fill in the details below</p>
             </CCardHeader>
@@ -1559,6 +1560,7 @@ const Register = () => {
                           <CIcon icon={cilUser} />
                         </CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           name="name"
                           placeholder="Name"
                           value={formData.name}
@@ -1578,6 +1580,7 @@ const Register = () => {
                           <CIcon icon={cilUser} />
                         </CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           name="fatherOrHusbandName"
                           placeholder="Father's/Husband Name"
                           value={formData.fatherOrHusbandName}
@@ -1599,6 +1602,7 @@ const Register = () => {
                           <CIcon icon={cilCalendar} />
                         </CInputGroupText>
                         <CFormInput
+                          className="custom-input"
                           name="dob"
                           placeholder="Date of Birth"
                           type="date"
@@ -1616,6 +1620,7 @@ const Register = () => {
                     <CInputGroup className="mb-3">
                       <CInputGroupText>Select Role</CInputGroupText>
                       <CFormSelect
+                        className="custom-input"
                         id="role"
                         name="role"
                         onChange={handleChange}
@@ -1642,6 +1647,7 @@ const Register = () => {
                         <CInputGroupText>Aadhar</CInputGroupText>
                         <CFormInput
                           name="aadharNumber"
+                           className="custom-input"
                           placeholder="Aadhar Number"
                           type="text"
                           value={formData.aadharNumber}
@@ -1660,6 +1666,7 @@ const Register = () => {
                         <CInputGroupText>PAN</CInputGroupText>
                         <CFormInput
                           name="panNumber"
+                          className="custom-input"
                           placeholder="Pan Number"
                           value={formData.panNumber}
                           onChange={handleChange}
@@ -1682,6 +1689,7 @@ const Register = () => {
                         <CFormInput
                           name="mobileNumber"
                           placeholder="Mobile Number"
+                          className="custom-input"
                           type="text"
                           value={formData.mobileNumber}
                           onChange={handleChange}
@@ -1703,6 +1711,7 @@ const Register = () => {
                         </CInputGroupText>
                         <CFormInput
                           name="email"
+                          className="custom-input"
                           placeholder="Email"
                           type="email"
                           value={formData.email}
@@ -1818,6 +1827,7 @@ const Register = () => {
                       <CInputGroupText>Education</CInputGroupText>
                       <div className="d-flex m-2 align-items-center">
                         <CFormCheck
+                           className="custom-input"
                           type="checkbox"
                           name="education"
                           id="graduate"
@@ -1855,6 +1865,7 @@ const Register = () => {
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Address</CInputGroupText>
                         <CFormInput
+                          className="custom-input"
                           name="address"
                           placeholder="Full Address"
                           value={formData.address}
@@ -1877,6 +1888,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText>Pin Code</CInputGroupText>
                             <CFormInput
+                              className="custom-input"
                               name="pincode"
                               placeholder="Pin Code"
                               value={formData.pincode}
@@ -1895,6 +1907,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText htmlFor="district">District</CInputGroupText>
                             <CFormSelect
+                             className="custom-input"
                               id="district"
                               name="district"
                               value={formData.district}
@@ -1925,6 +1938,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText>Discom</CInputGroupText>
                             <CFormSelect
+                             className="custom-input"
                               name="discom"
                               value={formData.discom}
                               onChange={handleDiscomChange}
@@ -1991,6 +2005,7 @@ const Register = () => {
                         <CInputGroup className="mb-3">
                           <CInputGroupText>Consumer ID</CInputGroupText>
                           <CFormInput
+                           className="custom-input"
                             type="text"
                             name="consumerId"
                             value={formData.consumerId}
@@ -2005,6 +2020,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText>Division</CInputGroupText>
                             <CFormSelect
+                             className="custom-input"
                               name="division"
                               value={formData.division}
                               onChange={handleChange}
@@ -2022,6 +2038,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText>Sub-Division</CInputGroupText>
                             <CFormSelect
+                             className="custom-input"
                               name="subdivision"
                               value={formData.subDivision}
                               onChange={handleChange}
@@ -2040,6 +2057,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText>Select Section</CInputGroupText>
                             <CFormSelect
+                             className="custom-input"
                               name="section"
                               value={formData.section}
                               onChange={handleChange}
@@ -2078,6 +2096,7 @@ const Register = () => {
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Bank Name</CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           name="bank"
                           placeholder="Bank Name"
                           value={formData.bank}
@@ -2095,6 +2114,7 @@ const Register = () => {
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Bank Account Number</CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           name="accountno"
                           placeholder="Bank Account Number"
                           value={formData.accountno}
@@ -2112,6 +2132,7 @@ const Register = () => {
                       <CInputGroup className="mb-3">
                         <CInputGroupText>IFSC Code</CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           name="ifsc"
                           placeholder="IFSC Code"
                           value={formData.ifsc}
@@ -2133,6 +2154,7 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           ref={fileInputRefs.photograph}
                           id="photograph"
                           name="photograph"
@@ -2160,6 +2182,7 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           ref={fileInputRefs.signature}
                           id="signature" // Add an id to the input element
                           name="signature"
@@ -2187,6 +2210,7 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           ref={fileInputRefs.educationCertificate}
                           id="educationCertificate"
                           name="educationCertificate"
@@ -2217,6 +2241,7 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           ref={fileInputRefs.aadharCard}
                           id="aadharCard"
                           name="aadharCard"
@@ -2243,6 +2268,7 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           ref={fileInputRefs.panCard}
                           id="panCard"
                           name="panCard"
@@ -2265,6 +2291,7 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
+                         className="custom-input"
                           ref={fileInputRefs.cheque}
                           id="cheque" 
                           name="cheque"
@@ -2289,7 +2316,7 @@ const Register = () => {
                   </CRow>
 
                   <div className="d-grid"style={{ width: '20%' }}>
-                    <CButton color="warning" type="submit" size="lg">
+                    <CButton className="register-btn"  type="submit" size="lg">
                      Register
                     </CButton>
                   </div>

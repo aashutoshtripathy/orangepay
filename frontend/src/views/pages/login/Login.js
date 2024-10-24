@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import '../../../scss/login.scss'
 import {
   CButton,
   CCard,
@@ -136,6 +137,7 @@ const Login = () => {
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
                       <CFormInput
+                        className="custom-input"
                         placeholder="Username"
                         autoComplete="username"
                         value={username}
@@ -151,6 +153,7 @@ const Login = () => {
                         <CIcon icon={cilLockLocked} />
                       </CInputGroupText>
                       <CFormInput
+                        className="custom-input"
                         type="password"
                         placeholder="Password"
                         autoComplete="current-password"
@@ -163,7 +166,7 @@ const Login = () => {
 
                     <CRow>
                       <CCol xs={6}>
-                        <CButton style={{ backgroundColor: 'orange', borderColor: 'orange' }} type="submit" className="px-4">
+                        <CButton className="login-btn" style={{ backgroundColor: 'orange', borderColor: 'orange' }} type="submit" >
                           Login
                         </CButton>
                       </CCol>
@@ -181,30 +184,30 @@ const Login = () => {
                   <div>
                     <h2
                       style={{
-                        color: 'orange',
+                        color: '#f36c23',
                         fontSize: '36px',
                         fontWeight: 'bold',
-                        fontFamily: 'Arial, sans-serif',
+                        fontFamily: 'Cooper Black',
                         textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
                       }}
                     >
-                      Orange Pay
+                      OrangePay
                     </h2>
                     <p>
                       Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
                       tempor incididunt ut labore et dolore magna aliqua.
                     </p>
                     <Link to="/register">
-                      <CButton color="warning"
-                        style={{
-                          backgroundColor: 'orange',
-                          borderColor: 'orange',
-                          color: 'white',
-                          transition: 'all 0.3s ease', 
-                          position: 'relative', 
-                          overflow: 'hidden', 
-                        }}
-                        className="mt-3"
+                      <CButton className="register-btn"
+                        // style={{
+                        //   backgroundColor: 'orange',
+                        //   borderColor: 'orange',
+                        //   color: 'white',
+                        //   transition: 'all 0.3s ease', 
+                        //   position: 'relative', 
+                        //   overflow: 'hidden', 
+                        // }}
+                        
                         active
                         tabIndex={-1}
                       >
