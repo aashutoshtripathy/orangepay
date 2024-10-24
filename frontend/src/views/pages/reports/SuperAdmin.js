@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CButton, CContainer, CRow, CCol, CCard, CCardBody, CCardHeader } from '@coreui/react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Passbook from '../passbook/Passbook';
 // Import other report components as needed
 
@@ -11,7 +11,8 @@ import TransactionHistory from '../usermangement/TransactionHistory';
 import CancellationHistory from '../usermangement/CancellationHistory';
 
 const SuperAdmin = () => {
-  const navigate = useNavigate();
+  const location = useLocation();
+  const { id, name, status } = location.state || {};  const navigate = useNavigate();
   const { userId } = useParams(); // Get userId from URL params
   const [selectedReport, setSelectedReport] = useState(null); // State to handle which report to show
 
@@ -39,6 +40,10 @@ const SuperAdmin = () => {
           <h3 style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#f36c23", fontWeight: "800" }}>
             Reports Dashboard
           </h3>
+          <div style={{ textAlign: "center", marginTop: "10px" }}>
+            <p><strong>Agent ID:</strong> {id}</p>
+            <p><strong>Agent Name:</strong> {name}</p>
+          </div>
         </CCardHeader>
         <CCardBody>
           <CRow className="text-center">

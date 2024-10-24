@@ -24,6 +24,10 @@ const fundRequestSchema = new Schema(
       enum: ["bank-transfer","cdm", "upi", "card", "paypal", "cash"],
       required: true,
     },
+    txnId:{
+      type:String,
+      required: false
+    },
     bankName: {
       type: String,
       trim: true,

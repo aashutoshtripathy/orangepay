@@ -493,6 +493,7 @@ const fundRequest = asyncHandler(async (req, res) => {
       // userId: user.userId, // Correctly set userId from the fetched user document
       userId: user._id,
       uniqueId: user.userId,
+      txnId: `OP${Date.now()}`,
       fundAmount,
       bankReference,
       paymentMethod,
@@ -1078,13 +1079,13 @@ const approveFundRequest = asyncHandler(async (req, res) => {
       walletId: userWallet._id,
       transactions: [ 
         {
-          transactionId: 'uniqueTransactionId', 
-          canumber: 'exampleCanumber', 
+          transactionId: updatedFundRequest.txnId, 
+          // canumber: 'exampleCanumber', 
           refrencenumber: 'exampleReferenceNumber', 
           bankid: 'exampleBankId', 
           paymentmode: 'examplePaymentMode', 
           paymentstatus: 'Success', 
-          commission:"",
+          commission:"0",
           amount: updatedFundRequest.fundAmount, 
           type: 'credit', 
           date: new Date(), 

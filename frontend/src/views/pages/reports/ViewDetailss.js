@@ -318,8 +318,15 @@ const DataTableComponent = () => {
 
 
   const handleView = (row) => {
-    navigate(`/reports/${row._id}`, { state: { status: row.status } })
+    navigate(`/reports/${row._id}`, { 
+      state: { 
+        status: row.status, 
+        id: row.userId,  // Change userId to id
+        name: row.name    // Keep name the same
+      }
+    });
   };
+  
 
   const handleSearch = () => {
     // Search logic is already implemented with the filter, just trigger re-render

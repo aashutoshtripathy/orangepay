@@ -2,6 +2,12 @@ import React, { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  CDropdown,
+  CDropdownToggle,
+  CDropdownMenu,
+  CDropdownItem,
+} from '@coreui/react';
 import { faEllipsisV, faCircleInfo, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -428,6 +434,8 @@ const DataTableComponent = ({userId}) => {
       </div>
       <div className="button-container">
         <input
+        style={{width:"130px"}}
+
           type="text"
           placeholder="Search by status..."
           value={filterText}
@@ -439,6 +447,76 @@ const DataTableComponent = ({userId}) => {
         >
           <FontAwesomeIcon icon={faSearch} /> Search
         </button> */}
+      <CDropdown >
+  <CDropdownToggle className="button-download">
+    <FontAwesomeIcon  icon="eye" /> Visibility
+  </CDropdownToggle>
+  <CDropdownMenu>
+    {/* Checkbox controls for columns inside the dropdown */}
+    <div
+      className="column-visibility-controls"
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        padding: '10px',
+      }}
+    >
+      <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+        <label>
+          <input
+            type="checkbox"
+            checked={columnsVisibility.userId}
+            onChange={() => handleColumnVisibilityChange('userId')}
+          />
+          User ID
+        </label>
+      </CDropdownItem>
+      <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+        <label>
+          <input
+            type="checkbox"
+            checked={columnsVisibility.transactionId}
+            onChange={() => handleColumnVisibilityChange('transactionId')}
+          />
+          Transaction ID
+        </label>
+      </CDropdownItem>
+      <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+        <label>
+          <input
+            type="checkbox"
+            checked={columnsVisibility.consumerNumber}
+            onChange={() => handleColumnVisibilityChange('consumerNumber')}
+          />
+          Consumer Number
+        </label>
+      </CDropdownItem>
+      <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+        <label>
+          <input
+            type="checkbox"
+            checked={columnsVisibility.paymentAmount}
+            onChange={() => handleColumnVisibilityChange('paymentAmount')}
+          />
+          Payment Amount
+        </label>
+      </CDropdownItem>
+      <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+        <label>
+          <input
+            type="checkbox"
+            checked={columnsVisibility.paymentStatus}
+            onChange={() => handleColumnVisibilityChange('paymentStatus')}
+          />
+          Payment Status
+        </label>
+      </CDropdownItem>
+    </div>
+  </CDropdownMenu>
+</CDropdown>
+
+
         <button
           className="button-download"
           onClick={() => downloadPDF(data)}

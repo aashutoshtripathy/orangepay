@@ -424,3 +424,27 @@ input[type="date"] {
 }
 
 /* Add more styles for layout if needed */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-toggle {
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  z-index: 1;
+}
+
+.dropdown-item {
+  margin-bottom: 5px;
+}
