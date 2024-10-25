@@ -89,6 +89,10 @@ const registerSchema = new Schema({
     type: String, 
     trim: true 
   },
+  otp: { 
+    type: String, 
+    trim: true 
+  },
   pincode: { 
     type: String, 
     trim: true 

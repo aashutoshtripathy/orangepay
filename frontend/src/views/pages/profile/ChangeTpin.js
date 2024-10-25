@@ -82,7 +82,7 @@ const ChangePassword = () => {
               <CCardBody>
                 <CForm onSubmit={handleSubmit}>
                   <h1>Change Tpin</h1>
-                  <p className="text-body-secondary">Enter your password details</p>
+                  <p className="text-body-secondary">Enter your Tpin details</p>
 
                   {error && <p style={{ color: 'red' }}>{error}</p>}
 

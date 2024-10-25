@@ -23,6 +23,26 @@ const processPayment = asyncHandler(async (req, res) => {
   // Log the request body for debugging
   console.log('Request Body:', req.body);
 
+
+  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+
+  // Query for recent payment attempts within the last 30 minutes
+  const recentPaymentAttempt = await Payment.findOne({
+      canumber: consumerId,
+      paidamount: amount,
+      createdon: { $gte: thirtyMinutesAgo }
+  });
+
+  // Block the new payment if a recent attempt exists
+  if (recentPaymentAttempt) {
+    console.error(`Payment blocked: Recent payment attempt found for consumerId: ${consumerId} with the same amount: ${amount}`);
+    return res.status(400).json({
+      statusCode: 400,
+      data: null,
+      success: false,
+      error: ["Payment blocked. A payment with the same amount has already been made for this consumer within the last 30 minutes."]
+    });
+  }
   
 
   // Validate the request body
@@ -39,6 +59,9 @@ const processPayment = asyncHandler(async (req, res) => {
 
   try {
     console.log(`Processing payment for userId: ${userId}, amount: ${amount}`);
+
+
+    
 
       // Retrieve the user to get the margin rate
       const users = await Register.findOne({ _id: userId });
@@ -174,47 +197,34 @@ const processPayment = asyncHandler(async (req, res) => {
     await transaction.save(); 
 
 
+// Convert payment date to just the date portion (without time)
+const paymentDate = new Date(invoice.paymentdate);
+const paymentDateKey = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), paymentDate.getDate()); // Get the date only
 
+// Check if there's already a wallet entry for that user and date
+let walletOpeningClosing = await WalletOpeningClosing.findOne({
+  userId: wallet.userId,
+  date: { $gte: paymentDateKey, $lt: new Date(paymentDateKey.getTime() + 86400000) } // From start of the day to end of the day
+});
 
-    let walletOpeningClosing = await WalletOpeningClosing.findOne({ userId: wallet.userId });
+if (!walletOpeningClosing) {
+  // This is the first transaction of the day, store both opening and closing balance
+  walletOpeningClosing = new WalletOpeningClosing({
+    userId: wallet.userId,
+    uniqueId: wallet.uniqueId,
+    openingBalance: invoice.balanceAfterDeduction, // First time storing the opening balance
+    closingBalance: invoice.balanceAfterCommission,
+    date: paymentDate, // Store the payment date
+  });
+  await walletOpeningClosing.save(); // Save the new document
+  console.log(`New wallet opening/closing record created for date: ${paymentDate.toISOString().split('T')[0]}`);
+} else {
+  // If the record exists, update the existing row's closing balance
+  walletOpeningClosing.closingBalance = invoice.balanceAfterCommission;
+  await walletOpeningClosing.save(); // Save the updated document
+  console.log(`Closing balance updated for existing record on date: ${paymentDate.toISOString().split('T')[0]}`);
+}
 
-    const paymentDate = new Date(invoice.paymentdate); // Get the payment date
-    
-    if (!walletOpeningClosing) {
-      // This is the first transaction, store both opening and closing balance
-      walletOpeningClosing = new WalletOpeningClosing({
-        userId: wallet.userId,
-        uniqueId: wallet.uniqueId,
-        openingBalance: invoice.balanceAfterDeduction, // First time storing the opening balance
-        closingBalance: invoice.balanceAfterCommission,
-        date: paymentDate, // Store the payment date
-      });
-    } else {
-      const storedDate = new Date(walletOpeningClosing.date); // Get the stored date
-    
-      // Check if the dates are the same (ignoring time)
-      const isSameDate = paymentDate.getFullYear() === storedDate.getFullYear() &&
-                         paymentDate.getMonth() === storedDate.getMonth() &&
-                         paymentDate.getDate() === storedDate.getDate();
-    
-      if (!isSameDate) {
-        // If the payment date is different, create a new row
-        const newWalletOpeningClosing = new WalletOpeningClosing({
-          userId: wallet.userId,
-          uniqueId: wallet.uniqueId,
-          openingBalance: invoice.balanceAfterDeduction, // New opening balance
-          closingBalance: invoice.balanceAfterCommission, // New closing balance
-          date: paymentDate, // Store the new payment date
-        });
-        await newWalletOpeningClosing.save(); // Save the new document
-        console.log(`New wallet opening/closing record created for date: ${paymentDate.toISOString().split('T')[0]}`);
-      } else {
-        // If the dates are the same, update the existing row's closing balance
-        walletOpeningClosing.closingBalance = invoice.balanceAfterCommission;
-        await walletOpeningClosing.save(); // Save the updated document
-        console.log(`Closing balance updated for existing record on date: ${storedDate.toISOString().split('T')[0]}`);
-      }
-    }
     
 
     

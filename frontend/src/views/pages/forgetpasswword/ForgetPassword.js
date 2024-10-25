@@ -33,8 +33,11 @@ const ChangePassword = () => {
   const [aadhaarLastFour, setAadhaarLastFour] = useState('') // State for Aadhar last four digits
   const [aadhaarVerified, setAadhaarVerified] = useState(false) // State for Aadhar verification
   // const userId = localStorage.getItem('userId')
-  const [userId, setUserId] = useState(''); 
-
+  const [userId, setUserId] = useState('');
+  const [otpModalVisible, setOtpModalVisible] = useState(false) // State for OTP modal visibility
+  const [otp, setOtp] = useState('') // State for OTP input
+  const [otpError, setOtpError] = useState(null)
+  const [otpSuccess, setOtpSuccess] = useState(null)
 
   const navigate = useNavigate()
 
@@ -55,13 +58,14 @@ const ChangePassword = () => {
 
         try {
           const response = await axios.post('/verify-aadhaar', {
-           
+
             aadhaarLastFour,
           })
 
           if (response.data.success) {
             setAadhaarVerified(true);
             setUserId(response.data.userId);
+            setOtpModalVisible(true)
           } else {
             setError('Aadhar verification failed. Please try again.')
           }
@@ -69,7 +73,7 @@ const ChangePassword = () => {
           setError('An error occurred: ' + (err.response?.data?.message || err.message))
         }
       } else {
-        
+
         if (!currentPassword || !newPassword || !confirmPassword) {
           setError("All fields are required.")
           return
@@ -100,6 +104,30 @@ const ChangePassword = () => {
       }
     }
   }
+
+
+  const handleOtpSubmit = async () => {
+    setOtpError(null)
+    setOtpSuccess(null)
+    try {
+      const response = await axios.post('/verify-otp', { userId, otp })
+
+      if (response.data.success) {
+        setOtpSuccess('OTP verified successfully!')
+        setAadhaarVerified(true)
+        setTimeout(() => setOtpModalVisible(false), 1500) // Close modal after success
+      } else {
+        setOtpError('Invalid OTP. Please try again.')
+      }
+    } catch (err) {
+      setOtpError('An error occurred: ' + (err.response?.data?.message || err.message))
+    }
+  }
+
+
+
+
+
 
   const handleClose = () => {
     setModalVisible(false)
@@ -132,7 +160,7 @@ const ChangePassword = () => {
 
                   {error && <p style={{ color: 'red' }}>{error}</p>}
 
-                  
+
                   {!aadhaarVerified && (
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
@@ -147,8 +175,8 @@ const ChangePassword = () => {
                     </CInputGroup>
                   )}
 
-                  
-                  {aadhaarVerified && (
+
+                  {aadhaarVerified  && otpSuccess  && (
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilLockLocked} />
@@ -162,8 +190,8 @@ const ChangePassword = () => {
                     </CInputGroup>
                   )}
 
-                 
-                  {aadhaarVerified && (
+
+                  {aadhaarVerified && otpSuccess  && (
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilLockLocked} />
@@ -177,8 +205,8 @@ const ChangePassword = () => {
                     </CInputGroup>
                   )}
 
-                  
-                  {aadhaarVerified && (
+
+                  {aadhaarVerified && otpSuccess  && (
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilLockLocked} />
@@ -205,7 +233,37 @@ const ChangePassword = () => {
           </CCol>
         </CRow>
 
-        
+
+        <CModal visible={otpModalVisible} onClose={() => setOtpModalVisible(false)}>
+          <CModalHeader>
+            <CModalTitle>Enter OTP</CModalTitle>
+          </CModalHeader>
+          <CModalBody>
+            <CFormInput
+              type="text"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => {
+                const input = e.target.value;
+                if (/^\d{0,4}$/.test(input)) { 
+                  setOtp(input);
+                }
+              }}
+            />
+            {otpError && <p style={{ color: 'red' }}>{otpError}</p>}
+            {otpSuccess && <p style={{ color: 'green' }}>{otpSuccess}</p>}
+          </CModalBody>
+          <CModalFooter>
+            <CButton color="primary" onClick={handleOtpSubmit}>
+              Verify OTP
+            </CButton>
+            <CButton color="secondary" onClick={() => setOtpModalVisible(false)}>
+              Close
+            </CButton>
+          </CModalFooter>
+        </CModal>
+
+        {/* Success/Error Modal */}
         <CModal visible={modalVisible} onClose={handleClose}>
           <CModalHeader>
             <CModalTitle>Password Change</CModalTitle>

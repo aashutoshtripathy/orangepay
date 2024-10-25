@@ -21,7 +21,7 @@ import log from "../.././../assets/images/log (1).png";
 import nb from "../.././../assets/images/nb.png";
 
 
-const Payment = () => {
+const PaymentOnline = () => {
   const [consumerId, setConsumerId] = useState('');
   const [billDetails, setBillDetails] = useState({});
   const [mobileNumber, setMobileNumber] = useState('');
@@ -135,8 +135,8 @@ const validateConsumerId = (value) => {
     return Object.keys(errors).length === 0;
   };
 
-  // const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
-  const API_URL = '/BiharService/BillInterface'
+  const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
+//   const API_URL = '/BiharService/BillInterface'
 
   const soapRequest = (consumerId, amount) => `
   <?xml version="1.0" encoding="utf-8"?>
@@ -167,7 +167,7 @@ const validateConsumerId = (value) => {
     setFetchBillSuccess(false); // Set to false initially to indicate fetching process
 
     try {
-      const response = await axios.post(API_URL, {
+      const response = await axios.post(API_URL,soapRequest, {
         consumerId: consumerId, // Sending consumerId in the JSON body
       });
 
@@ -675,4 +675,4 @@ const handleConsumerIdFocus = () => {
   );
 };
 
-export default Payment;
+export default PaymentOnline;

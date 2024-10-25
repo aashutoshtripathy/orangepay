@@ -33,6 +33,7 @@ const FundReport = React.lazy(() => import('./views/pages/reports/FundReport'))
 const RejectedUser = React.lazy(() => import('./views/pages/usermangement/RejectedUser.js'))
 const UpdateUser = React.lazy(() => import('./views/pages/profile/UpdateProfile.js'))
 const Payment = React.lazy(() => import('./views/pages/payment/Payment.js'))
+const PaymentOnline = React.lazy(() => import('./views/pages/payment/PaymentOnline.js'))
 const Topup = React.lazy(() => import('./views/pages/payment/Topup.js'))
 const Prepaid = React.lazy(() => import('./views/pages/payment/Prepaid.js'))
 const Cancelation = React.lazy(() => import('./views/pages/payment/Cancelation.js'))
@@ -150,6 +151,7 @@ const routes = [
   { path: '/sbdata', name: 'Data', element: sbdata },
   { path: '/view-detailss', name: 'View Details', element: ViewDetailss },
   { path: '/reports/:userId', name: 'View Details', element: SuperAdminReport },
+  { path: '/paymentonline', name: 'View Details', element: PaymentOnline },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

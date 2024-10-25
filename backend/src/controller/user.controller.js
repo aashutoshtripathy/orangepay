@@ -701,6 +701,7 @@ const changeTpin = asyncHandler(async (req, res) => {
 });
 
 
+const generateOtp = () => Math.floor(1000 + Math.random() * 9000);
 
 const verifyAadhaar = asyncHandler(async (req, res) => {
   const { aadhaarLastFour } = req.body;
@@ -717,6 +718,19 @@ const verifyAadhaar = asyncHandler(async (req, res) => {
       aadharNumber: { $regex: `${aadhaarLastFour}$` } // Use regex to match last four digits
     });
 
+    if (!matchedUser) {
+      return res.status(401).json({ success: false, message: 'Aadhaar verification failed or user is not active.' });
+    }
+
+    // Generate a 4-digit OTP and set an expiration time (5 minutes from now)
+    const otp = generateOtp();
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+
+    // Save OTP and expiration time to the user document
+    matchedUser.otp = otp;
+    matchedUser.otpExpiresAt = otpExpiresAt;
+    await matchedUser.save();
+
     if (matchedUser) {
       return res.status(200).json({ success: true, message: 'Aadhar verification successful.', userId: matchedUser._id });
     } else {
@@ -725,6 +739,32 @@ const verifyAadhaar = asyncHandler(async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: 'An error occurred during Aadhar verification.' });
+  }
+});
+
+
+
+
+const verifyOtp = asyncHandler(async (req, res) => {
+  const { userId, otp } = req.body;
+
+  try {
+    // Find the user by ID and check if OTP matches and is still valid
+    const user = await Register.findById(userId);
+
+    if (!user || !user.otp || user.otp !== otp || user.otpExpiresAt < new Date()) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired OTP.' });
+    }
+
+    // Clear OTP fields after successful verification
+    user.otp = undefined;
+    user.otpExpiresAt = undefined;
+    await user.save();
+
+    return res.status(200).json({ success: true, message: 'OTP verification successful.' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'An error occurred during OTP verification.' });
   }
 });
 
@@ -2190,5 +2230,5 @@ const fetchUserByIdd = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser,cancellationHistoryy,changeTpin,sbData,cancelAccept,cancelReject, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+export { registerUser,cancellationHistoryy,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 

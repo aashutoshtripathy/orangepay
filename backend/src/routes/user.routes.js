@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
-import { deleteUser, fetchData, fetchWalletBalance,sbData,cancellationDetails,cancelAccept,cancelReject,getCancellation,cancellationHistoryy,cancellationHistory,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd, changeTpin } from "../controller/user.controller.js";
+import { deleteUser, fetchData, fetchWalletBalance,sbData,cancellationDetails,cancelAccept,cancelReject,getCancellation,cancellationHistoryy,cancellationHistory,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd, changeTpin, verifyOtp } from "../controller/user.controller.js";
 import {processPayment, getPayment , getAllSbdata , getPayments , getDailyBalance , getPaymentss , fetchReward , BiharService , getTotalBalance, WalletReport} from "../controller/payment.controller.js"
 import { initiateEzetapPayment } from "../controller/ezetap.controller.js";
 
@@ -45,6 +45,7 @@ router.route("/payment").post(processPayment)
 router.route("/change-password").post(changePassword)
 router.route("/change-tpin").post(changeTpin)
 router.route("/verify-aadhaar").post(verifyAadhaar)
+router.route("/verify-otp").post(verifyOtp)
 router.route("/BiharService/BillInterface").post(BiharService)
 router.route("/block/:userId").post(blockUser)
 router.route("/unblock/:userId").post(unblockUser)
