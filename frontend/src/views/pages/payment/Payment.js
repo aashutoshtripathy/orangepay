@@ -444,7 +444,7 @@ const handleConsumerIdFocus = () => {
                     onFocus={handleConsumerIdFocus}
                     placeholder="Enter Consumer ID"
                   />
-    {formSubmitted && consumerIdError && <p className="text-danger">{consumerIdError}</p>}
+             {formSubmitted && consumerIdError && <p className="text-danger">{consumerIdError}</p>}
     </CCol>
               </CRow>
 

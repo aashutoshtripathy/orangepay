@@ -1827,7 +1827,6 @@ const Register = () => {
                       <CInputGroupText>Education</CInputGroupText>
                       <div className="d-flex m-2 align-items-center">
                         <CFormCheck
-                           className="custom-input"
                           type="checkbox"
                           name="education"
                           id="graduate"

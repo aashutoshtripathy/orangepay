@@ -45,20 +45,33 @@ const PaymentOnline = () => {
   const [showPrintView, setShowPrintView] = useState(false);
   const printRef = useRef();
   const [consumerIdError, setConsumerIdError] = useState('');
+  const [billData, setBillData] = useState({
+    consumerId: '',
+    consumerName: '',
+    address: 'N/A',
+    mobileNo: 'N/A',
+    divisionName: 'N/A',
+    subDivision: 'N/A',
+    companyName: 'N/A',
+    billMonth: 'N/A',
+    amount: 'N/A',
+    dueDate: 'N/A',
+    invoiceNo: 'N/A',
+});
 
 
   const [showPinModal, setShowPinModal] = useState(false);
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
 
-const validateConsumerId = (value) => {
-  if (!value) {
-    return 'Consumer ID is required.';
-  } else if (value.length < 5) { // Example validation
-    return 'Consumer ID must be at least 5 characters long.';
-  }
-  return ''; // No error
-};
+  const validateConsumerId = (value) => {
+    if (!value) {
+      return 'Consumer ID is required.';
+    } else if (value.length < 5) { // Example validation
+      return 'Consumer ID must be at least 5 characters long.';
+    }
+    return ''; // No error
+  };
 
 
 
@@ -135,25 +148,28 @@ const validateConsumerId = (value) => {
     return Object.keys(errors).length === 0;
   };
 
-  const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
-//   const API_URL = '/BiharService/BillInterface'
+  const API_URL = '/BiharService/BillInterface.asmx';
+    const Secondary_API_URL = '/BiharService/BillInterface'
 
-  const soapRequest = (consumerId, amount) => `
-  <?xml version="1.0" encoding="utf-8"?>
-  <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Body>
-      <BillDetails xmlns="http://tempuri.org/">
-        <strCANumber>${consumerId}</strCANumber>
-        <strDivision></strDivision>
-        <strSubDivision></strSubDivision>
-        <strLegacyNo></strLegacyNo>
-        <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
-        <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
-        <Amount>${amount}</Amount>
-      </BillDetails>
-    </soap:Body>
-  </soap:Envelope>
+  const soapRequest = (consumerId, MERCHANT_CODE, MERCHANT_PASSWORD) => `
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <BillDetails xmlns="http://tempuri.org/">
+      <strCANumber>${consumerId}</strCANumber>
+      <strDivision></strDivision>
+      <strSubDivision></strSubDivision>
+      <strLegacyNo></strLegacyNo>
+      <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+      <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+    </BillDetails>
+  </soap:Body>
+</soap:Envelope>
 `;
+
+
+
+
 
 
   const handleFetchBill = async () => {
@@ -167,43 +183,118 @@ const validateConsumerId = (value) => {
     setFetchBillSuccess(false); // Set to false initially to indicate fetching process
 
     try {
-      const response = await axios.post(API_URL,soapRequest, {
-        consumerId: consumerId, // Sending consumerId in the JSON body
+      const xmlPayload = soapRequest(consumerId, MERCHANT_CODE, MERCHANT_PASSWORD);
+      const trimXml = xmlPayload.trim();
+
+      const response = await axios.post(API_URL, trimXml, {
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8', // Specify the content type
+          'Accept': 'application/json, text/plain, */*', // Accept headers
+        },
+        // If you need to send consumerId in the body, make sure the server accepts it
+        data: xmlPayload,
       });
 
-      const consumerData = response.data; // Assuming this is the API response
+      // Log the response data to debug
+      console.log('Response data:', response.data);
 
-      if (Array.isArray(consumerData) && consumerData.length > 0) {
-        const consumer = consumerData[0]; // Access the first consumer object
+      // Access the first consumer object
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(response.data, "text/xml");
 
-        // Extract the details
-        const extractedConsumerId = consumer.ConsumeId || ''; // Fallback to empty string
-        const consumerName = consumer.ConsumerName || 'N/A'; // Provide a fallback
-        const address = consumer.Address || 'N/A';
-        const mobileNo = consumer.MobileNo || 'N/A';
-        const divisionName = consumer.DivisionName || 'N/A';
-        const subDivision = consumer.SubDivision || 'N/A';
+      const namespaceURI = "http://tempuri.org/";
+      const billDetails = xmlDoc.getElementsByTagNameNS(namespaceURI, "BillDetailsResult")[0];
 
-        // Set the extracted details to state
-        setBillDetails({
-          consumerId: extractedConsumerId,
-          consumerName,
-          address,
-          mobileNo,
-          divisionName,
-          subDivision,
-        });
+      let billData = {};
+
+      if (billDetails) {
+        const getTagValue = (tagName) => {
+          const element = billDetails.getElementsByTagNameNS(namespaceURI, tagName)[0];
+          return element && element.textContent.trim() ? element.textContent : 'N/A';
+        };
+
+        setBillData({
+          consumerId: getTagValue("CANumber"),
+          consumerName: getTagValue("ConsumerName"),
+          address: getTagValue("Address"),
+          mobileNo: getTagValue("MobileNumber"),
+          divisionName: getTagValue("Division"),
+          subDivision: getTagValue("SubDivision"),
+          companyName: getTagValue("CompanyName"),
+          billMonth: getTagValue("BillMonth"),
+          amount: getTagValue("Amount"),
+          dueDate: getTagValue("DueDate"),
+          invoiceNo: getTagValue("InvoiceNO"),
+      });
+
+     
+
+
+        setBillDetails(billData);
         setFetchBillSuccess(true);
+        console.log('Bill details:', billData);
+        await insertBillDetails(billData);
       } else {
-        console.error('No consumer data found.');
-        // Handle case when no data is found
+        console.error('No BillDetailsResult found in response.');
+        const secondaryResponse = await axios.post(Secondary_API_URL, trimXml, {
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Accept': 'application/json, text/plain, */*',
+          },
+          data: xmlPayload,
+        });
+
+        console.log('Secondary API response data:', secondaryResponse.data);
+        
+        // Parse the secondary XML response
+        const secondaryXmlDoc = parser.parseFromString(secondaryResponse.data, "text/xml");
+        const secondaryBillDetails = secondaryXmlDoc.getElementsByTagNameNS(namespaceURI, "BillDetailsResult")[0];
+
+        if (secondaryBillDetails) {
+          const getTagValue = (tagName) => {
+            const element = secondaryBillDetails.getElementsByTagNameNS(namespaceURI, tagName)[0];
+            return element && element.textContent.trim() ? element.textContent : 'N/A';
+          };
+
+          const secondaryFetchedBillData = {
+            consumerId: getTagValue("CANumber"),
+            consumerName: getTagValue("ConsumerName"),
+            address: getTagValue("Address"),
+            mobileNo: getTagValue("MobileNumber"),
+            divisionName: getTagValue("Division"),
+            subDivision: getTagValue("SubDivision"),
+            companyName: getTagValue("CompanyName"),
+            billMonth: getTagValue("BillMonth"),
+            amount: getTagValue("Amount"),
+            dueDate: getTagValue("DueDate"),
+            invoiceNo: getTagValue("InvoiceNO"),
+          };
+
+          setBillData(secondaryFetchedBillData);
+          setBillDetails(secondaryFetchedBillData);
+          setFetchBillSuccess(true);
+          console.log('Fetched from secondary API:', secondaryFetchedBillData);
+        } else {
+          console.error('No BillDetailsResult found in secondary response.');
+        }
       }
     } catch (error) {
-      console.error('Error fetching bill:', error);
-      // Handle error appropriately, e.g., show an alert
+      console.error('Error fetching bill details:', error);
+      setFetchBillSuccess(false); // Set fetch success to false if there's an error
     }
-  };
-  console.log(billDetails)
+  }
+      
+
+
+      // Insert the entire bill data into the database
+      const insertBillDetails = async (data) => {
+        try {
+          await axios.post(`/insertBillDetails`, data);
+          console.log('Bill details inserted into database.');
+        } catch (error) {
+          console.error('Error inserting bill details:', error);
+        }
+      };
 
   const handleProceedToPay = async () => {
     setFormSubmitted(true);
@@ -272,15 +363,15 @@ const validateConsumerId = (value) => {
   };
 
 
-  
-const handleConsumerIdBlur = () => {
-  const error = validateConsumerId(consumerId);
-  setConsumerIdError(error); // Set error state
-};
 
-const handleConsumerIdFocus = () => {
-  setConsumerIdError(''); // Clear error on focus
-};
+  const handleConsumerIdBlur = () => {
+    const error = validateConsumerId(consumerId);
+    setConsumerIdError(error); // Set error state
+  };
+
+  const handleConsumerIdFocus = () => {
+    setConsumerIdError(''); // Clear error on focus
+  };
 
 
   const handlePrint = () => {
@@ -373,14 +464,14 @@ const handleConsumerIdFocus = () => {
   // };
   const handlePayment = async () => {
     setFormSubmitted(true);
-    
+
     // Validate form inputs
     if (!validate()) return;
-  
+
     // Show PIN modal before proceeding
     setShowPinModal(true);
   };
-  
+
   const handlePinSubmit = async () => {
     // Check if the entered PIN is correct
     if (pin === '1234') { // Replace with your actual PIN logic
@@ -425,9 +516,18 @@ const handleConsumerIdFocus = () => {
             <div className="mb-4">
               <h4>Consumer Information</h4>
               <p><strong>Consumer ID:</strong> {consumerId}</p>
-              <p><strong>Consumer Name:</strong> {billDetails.consumerName || 'N/A'}</p>
-              <p><strong>Mobile No:</strong> {billDetails.mobileNo || 'N/A'}</p>
-              <p><strong>Address:</strong> {billDetails.address || 'N/A'}</p>
+              <p><strong>Consumer Name:</strong> {billData.consumerName || 'N/A'}</p>
+              <p><strong>Mobile No:</strong> {billData.mobileNo || 'N/A'}</p>
+              <p><strong>Address:</strong> {billData.address || 'N/A'}</p>
+              <p><strong>Division Name:</strong> {billData.divisionName || 'N/A'}</p>
+              <p><strong>Sub Division:</strong> {billData.subDivision || 'N/A'}</p>
+              <p><strong>Company Name:</strong> {billData.companyName || 'N/A'}</p>
+              <p><strong>Bill Month:</strong> {billData.billMonth || 'N/A'}</p>
+              <p><strong>Amount:</strong> {billData.amount || 'N/A'}</p>
+              <p><strong>Due Date:</strong> {billData.dueDate || 'N/A'}</p>
+              <p><strong>Invoice NO:</strong> {billData.invoiceNo || 'N/A'}</p>
+
+
             </div>
           )}
           {!fetchBillSuccess && (
@@ -444,8 +544,8 @@ const handleConsumerIdFocus = () => {
                     onFocus={handleConsumerIdFocus}
                     placeholder="Enter Consumer ID"
                   />
-    {formSubmitted && consumerIdError && <p className="text-danger">{consumerIdError}</p>}
-    </CCol>
+                  {formSubmitted && consumerIdError && <p className="text-danger">{consumerIdError}</p>}
+                </CCol>
               </CRow>
 
               <CButton color="primary" onClick={handleFetchBill}>

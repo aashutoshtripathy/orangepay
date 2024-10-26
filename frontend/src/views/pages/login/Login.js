@@ -53,7 +53,7 @@ const Login = () => {
     if (!valid) return;
 
     try {
-      const response = await axios.post('/login', {
+      const response = await axios.post(`/login`, {
         username,
         password,
       }, { withCredentials: true })

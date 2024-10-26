@@ -1,8 +1,8 @@
 import { Payment } from "../model/Payment.model.js";
 import { Wallet } from "../model/Wallet.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import {ApiError} from '../utils/ApiError.js'; // Adjust the import path as needed
-import {ApiResponse} from '../utils/ApiResponse.js'; // Adjust the import path as needed
+import { ApiError } from '../utils/ApiError.js'; // Adjust the import path as needed
+import { ApiResponse } from '../utils/ApiResponse.js'; // Adjust the import path as needed
 import { Invoice } from '../model/Invoice.model.js';  // If using ES modules
 
 
@@ -17,7 +17,7 @@ import { WalletOpeningClosing } from "../model/WalletOpeningClosing.model.js";
 
 const processPayment = asyncHandler(async (req, res) => {
   const {
-    userId, consumerId, amount, paymentMethod, divisionName,subDivision,consumerName
+    userId, consumerId, amount, paymentMethod, divisionName, subDivision, consumerName
   } = req.body;
 
   // Log the request body for debugging
@@ -28,9 +28,9 @@ const processPayment = asyncHandler(async (req, res) => {
 
   // Query for recent payment attempts within the last 30 minutes
   const recentPaymentAttempt = await Payment.findOne({
-      canumber: consumerId,
-      paidamount: amount,
-      createdon: { $gte: thirtyMinutesAgo }
+    canumber: consumerId,
+    paidamount: amount,
+    createdon: { $gte: thirtyMinutesAgo }
   });
 
   // Block the new payment if a recent attempt exists
@@ -43,7 +43,7 @@ const processPayment = asyncHandler(async (req, res) => {
       error: ["Payment blocked. A payment with the same amount has already been made for this consumer within the last 30 minutes."]
     });
   }
-  
+
 
   // Validate the request body
   // if (!userId || !consumerId || !amount || !paymentMethod || !CANumber || !InvoiceNO || !BillMonth || !latitude || !longitude || !ConsumerMobileNo || !LoginId) {
@@ -61,18 +61,18 @@ const processPayment = asyncHandler(async (req, res) => {
     console.log(`Processing payment for userId: ${userId}, amount: ${amount}`);
 
 
-    
-
-      // Retrieve the user to get the margin rate
-      const users = await Register.findOne({ _id: userId });
-      if (!users) {
-        console.error('User not found for userId:', userId);
-        return res.status(404).json(new ApiError(404, "User not found"));
-      }
 
 
+    // Retrieve the user to get the margin rate
+    const users = await Register.findOne({ _id: userId });
+    if (!users) {
+      console.error('User not found for userId:', userId);
+      return res.status(404).json(new ApiError(404, "User not found"));
+    }
 
-    const marginRate = users.margin/100;
+
+
+    const marginRate = users.margin / 100;
     const tdsRate = 0.05; // 5% TDS on commission
 
     const commissionAmount = amount * marginRate; // Calculate 1% commission
@@ -85,7 +85,7 @@ const processPayment = asyncHandler(async (req, res) => {
       console.error('Wallet not found for userId:', userId);
       return res.status(404).json(new ApiError(404, "Wallet not found"));
     }
-    const user = await Register.findOne({ _id:userId });
+    const user = await Register.findOne({ _id: userId });
 
     // Check if there is sufficient balance
     if (wallet.balance < amount) {
@@ -103,10 +103,10 @@ const processPayment = asyncHandler(async (req, res) => {
     console.log(`Wallet balance updated. New balance: ${wallet.balance}`);
 
     const invoice = new Payment({
-      id: userId,  
+      id: userId,
       userId: wallet.uniqueId,
       canumber: consumerId,
-      invoicenumber:"",
+      invoicenumber: "",
       billmonth: "N/A",
       transactionId: `OP${Date.now()}`,
       refrencenumber: ``,
@@ -125,32 +125,32 @@ const processPayment = asyncHandler(async (req, res) => {
       mid: 'wallet', // Assuming the default MID is ezytap, change accordingly
       nameoncard: "N/A", // Change if name on card is needed (e.g., fetch from request body)
       remarks: '', // Leave empty initially or populate if remarks are provided
-      loginid:'', // Passed from request body
+      loginid: '', // Passed from request body
       rrn: '', // Retrieval Reference Number, leave empty initially or fetch as required
       vpa: '', // Virtual Payment Address, empty or populated if applicable
       billamount: amount, // Original bill amount
       paymentdate: new Date(), // Current date for payment processing
-      latitude:'', // From request body
-      longitude:'', // From request body
+      latitude: '', // From request body
+      longitude: '', // From request body
       fetchtype: '', // Set fetch type if applicable
-      consumermob:'', // Consumer mobile number from request body
+      consumermob: '', // Consumer mobile number from request body
       ltht: '', // Low tension/high tension value, populate if applicable
       duedate: '', // Populate the due date if available, otherwise leave empty
       brandcode: user.discom || '', // If brand code is available, populate, otherwise leave empty
       division: divisionName, // Populate division if applicable
       subdivision: subDivision, // Populate subdivision if applicable
-      consumerName:consumerName,
+      consumerName: consumerName,
 
       commission: commissionAmount,
       tds: tdsAmount,
       netCommission: netCommission,
     });
-    
+
 
     await invoice.save();
 
 
-  
+
 
     console.log(`Invoice record created. Invoice ID: ${invoice._id}`);
 
@@ -165,7 +165,7 @@ const processPayment = asyncHandler(async (req, res) => {
 
 
 
-    invoice.balanceAfterDeduction = balanceBeforeDeduction ; // Set balance after deduction
+    invoice.balanceAfterDeduction = balanceBeforeDeduction; // Set balance after deduction
     invoice.balanceAfterCommission = wallet.balance; // Set balance after commission
     invoice.paymentstatus = 'Completed';
     await invoice.save();
@@ -175,18 +175,18 @@ const processPayment = asyncHandler(async (req, res) => {
       userId: wallet.userId,
       uniqueId: wallet.uniqueId,
       walletId: wallet._id,
-      transactions: [ 
+      transactions: [
         {
-          transactionId: invoice.transactionId, 
-          canumber: invoice.canumber, 
-          refrencenumber: invoice.refrencenumber, 
-          bankid: "", 
-          paymentmode: invoice.paymentmode, 
-          paymentstatus: invoice.paymentstatus, 
+          transactionId: invoice.transactionId,
+          canumber: invoice.canumber,
+          refrencenumber: invoice.refrencenumber,
+          bankid: "",
+          paymentmode: invoice.paymentmode,
+          paymentstatus: invoice.paymentstatus,
           commission: invoice.netCommission,
-          amount: invoice.paidamount, 
-          type: 'Debit', 
-          date: new Date(), 
+          amount: invoice.paidamount,
+          type: 'Debit',
+          date: new Date(),
           description: 'Bill Payment',
           openingBalance: invoice.balanceAfterDeduction, // Add the opening balance here
           closingBalance: invoice.balanceAfterCommission // Add the closing balance here
@@ -194,40 +194,40 @@ const processPayment = asyncHandler(async (req, res) => {
       ]
     });
 
-    await transaction.save(); 
+    await transaction.save();
 
 
-// Convert payment date to just the date portion (without time)
-const paymentDate = new Date(invoice.paymentdate);
-const paymentDateKey = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), paymentDate.getDate()); // Get the date only
+    // Convert payment date to just the date portion (without time)
+    const paymentDate = new Date(invoice.paymentdate);
+    const paymentDateKey = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), paymentDate.getDate()); // Get the date only
 
-// Check if there's already a wallet entry for that user and date
-let walletOpeningClosing = await WalletOpeningClosing.findOne({
-  userId: wallet.userId,
-  date: { $gte: paymentDateKey, $lt: new Date(paymentDateKey.getTime() + 86400000) } // From start of the day to end of the day
-});
+    // Check if there's already a wallet entry for that user and date
+    let walletOpeningClosing = await WalletOpeningClosing.findOne({
+      userId: wallet.userId,
+      date: { $gte: paymentDateKey, $lt: new Date(paymentDateKey.getTime() + 86400000) } // From start of the day to end of the day
+    });
 
-if (!walletOpeningClosing) {
-  // This is the first transaction of the day, store both opening and closing balance
-  walletOpeningClosing = new WalletOpeningClosing({
-    userId: wallet.userId,
-    uniqueId: wallet.uniqueId,
-    openingBalance: invoice.balanceAfterDeduction, // First time storing the opening balance
-    closingBalance: invoice.balanceAfterCommission,
-    date: paymentDate, // Store the payment date
-  });
-  await walletOpeningClosing.save(); // Save the new document
-  console.log(`New wallet opening/closing record created for date: ${paymentDate.toISOString().split('T')[0]}`);
-} else {
-  // If the record exists, update the existing row's closing balance
-  walletOpeningClosing.closingBalance = invoice.balanceAfterCommission;
-  await walletOpeningClosing.save(); // Save the updated document
-  console.log(`Closing balance updated for existing record on date: ${paymentDate.toISOString().split('T')[0]}`);
-}
+    if (!walletOpeningClosing) {
+      // This is the first transaction of the day, store both opening and closing balance
+      walletOpeningClosing = new WalletOpeningClosing({
+        userId: wallet.userId,
+        uniqueId: wallet.uniqueId,
+        openingBalance: invoice.balanceAfterDeduction, // First time storing the opening balance
+        closingBalance: invoice.balanceAfterCommission,
+        date: paymentDate, // Store the payment date
+      });
+      await walletOpeningClosing.save(); // Save the new document
+      console.log(`New wallet opening/closing record created for date: ${paymentDate.toISOString().split('T')[0]}`);
+    } else {
+      // If the record exists, update the existing row's closing balance
+      walletOpeningClosing.closingBalance = invoice.balanceAfterCommission;
+      await walletOpeningClosing.save(); // Save the updated document
+      console.log(`Closing balance updated for existing record on date: ${paymentDate.toISOString().split('T')[0]}`);
+    }
 
-    
 
-    
+
+
 
     // Add the reward to the reward report
     const rewardReport = new Reward({
@@ -250,7 +250,7 @@ if (!walletOpeningClosing) {
       tds: tdsAmount,
       netCommission
     }, "Payment processed successfully. Commission credited after TDS"));
-    
+
 
   } catch (error) {
     console.error("Error processing payment:", error);
@@ -264,27 +264,27 @@ const getPayment = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(userId)) {
-      console.log("Invalid userId format:", userId);
-      return res.status(400).json({ success: false, message: 'Invalid userId' });
+    console.log("Invalid userId format:", userId);
+    return res.status(400).json({ success: false, message: 'Invalid userId' });
   }
 
 
   try {
     // Validate the userId from the wallet
-      const payment = await WalletTransaction.find({ userId:userId }).exec();
-      console.log(userId)
-      
-      if (!payment) {
-          return res.status(404).json({ success: false, message: 'Wallet not found' });
-      }
+    const payment = await WalletTransaction.find({ userId: userId }).exec();
+    console.log(userId)
 
-      console.log("Fetched wallet balance:", payment);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Wallet not found' });
+    }
 
-      return res.status(200).json({ success: true, balance: payment });
-      
+    console.log("Fetched wallet balance:", payment);
+
+    return res.status(200).json({ success: true, balance: payment });
+
   } catch (error) {
-      console.error("Error fetching wallet balance:", error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    console.error("Error fetching wallet balance:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 });
 
@@ -295,76 +295,76 @@ const WalletReport = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(userId)) {
-      console.log("Invalid userId format:", userId);
-      return res.status(400).json({ success: false, message: 'Invalid userId' });
+    console.log("Invalid userId format:", userId);
+    return res.status(400).json({ success: false, message: 'Invalid userId' });
   }
 
 
   try {
     // Validate the userId from the wallet
-      const payment = await WalletOpeningClosing.find({ userId:userId }).exec();
-      console.log(userId)
-      
-      if (!payment) {
-          return res.status(404).json({ success: false, message: 'Wallet not found' });
-      }
+    const payment = await WalletOpeningClosing.find({ userId: userId }).exec();
+    console.log(userId)
 
-      console.log("Fetched wallet balance:", payment);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Wallet not found' });
+    }
 
-      return res.status(200).json({ success: true, balance: payment });
-      
+    console.log("Fetched wallet balance:", payment);
+
+    return res.status(200).json({ success: true, balance: payment });
+
   } catch (error) {
-      console.error("Error fetching wallet balance:", error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    console.error("Error fetching wallet balance:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 });
 
 
 
 
-  const getDailyBalance = asyncHandler(async (req, res) => {
-    const { userId } = req.params;
-  
-    // Validate userId
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      console.log("Invalid userId format:", userId);
-      return res.status(400).json({ success: false, message: 'Invalid userId' });
+const getDailyBalance = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  // Validate userId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    console.log("Invalid userId format:", userId);
+    return res.status(400).json({ success: false, message: 'Invalid userId' });
+  }
+
+  try {
+    // Fetch all transactions for the specified user and group by date
+    const dailyReport = await WalletTransaction.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } }, // Match user
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } // Group by date
+          },
+          totalTransactions: { $sum: 1 }, // Count transactions per date
+          totalAmount: { $sum: "$amount" } // Sum of amounts per date
+        }
+      },
+      { $sort: { "_id": 1 } } // Sort by date ascending
+    ]);
+
+    // Check if any transactions were found
+    if (!dailyReport || dailyReport.length === 0) {
+      return res.status(404).json({ success: false, message: 'No transactions found for this user' });
     }
-  
-    try {
-      // Fetch all transactions for the specified user and group by date
-      const dailyReport = await WalletTransaction.aggregate([
-        { $match: { userId: new mongoose.Types.ObjectId(userId) } }, // Match user
-        {
-          $group: {
-            _id: {
-              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } // Group by date
-            },
-            totalTransactions: { $sum: 1 }, // Count transactions per date
-            totalAmount: { $sum: "$amount" } // Sum of amounts per date
-          }
-        },
-        { $sort: { "_id": 1 } } // Sort by date ascending
-      ]);
-  
-      // Check if any transactions were found
-      if (!dailyReport || dailyReport.length === 0) {
-        return res.status(404).json({ success: false, message: 'No transactions found for this user' });
-      }
-  
-      console.log("Fetched daily report for user:", userId);
-  
-      return res.status(200).json({
-        success: true,
-        userId: userId,
-        report: dailyReport,
-      });
-    } catch (error) {
-      console.error("Error fetching daily report:", error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-  });
-  
+
+    console.log("Fetched daily report for user:", userId);
+
+    return res.status(200).json({
+      success: true,
+      userId: userId,
+      report: dailyReport,
+    });
+  } catch (error) {
+    console.error("Error fetching daily report:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
 
 
 
@@ -376,26 +376,26 @@ const getPayments = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(userId)) {
-      console.log("Invalid userId format:", userId);
-      return res.status(400).json({ success: false, message: 'Invalid userId' });
+    console.log("Invalid userId format:", userId);
+    return res.status(400).json({ success: false, message: 'Invalid userId' });
   }
 
 
   try {
-      const payment = await Payment.find({ id:userId }).exec();
-      console.log(userId)
-      
-      if (!payment) {
-          return res.status(404).json({ success: false, message: 'Wallet not found' });
-      }
+    const payment = await Payment.find({ id: userId }).exec();
+    console.log(userId)
 
-      console.log("Fetched wallet balance:", payment);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Wallet not found' });
+    }
 
-      return res.status(200).json({ success: true, balance: payment });
-      
+    console.log("Fetched wallet balance:", payment);
+
+    return res.status(200).json({ success: true, balance: payment });
+
   } catch (error) {
-      console.error("Error fetching wallet balance:", error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    console.error("Error fetching wallet balance:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 });
 
@@ -405,26 +405,26 @@ const getPaymentss = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(userId)) {
-      console.log("Invalid userId format:", userId);
-      return res.status(400).json({ success: false, message: 'Invalid userId' });
+    console.log("Invalid userId format:", userId);
+    return res.status(400).json({ success: false, message: 'Invalid userId' });
   }
 
 
   try {
-      const payment = await Payment.find({ id:userId }).exec();
-      console.log(userId)
-      
-      if (!payment) {
-          return res.status(404).json({ success: false, message: 'Wallet not found' });
-      }
+    const payment = await Payment.find({ id: userId }).exec();
+    console.log(userId)
 
-      console.log("Fetched wallet balance:", payment);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Wallet not found' });
+    }
 
-      return res.status(200).json({ success: true, balance: payment });
-      
+    console.log("Fetched wallet balance:", payment);
+
+    return res.status(200).json({ success: true, balance: payment });
+
   } catch (error) {
-      console.error("Error fetching wallet balance:", error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    console.error("Error fetching wallet balance:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 });
 
@@ -442,7 +442,7 @@ const BiharService = asyncHandler(async (req, res) => {
   try {
     // Find the details in the database using the provided consumerId (adjust the field name to match your database)
     const details = await Sbdata.find({ ConsumerId: consumerId });
-    console.log("conbsumeryuwegj",consumerId)
+    console.log("conbsumeryuwegj", consumerId)
     // If no details found, return a 404 status with an error message
     if (details.length === 0) {
       return res.status(404).json({ message: 'Details not found for the provided consumerId' });
@@ -488,7 +488,7 @@ const getTotalBalance = asyncHandler(async (req, res) => {
 
     // Return the total balance
     return res.status(200).json({ success: true, totalBalance });
-    
+
   } catch (error) {
     console.error('Error fetching wallet balances:', error);
     return res.status(500).json({ success: false, message: 'Internal Server Error' });
@@ -517,5 +517,57 @@ const getAllSbdata = asyncHandler(async (req, res) => {
 
 
 
-export { processPayment, getPayment , WalletReport , getAllSbdata , getDailyBalance , BiharService , getPayments , getPaymentss , fetchReward , getTotalBalance };
+
+const insertBillDetails = asyncHandler(async (req, res) => {
+  const { consumerId, consumerName, address, mobileNo, divisionName, subDivision, companyName, billMonth, amount, dueDate, invoiceNo } = req.body;
+
+  try {
+    // Check if the consumer ID already exists in the Sbdata collection
+    const existingConsumer = await Sbdata.findOne({ consumerId });
+
+    // If it exists, return a 409 status with a message
+    if (existingConsumer) {
+      return res.status(409).json({ message: 'Consumer ID already exists' });
+    }
+
+    // If it does not exist, create a new record with the consumer ID
+    const newConsumer = await Sbdata.create({
+
+      ConsumerId: consumerId,
+      ConsumerName: consumerName,
+      Address: address,
+      MobileNo: mobileNo,
+      DivisionName: divisionName,
+      SubDivision: subDivision,
+      PostCode,
+      EmailId,
+      Traiff,
+      Section,
+      SancLoad,
+      ContractDemand,
+      companyName,
+      billMonth,
+      amount,
+      dueDate,
+      invoiceNo,
+      CreatedOn: dueDate,
+      Status: "",
+    });
+
+
+
+    await newConsumer.save();
+
+    // Return a success message and the newly created consumer data
+    res.status(201).json({ message: 'Consumer ID saved successfully', consumer: newConsumer });
+  } catch (error) {
+    // Handle any potential errors
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+export { processPayment, getPayment, WalletReport, getAllSbdata, getDailyBalance, BiharService, getPayments, getPaymentss, fetchReward, insertBillDetails, getTotalBalance };
 

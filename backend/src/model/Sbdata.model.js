@@ -57,6 +57,21 @@ const SbdataSchema = new Schema({
     RuralUrban: {
       type: String,
     },
+    companyName:{
+      type: String,
+    },
+      billMonth:{
+        type: String,
+      },
+      amount:{
+        type:String,
+      },
+      dueDate:{
+        type: String,
+      },
+      invoiceNo:{
+        type: String,
+      },
     ActNo: {
       type: String,
     },
