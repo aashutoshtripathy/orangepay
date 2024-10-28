@@ -382,12 +382,23 @@ const handleConsumerIdFocus = () => {
   };
   
   const handlePinSubmit = async () => {
-    // Check if the entered PIN is correct
-    if (pin === '1234') { // Replace with your actual PIN logic
-      setShowPinModal(false); // Close the PIN modal
-      await handleProceedToPay(); // Proceed to payment
-    } else {
-      setPinError('Incorrect PIN. Please try again.'); // Show error if PIN is incorrect
+    try {
+      // Send the entered PIN to the backend for validation
+      const response = await axios.post('/validate-tpin', {
+        userId, // Assumes userId is stored in localStorage
+        tpin: pin,
+      });
+  
+      // Check the response from the backend
+      if (response.data.success) { // Assuming backend sends { success: true } if PIN is correct
+        setShowPinModal(false); // Close the PIN modal
+        await handleProceedToPay(); // Proceed to payment
+      } else {
+        setPinError('Incorrect PIN. Please try again.'); // Show error if PIN is incorrect
+      }
+    } catch (error) {
+      console.error('Error validating Tpin:', error);
+      setPinError('An error occurred. Please try again later.'); // Display generic error
     }
   };
 

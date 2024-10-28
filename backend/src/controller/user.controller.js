@@ -681,12 +681,12 @@ const changeTpin = asyncHandler(async (req, res) => {
     }
 
     // Check if the current password is correct
-    if (user.password !== currentPassword) {
+    if (user.tpin !== currentPassword) {
       return res.status(400).json({ message: 'Current password is incorrect.' });
     }
 
     // Update the password
-    user.password = newPassword; // You should ideally hash the new password before saving
+    user.tpin = newPassword; // You should ideally hash the new password before saving
 
     // Save the user with the new password
     await user.save();
@@ -1725,62 +1725,7 @@ const updateUserCommission = asyncHandler(async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
-// const updateUserPermissions = asyncHandler(async (req, res) => {
-//   const { userId } = req.params;
-//   const { topup, billPayment, requestCancellation, getPrepaidBalance, fundRequest } = req.body;
 
-//   try {
-//     // Find the user before updating to check for changes
-//     const user = await Register.findById(userId);
-
-//     if (!user) {
-//       return res.status(404).json({ success: false, message: 'User not found' });
-//     }
-
-//     // Create a variable to track if any permissions have changed
-//     let hasChanges = false;
-
-//     // Check for changes in permissions
-//     if (user.topup !== topup) hasChanges = true;
-//     if (user.billPayment !== billPayment) hasChanges = true;
-//     if (user.requestCancellation !== requestCancellation) hasChanges = true;
-//     if (user.getPrepaidBalance !== getPrepaidBalance) hasChanges = true;
-//     if (user.fundRequest !== fundRequest) hasChanges = true;
-
-//     // Update the user's permissions
-//     const updatedUser = await Register.findByIdAndUpdate(
-//       userId,
-//       {
-//         topup,
-//         billPayment,
-//         requestCancellation,
-//         getPrepaidBalance,
-//         fundRequest,
-//       },
-//       { new: true }
-//     );
-
-//     // If the user is found but no changes were made, respond accordingly
-//     if (!updatedUser) {
-//       return res.status(404).json({ success: false, message: 'User not found' });
-//     }
-
-//     // If there were changes, delete the session cookie
-//     if (hasChanges) {
-//       res.clearCookie('sessionID', {
-//         path: '/', // Ensure this path matches the cookie path
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === 'production',
-//         sameSite: 'Strict',
-//       });
-//     }
-
-//     res.json({ success: true, updatedUser });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: 'Server error' });
-//   }
-// });
 
 
 const getCancellation = asyncHandler(async (req, res) => {
@@ -2201,6 +2146,32 @@ const sbData = asyncHandler(async (req, res) => {
 });
 
 
+const validateTpin = asyncHandler(async (req, res) => {
+  const { userId, tpin } = req.body; // Destructure userId and Tpin from request body
+
+  // Check if both userId and Tpin are provided
+  if (!userId || !tpin) {
+    return res.status(400).json({ success: false, message: 'User ID and Tpin are required' });
+  }
+
+  try {
+    // Retrieve user from database by userId
+    const user = await Register.findById(userId);
+
+    // Check if user exists and if the provided Tpin matches the stored Tpin
+    if (user && user.tpin === tpin) {
+      return res.json({ success: true, message: 'Tpin is valid' });
+    } else {
+      return res.status(401).json({ success: false, message: 'Incorrect Tpin' });
+    }
+  } catch (error) {
+    console.error('Error validating Tpin:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
+
 
 // const WalletTransaction = asyncHandler(async(req,res) => {
 
@@ -2228,5 +2199,5 @@ const fetchUserByIdd = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser,cancellationHistoryy,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+export { registerUser,cancellationHistoryy, validateTpin,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 

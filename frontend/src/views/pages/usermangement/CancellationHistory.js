@@ -11,22 +11,20 @@ import {
 import { faEllipsisV, faCircleInfo, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import * as XLSX from 'xlsx';  // Import XLSX for Excel export
+import * as XLSX from 'xlsx'; 
 import '../../../scss/dataTable.scss';
 
-// Define custom styles for the table
 const customStyles = {
   rows: {
     style: {
-      minHeight: '72px', // Set the minimum row height
+      minHeight: '72px', 
     },
   },
   headCells: {
     style: {
-      // backgroundColor: '#333', // Dark background for header cells
-      color: 'black', // Set font color to orange for header cells
-      fontSize: '16px', // Adjust font size for header
-      fontWeight: 'bold', // Make the header bold
+      color: 'black', 
+      fontSize: '16px', 
+      fontWeight: 'bold', 
       paddingLeft: '8px',
       paddingRight: '8px',
     },
@@ -40,41 +38,12 @@ const customStyles = {
 };
 
 
-// const customStyles = {
-//   rows: {
-//     style: {
-//       minHeight: '72px', // Set the minimum row height
-//       fontSize: '14px', // Adjust the font size if needed
-//       color: '#FFA500', // Set font color to orange for rows
-//     },
-//   },
-//   headCells: {
-//     style: {
-//       backgroundColor: '#333', // Dark background for header cells
-//       color: '#FFA500', // Set font color to orange for header cells
-//       fontSize: '16px', // Adjust font size for header
-//       fontWeight: 'bold', // Make the header bold
-//       paddingLeft: '8px',
-//       paddingRight: '8px',
-//     },
-//   },
-//   cells: {
-//     style: {
-//       color: '#FFA500', // Set font color to orange for body cells
-//       fontSize: '14px', // Adjust font size for body cells
-//       paddingLeft: '8px',
-//       paddingRight: '8px',
-//     },
-//   },
-// };
 
-
-// Function to generate and download PDF
 const downloadPDF = (data) => {
   const doc = new jsPDF({
-    orientation: 'p', // Portrait mode
+    orientation: 'p', 
     unit: 'mm',
-    format: 'a4' // A4 paper size
+    format: 'a4'
   });
 
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -110,15 +79,14 @@ const downloadPDF = (data) => {
     updatedAt: row.updatedAt,
   }));
 
-  // Auto table options
   doc.autoTable({
     startY: 30,
-    head: [columns.map(col => col.header)], // Table headers
-    body: rows.map(row => columns.map(col => row[col.dataKey])), // Table data
-    margin: { top: 30, bottom: 10 }, // Adjust bottom margin for page footer
+    head: [columns.map(col => col.header)], 
+    body: rows.map(row => columns.map(col => row[col.dataKey])), 
+    margin: { top: 30, bottom: 10 }, 
     styles: {
-      fontSize: 7, // Adjust font size
-      cellPadding: 1, // Reduce cell padding
+      fontSize: 7, 
+      cellPadding: 1, 
       overflow: 'linebreak',
       halign: 'left',
       valign: 'middle',
@@ -132,7 +100,7 @@ const downloadPDF = (data) => {
       fillColor: [220, 220, 220],
     },
     columnStyles: {
-      0: { cellWidth: 20 }, // Adjust column widths
+      0: { cellWidth: 20 },
       1: { cellWidth: 20 },
       2: { cellWidth: 25 },
       3: { cellWidth: 30 },
@@ -148,7 +116,6 @@ const downloadPDF = (data) => {
     }
   });
 
-  // Download the PDF
   doc.save('fund_reports.pdf');
 };
 
@@ -157,10 +124,8 @@ const downloadPDF = (data) => {
 
 
 const downloadExcel = (data) => {
-  // Create a new workbook
   const wb = XLSX.utils.book_new();
 
-  // Define headers and data
   const headers = [
     "User ID",
     "Fund Amount",
@@ -172,7 +137,6 @@ const downloadExcel = (data) => {
     "Updated At"
   ];
 
-  // Convert JSON data to sheet
   const wsData = data.map(row => ({
     "User ID": row.uniqueId,
     "Fund Amount": row.fundAmount,
@@ -184,31 +148,25 @@ const downloadExcel = (data) => {
     "Updated At": row.updatedAt,
   }));
 
-  // Create a worksheet
   const ws = XLSX.utils.json_to_sheet(wsData, { header: headers });
 
-  // Define column widths manually
   const columnWidths = [
-    { wch: 15 },  // User ID
-    { wch: 12 },  // Fund Amount
-    { wch: 25 },  // Bank Reference
-    { wch: 20 },  // Payment Method
-    { wch: 20 },  // Bank Name
-    { wch: 10 },  // Status
-    { wch: 20 },  // Created At
-    { wch: 20 }   // Updated At
+    { wch: 15 }, 
+    { wch: 12 },  
+    { wch: 25 },  
+    { wch: 20 },  
+    { wch: 20 },  
+    { wch: 10 },  
+    { wch: 20 },  
+    { wch: 20 }   
   ];
 
-  // Apply column widths to the worksheet
   ws['!cols'] = columnWidths;
 
-  // Append sheet to workbook
   XLSX.utils.book_append_sheet(wb, ws, "Fund Reports");
 
-  // Convert workbook to binary format
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
 
-  // Create a Blob object from the binary data
   function s2ab(s) {
     const buf = new ArrayBuffer(s.length);
     const view = new Uint8Array(buf);
@@ -216,12 +174,11 @@ const downloadExcel = (data) => {
     return buf;
   }
 
-  // Create and trigger the download
   const blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'fund_reports.xlsx'; // File name
+  a.download = 'fund_reports.xlsx'; 
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -243,9 +200,7 @@ const DataTableComponent = ({userId}) => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [filterText, setFilterText] = useState('');
-  // const userId = localStorage.getItem('userId');
-  // const username = localStorage.getItem('username');
-  const [menuOpen, setMenuOpen] = useState(null); // State for tracking which menu is open
+  const [menuOpen, setMenuOpen] = useState(null);
   const [columnsVisibility, setColumnsVisibility] = useState(initialColumnsVisibility);
 
 
@@ -258,8 +213,8 @@ const DataTableComponent = ({userId}) => {
     const fetchData = async () => { 
       try {
         const response = await axios.get(`/cancellationHistory?username=${userId}`);
-        const result = response.data.data || []; // Ensure to get data array
-        const reversedResult = result.reverse(); // Reverse the array order
+        const result = response.data.data || []; 
+        const reversedResult = result.reverse(); 
         setData(reversedResult);
       } catch (error) {
         setError(error);
@@ -275,28 +230,26 @@ const DataTableComponent = ({userId}) => {
   const handleColumnVisibilityChange = (column) => {
     setColumnsVisibility(prevState => ({
       ...prevState,
-      [column]: !prevState[column] // Toggle visibility
+      [column]: !prevState[column] 
     }));
   };
 
   const handleViewDetails = (row) => {
-    // Logic to view details (redirect, modal, etc.)
     console.log('Viewing details for:', row);
-    // Example: history.push(`/details/${row.transactionId}`);
   };
 
 
   const toggleMenu = (index) => {
     if (menuOpen === index) {
-      setMenuOpen(null); // Close the menu if it's already open
+      setMenuOpen(null); 
     } else {
-      setMenuOpen(index); // Open the menu for the selected row
+      setMenuOpen(index); 
     }
   };
 
   const handleClearDates = () => {
-    setFromDate(''); // Clear fromDate
-    setToDate('');   // Clear toDate
+    setFromDate(''); 
+    setToDate('');   
   };
 
 
@@ -304,39 +257,6 @@ const DataTableComponent = ({userId}) => {
     setFilterText(filterText);
   };
 
-  //   const columns = [
-  //     { name: 'userId', selector: 'userId', sortable: true },
-  //     { name: 'transactionId', selector: 'transactionId', sortable: true },
-  //     // { name: 'consumerName', selector: 'consumerName', sortable: true },
-  //     { name: 'consumerNumber', selector: 'consumerNumber', sortable: true },
-  //     // { name: 'billpostonpaymentMode', selector: 'paymentMode', sortable: true },
-  //     { name: 'paymentAmount', selector: 'paymentAmount', sortable: true },
-  //     { name: 'paymentStatus', selector: 'paymentStatus', sortable: true },
-  //     // { name: 'selectedOption', selector: 'selectedOption', sortable: true }, 
-  //     // { name: 'createdOn', selector: 'createdOn', sortable: true }, 
-  //     {
-  //       name: 'Actions',
-  //       center: true, // Center the content
-  //       cell: (row, index) => (
-  //         <div className="action-menu" onMouseLeave={() => setMenuOpen(null)}>
-  //           <FontAwesomeIcon
-  //             icon={faCircleInfo}
-  //             style={{ cursor: 'pointer' }}
-  //             onClick={() => toggleMenu(index)}
-  //           />
-  //           {menuOpen === index && (
-  //             <div className="dropdown-menu">
-  //               <div className="button-container">
-  //   <button className="button-view-details">View Details</button>
-  //   {/* Other buttons */}
-  // </div>
-  //               {/* You can add more actions if needed */}
-  //             </div>
-  //           )}
-  //         </div>
-  //       ),
-  //     },
-  //   ];
 
 
 
@@ -348,7 +268,7 @@ const DataTableComponent = ({userId}) => {
     columnsVisibility.paymentStatus && { name: 'Payment Status', selector: 'paymentStatus', sortable: true },
     {
       name: 'Actions',
-      center: true, // Center the content
+      center: true, 
       cell: (row, index) => (
         <div className="action-menu" onMouseLeave={() => setMenuOpen(null)}>
           <FontAwesomeIcon
@@ -360,19 +280,17 @@ const DataTableComponent = ({userId}) => {
             <div className="dropdown-menu">
               <div className="button-container">
                 <button className="button-view-details">View Details</button>
-                {/* Other buttons */}
               </div>
-              {/* You can add more actions if needed */}
             </div>
           )}
         </div>
       ),
     },
-  ].filter(Boolean); // Filter out undefined columns
+  ].filter(Boolean); 
 
   const filteredItems = data.filter(item =>
-    item.transactionId.toLowerCase().includes(filterText.toLowerCase()) || // Example filter by transactionId
-    item.consumerName.toLowerCase().includes(filterText.toLowerCase()) // Example filter by consumerName
+    item.transactionId.toLowerCase().includes(filterText.toLowerCase()) || 
+    item.consumerName.toLowerCase().includes(filterText.toLowerCase()) 
   );
 
 
@@ -388,7 +306,6 @@ const DataTableComponent = ({userId}) => {
   return (
     <div>
       <div>
-        {/* Checkbox controls for columns */}
         <div className="column-visibility-controls">
           <label>
             <input
@@ -441,18 +358,11 @@ const DataTableComponent = ({userId}) => {
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
-        {/* <button 
-          className="button-search" 
-          onClick={handleSearch}
-        >
-          <FontAwesomeIcon icon={faSearch} /> Search
-        </button> */}
       <CDropdown >
   <CDropdownToggle className="button-download">
     <FontAwesomeIcon  icon="eye" /> Visibility
   </CDropdownToggle>
   <CDropdownMenu>
-    {/* Checkbox controls for columns inside the dropdown */}
     <div
       className="column-visibility-controls"
       style={{

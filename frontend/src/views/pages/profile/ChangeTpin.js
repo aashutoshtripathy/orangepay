@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CButton,
   CCard,
@@ -55,9 +55,9 @@ const ChangePassword = () => {
       });
 
       if (response.data.success) {
-        setModalMessage('Congratulations, your password has been changed!');
+        setModalMessage('Congratulations, your Tpin has been changed!');
       } else {
-        setModalMessage('Something went wrong, please enter the correct password.');
+        setModalMessage('Something went wrong, please enter the correct Tpin.');
       }
       setModalVisible(true);
     } catch (err) {
@@ -68,10 +68,17 @@ const ChangePassword = () => {
 
   const handleClose = () => {
     setModalVisible(false);
-    if (modalMessage === 'Congratulations, your password has been changed!') {
-      navigate('/login');
-    }
   };
+
+  useEffect(() => {
+    // Clear input fields and navigate back when modal closes after success
+    if (!modalVisible && modalMessage === 'Congratulations, your Tpin has been changed!') {
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      // navigate(-1);
+    }
+  }, [modalVisible, modalMessage, navigate]);
 
   return (
     <div className="bg-body-tertiary min-vh-90 d-flex flex-row align-items-center">
@@ -93,7 +100,8 @@ const ChangePassword = () => {
                     </CInputGroupText>
                     <CFormInput
                       type="password"
-                      placeholder="Current Password"
+                      maxLength={4}
+                      placeholder="Current Tpin"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                     />
@@ -106,7 +114,8 @@ const ChangePassword = () => {
                     </CInputGroupText>
                     <CFormInput
                       type="password"
-                      placeholder="New Password"
+                      maxLength={4}
+                      placeholder="New Tpin"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                     />
@@ -119,7 +128,8 @@ const ChangePassword = () => {
                     </CInputGroupText>
                     <CFormInput
                       type="password"
-                      placeholder="Confirm Password"
+                      maxLength={4}
+                      placeholder="Confirm Tpin"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                     />
@@ -128,7 +138,7 @@ const ChangePassword = () => {
                   <CRow>
                     <CCol xs={6}>
                       <CButton type="submit" color="primary" className="px-4">
-                        Change Password
+                        Change Tpin
                       </CButton>
                     </CCol>
                   </CRow>

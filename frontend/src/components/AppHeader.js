@@ -72,6 +72,36 @@ const AppHeader = () => {
 
 
   useEffect(() => {
+    const checkUserStatus = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        console.log('User ID:', userId); // Debugging line
+        const response = await axios.get(`/status/${userId}`); // Updated API endpoint
+  
+        if (response.data.hasChanged) {
+          alert('Your account has been updated, logging you out.');
+          // Call the logout API
+          await axios.post('/logout');
+          // Clear local storage and redirect to login
+          localStorage.clear();
+          window.location.href = '/login'; // Redirect to login page
+        }
+      } catch (error) {
+        console.error('Failed to check user status:', error.response ? error.response.data : error);
+      }
+    };
+  
+    // Poll every 5 seconds
+    const interval = setInterval(checkUserStatus, 5000);
+  
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+
+
+
+
+  useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`/fetchUserById/${userId}`);

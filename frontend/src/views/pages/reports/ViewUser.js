@@ -53,23 +53,22 @@ const DataTableComponent = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true); // Set loading before the fetch
       try {
         const response = await axios.get(`/fetchUserList`);
         const result = response.data.fetchUser || [];
         setData(result);
-        // Initialize commissionValues with the fetched data
         const commissions = result.reduce((acc, user) => {
-          acc[user.id] = user.commission; // Assuming 'commission' is the key for commission value
+          acc[user._id] = user.margin;
           return acc;
         }, {});
         setCommissionValues(commissions);
       } catch (error) {
         setError(error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Loading complete
       }
     };
-
     fetchData();
   }, [userId]);
 
@@ -95,28 +94,35 @@ const DataTableComponent = () => {
   }, [userId]);
 
 
-  const handleCommissionChange = (id) => (e) => {
+  const handleCommissionChange = (_id) => (e) => {
     setCommissionValues(prev => ({
       ...prev,
-      [id]: e.target.value // Use the event object correctly
+      [_id]: e.target.value
     }));
   };
 
-  const handleChangeClick = async (id) => {
-    const updatedCommission = { margin: commissionValues[id] }; // Send only the updated value
-
+  const handleChangeClick = async (_id) => {
+    console.log(`Updating commission for ID ${_id}`);
+    console.log('Current Commission Values:', commissionValues);
+  
+    const commission = commissionValues[_id]; // Get the commission value directly
+    console.log(`Commission to update:`, commission);
+  
     try {
-      const response = await axios.put(`/updateCommission/${id}`, updatedCommission);
+      const response = await axios.put(`/updateCommission/${_id}`, { commission }); // Send commission directly
+      console.log('Server Response:', response.data);
+  
       if (response.data.success) {
         console.log('Commission updated successfully:', response.data.updatedUser);
-        setEditableRowId(null); // Exit edit mode
       } else {
         console.error('Commission update failed:', response.data.message);
       }
     } catch (error) {
-      console.error('Error updating commission:', error);
+      console.error('Error updating commission:', error.response?.data || error.message);
     }
   };
+  
+  
 
 
 
@@ -343,20 +349,25 @@ const DataTableComponent = () => {
           name: 'Commission',
           cell: (row) => (
             <div>
-              <CForm>
-                <CFormInput
-                  type="text"
-                  id={`commission-${row.id}`}
-                  name="commission"
-                  label=""
-                  value={commissionValues[row.id] || ''}
-                  onChange={handleCommissionChange(row.id)}
-                  placeholder="Enter commission amount"
-                />
-                <CButton color="success" className="mt-3" onClick={() => handleChangeClick(row.id)}>
-                  Update
-                </CButton>
-              </CForm>
+             <CForm>
+             <CFormInput
+             style={{width:"100px"}}
+        type="text"
+        id={`commission-${row._id}`}
+        name="commission"
+        value={commissionValues[row._id] || '0'}
+        onChange={handleCommissionChange(row._id)}
+        onBlur={() => handleChangeClick(row._id)} // Trigger update on blur
+        placeholder="Enter commission amount"
+      />
+              {/* <CButton
+                color="success"
+                className="mt-3"
+                onClick={() => handleChangeClick(row._id)} 
+              >
+                Update  
+              </CButton> */}
+            </CForm>
             </div>
           ),
           sortable: true,

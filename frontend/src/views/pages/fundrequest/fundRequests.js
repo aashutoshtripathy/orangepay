@@ -139,6 +139,14 @@ const downloadExcel = (data) => {
   XLSX.writeFile(wb, 'table_data.xlsx'); // Write and download Excel file
 };
 
+
+const initialColumnsVisibility = {
+  userId: true,
+  fundAmount: true,
+  paymentMethod: true,
+  bankName: true,
+};
+
 const DataTableComponent = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -148,11 +156,14 @@ const DataTableComponent = () => {
   const [filterText, setFilterText] = useState('');
   const userId = localStorage.getItem('userId');
   const navigate = useNavigate();
+  const [columnsVisibility, setColumnsVisibility] = useState(initialColumnsVisibility);
+
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fundrequests`); 
+        const response = await axios.get(`/fundrequests`);
         const result = response.data.fundRequests || []; // Access the data array from the nested data object
         setData(result);
       } catch (error) {
@@ -165,19 +176,24 @@ const DataTableComponent = () => {
     fetchData();
   }, [userId]);
 
-
+  const handleColumnVisibilityChange = (column) => {
+    setColumnsVisibility(prevState => ({
+      ...prevState,
+      [column]: !prevState[column]
+    }));
+  };
 
 
 
   const handleFetch = async (row) => {
     try {
       const response = await axios.get(`/fundrequests/${row._id}`);
-  
+
       if (response.status === 200) {  // Check if the response is successful
         setData((prevData) =>
           prevData.filter((item) => item._id !== row._id)
         );
-        navigate(`/fund-details/${row._id}`); 
+        navigate(`/fund-details/${row._id}`);
       }
     } catch (error) {
       console.error("Error approving fund request", error);
@@ -202,49 +218,33 @@ const DataTableComponent = () => {
   };
 
   const columns = [
-    { name: 'userId', selector: 'uniqueId', sortable: true },
-    { name: 'fundAmount', selector: 'fundAmount', sortable: true },
-    // { name: 'bankReference', selector: 'bankReference', sortable: true },
-    { name: 'paymentMethod', selector: 'paymentMethod', sortable: true },
-    { name: 'bankName', selector: 'bankName', sortable: true },
-    // { name: 'Date of Payment', selector: 'datePayment', sortable: true }, 
-    // { name: 'status', selector: 'status', sortable: true },
-    // { name: 'createdAt', selector: 'createdAt', sortable: true },
-    // { name: 'updatedAt', selector: 'updatedAt', sortable: true },
+    columnsVisibility.userId && { name: 'User ID', selector: 'uniqueId', sortable: true },
+    columnsVisibility.fundAmount && { name: 'Fund Amount', selector: 'fundAmount', sortable: true },
+    columnsVisibility.paymentMethod && { name: 'Payment Method', selector: 'paymentMethod', sortable: true },
+    columnsVisibility.bankName && { name: 'Bank Name', selector: 'bankName', sortable: true },
     {
       name: 'Actions',
       cell: (row) => (
         <div className="actions-cell">
-          <button 
-            className="button-search" 
+          <button
+            className="button-search"
             onClick={() => handleFetch(row)}
           >
             <FontAwesomeIcon icon={faCheckCircle} /> View Details
           </button>
-          {/* <button 
-            className="button-search" 
-            onClick={() => handleAccept(row)}
-          >
-            <FontAwesomeIcon icon={faCheckCircle} /> Accept
-          </button>
-          <button 
-            className="button-reject" 
-            onClick={() => handleReject(row)}
-          >
-            <FontAwesomeIcon icon={faTimesCircle} /> Reject
-          </button> */}
         </div>
       ),
     },
-  ];
+  ].filter(Boolean); // Remove undefined columns
+
 
   const filteredItems = data.filter(
-    (item) => 
+    (item) =>
       item.status === 'pending' &&
       (item.uniqueId && item.uniqueId.toLowerCase().includes(filterText.toLowerCase()) ||
-      item.bankReference && item.bankReference.toLowerCase().includes(filterText.toLowerCase()))
+        item.bankReference && item.bankReference.toLowerCase().includes(filterText.toLowerCase()))
   );
-  
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -256,62 +256,101 @@ const DataTableComponent = () => {
 
   return (
     <div>
-    <div className="button-container">
-      <input
-        type="text"
-        placeholder="Search by status..."
-        value={filterText}
-        onChange={(e) => setFilterText(e.target.value)}
-      />
-      {/* <button 
+      <div>
+
+        <div className="column-visibility-controls">
+          <label>
+            <input
+              type="checkbox"
+              checked={columnsVisibility.userId}
+              onChange={() => handleColumnVisibilityChange('userId')}
+            />
+            User ID
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={columnsVisibility.fundAmount}
+              onChange={() => handleColumnVisibilityChange('fundAmount')}
+            />
+            Fund Amount
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={columnsVisibility.paymentMethod}
+              onChange={() => handleColumnVisibilityChange('paymentMethod')}
+            />
+            Payment Method
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={columnsVisibility.bankName}
+              onChange={() => handleColumnVisibilityChange('bankName')}
+            />
+            Bank Name
+          </label>
+
+        </div>
+      </div>
+
+      <div className="button-container">
+        <input
+          type="text"
+          placeholder="Search by status..."
+          value={filterText}
+          onChange={(e) => setFilterText(e.target.value)}
+        />
+        {/* <button 
         className="button-search" 
         onClick={handleSearch}
       >
         <FontAwesomeIcon icon={faSearch} /> Search
       </button> */}
-      <button
-        className="button-download"
-        onClick={() => downloadPDF(data)}
-      >
-        <FontAwesomeIcon icon={faDownload} /> Download PDF
-      </button>
-      <button
-        className="button-download-excel"
-        onClick={() => downloadExcel(data)}
-      >
-        <FontAwesomeIcon icon={faFileExcel} /> Download Excel
-      </button>
-      <div className="date-filter-container">
-        <label>From Date:</label>
-        <input
-          type="date"
-          value={fromDate}
-          onChange={e => setFromDate(e.target.value)}
-        />
-        <label>To Date:</label>
-        <input
-          type="date"
-          value={toDate}
-          onChange={e => setToDate(e.target.value)}
-        />
         <button
-          className="button-clear-dates"
-          onClick={handleClearDates}
+          className="button-download"
+          onClick={() => downloadPDF(data)}
         >
-          Clear Dates
+          <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
+        <button
+          className="button-download-excel"
+          onClick={() => downloadExcel(data)}
+        >
+          <FontAwesomeIcon icon={faFileExcel} /> Download Excel
+        </button>
+        <div className="date-filter-container">
+          <label>From Date:</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={e => setFromDate(e.target.value)}
+          />
+          <label>To Date:</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={e => setToDate(e.target.value)}
+          />
+          <button
+            className="button-clear-dates"
+            onClick={handleClearDates}
+          >
+            Clear Dates
+          </button>
+        </div>
       </div>
-    </div>
-    <div className="data-table-container">
-      <DataTable
+      <div className="data-table-container">
+        <DataTable
           title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>Fund Requests</h2>}
-        columns={columns}
-        data={filteredItems}
-        pagination
-        highlightOnHover
-        customStyles={customStyles}
-      />
-    </div>
+          columns={columns}
+          data={filteredItems}
+          pagination
+          highlightOnHover
+          customStyles={customStyles}
+        />
+      </div>
     </div>
   );
 };
