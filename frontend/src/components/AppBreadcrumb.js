@@ -1,8 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-
 import routes from '../routes'
-
 import { CBreadcrumb, CBreadcrumbItem } from '@coreui/react'
 
 const AppBreadcrumb = () => {
@@ -19,32 +17,34 @@ const AppBreadcrumb = () => {
     location.split('/').reduce((prev, curr, index, array) => {
       const currentPathname = `${prev}/${curr}`
       const routeName = getRouteName(currentPathname, routes)
-      routeName &&
+      if (routeName) {
         breadcrumbs.push({
           pathname: currentPathname,
           name: routeName,
-          active: index + 1 === array.length ? true : false,
+          active: index + 1 === array.length,
         })
+      }
       return currentPathname
-    })
+    }, "")
     return breadcrumbs
   }
 
   const breadcrumbs = getBreadcrumbs(currentLocation)
+  console.log("Generated breadcrumbs:", breadcrumbs)  // Log the breadcrumbs array for debugging
 
   return (
     <CBreadcrumb className="my-0">
-    <CBreadcrumbItem> <Link to={`/dashboard/${userId}`}> Home</Link></CBreadcrumbItem>
-      {breadcrumbs.map((breadcrumb, index) => {
-        return (
-          <CBreadcrumbItem
-            {...(breadcrumb.active ? { active: true } : { to: breadcrumb.pathname })}
-            key={index}
-          >
-            {breadcrumb.name}
-          </CBreadcrumbItem>
-        )
-      })}
+      <CBreadcrumbItem>
+        <Link to={`/dashboard/${userId}`}>Home</Link>
+      </CBreadcrumbItem>
+      {breadcrumbs.map((breadcrumb, index) => (
+        <CBreadcrumbItem
+          {...(breadcrumb.active ? { active: true } : { to: breadcrumb.pathname })}
+          key={index}
+        >
+          {breadcrumb.name}
+        </CBreadcrumbItem>
+      ))}
     </CBreadcrumb>
   )
 }

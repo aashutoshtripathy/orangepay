@@ -581,14 +581,12 @@ const approveUserRequest = asyncHandler(async (req, res) => {
     await wallet.save();
     
 
-    // const smsMessage = `Your account has been created. User ID: ${customId}, Password: ${updatedUser.password}`;
-    const smsMessage = `Welcome to ORANGEPAY Thank You for registration.  Your login details username:${customId}, Password: ${updatedUser.password} `;
+    const smsMessage = `Welcome to ORANGEPAY Thank You for registration.  Your login details username:${customId}, Password: ${updatedUser.password}/${pin} `;
     const mobileNumber = updatedUser.mobileNumber;
-    const senderName = 'OrgPay'; // Replace with appropriate sender name
-    const apiKey =  'e7d09e93-0dd3-4a00-9cfc-2c53854033f2'; // Use environment variable for API key
+    const senderName = 'OrgPay'; 
+    const apiKey =  'e7d09e93-0dd3-4a00-9cfc-2c53854033f2'; 
 
     const smsUrl = `http://login.aquasms.com/sendSMS?username=7004142281&message=${smsMessage}&sendername=${senderName}&smstype=TRANS&numbers=${mobileNumber}&apikey=e7d09e93-0dd3-4a00-9cfc-2c53854033f2`;
-    // const smsUrl = `http://login.aquasms.com/sendSMS?username=7004142281&message=${encodeURIComponent(smsMessage)}&sendername=${senderName}&smstype=TRANS&numbers=${mobileNumber}&apikey=${apiKey}`;
     
     console.log("Sending SMS to URL:", smsUrl); // Log the complete URL
 
