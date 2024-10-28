@@ -1729,13 +1729,12 @@ const updateUserCommission = asyncHandler(async (req, res) => {
 
 
 const getCancellation = asyncHandler(async (req, res) => {
-  const { consumerId, userId } = req.body; // Include userId in the destructuring
+  const { consumerId, userId } = req.body; 
 
   if (!consumerId || !userId) {
       return res.status(400).json({ message: 'Both Consumer ID and User ID are required' });
   }
 
-  // Get current date and set time to 00:00:00 (12 AM)
   const startDate = new Date();
   startDate.setHours(0, 0, 0, 0);
 
@@ -1743,11 +1742,10 @@ const getCancellation = asyncHandler(async (req, res) => {
   console.log('User ID:', userId);
   console.log('Start Date:', startDate);
 
-  // Find cancellation in the database after today's date at 12 AM
   try {
       const cancellation = await Payment.find({
         canumber: consumerId,
-          id: userId, // Add UserID to the query
+          id: userId, 
           createdon: { $gte: startDate }
       });
 
@@ -1782,20 +1780,19 @@ const deleteUser = asyncHandler(async (req, res) => {
 })
 
 
-// Define the API endpoint using asyncHandler
 const fetchUserById = asyncHandler(async (req, res) => {
-  const { id } = req.params; // Get the ID from the request parameters
+  const { id } = req.params; 
 
   try {
-    const user = await Register.findById(id); // Find the user by ID
+    const user = await Register.findById(id); 
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    console.log("User found: ", user); // Log the user object
+    console.log("User found: ", user); 
 
-    res.status(200).json({ success: true, user }); // Return the user data
+    res.status(200).json({ success: true, user }); 
 
   } catch (error) {
     console.error('Error finding user:', error);

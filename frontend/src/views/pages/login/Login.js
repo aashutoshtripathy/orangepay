@@ -93,7 +93,7 @@ const Login = () => {
       if (err.response && err.response.data && err.response.data.message) {
         setGeneralError(err.response.data.message);
       } else {
-        setGeneralError("Login failed: Something went wrong");
+        setGeneralError("Login failed: Username or Password Incorrect");
       }
     }
   }

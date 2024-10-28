@@ -357,16 +357,10 @@ const DataTableComponent = () => {
         name="commission"
         value={commissionValues[row._id] || '0'}
         onChange={handleCommissionChange(row._id)}
-        onBlur={() => handleChangeClick(row._id)} // Trigger update on blur
+        onBlur={() => handleChangeClick(row._id)} 
         placeholder="Enter commission amount"
       />
-              {/* <CButton
-                color="success"
-                className="mt-3"
-                onClick={() => handleChangeClick(row._id)} 
-              >
-                Update  
-              </CButton> */}
+            
             </CForm>
             </div>
           ),
