@@ -2071,8 +2071,10 @@ const cancelReject = asyncHandler(async (req, res) => {
 
 const cancellationHistory = asyncHandler(async (req, res) => {
   // Use req.query to get username from query parameters
-  const { userId } = req.query; 
+  const { userId } = req.params;
 
+
+  console.log(userId)
   try {
     // Fetch cancellation details where userId matches the username
     const history = await CancellationDetail.find({ uniqueId: userId }); 

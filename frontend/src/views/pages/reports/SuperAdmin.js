@@ -13,19 +13,17 @@ import CancellationHistory from '../usermangement/CancellationHistory';
 const SuperAdmin = () => {
   const location = useLocation();
   const { id, name, status } = location.state || {};  const navigate = useNavigate();
-  const { userId } = useParams(); // Get userId from URL params
-  const [selectedReport, setSelectedReport] = useState(null); // State to handle which report to show
+  const { userId } = useParams(); 
+  const [selectedReport, setSelectedReport] = useState(null); 
 
   const handleButtonClick = (reportType) => {
-    setSelectedReport(reportType); // Set the selected report type
+    setSelectedReport(reportType); 
     
     
   };
 
-  // Define a mapping of report types to their components
   const reportComponents = {
     passbook: <Passbook userId={userId} />,
-    // Add other components here when imported
     walletReport: <WalletReport userId={userId} />,
     commissionReport: <TransactionHistory userId={userId} />,
     orangepayReport: <OrangePayReport userId={userId} />,

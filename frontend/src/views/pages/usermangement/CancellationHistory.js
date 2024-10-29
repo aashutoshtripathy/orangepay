@@ -212,19 +212,27 @@ const DataTableComponent = ({userId}) => {
   useEffect(() => {
     const fetchData = async () => { 
       try {
-        const response = await axios.get(`/cancellationHistory?username=${userId}`);
+        const response = await axios.get(`/cancellationHistory/${userId}`);
         const result = response.data.data || []; 
         const reversedResult = result.reverse(); 
         setData(reversedResult);
       } catch (error) {
-        setError(error);
+        if (error.response && error.response.status === 404) {
+          setData([]);  
+        } else {
+          setError("An error occurred while fetching cancellation history.");
+        }
       } finally {
         setLoading(false);
       }
     };
-
-    fetchData();
+  
+    if (userId) {
+      fetchData();
+    }
   }, [userId]);
+  
+  
 
 
   const handleColumnVisibilityChange = (column) => {
