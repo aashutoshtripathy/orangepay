@@ -1662,7 +1662,7 @@ const Register = () => {
                         <p className="text-danger">{errors.aadharNumber}</p>
                       )}
 
-                      <CInputGroup className="mb-3">
+                      {/* <CInputGroup className="mb-3">
                         <CInputGroupText>PAN</CInputGroupText>
                         <CFormInput
                           name="panNumber"
@@ -1679,7 +1679,7 @@ const Register = () => {
                       </CInputGroup>
                       {errors.panNumber && (
                         <p className="text-danger">{errors.panNumber}</p>
-                      )}
+                      )} */}
 
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
@@ -1705,6 +1705,51 @@ const Register = () => {
                       )}
 
 
+                      {/* <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          <CIcon icon={cilEnvelopeClosed} />
+                        </CInputGroupText>
+                        <CFormInput
+                          name="email"
+                          className="custom-input"
+                          placeholder="Email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          onFocus={handleFocus}
+                          onBlur={handleBlur}
+
+                          autoComplete="email"
+                        />
+                      </CInputGroup>
+                      {errors.email && (
+                        <p className="text-danger">{errors.email}</p>
+                      )} */}
+                     
+                      
+                     
+                    </CCol>
+
+                    <CCol md={6}>
+                    <CInputGroup className="mb-3">
+                        <CInputGroupText>PAN</CInputGroupText>
+                        <CFormInput
+                          name="panNumber"
+                          className="custom-input"
+                          placeholder="Pan Number"
+                          value={formData.panNumber}
+                          onChange={handleChange}
+                          onFocus={handleFocus}
+                          onBlur={handleBlur}
+
+                          style={{ textTransform: "uppercase" }}
+                          autoComplete="off"
+                        />
+                      </CInputGroup>
+                      {errors.panNumber && (
+                        <p className="text-danger">{errors.panNumber}</p>
+                      )}
+
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilEnvelopeClosed} />
@@ -1727,11 +1772,7 @@ const Register = () => {
                       )}
 
 
-
-                    </CCol>
-
-                    <CCol md={6}>
-                      <CInputGroup className="mb-3">
+                      {/* <CInputGroup className="mb-3">
                         <CInputGroupText>Gender</CInputGroupText>
                         <div className="d-flex m-2 align-items-center ">
                           <CFormCheck
@@ -1818,16 +1859,99 @@ const Register = () => {
                       </CInputGroup>
                       {errors.maritalStatus && (
                         <p className="text-danger">{errors.maritalStatus}</p>
-                      )}
+                      )} */}
 
               
                     </CCol>
+                    <CInputGroup className="mb-3">
+                        <CInputGroupText>Gender</CInputGroupText>
+                        <div className="d-flex m-2 align-items-center ">
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="gender"
+                            id="genderMale"
+                            label="Male"
+                            value="Male"
+                            checked={formData.gender === "Male"}
+                            onChange={handleRadioChange}
+                          />
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="gender"
+                            id="genderFemale"
+                            label="Female"
+                            value="Female"
+                            checked={formData.gender === "Female"}
+                            onChange={handleRadioChange}
+                            className="mx-2"
 
+                          />
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="gender"
+                            id="genderOther"
+                            label="Other"
+                            value="Other"
+                            checked={formData.gender === "Other"}
+                            onChange={handleRadioChange}
+                              className="mx-2"
+
+                          />
+                        </div>
+                      </CInputGroup>
+                      {errors.gender && (
+                        <p className="text-danger">{errors.gender}</p>
+                      )}
+                       <CInputGroup className="mb-3">
+                        <CInputGroupText>Marital Status</CInputGroupText>
+                        <div className="d-flex m-2 align-items-center" >
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="maritalStatus"
+                            id="maritalSingle"
+                            label="Single"
+                            value="Single"
+                            checked={formData.maritalStatus === "Single"}
+                            onChange={handleRadioChange}
+
+
+                          />
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="maritalStatus"
+                            id="maritalMarried"
+                            label="Married"
+                            value="Married"
+                            checked={formData.maritalStatus === "Married"}
+                            onChange={handleRadioChange}
+                            className="mx-2"
+                          />
+                          <CFormCheck
+                            variant="inline"
+                            type="radio"
+                            name="maritalStatus"
+                            id="maritalDivorced"
+                            label="Divorced"
+                            value="Divorced"
+                            checked={formData.maritalStatus === "Divorced"}
+                            onChange={handleRadioChange}
+                              className="mx-2"
+
+                          />
+                        </div>
+                      </CInputGroup>
+                      {errors.maritalStatus && (
+                        <p className="text-danger">{errors.maritalStatus}</p>
+                      )}
                     <CInputGroup className="mb-3">
                       <CInputGroupText>Education</CInputGroupText>
                       <div className="d-flex m-2 align-items-center">
                         <CFormCheck
-                          type="checkbox"
                           name="education"
                           id="graduate"
                           label="Graduate"
@@ -2220,11 +2344,11 @@ const Register = () => {
                         <CButton
                           color="secondary"
                           onClick={() =>
-                            handleButtonClick("educationCertificate")
+                            handleButtonClick("Education Certificate")
                           }
                         >
                           {fileNames.educationCertificate ||
-                            "Upload EducationCertificate"}{" "}
+                            "Upload Education Certificate"}{" "}
                         </CButton>
                       </CInputGroup>
                       {errors.educationCertificate && (

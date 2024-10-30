@@ -1808,7 +1808,7 @@ const AddUser = () => {
                       )}
 
                     </CCol>
-                    <CCol md={6}>
+                    <CCol md={7}>
                     <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
@@ -1892,7 +1892,7 @@ const AddUser = () => {
                       )}
                       </CCol>
 
-                    <CCol md={6}>
+                    <CCol md={5}>
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
@@ -1912,7 +1912,7 @@ const AddUser = () => {
                           color="secondary"
                           onClick={() => handleButtonClick("aadharCard")}
                         >
-                          {fileNames.aadharCard || "Upload AadharCard"}{" "}
+                          {fileNames.aadharCard || "Upload Aadhar"}{" "}
                         </CButton>
                       </CInputGroup>
                       {errors.aadharCard && (
