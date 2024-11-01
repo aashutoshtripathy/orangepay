@@ -10,6 +10,7 @@ const FundRequest = React.lazy(() => import('./views/pages/fundrequest/FundReque
 const FundRequests = React.lazy(() => import('./views/pages/fundrequest/fundRequests'))
 const ViewUser = React.lazy(() => import('./views/pages/reports/ViewUser'))
 const CallMe = React.lazy(() => import('./views/pages/supportdesk/CallMe'))
+const ContactUs = React.lazy(() => import('./views/pages/supportdesk/ContactUs.js'))
 const Query = React.lazy(() => import('./views/pages/supportdesk/Query'))
 const Active = React.lazy(() => import('./views/pages/mynetwork/ActiveAgent'))
 const InActive = React.lazy(() => import('./views/pages/mynetwork/InActiveAgent'))
@@ -152,6 +153,7 @@ const routes = [
   { path: '/view-detailss', name: 'View Details', element: ViewDetailss },
   { path: '/reports/:userId', name: 'View Details', element: SuperAdminReport },
   { path: '/paymentonline', name: 'View Details', element: PaymentOnline },
+  { path: '/contact-us', name: 'Contact Us', element: ContactUs },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

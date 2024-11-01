@@ -1,41 +1,52 @@
-import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import routes from '../routes'
-import { CBreadcrumb, CBreadcrumbItem } from '@coreui/react'
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import routes from '../routes'; 
+import { CBreadcrumb, CBreadcrumbItem } from '@coreui/react';
 
 const AppBreadcrumb = () => {
-  const currentLocation = useLocation().pathname
-  const userId = localStorage.getItem('userId')
+  const currentLocation = useLocation().pathname;
+  const userId = localStorage.getItem('userId');
 
   const getRouteName = (pathname, routes) => {
-    const currentRoute = routes.find((route) => route.path === pathname)
-    return currentRoute ? currentRoute.name : false
-  }
+    const currentRoute = routes.find(route => {
+      const routePathParts = route.path.split('/');
+      const pathnameParts = pathname.split('/');
+
+      if (routePathParts.length !== pathnameParts.length) return false;
+
+      return routePathParts.every((part, index) => {
+        return part === pathnameParts[index] || part.startsWith(':'); 
+      });
+    });
+    return currentRoute ? currentRoute.name : false;
+  };
 
   const getBreadcrumbs = (location) => {
-    const breadcrumbs = []
-    location.split('/').reduce((prev, curr, index, array) => {
-      const currentPathname = `${prev}/${curr}`
-      const routeName = getRouteName(currentPathname, routes)
+    const breadcrumbs = [];
+    const parts = location.split('/').filter(Boolean); 
+    let currentPathname = '';
+
+    parts.forEach((part, index) => {
+      currentPathname += `/${part}`; 
+      const routeName = getRouteName(currentPathname, routes);
       if (routeName) {
         breadcrumbs.push({
           pathname: currentPathname,
           name: routeName,
-          active: index + 1 === array.length,
-        })
+          active: index === parts.length - 1,
+        });
       }
-      return currentPathname
-    }, "")
-    return breadcrumbs
-  }
+    });
+    return breadcrumbs;
+  };
 
-  const breadcrumbs = getBreadcrumbs(currentLocation)
-  console.log("Generated breadcrumbs:", breadcrumbs)  // Log the breadcrumbs array for debugging
+  const breadcrumbs = getBreadcrumbs(currentLocation);
+  console.log("Generated breadcrumbs:", breadcrumbs);  
 
   return (
     <CBreadcrumb className="my-0">
       <CBreadcrumbItem>
-        <Link to={`/dashboard/${userId}`}>Home</Link>
+        <Link to={`/dashboard/${userId}`} style={{ textDecoration: "none", color: "rgb(243, 108, 35)" }}>Home</Link>
       </CBreadcrumbItem>
       {breadcrumbs.map((breadcrumb, index) => (
         <CBreadcrumbItem
@@ -45,8 +56,13 @@ const AppBreadcrumb = () => {
           {breadcrumb.name}
         </CBreadcrumbItem>
       ))}
+      <CBreadcrumbItem>
+        <Link to={`/dashboard/${userId}/details`} style={{ textDecoration: "none", color: "rgb(243, 108, 35)" }}>
+          View Details
+        </Link>
+      </CBreadcrumbItem>
     </CBreadcrumb>
-  )
-}
+  );
+};
 
-export default React.memo(AppBreadcrumb)
+export default React.memo(AppBreadcrumb);

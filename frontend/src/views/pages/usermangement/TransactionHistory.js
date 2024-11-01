@@ -33,43 +33,48 @@ const customStyles = {
   },
 };
 
-// Function to generate and download PDF
+const formatAmount = (amount) => Number(amount).toFixed(2);
+const formatDate = (dateStr) => new Date(dateStr).toLocaleString();
+
 const downloadPDF = (data) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
-  const title = "Table Data";
+  const title = "Transaction History";
   const titleXPos = pageWidth / 2;
 
   doc.setFontSize(18);
   doc.text(title, titleXPos, 15, { align: 'center' });
 
   doc.setFontSize(10);
-  doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
+  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 25);
 
+  // Define columns and format data with fixed decimal places for money and formatted dates
   const columns = [
-    { header: 'ID', dataKey: '_id' },
     { header: 'Transaction ID', dataKey: 'transactionId' },
-    { header: 'Reference Number', dataKey: 'referenceNumber' },
-    { header: 'Transaction DateTime', dataKey: 'transactionDateTime' },
-    { header: 'Service Name', dataKey: 'serviceName' },
-    { header: 'Consumer ID', dataKey: 'consumerId' },
-    { header: 'Meter ID', dataKey: 'meterId' },
-    { header: 'Request Amount', dataKey: 'requestAmount' },
-    { header: 'Total Service Charge', dataKey: 'totalServiceCharge' },
-    { header: 'Total Commission', dataKey: 'totalCommission' },
-    { header: 'Net Amount', dataKey: 'netAmount' },
-    { header: 'Action On Amount', dataKey: 'actionOnAmount' },
-    { header: 'Status', dataKey: 'status' },
-    { header: 'Payment Method', dataKey: 'paymentMethod' },
-    { header: 'Payment Date', dataKey: 'paymentDate' },
+    { header: 'CANumber', dataKey: 'canumber' },
+    { header: 'Paid Amount', dataKey: 'paidamount' },
+    { header: 'Commission', dataKey: 'commission' },
+    { header: 'TDS', dataKey: 'tds' },
+    { header: 'Net Commission', dataKey: 'netCommission' },
+    { header: 'Payment Date', dataKey: 'paymentdate' },
   ];
 
-  const rows = data.map(row => columns.map(col => row[col.dataKey]));
+  const rows = data.map(row => {
+    return {
+      transactionId: row.transactionId || 'N/A',
+      canumber: row.canumber || 'N/A',
+      paidamount: row.paidamount ? parseFloat(row.paidamount).toFixed(2) : '0.00',
+      commission: row.commission ? parseFloat(row.commission).toFixed(2) : '0.00',
+      tds: row.tds ? parseFloat(row.tds).toFixed(2) : '0.00',
+      netCommission: row.netCommission ? parseFloat(row.netCommission).toFixed(2) : '0.00',
+      paymentdate: row.paymentdate ? new Date(row.paymentdate).toLocaleString() : 'N/A',
+    };
+  });
 
   doc.autoTable({
     startY: 30,
     head: [columns.map(col => col.header)],
-    body: rows,
+    body: rows.map(row => Object.values(row)),
     styles: {
       fontSize: 8,
       cellPadding: 3,
@@ -85,26 +90,28 @@ const downloadPDF = (data) => {
     alternateRowStyles: {
       fillColor: [220, 220, 220],
     },
-    columnStyles: {
-      0: { cellWidth: 'auto' },
-    },
-    didDrawPage: (data) => {
-      const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(10);
-      doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
-    }
   });
 
-  doc.save('table_data.pdf');
+  doc.save('transaction_history.pdf');
 };
 
-// Function to generate and download Excel
 const downloadExcel = (data) => {
-  const ws = XLSX.utils.json_to_sheet(data);
+  const formattedData = data.map(row => ({
+    'Transaction ID': row.transactionId,
+    'CANumber': row.canumber,
+    'Paid Amount': formatAmount(row.paidamount),
+    'Commission': formatAmount(row.commission),
+    'TDS': formatAmount(row.tds),
+    'Net Commission': formatAmount(row.netCommission),
+    'Payment Date': formatDate(row.paymentdate),
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(formattedData);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data");
-  XLSX.writeFile(wb, 'table_data.xlsx');
+  XLSX.utils.book_append_sheet(wb, ws, "Commission History");
+  XLSX.writeFile(wb, 'commission_history.xlsx');
 };
+
 
 const TransactionHistory = ({userId}) => {
   const [data, setData] = useState([]);
@@ -156,11 +163,11 @@ const TransactionHistory = ({userId}) => {
   const columns = [
     { name: 'Transaction ID', selector: row => row.transactionId, sortable: true },
     { name: 'CANumber', selector: row => row.canumber, sortable: true },
-    { name: 'Paid Amount', selector: row => row.paidamount, sortable: true },
-    { name: 'Commission', selector: row => row.commission, sortable: true },
-    { name: 'TDS', selector: row => row.tds, sortable: true },
-    { name: 'Net Commission', selector: row => row.netCommission, sortable: true },
-    { name: 'Payment Date', selector: row => row.paymentdate, sortable: true },
+    { name: 'Paid Amount', selector: row => formatAmount(row.paidamount), sortable: true },
+    { name: 'Commission', selector: row => formatAmount(row.commission), sortable: true },
+    { name: 'TDS', selector: row => formatAmount(row.tds), sortable: true },
+    { name: 'Net Commission', selector: row => formatAmount(row.netCommission), sortable: true },
+    { name: 'Payment Date', selector: row => formatDate(row.paymentdate), sortable: true },
   ];
 
   const rows = data.map(row => columns.map(col => row[col.dataKey]));

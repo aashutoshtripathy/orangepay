@@ -158,6 +158,7 @@ export const distributorNavItems = (permissions , userId) =>  [
     items: [
       { component: CNavItem, name: 'Query' , to: '/query'  },
       { component: CNavItem, name: 'Call Me' , to: '/call-me'  },
+      { component: CNavItem, name: 'Contact Us' , to: '/contact-us'  },
     ],
   },
 ];

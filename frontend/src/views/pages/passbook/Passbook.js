@@ -35,60 +35,72 @@ const customStyles = {
   },
 };
 
+
+
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  return new Date(dateString).toLocaleDateString('en-US', options);
+};
+
+// Function to limit the amount to two decimal places
+const formatAmount = (amount) => {
+  return parseFloat(amount).toFixed(2);
+};
+
+
 // Function to generate and download PDF
 const downloadPDF = (data) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
-  const title = "Table Data";
+
+  const title = "Passbook Transactions";
   const titleXPos = pageWidth / 2;
 
   doc.setFontSize(18);
   doc.text(title, titleXPos, 15, { align: 'center' });
 
   doc.setFontSize(10);
-  doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
+  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 25);
 
   const columns = [
-    { header: 'ID', dataKey: '_id' },
+    { header: 'Date/Time', dataKey: 'date' },
+    { header: 'Service', dataKey: 'description' },
+    { header: 'Type', dataKey: 'type' },
     { header: 'Transaction ID', dataKey: 'transactionId' },
-    { header: 'Reference Number', dataKey: 'referenceNumber' },
-    { header: 'Transaction DateTime', dataKey: 'transactionDateTime' },
-    { header: 'Service Name', dataKey: 'serviceName' },
-    { header: 'Consumer ID', dataKey: 'consumerId' },
-    { header: 'Meter ID', dataKey: 'meterId' },
-    { header: 'Request Amount', dataKey: 'requestAmount' },
-    { header: 'Total Service Charge', dataKey: 'totalServiceCharge' },
-    { header: 'Total Commission', dataKey: 'totalCommission' },
-    { header: 'Net Amount', dataKey: 'netAmount' },
-    { header: 'Action On Amount', dataKey: 'actionOnAmount' },
-    { header: 'Status', dataKey: 'status' },
-    { header: 'Payment Method', dataKey: 'paymentMethod' },
-    { header: 'Payment Date', dataKey: 'paymentDate' },
+    { header: 'Opening Balance', dataKey: 'openingBalance' },
+    { header: 'Requested Amount', dataKey: 'amount' },
+    { header: 'Commission Earned', dataKey: 'commission' },
+    { header: 'Final Balance', dataKey: 'closingBalance' },
   ];
 
-  const rows = data.map(row => columns.map(col => row[col.dataKey]));
+  // Prepare the rows with formatted data
+  const rows = data.map(row => ({
+    date: formatDate(row.date),
+    description: row.description,
+    type: row.type,
+    transactionId: row.transactionId,
+    openingBalance: formatAmount(row.openingBalance),
+    amount: formatAmount(row.amount),
+    commission: formatAmount(row.commission),
+    closingBalance: formatAmount(row.closingBalance),
+  }));
 
+  // Use autoTable with customized styling
   doc.autoTable({
     startY: 30,
     head: [columns.map(col => col.header)],
-    body: rows,
+    body: rows.map(row => Object.values(row)),
     styles: {
       fontSize: 8,
       cellPadding: 3,
-      overflow: 'linebreak',
-      halign: 'left',
-      valign: 'middle',
+      halign: 'center',
     },
     headStyles: {
       fillColor: [52, 58, 64],
       textColor: [255, 255, 255],
-      fontStyle: 'bold',
     },
     alternateRowStyles: {
       fillColor: [220, 220, 220],
-    },
-    columnStyles: {
-      0: { cellWidth: 'auto' },
     },
     didDrawPage: (data) => {
       const pageCount = doc.internal.getNumberOfPages();
@@ -97,16 +109,45 @@ const downloadPDF = (data) => {
     }
   });
 
-  doc.save('table_data.pdf');
+  doc.save('passbook_transactions.pdf');
 };
+
 
 // Function to generate and download Excel
 const downloadExcel = (data) => {
-  const ws = XLSX.utils.json_to_sheet(data);
+  // Prepare data for Excel with headers
+  const worksheetData = [
+    [
+      'Date/Time', 'Service', 'Type', 'Transaction ID', 
+      'Opening Balance', 'Requested Amount', 
+      'Commission Earned', 'Final Balance'
+    ],
+    ...data.map(row => [
+      formatDate(row.date),
+      row.description,
+      row.type,
+      row.transactionId,
+      formatAmount(row.openingBalance),
+      formatAmount(row.amount),
+      formatAmount(row.commission),
+      formatAmount(row.closingBalance),
+    ])
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(worksheetData);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data");
-  XLSX.writeFile(wb, 'table_data.xlsx');
+  XLSX.utils.book_append_sheet(wb, ws, "Passbook Transactions");
+
+  // Adjust column width for better readability
+  const columnWidths = [
+    { wch: 20 }, { wch: 20 }, { wch: 10 }, { wch: 20 },
+    { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }
+  ];
+  ws['!cols'] = columnWidths;
+
+  XLSX.writeFile(wb, 'passbook_transactions.xlsx');
 };
+
 
 
 
@@ -145,15 +186,10 @@ const Passbook = ({userId}) => {
   
 
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    return new Date(dateString).toLocaleDateString('en-US', options);
-  };
+
+
+
   
-  // Function to limit the amount to two decimal places
-  const formatAmount = (amount) => {
-    return parseFloat(amount).toFixed(2);
-  };
 
 
   const filteredItems = data.filter(item => {
@@ -208,7 +244,7 @@ const Passbook = ({userId}) => {
       <div className="button-container">
         <input
           type="text"
-          placeholder="Search by status..."
+          placeholder="Search by TransactionID..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />

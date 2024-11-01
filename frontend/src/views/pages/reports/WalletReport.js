@@ -32,63 +32,85 @@ const customStyles = {
   },
 };
 
+
+
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  return new Date(dateString).toLocaleDateString('en-US', options);
+};
+
+// Function to limit the amount to two decimal places
+const formatAmount = (amount) => {
+  return parseFloat(amount).toFixed(2);
+};
+
+
+
+
 // Function to generate and download PDF
 const downloadPDF = (data) => {
   const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const title = "Table Data";
-  const titleXPos = pageWidth / 2;
+  const title = "Wallet Report";
+  const columns = ["Date", "Opening Balance", "Closing Balance"];
+  const rows = data.map(row => [
+    formatDate(row.date), 
+    formatAmount(row.openingBalance), 
+    formatAmount(row.closingBalance)
+  ]);
 
   doc.setFontSize(18);
-  doc.text(title, titleXPos, 15, { align: 'center' });
-
-  doc.setFontSize(10);
-  doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
-
-  const columns = [
-    { header: 'Date', dataKey: 'date' },
-    { header: 'Opening Balance', dataKey: 'openingBalance' },
-    { header: 'Closing Balance', dataKey: 'closingBalance' },
-  ];
-
-  const rows = data.map(row => columns.map(col => row[col.dataKey]));
+  doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
   doc.autoTable({
-    startY: 30,
-    head: [columns.map(col => col.header)],
+    head: [columns],
     body: rows,
-    styles: {
-      fontSize: 8,
-      cellPadding: 3,
-      overflow: 'linebreak',
-      halign: 'left',
-      valign: 'middle',
-    },
-    headStyles: {
-      fillColor: [52, 58, 64],
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-    },
-    alternateRowStyles: {
-      fillColor: [220, 220, 220],
-    },
-    didDrawPage: (data) => {
-      const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(10);
-      doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
-    }
+    startY: 30,
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [52, 58, 64], textColor: [255, 255, 255] },
+    alternateRowStyles: { fillColor: [240, 240, 240] }
   });
 
-  doc.save('table_data.pdf');
+  doc.save('Wallet_Report.pdf');
 };
 
-// Function to generate and download Excel
+// Excel Download Function
+// Enhanced Excel Download Function with Formatting
 const downloadExcel = (data) => {
-  const ws = XLSX.utils.json_to_sheet(data);
+  // Define headers with custom labels
+  const headers = [
+    { header: 'Date', key: 'date', width: 15 },
+    { header: 'Opening Balance', key: 'openingBalance', width: 20 },
+    { header: 'Closing Balance', key: 'closingBalance', width: 20 },
+  ];
+
+  // Format data to match headers
+  const formattedData = data.map((row) => ({
+    date: formatDate(row.date), // Format date as per requirement
+    openingBalance: formatAmount(row.openingBalance),
+    closingBalance: formatAmount(row.closingBalance),
+  }));
+
+  // Create a new worksheet
+  const ws = XLSX.utils.json_to_sheet(formattedData, { header: headers.map(h => h.key) });
+
+  // Set header names explicitly in the worksheet
+  headers.forEach((col, index) => {
+    const cellAddress = XLSX.utils.encode_cell({ r: 0, c: index });
+    ws[cellAddress].v = col.header; // Set header name
+    ws[cellAddress].s = { font: { bold: true, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '4F81BD' } } }; // Set font and background
+  });
+
+  // Adjust column widths
+  ws['!cols'] = headers.map(h => ({ wch: h.width }));
+
+  // Create workbook and append the worksheet
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data");
-  XLSX.writeFile(wb, 'table_data.xlsx');
+  XLSX.utils.book_append_sheet(wb, ws, "Wallet Report");
+
+  // Save the workbook
+  XLSX.writeFile(wb, 'Wallet_Report.xlsx');
 };
+
 
 const WalletReport = ({userId}) => {
   const [data, setData] = useState([]);
