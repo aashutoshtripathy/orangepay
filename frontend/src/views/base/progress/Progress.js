@@ -1,6 +1,8 @@
 import React from 'react'
 import { CCard, CCardBody, CCardHeader, CCol, CProgress, CProgressBar, CRow } from '@coreui/react'
 // import { DocsExample } from 'src/components'
+import { DocsExample } from '../../../components'
+
 
 const Progress = () => {
   return (

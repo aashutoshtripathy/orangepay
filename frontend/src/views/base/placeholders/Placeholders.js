@@ -12,6 +12,8 @@ import {
   CRow,
 } from '@coreui/react'
 // import { DocsExample } from 'src/components'
+import { DocsExample } from '../../../components'
+
 
 // import ReactImg from 'src/assets/images/react.jpg'
 
@@ -32,7 +34,7 @@ const Placeholders = () => {
             <DocsExample href="components/placeholder">
               <div className="d-flex justify-content-around p-3">
                 <CCard style={{ width: '18rem' }}>
-                  <CCardImage orientation="top" src={ReactImg} />
+                  <CCardImage orientation="top" src="" />
                   <CCardBody>
                     <CCardTitle>Card title</CCardTitle>
                     <CCardText>
