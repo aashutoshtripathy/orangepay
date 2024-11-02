@@ -3,6 +3,9 @@ import { CButton, CCard, CCardBody, CCardHeader, CCol, CRow } from '@coreui/reac
 import CIcon from '@coreui/icons-react'
 import { cilBell } from '@coreui/icons'
 // import { DocsExample } from 'src/components'
+import { DocsExample } from '../../../components'
+
+
 
 const Buttons = () => {
   return (
