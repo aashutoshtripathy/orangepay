@@ -57,7 +57,7 @@ const PaymentOnline = () => {
     amount: 'N/A',
     dueDate: 'N/A',
     invoiceNo: 'N/A',
-});
+  });
 
 
   const [showPinModal, setShowPinModal] = useState(false);
@@ -149,63 +149,41 @@ const PaymentOnline = () => {
   };
 
   const API_URL = '/BiharService/BillInterface.asmx';
-    const Secondary_API_URL = '/BiharService/BillInterface'
+  const SECONDARY_API_URL = '/BiharService/BillInterface'
 
-  const soapRequest = (consumerId, MERCHANT_CODE, MERCHANT_PASSWORD) => `
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <BillDetails xmlns="http://tempuri.org/">
-      <strCANumber>${consumerId}</strCANumber>
-      <strDivision></strDivision>
-      <strSubDivision></strSubDivision>
-      <strLegacyNo></strLegacyNo>
-      <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
-      <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
-    </BillDetails>
-  </soap:Body>
-</soap:Envelope>
-`;
-
-
-
-
-
+  const soapRequest = (consumerId) => `
+    <?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <BillDetails xmlns="http://tempuri.org/">
+          <strCANumber>${consumerId}</strCANumber>
+          <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+          <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+        </BillDetails>
+      </soap:Body>
+    </soap:Envelope>
+    `;
 
   const handleFetchBill = async () => {
-    setFormSubmitted(true);
     const error = validateConsumerId(consumerId);
     if (error) {
-      setConsumerIdError(error);
-      return; // Exit if there's an error
+      setErrors(prevErrors => ({ ...prevErrors, consumerId: error }));
+      return;
     }
-    setIsBillFetched(true);
-    setFetchBillSuccess(false); // Set to false initially to indicate fetching process
 
     try {
-      const xmlPayload = soapRequest(consumerId, MERCHANT_CODE, MERCHANT_PASSWORD);
-      const trimXml = xmlPayload.trim();
-
-      const response = await axios.post(API_URL, trimXml, {
+      const xmlPayload = soapRequest(consumerId).trim(); // Ensure no whitespace before XML declaration
+      const response = await axios.post(API_URL, xmlPayload, {
         headers: {
-          'Content-Type': 'text/xml; charset=utf-8', // Specify the content type
-          'Accept': 'application/json, text/plain, */*', // Accept headers
+          'Content-Type': 'text/xml; charset=utf-8',
+          'Accept': 'application/xml, text/xml, application/json',
         },
-        // If you need to send consumerId in the body, make sure the server accepts it
-        data: xmlPayload,
       });
 
-      // Log the response data to debug
-      console.log('Response data:', response.data);
-
-      // Access the first consumer object
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(response.data, "text/xml");
-
       const namespaceURI = "http://tempuri.org/";
       const billDetails = xmlDoc.getElementsByTagNameNS(namespaceURI, "BillDetailsResult")[0];
-
-      let billData = {};
 
       if (billDetails) {
         const getTagValue = (tagName) => {
@@ -213,7 +191,7 @@ const PaymentOnline = () => {
           return element && element.textContent.trim() ? element.textContent : 'N/A';
         };
 
-        setBillData({
+        const fetchedBillData = {
           consumerId: getTagValue("CANumber"),
           consumerName: getTagValue("ConsumerName"),
           address: getTagValue("Address"),
@@ -225,28 +203,22 @@ const PaymentOnline = () => {
           amount: getTagValue("Amount"),
           dueDate: getTagValue("DueDate"),
           invoiceNo: getTagValue("InvoiceNO"),
-      });
+        };
 
-     
-
-
-        setBillDetails(billData);
+        setBillData(fetchedBillData);
         setFetchBillSuccess(true);
-        console.log('Bill details:', billData);
-        await insertBillDetails(billData);
+        setIsBillFetched(true)
       } else {
+        setFetchBillSuccess(false);
         console.error('No BillDetailsResult found in response.');
-        const secondaryResponse = await axios.post(Secondary_API_URL, trimXml, {
+        // Attempt to fetch from the secondary API
+        const secondaryResponse = await axios.post(SECONDARY_API_URL, xmlPayload, {
           headers: {
             'Content-Type': 'text/xml; charset=utf-8',
             'Accept': 'application/json, text/plain, */*',
           },
-          data: xmlPayload,
         });
 
-        console.log('Secondary API response data:', secondaryResponse.data);
-        
-        // Parse the secondary XML response
         const secondaryXmlDoc = parser.parseFromString(secondaryResponse.data, "text/xml");
         const secondaryBillDetails = secondaryXmlDoc.getElementsByTagNameNS(namespaceURI, "BillDetailsResult")[0];
 
@@ -271,7 +243,6 @@ const PaymentOnline = () => {
           };
 
           setBillData(secondaryFetchedBillData);
-          setBillDetails(secondaryFetchedBillData);
           setFetchBillSuccess(true);
           console.log('Fetched from secondary API:', secondaryFetchedBillData);
         } else {
@@ -280,70 +251,78 @@ const PaymentOnline = () => {
       }
     } catch (error) {
       console.error('Error fetching bill details:', error);
-      setFetchBillSuccess(false); // Set fetch success to false if there's an error
-    }
-  }
-      
-
-
-      // Insert the entire bill data into the database
-      const insertBillDetails = async (data) => {
-        try {
-          await axios.post(`/insertBillDetails`, data);
-          console.log('Bill details inserted into database.');
-        } catch (error) {
-          console.error('Error inserting bill details:', error);
-        }
-      };
-
-  const handleProceedToPay = async () => {
-    setFormSubmitted(true);
-
-    if (!validate()) return;
-
-
-
-    try {
-      const response = await fetch('/payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          consumerId: consumerId,
-          mobileNumber,
-          amount,
-          paymentMethod: selectedMethod,
-          remark,
-          consumerName: billDetails.consumerName,
-          divisionName: billDetails.divisionName,
-          subDivision: billDetails.subDivision,
-        }),
-      });
-
-      const result = await response.json();
-      if (response.ok && result.success) {
-        setTransactionId(result.data.invoice?.transactionId || 'N/A');
-        setData(result.data.invoice);
-        setShowSuccessModal(true);
-        // Reset form fields
-        setConsumerId('');
-        setMobileNumber('');
-        setAmount(defaultAmount); // Reset to default amount
-        setRemark('');
-        setBillDetails({});
-        setIsBillFetched(false);
-        setErrors({});
-      } else {
-        const errorMessage = result.error.length > 0 ? result.error[0] : 'An unknown error occurred.';
-        alert(`Error: ${errorMessage}`);
-      }
-    } catch (error) {
-      console.error('Error processing payment:', error);
-      alert('An error occurred while processing the payment.');
     }
   };
+
+  const handleProceedToPay = async () => {
+    if (!validate()) return;
+
+    try {
+      const paymentResponse = await axios.post('/BiharService/BillInterface.asmx?op=PaymentDetails', {
+        userId,
+        consumerId,
+        mobileNumber,
+        amount,
+        paymentMethod: selectedMethod,
+        remark,
+        consumerName: billData.consumerName,
+        divisionName: billData.divisionName,
+        subDivision: billData.subDivision,
+      });
+
+      if (paymentResponse.data.success) {
+        const receiptResponse = await axios.get('/BiharService/BillInterface.asmx?op=PaymentReceiptDetails');
+        console.log('Receipt Response:', receiptResponse.data);
+        // Handle the receipt data here as needed
+      } else {
+        console.error('Payment API call failed:', paymentResponse.data.message);
+      }
+    } catch (error) {
+      console.error('An error occurred during payment:', error);
+    }
+  };
+
+  // try {
+  //   const response = await fetch('/payment', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       userId,
+  //       consumerId: consumerId,
+  //       mobileNumber,
+  //       amount,
+  //       paymentMethod: selectedMethod,
+  //       remark,
+  //       consumerName: billDetails.consumerName,
+  //       divisionName: billDetails.divisionName,
+  //       subDivision: billDetails.subDivision,
+  //     }),
+  //   });
+
+  //     const result = await response.json();
+  //     if (response.ok && result.success) {
+  //       setTransactionId(result.data.invoice?.transactionId || 'N/A');
+  //       setData(result.data.invoice);
+  //       setShowSuccessModal(true);
+  //       // Reset form fields
+  //       setConsumerId('');
+  //       setMobileNumber('');
+  //       setAmount(defaultAmount); // Reset to default amount
+  //       setRemark('');
+  //       setBillDetails({});
+  //       setIsBillFetched(false);
+  //       setErrors({});
+  //     } else {
+  //       const errorMessage = result.error.length > 0 ? result.error[0] : 'An unknown error occurred.';
+  //       alert(`Error: ${errorMessage}`);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error processing payment:', error);
+  //     alert('An error occurred while processing the payment.');
+  //   }
+  // };
 
 
   // const handlePinSubmit = async () => {
