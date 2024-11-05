@@ -37,9 +37,10 @@ const customStyles = {
 
 // Function to generate and download PDF
 const downloadPDF = (data) => {
-  const doc = new jsPDF();
+  // Create a PDF document with portrait orientation
+  const doc = new jsPDF({ orientation: 'portrait' });
   const pageWidth = doc.internal.pageSize.getWidth();
-  const title = "Table Data";
+  const title = "Bill Payment Report";
   const titleXPos = pageWidth / 2;
 
   doc.setFontSize(18);
@@ -48,36 +49,50 @@ const downloadPDF = (data) => {
   doc.setFontSize(10);
   doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
 
+  // Define columns with reduced widths to fit on a single page
   const columns = [
-    { header: 'ID', dataKey: '_id' },
+    { header: 'CANumber', dataKey: 'canumber' },
+    { header: 'Invoice Number', dataKey: 'invoicenumber' },
+    { header: 'Bill Month', dataKey: 'billmonth' },
     { header: 'Transaction ID', dataKey: 'transactionId' },
-    { header: 'Reference Number', dataKey: 'referenceNumber' },
-    { header: 'Transaction DateTime', dataKey: 'transactionDateTime' },
-    { header: 'Service Name', dataKey: 'serviceName' },
-    { header: 'Consumer ID', dataKey: 'consumerId' },
-    { header: 'Meter ID', dataKey: 'meterId' },
-    { header: 'Request Amount', dataKey: 'requestAmount' },
-    { header: 'Total Service Charge', dataKey: 'totalServiceCharge' },
-    { header: 'Total Commission', dataKey: 'totalCommission' },
-    { header: 'Net Amount', dataKey: 'netAmount' },
-    { header: 'Action On Amount', dataKey: 'actionOnAmount' },
-    { header: 'Status', dataKey: 'status' },
-    { header: 'Payment Method', dataKey: 'paymentMethod' },
-    { header: 'Payment Date', dataKey: 'paymentDate' },
+    { header: 'Bank Ref Code', dataKey: 'refrencenumber' },
+    { header: 'Payment Mode', dataKey: 'paymentmode' },
+    { header: 'Payment Status', dataKey: 'paymentstatus' },
+    {
+      header: 'Created On', dataKey: 'createdon',
+      format: row => new Date(row.createdon).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+    },
+    { header: 'Paid Amount', dataKey: 'billamount' },
+    { header: 'Remarks', dataKey: 'remarks' },
   ];
 
-  const rows = data.map(row => columns.map(col => row[col.dataKey]));
+  const rows = data.map(row => ({
+    ...row,
+    createdon: new Date(row.createdon).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+  }));
 
   doc.autoTable({
     startY: 30,
     head: [columns.map(col => col.header)],
-    body: rows,
+    body: rows.map(row => columns.map(col => row[col.dataKey])),
     styles: {
-      fontSize: 8,
-      cellPadding: 3,
+      fontSize: 9, // Reduce font size to fit more content
+      cellPadding: 2,
       overflow: 'linebreak',
       halign: 'left',
       valign: 'middle',
+    },
+    columnStyles: {
+      0: { cellWidth: '10px' },
+      1: { cellWidth: 'auto' },
+      2: { cellWidth: 'auto' },
+      3: { cellWidth: 'auto' },
+      4: { cellWidth: 'auto' },
+      5: { cellWidth: 'auto' },
+      6: { cellWidth: 'auto' },
+      7: { cellWidth: 'auto' },
+      8: { cellWidth: 'auto' },
+      9: { cellWidth: 'auto' },
     },
     headStyles: {
       fillColor: [52, 58, 64],
@@ -85,28 +100,48 @@ const downloadPDF = (data) => {
       fontStyle: 'bold',
     },
     alternateRowStyles: {
-      fillColor: [220, 220, 220],
+      fillColor: [240, 240, 240],
     },
-    columnStyles: {
-      0: { cellWidth: 'auto' },
-    },
+    tableWidth: 'wrap', // Adjust table to fit page width
     didDrawPage: (data) => {
       const pageCount = doc.internal.getNumberOfPages();
       doc.setFontSize(10);
       doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
-    }
+    },
   });
 
-  doc.save('table_data.pdf');
+  // Add summary information
+  const totalPaidAmount = rows.reduce((total, row) => total + (parseFloat(row.billamount) || 0), 0);
+  doc.text(`Total Paid Amount: ₹${totalPaidAmount.toFixed(2)}`, 14, doc.autoTable.previous.finalY + 10);
+
+  doc.save('bill_payment_report.pdf');
 };
 
-// Function to generate and download Excel
+
+
+
 const downloadExcel = (data) => {
-  const ws = XLSX.utils.json_to_sheet(data);
+  const formattedData = data.map(row => ({
+    ...row,
+    createdon: new Date(row.createdon).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }), // Format createdon date
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(formattedData);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data");
-  XLSX.writeFile(wb, 'table_data.xlsx');
+  XLSX.utils.book_append_sheet(wb, ws, "Bill Payment Report");
+
+  // Add summary information
+  const totalPaidAmount = formattedData.reduce((total, row) => total + (parseFloat(row.billamount) || 0), 0);
+  const summary = [
+    { CANumber: '', InvoiceNumber: '', BillMonth: '', TransactionID: '', BankReferenceCode: '', PaymentMode: '', PaymentStatus: '', CreatedOn: '', PaidAmount: 'Total Paid Amount', Remarks: totalPaidAmount.toFixed(2) }
+  ];
+
+  const summarySheet = XLSX.utils.json_to_sheet(summary);
+  XLSX.utils.book_append_sheet(wb, summarySheet, "Summary");
+
+  XLSX.writeFile(wb, 'bill_payment_report.xlsx');
 };
+
 
 const OrangePayReport = ({userId}) => {
   const [data, setData] = useState([]);

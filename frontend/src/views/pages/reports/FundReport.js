@@ -49,7 +49,7 @@ const downloadPDF = (data) => {
   doc.text(title, titleXPos, 15, { align: 'center' });
 
   doc.setFontSize(10);
-  doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
+  doc.text("Generated on: " + new Date().toLocaleString(), 14, 25);
 
   const columns = [
     { header: 'User ID', dataKey: 'userId' },
@@ -62,6 +62,10 @@ const downloadPDF = (data) => {
     { header: 'Updated At', dataKey: 'updatedAt' },
   ];
 
+  const formatDate = (date) => {
+    return new Date(date).toLocaleString(); // Format to include date and time
+  };
+
   const rows = data.map(row => ({
     userId: row.uniqueId,
     fundAmount: row.fundAmount,
@@ -69,19 +73,18 @@ const downloadPDF = (data) => {
     paymentMethod: row.paymentMethod,
     bankName: row.bankName,
     status: row.status,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    createdAt: formatDate(row.createdAt),
+    updatedAt: formatDate(row.updatedAt),
   }));
 
-  // Auto table options
   doc.autoTable({
     startY: 30,
     head: [columns.map(col => col.header)], // Table headers
     body: rows.map(row => columns.map(col => row[col.dataKey])), // Table data
-    margin: { top: 30, bottom: 10 }, // Adjust bottom margin for page footer
+    margin: { top: 30, bottom: 10 },
     styles: {
-      fontSize: 7, // Adjust font size
-      cellPadding: 1, // Reduce cell padding
+      fontSize: 7,
+      cellPadding: 1,
       overflow: 'linebreak',
       halign: 'left',
       valign: 'middle',
@@ -95,7 +98,7 @@ const downloadPDF = (data) => {
       fillColor: [220, 220, 220],
     },
     columnStyles: {
-      0: { cellWidth: 20 }, // Adjust column widths
+      0: { cellWidth: 20 },
       1: { cellWidth: 20 },
       2: { cellWidth: 25 },
       3: { cellWidth: 30 },
@@ -111,19 +114,12 @@ const downloadPDF = (data) => {
     }
   });
 
-  // Download the PDF
   doc.save('fund_reports.pdf');
 };
 
-
-
-
-
 const downloadExcel = (data) => {
-  // Create a new workbook
   const wb = XLSX.utils.book_new();
 
-  // Define headers and data
   const headers = [
     "User ID",
     "Fund Amount",
@@ -135,7 +131,10 @@ const downloadExcel = (data) => {
     "Updated At"
   ];
 
-  // Convert JSON data to sheet
+  const formatDate = (date) => {
+    return new Date(date).toLocaleString();
+  };
+
   const wsData = data.map(row => ({
     "User ID": row.uniqueId,
     "Fund Amount": row.fundAmount,
@@ -143,35 +142,29 @@ const downloadExcel = (data) => {
     "Payment Method": row.paymentMethod,
     "Bank Name": row.bankName,
     "Status": row.status,
-    "Created At": row.createdAt,
-    "Updated At": row.updatedAt,
+    "Created At": formatDate(row.createdAt),
+    "Updated At": formatDate(row.updatedAt),
   }));
 
-  // Create a worksheet
   const ws = XLSX.utils.json_to_sheet(wsData, { header: headers });
 
-  // Define column widths manually
   const columnWidths = [
-    { wch: 15 },  // User ID
-    { wch: 12 },  // Fund Amount
-    { wch: 25 },  // Bank Reference
-    { wch: 20 },  // Payment Method
-    { wch: 20 },  // Bank Name
-    { wch: 10 },  // Status
-    { wch: 20 },  // Created At
-    { wch: 20 }   // Updated At
+    { wch: 15 },
+    { wch: 12 },
+    { wch: 25 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 10 },
+    { wch: 25 }, // Widen for date-time display
+    { wch: 25 }
   ];
 
-  // Apply column widths to the worksheet
   ws['!cols'] = columnWidths;
 
-  // Append sheet to workbook
   XLSX.utils.book_append_sheet(wb, ws, "Fund Reports");
 
-  // Convert workbook to binary format
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
 
-  // Create a Blob object from the binary data
   function s2ab(s) {
     const buf = new ArrayBuffer(s.length);
     const view = new Uint8Array(buf);
@@ -179,17 +172,15 @@ const downloadExcel = (data) => {
     return buf;
   }
 
-  // Create and trigger the download
   const blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'fund_reports.xlsx'; // File name
+  a.download = 'fund_reports.xlsx';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
 };
-
 
 
 
