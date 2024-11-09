@@ -16,9 +16,11 @@ import {
   CFormCheck,
   CFormSelect,
 } from '@coreui/react';
+import crc32 from 'crc-32';
 import axios from 'axios';
 import log from "../.././../assets/images/log (1).png";
 import nb from "../.././../assets/images/nb.png";
+import { sendSoapRequest, generateBillDetailsPayload, generatePaymentReceiptDetailsPayload, generatePaymentDetailsPayload } from './SoapApi';
 
 
 const PaymentOnline = () => {
@@ -148,8 +150,13 @@ const PaymentOnline = () => {
     return Object.keys(errors).length === 0;
   };
 
+
+
+
   const API_URL = '/BiharService/BillInterface.asmx';
-  const SECONDARY_API_URL = '/BiharService/BillInterface'
+  // const SECONDARY_API_URL = '/BiharService/BillInterface'
+  const SECONDARY_API_URL = '/BiharService/BillInterface.asmx?op=PaymentDetails'
+
 
   const soapRequest = (consumerId) => `
     <?xml version="1.0" encoding="utf-8"?>
@@ -210,77 +217,124 @@ const PaymentOnline = () => {
         setIsBillFetched(true)
       } else {
         setFetchBillSuccess(false);
-        console.error('No BillDetailsResult found in response.');
-        // Attempt to fetch from the secondary API
-        const secondaryResponse = await axios.post(SECONDARY_API_URL, xmlPayload, {
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Accept': 'application/json, text/plain, */*',
-          },
-        });
+        console.error('No BillDetailsResult found in response from primary API.');
 
-        const secondaryXmlDoc = parser.parseFromString(secondaryResponse.data, "text/xml");
-        const secondaryBillDetails = secondaryXmlDoc.getElementsByTagNameNS(namespaceURI, "BillDetailsResult")[0];
+        // // Ensure you have the correct namespace
+        // const namespaceURI = "http://tempuri.org/"; // Replace with the correct namespace if necessary
 
-        if (secondaryBillDetails) {
-          const getTagValue = (tagName) => {
-            const element = secondaryBillDetails.getElementsByTagNameNS(namespaceURI, tagName)[0];
-            return element && element.textContent.trim() ? element.textContent : 'N/A';
-          };
+        // // Check if the XML response is valid
+        // const secondaryXmlDoc = parser.parseFromString(secondaryResponse.data, "text/xml");
+        // console.log(secondaryXmlDoc); // Log the parsed XML
 
-          const secondaryFetchedBillData = {
-            consumerId: getTagValue("CANumber"),
-            consumerName: getTagValue("ConsumerName"),
-            address: getTagValue("Address"),
-            mobileNo: getTagValue("MobileNumber"),
-            divisionName: getTagValue("Division"),
-            subDivision: getTagValue("SubDivision"),
-            companyName: getTagValue("CompanyName"),
-            billMonth: getTagValue("BillMonth"),
-            amount: getTagValue("Amount"),
-            dueDate: getTagValue("DueDate"),
-            invoiceNo: getTagValue("InvoiceNO"),
-          };
+        // // Attempt to find BillDetailsResult
+        // const secondaryBillDetails = secondaryXmlDoc.getElementsByTagNameNS(namespaceURI, "BillDetailsResult")[0];
 
-          setBillData(secondaryFetchedBillData);
-          setFetchBillSuccess(true);
-          console.log('Fetched from secondary API:', secondaryFetchedBillData);
-        } else {
-          console.error('No BillDetailsResult found in secondary response.');
-        }
+        // if (secondaryBillDetails) {
+        //   // Function to safely extract values from XML
+        //   const getTagValue = (tagName) => {
+        //     const element = secondaryBillDetails.getElementsByTagNameNS(namespaceURI, tagName)[0];
+        //     return element ? element.textContent.trim() : 'N/A';
+        //   };
+
+        //   // Map the data as per your response structure
+        //   const secondaryFetchedBillData = {
+        //     consumerId: getTagValue("CANumber"),
+        //     consumerName: getTagValue("ConsumerName"),
+        //     address: getTagValue("Address"),
+        //     mobileNo: getTagValue("MobileNumber"),
+        //     divisionName: getTagValue("Division"),
+        //     subDivision: getTagValue("SubDivision"),
+        //     companyName: getTagValue("CompanyName"),
+        //     billMonth: getTagValue("BillMonth"),
+        //     amount: getTagValue("Amount"),
+        //     dueDate: getTagValue("DueDate"),
+        //     invoiceNo: getTagValue("InvoiceNO"),
+        //   };
+
+        //   setBillData(secondaryFetchedBillData);
+        //   setFetchBillSuccess(true);
+        //   console.log('Fetched from secondary API:', secondaryFetchedBillData);
+        // } else {
+        //   console.error('No BillDetailsResult found in secondary response.');
+        // }
+
       }
     } catch (error) {
       console.error('Error fetching bill details:', error);
     }
   };
 
-  const handleProceedToPay = async () => {
-    if (!validate()) return;
+  const calculateChecksum = (amount, privateKey) => {
+    const data = `${amount}${privateKey}`;
+    const checksum = crc32.str(data);
+    return checksum >>> 0;
+  };
+
+  const handleProceedToPay = async (amount) => {
+    if (!validate() || !isBillFetched) return;
 
     try {
-      const paymentResponse = await axios.post('/BiharService/BillInterface.asmx?op=PaymentDetails', {
-        userId,
-        consumerId,
-        mobileNumber,
-        amount,
-        paymentMethod: selectedMethod,
-        remark,
-        consumerName: billData.consumerName,
-        divisionName: billData.divisionName,
-        subDivision: billData.subDivision,
-      });
+      const checksum = calculateChecksum(amount, 'd8bKEaX1XEtB');
+      const soapRequest = (billData, amount) => `
+      <?xml version="1.0" encoding="utf-8"?>
+      <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Body>
+          <PaymentDetails xmlns="http://tempuri.org/">
+            <strCANumber>${billData.consumerId}</strCANumber>
+            <strInvoiceNo>${billData.invoiceNo}</strInvoiceNo>
+            <strDueDate>${billData.dueDate}</strDueDate>
+            <strAmount>${amount}</strAmount>
+            <strCompanyCode>${billData.companyName}</strCompanyCode>
+            <strTransactionId>${transactionId || 'TXN987654'}</strTransactionId>
+            <strTransactionDateTime>${new Date().toISOString()}</strTransactionDateTime> <!-- Current timestamp -->
+            <strReceiptNo>${'REC123456'}</strReceiptNo> <!-- Generated or passed dynamically -->
+            <strBankRefCode>${'BR1234567890'}</strBankRefCode> <!-- Can be dynamic -->
+            <strBankId>XYZBANK</strBankId> <!-- Example dynamic value -->
+            <strPaymentMode>${selectedMethod || 'CreditCard'}</strPaymentMode>
+            <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+            <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+            <strCkeckSum>${checksum}</strCkeckSum> <!-- Call checksum function here -->
+          </PaymentDetails>
+        </soap:Body>
+      </soap:Envelope>
+      `.trim();
 
-      if (paymentResponse.data.success) {
-        const receiptResponse = await axios.get('/BiharService/BillInterface.asmx?op=PaymentReceiptDetails');
-        console.log('Receipt Response:', receiptResponse.data);
-        // Handle the receipt data here as needed
+
+      try {
+        const xmlPayload = soapRequest(billData);
+        const response = await axios.post(SECONDARY_API_URL, xmlPayload, {
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Accept': 'application/xml, text/xml, application/json',
+          },
+        });
+        console.log(response.data); // Check the response
+      } catch (error) {
+        console.error('Error submitting payment details:', error);
+      }
+
+
+      if (paymentResponse.status === 200 && paymentResponse.data) {
+        const responseData = paymentResponse.data;  // Adjust based on actual response structure
+        if (responseData.success) {
+          const receiptResponse = await axios.get('/BiharService/BillInterface.asmx?op=PaymentReceiptDetails');
+          console.log('Receipt Response:', receiptResponse.data);
+          // Handle the receipt data here
+        } else {
+          console.error('Payment API call failed:', responseData.message);
+        }
       } else {
-        console.error('Payment API call failed:', paymentResponse.data.message);
+        console.error('Bad Request:', paymentResponse);
       }
     } catch (error) {
       console.error('An error occurred during payment:', error);
+      if (error.response) {
+        console.error('Error Response:', error.response.data);
+      }
     }
   };
+
+
 
   // try {
   //   const response = await fetch('/payment', {
@@ -483,6 +537,21 @@ const PaymentOnline = () => {
     setFetchBillSuccess(false)
   };
 
+
+
+  const formatAmount = (value) => {
+    return new Intl.NumberFormat('en-IN').format(value);
+  };
+
+  
+  
+  // const formatAmount = (value) => {
+  //   return new Intl.NumberFormat('en-IN', {
+  //     style: 'currency',
+  //     currency: 'INR',
+  //   }).format(value);
+  // };
+
   return (
     <CContainer className="p-4">
       <CCard>
@@ -651,12 +720,12 @@ const PaymentOnline = () => {
 
               <CRow className="mb-3">
                 <CCol md={6}>
-                  <CFormLabel htmlFor="defaultAmount">Amount</CFormLabel>
+                  <CFormLabel htmlFor="amount">Amount</CFormLabel>
                   <CFormInput
-                    type="number"
+                    type="text"
                     id="amount"
-                    value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value))}
+                    value={formatAmount(amount)}  // Format the amount
+                    onChange={(e) => setAmount(e.target.value)}
                     placeholder="Enter amount"
                   />
                 </CCol>
