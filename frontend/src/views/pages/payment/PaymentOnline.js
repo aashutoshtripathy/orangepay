@@ -29,7 +29,7 @@ const PaymentOnline = () => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [data, setData] = useState({});
   const [amount, setAmount] = useState(500);
-  const [defaultAmount, setDefaultAmount] = useState(500); // State for default amount
+  const [defaultAmount, setDefaultAmount] = useState(500);
   const [selectedMethod, setSelectedMethod] = useState('');
   const [remark, setRemark] = useState('');
   const [userId, setUserId] = useState('');
@@ -264,18 +264,34 @@ const PaymentOnline = () => {
     }
   };
 
+  const handleAmountChange = (e) => {
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value)) {
+      setAmount(value);
+    } else {
+      setAmount(0); // Set to 0 or handle invalid input appropriately 
+    }
+  };
+
+  const formatDateTime = () => { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const day = String(now.getDate()).padStart(2, '0'); const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); const seconds = String(now.getSeconds()).padStart(2, '0'); return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`; };
   const calculateChecksum = (amount, privateKey) => {
+    if (typeof amount !== 'number') { amount = parseFloat(amount); if (isNaN(amount)) { console.error("Invalid amount for checksum calculation:", amount); return null; } }
     const data = `${amount}${privateKey}`;
     const checksum = crc32.str(data);
     return checksum >>> 0;
   };
 
-  const handleProceedToPay = async (amount) => {
+
+  const handleProceedToPay = async () => {
     if (!validate() || !isBillFetched) return;
+
+
 
     try {
       const checksum = calculateChecksum(amount, 'd8bKEaX1XEtB');
-      const soapRequest = (billData, amount) => `
+      const formattedDateTime = formatDateTime();
+    const transactionRef = transactionId || generateUniqueTransactionId();
+      const soapRequest = (billData, amount, checksum) => `
       <?xml version="1.0" encoding="utf-8"?>
       <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
         <soap:Body>
@@ -284,12 +300,12 @@ const PaymentOnline = () => {
             <strInvoiceNo>${billData.invoiceNo}</strInvoiceNo>
             <strDueDate>${billData.dueDate}</strDueDate>
             <strAmount>${amount}</strAmount>
-            <strCompanyCode>${billData.companyName}</strCompanyCode>
-            <strTransactionId>${transactionId || 'TXN987654'}</strTransactionId>
-            <strTransactionDateTime>${new Date().toISOString()}</strTransactionDateTime> <!-- Current timestamp -->
-            <strReceiptNo>${'REC123456'}</strReceiptNo> <!-- Generated or passed dynamically -->
+            <strCompanyCode>${'SBPDCL'}</strCompanyCode>
+            <strTransactionId>${transactionRef}</strTransactionId>
+            <strTransactionDateTime>${formatDateTime()}</strTransactionDateTime> <!-- Current timestamp -->
+            <strReceiptNo>${transactionRef}</strReceiptNo> <!-- Generated or passed dynamically -->
             <strBankRefCode>${'BR1234567890'}</strBankRefCode> <!-- Can be dynamic -->
-            <strBankId>XYZBANK</strBankId> <!-- Example dynamic value -->
+            <strBankId></strBankId> 
             <strPaymentMode>${selectedMethod || 'CreditCard'}</strPaymentMode>
             <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
             <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
@@ -300,39 +316,102 @@ const PaymentOnline = () => {
       `.trim();
 
 
-      try {
-        const xmlPayload = soapRequest(billData);
-        const response = await axios.post(SECONDARY_API_URL, xmlPayload, {
+        const xmlPayload = soapRequest(billData, amount, checksum); 
+
+        if (!xmlPayload) {
+          console.error("Failed to generate XML payload due to missing amount.");
+          return;
+        } const response = await axios.post(SECONDARY_API_URL, xmlPayload, {
           headers: {
             'Content-Type': 'text/xml; charset=utf-8',
             'Accept': 'application/xml, text/xml, application/json',
           },
         });
         console.log(response.data); // Check the response
-      } catch (error) {
-        console.error('Error submitting payment details:', error);
-      }
+        const statusFlagMatch = response.data.match(/<StatusFlag>(.*?)<\/StatusFlag>/);
+        const messageMatch = response.data.match(/<Message>(.*?)<\/Message>/);
+      
+        const statusFlag = statusFlagMatch ? statusFlagMatch[1] : null;
+        const message = messageMatch ? messageMatch[1] : 'No message found';
+      
+        if (statusFlag === '1') {
+          console.log('Transaction successful:', message);
+                  setShowSuccessModal(true);
 
+      
+          // Create SOAP request for fetching the receipt
+          const receiptSoapRequest = `
+            <?xml version="1.0" encoding="utf-8"?>
+            <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+              <soap:Body>
+                <PaymentReceiptDetails xmlns="http://tempuri.org/">
+                  <strTransactionId>${transactionRef}</strTransactionId>
+                  <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+                  <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+                </PaymentReceiptDetails>
+              </soap:Body>
+            </soap:Envelope>
+          `.trim();
+      
+          try {
+            const receiptResponse = await axios.post('/BiharService/BillInterface.asmx?op=PaymentReceiptDetails', receiptSoapRequest, {
+              headers: {
+                'Content-Type': 'text/xml; charset=utf-8',
+                'Accept': 'application/xml, text/xml, application/json',
+              },
+            });
+      
+            console.log('Receipt Response:', receiptResponse.data);
+            const response = receiptResponse.data
+            const xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+      const receiptData = {
+        receiptNo: xmlDoc.getElementsByTagName('BSPDCL_Receipt_No')[0]?.textContent || 'N/A',
+        transactionId: xmlDoc.getElementsByTagName('Transaction_Id')[0]?.textContent || 'N/A',
+        consumerNo: xmlDoc.getElementsByTagName('CANumber')[0]?.textContent || 'N/A',
+        consumerName: xmlDoc.getElementsByTagName('ConsumerName')[0]?.textContent || 'N/A',
+        billAmount: xmlDoc.getElementsByTagName('AmountPaid')[0]?.textContent || 'N/A',
+        paymentMode: xmlDoc.getElementsByTagName('ModePayment')[0]?.textContent || 'N/A',
+        paymentDate: xmlDoc.getElementsByTagName('PaymentDateTime')[0]?.textContent || 'N/A',
+      };
 
-      if (paymentResponse.status === 200 && paymentResponse.data) {
-        const responseData = paymentResponse.data;  // Adjust based on actual response structure
-        if (responseData.success) {
-          const receiptResponse = await axios.get('/BiharService/BillInterface.asmx?op=PaymentReceiptDetails');
-          console.log('Receipt Response:', receiptResponse.data);
-          // Handle the receipt data here
+      // Set the parsed data in state
+      setData(receiptData);
+            
+          } catch (error) {
+            console.error('Error fetching receipt:', error);
+          }
         } else {
-          console.error('Payment API call failed:', responseData.message);
+          console.error('Transaction failed:', message);
         }
-      } else {
-        console.error('Bad Request:', paymentResponse);
-      }
-    } catch (error) {
-      console.error('An error occurred during payment:', error);
-      if (error.response) {
-        console.error('Error Response:', error.response.data);
+      } catch (error) {
+        console.error('Error during payment or receipt fetch:', error);
+        if (error.response) {
+          console.error('Error Response:', error.response.data); // Log the error response if available
+        }
       }
     }
-  };
+
+
+    const parser = new DOMParser();
+    // const xmlDoc = parser.parseFromString(response.data, 'text/xml');
+
+    // const receiptData = {
+    //   receiptNo: xmlDoc.getElementsByTagName('BSPDCL_Receipt_No')[0]?.textContent,
+    //   transactionId: xmlDoc.getElementsByTagName('Transaction_Id')[0]?.textContent,
+    //   consumerId: xmlDoc.getElementsByTagName('CANumber')[0]?.textContent,
+    //   consumerName: xmlDoc.getElementsByTagName('ConsumerName')[0]?.textContent,
+    //   billNo: xmlDoc.getElementsByTagName('BillNo')[0]?.textContent,
+    //   billDueDate: xmlDoc.getElementsByTagName('BillDueDate')[0]?.textContent,
+    //   amountPaid: xmlDoc.getElementsByTagName('AmountPaid')[0]?.textContent,
+    //   paymentDateTime: xmlDoc.getElementsByTagName('PaymentDateTime')[0]?.textContent,
+    //   modePayment: xmlDoc.getElementsByTagName('ModePayment')[0]?.textContent,
+    // };
+
+    // // Set the extracted data in state
+    // setData(receiptData);
+
+  const generateUniqueTransactionId = () => `OP${Date.now()}`;
+
 
 
 
@@ -543,8 +622,8 @@ const PaymentOnline = () => {
     return new Intl.NumberFormat('en-IN').format(value);
   };
 
-  
-  
+
+
   // const formatAmount = (value) => {
   //   return new Intl.NumberFormat('en-IN', {
   //     style: 'currency',
@@ -724,7 +803,7 @@ const PaymentOnline = () => {
                   <CFormInput
                     type="text"
                     id="amount"
-                    value={formatAmount(amount)}  // Format the amount
+                    value={formatAmount(amount)}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="Enter amount"
                   />
@@ -739,7 +818,7 @@ const PaymentOnline = () => {
                     type="text"
                     id="remark"
                     value={remark}
-                    onChange={(e) => setRemark(e.target.value)}
+                    onChange={handleAmountChange}
                     placeholder="Enter a remark (optional)"
                   />
                 </CCol>
@@ -787,21 +866,22 @@ const PaymentOnline = () => {
           </div>
           <p>Your payment was processed successfully!</p>
 
-          <p><strong>Date/Time:</strong>  {formatKolkataTime(data.billposton) || "N/A"}</p>
+          <p><strong>Date/Time:</strong>  {formatKolkataTime(data.paymentDate) || "N/A"}</p>
 
-          <p><strong>Receipt No.:</strong> {data.transactionId || 'N/A'}</p>
+          <p><strong>Receipt No.:</strong> {data.receiptNo || 'N/A'}</p>
 
-          <p><strong>Consumer No.:</strong> {data.canumber || 'N/A'}</p>
+          <p><strong>Consumer No.:</strong> {data.consumerNo || 'N/A'}</p>
 
           <p><strong>Consumer Name:</strong> {data.consumerName || 'N/A'}</p>
 
-          <p><strong>Payment Amt.:</strong> {data.billamount || 'N/A'}</p>
+          <p><strong>Payment Amt.:</strong> {data.billAmount || 'N/A'}</p>
 
-          <p><strong>Payment Mode:</strong> {data.getway || 'N/A'}</p>
+          <p><strong>Payment Mode:</strong> {data.paymentMode || 'N/A'}</p>
 
           <p><strong>Transaction ID:</strong> {data.transactionId || 'N/A'}</p>
 
           <p><strong>Payment Status:</strong> Transaction success</p>
+        
 
           <p>Thanks for Payment!</p>
 

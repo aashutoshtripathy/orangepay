@@ -96,7 +96,7 @@ const downloadPDF = (data) => {
       fillColor: [220, 220, 220],
     },
     columnStyles: {
-      0: { cellWidth: 20 }, // Adjust column widths
+      0: { cellWidth: 20 },
       1: { cellWidth: 20 },
       2: { cellWidth: 25 },
       3: { cellWidth: 30 },

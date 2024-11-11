@@ -165,8 +165,8 @@ const DataTableComponent = () => {
       try {
         const response = await axios.get(`/fundrequests`);
         const result = response.data.fundRequests || []; // Access the data array from the nested data object
-        setData(result);
-      } catch (error) {
+        setData(result.reverse());
+        } catch (error) {
         setError(error);
       } finally {
         setLoading(false);
