@@ -3,6 +3,12 @@ import DataTable from 'react-data-table-component';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {  faDownload, faFileExcel } from '@fortawesome/free-solid-svg-icons';
+import {
+  CDropdown,
+  CDropdownToggle,
+  CDropdownMenu,
+  CDropdownItem,
+} from '@coreui/react';
 import { CCard, CCardBody, CCardHeader, CCol, CRow, CCardTitle, CCardText } from '@coreui/react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -143,6 +149,45 @@ const downloadExcel = (data) => {
 };
 
 
+
+const initialColumnsVisibility = {
+  canumber: true,
+  invoicenumber: true,
+  billmonth: true,
+  transactionId: true,
+  refrencenumber: true,
+  bankid: true,
+  paymentmode: true,
+  paymentstatus: true,
+  createdon: true,
+  createdby: true,
+  billpoststatus: true,
+  billamount: true,
+  reciptno: true,
+  billposton: true,
+  getway: true,
+  cardtxntype: true,
+  terminalid: true,
+  mid: true,
+  nameoncard: true,
+  remarks: true,
+  loginid: true,
+  rrn: true,
+  vpa: true,
+  paymentdate: true,
+  latitude: true,
+  longitude: true,
+  fetchtype: true,
+  consumermob: true,
+  ltht: true,
+  duedate: true,
+  brandcode: true,
+  division: true,
+  subdivision: true,
+};
+
+
+
 const OrangePayReport = ({userId}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -150,6 +195,9 @@ const OrangePayReport = ({userId}) => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [filterText, setFilterText] = useState('');
+  const [menuOpen, setMenuOpen] = useState(null);
+  const [columnsVisibility, setColumnsVisibility] = useState(initialColumnsVisibility);
+
   // const userId = localStorage.getItem('userId');
 
   useEffect(() => {
@@ -189,7 +237,21 @@ const OrangePayReport = ({userId}) => {
     setToDate('');   // Clear toDate
   };
 
-  
+  const handleColumnVisibilityChange = (column) => {
+    setColumnsVisibility(prevState => ({
+      ...prevState,
+      [column]: !prevState[column] 
+    }));
+  };
+
+
+  const toggleMenu = (index) => {
+    if (menuOpen === index) {
+      setMenuOpen(null); 
+    } else {
+      setMenuOpen(index); 
+    }
+  };
 
 
   const totalPaidAmount = filteredItems.reduce((total, item) => total + (parseFloat(item.billamount) || 0), 0);
@@ -201,17 +263,19 @@ const OrangePayReport = ({userId}) => {
   const overallNetCommission = overallCommission - overallTDS;
 
   const columns = [
-    // { name: 'ID', selector: 'userId', sortable: true },
-    { name: 'CANumber', selector: 'canumber', sortable: true },
-    { name: 'InvoiceNO', selector: 'invoicenumber', sortable: true }, // Format date
-    { name: 'BillMonth', selector: 'billmonth', sortable: true },
-    { name: 'TxnId', selector: 'transactionId', sortable: true },
-    { name: 'BankReferenceCode', selector: 'refrencenumber', sortable: true },
-    { name: 'BankID', selector: 'bankid', sortable: true },
-    { name: 'PaymentMode', selector: 'paymentmode', sortable: true },
-    { name: 'PaymentStatus', selector: 'paymentstatus', sortable: true },
-    {
-      name: 'CreatedOn', selector: 'createdon', sortable: true, format: row => new Date(row.createdon).toLocaleString('en-IN', {
+    columnsVisibility.canumber && { name: 'CANumber', selector: 'canumber', sortable: true },
+    columnsVisibility.invoicenumber && { name: 'InvoiceNO', selector: 'invoicenumber', sortable: true },
+    columnsVisibility.billmonth && { name: 'BillMonth', selector: 'billmonth', sortable: true },
+    columnsVisibility.transactionId && { name: 'TxnId', selector: 'transactionId', sortable: true },
+    columnsVisibility.refrencenumber && { name: 'BankReferenceCode', selector: 'refrencenumber', sortable: true },
+    columnsVisibility.bankid && { name: 'BankID', selector: 'bankid', sortable: true },
+    columnsVisibility.paymentmode && { name: 'PaymentMode', selector: 'paymentmode', sortable: true },
+    columnsVisibility.paymentstatus && { name: 'PaymentStatus', selector: 'paymentstatus', sortable: true },
+    columnsVisibility.createdon && {
+      name: 'CreatedOn',
+      selector: 'createdon',
+      sortable: true,
+      format: row => new Date(row.createdon).toLocaleString('en-IN', {
         timeZone: 'Asia/Kolkata',
         year: 'numeric',
         month: '2-digit',
@@ -222,32 +286,33 @@ const OrangePayReport = ({userId}) => {
         hour12: true
       })
     },
-    { name: 'CreatedBy', selector: 'createdby', sortable: true },
-    { name: 'BillPostStatus', selector: 'billpoststatus', sortable: true },
-    { name: 'PaidAmount', selector: 'billamount', sortable: true },
-    { name: 'ReceiptNo', selector: 'reciptno', sortable: true, },
-    { name: 'BillPostOn', selector: 'billposton', sortable: true },
-    { name: 'Gateway', selector: 'getway', sortable: true },
-    { name: 'cardTxnTypeDesc', selector: 'cardtxntype', sortable: true },
-    { name: 'TerminalID', selector: 'terminalid', sortable: true },
-    { name: 'MId', selector: 'mid', sortable: true },
-    { name: 'nameOnCard', selector: 'nameoncard', sortable: true },
-    { name: 'Remarks', selector: 'remarks', sortable: true },
-    { name: 'LoginId', selector: 'loginid', sortable: true },
-    { name: 'RRN', selector: 'rrn', sortable: true },
-    { name: 'VPA', selector: 'vpa', sortable: true },
-    { name: 'BillAmount', selector: 'billamount', sortable: true },
-    { name: 'paymentDate', selector: 'paymentdate', sortable: true },
-    { name: 'latitude', selector: 'latitude', sortable: true },
-    { name: 'longitude', selector: 'longitude', sortable: true },
-    { name: 'FetchType', selector: 'fetchtype', sortable: true },
-    { name: 'ConsumerMobileNo', selector: 'consumermob', sortable: true },
-    { name: 'LT_HT', selector: 'ltht', sortable: true },
-    { name: 'DueDate', selector: 'duedate', sortable: true },
-    { name: 'BrandCode', selector: 'brandcode', sortable: true },
-    { name: 'Division', selector: 'division', sortable: true },
-    { name: 'SubDivision', selector: 'subdivision', sortable: true },
-  ];
+    columnsVisibility.createdby && { name: 'CreatedBy', selector: 'createdby', sortable: true },
+    columnsVisibility.billpoststatus && { name: 'BillPostStatus', selector: 'billpoststatus', sortable: true },
+    columnsVisibility.billamount && { name: 'PaidAmount', selector: 'billamount', sortable: true },
+    columnsVisibility.reciptno && { name: 'ReceiptNo', selector: 'reciptno', sortable: true },
+    columnsVisibility.billposton && { name: 'BillPostOn', selector: 'billposton', sortable: true },
+    columnsVisibility.getway && { name: 'Gateway', selector: 'getway', sortable: true },
+    columnsVisibility.cardtxntype && { name: 'cardTxnTypeDesc', selector: 'cardtxntype', sortable: true },
+    columnsVisibility.terminalid && { name: 'TerminalID', selector: 'terminalid', sortable: true },
+    columnsVisibility.mid && { name: 'MId', selector: 'mid', sortable: true },
+    columnsVisibility.nameoncard && { name: 'nameOnCard', selector: 'nameoncard', sortable: true },
+    columnsVisibility.remarks && { name: 'Remarks', selector: 'remarks', sortable: true },
+    columnsVisibility.loginid && { name: 'LoginId', selector: 'loginid', sortable: true },
+    columnsVisibility.rrn && { name: 'RRN', selector: 'rrn', sortable: true },
+    columnsVisibility.vpa && { name: 'VPA', selector: 'vpa', sortable: true },
+    columnsVisibility.billamount && { name: 'BillAmount', selector: 'billamount', sortable: true },
+    columnsVisibility.paymentdate && { name: 'paymentDate', selector: 'paymentdate', sortable: true },
+    columnsVisibility.latitude && { name: 'latitude', selector: 'latitude', sortable: true },
+    columnsVisibility.longitude && { name: 'longitude', selector: 'longitude', sortable: true },
+    columnsVisibility.fetchtype && { name: 'FetchType', selector: 'fetchtype', sortable: true },
+    columnsVisibility.consumermob && { name: 'ConsumerMobileNo', selector: 'consumermob', sortable: true },
+    columnsVisibility.ltht && { name: 'LT_HT', selector: 'ltht', sortable: true },
+    columnsVisibility.duedate && { name: 'DueDate', selector: 'duedate', sortable: true },
+    columnsVisibility.brandcode && { name: 'BrandCode', selector: 'brandcode', sortable: true },
+    columnsVisibility.division && { name: 'Division', selector: 'division', sortable: true },
+    columnsVisibility.subdivision && { name: 'SubDivision', selector: 'subdivision', sortable: true },
+].filter(Boolean); // Filter out any columns that are false (not visible)
+
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -261,6 +326,332 @@ const OrangePayReport = ({userId}) => {
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
+<CDropdown >
+  <CDropdownToggle className="button-download">
+    <FontAwesomeIcon  icon="eye" /> Visibility
+  </CDropdownToggle>
+<CDropdownMenu>
+  <div
+    className="column-visibility-controls"
+    style={{
+      display: 'flex',
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      padding: '10px',
+    }}
+  >
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.canumber}
+          onChange={() => handleColumnVisibilityChange('canumber')}
+        />
+        CA Number
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.invoicenumber}
+          onChange={() => handleColumnVisibilityChange('invoicenumber')}
+        />
+        Invoice NO
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.billmonth}
+          onChange={() => handleColumnVisibilityChange('billmonth')}
+        />
+        Bill Month
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.transactionId}
+          onChange={() => handleColumnVisibilityChange('transactionId')}
+        />
+        Txn Id
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.refrencenumber}
+          onChange={() => handleColumnVisibilityChange('refrencenumber')}
+        />
+        Bank Reference Code
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.bankid}
+          onChange={() => handleColumnVisibilityChange('bankid')}
+        />
+        Bank ID
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.paymentmode}
+          onChange={() => handleColumnVisibilityChange('paymentmode')}
+        />
+        Payment Mode
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.paymentstatus}
+          onChange={() => handleColumnVisibilityChange('paymentstatus')}
+        />
+        Payment Status
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.createdon}
+          onChange={() => handleColumnVisibilityChange('createdon')}
+        />
+        Created On
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.createdby}
+          onChange={() => handleColumnVisibilityChange('createdby')}
+        />
+        Created By
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.billpoststatus}
+          onChange={() => handleColumnVisibilityChange('billpoststatus')}
+        />
+        Bill Post Status
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.billamount}
+          onChange={() => handleColumnVisibilityChange('billamount')}
+        />
+        Bill Amount
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.reciptno}
+          onChange={() => handleColumnVisibilityChange('reciptno')}
+        />
+        Receipt No
+      </label>
+    </CDropdownItem>
+
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.billposton}
+          onChange={() => handleColumnVisibilityChange('billposton')}
+        />
+        Bill Post On
+      </label>
+    </CDropdownItem>
+
+    {/* Repeat similar structure for other columns */}
+    {/* For example: */}
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.getway}
+          onChange={() => handleColumnVisibilityChange('getway')}
+        />
+        Gateway
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.cardtxntype}
+          onChange={() => handleColumnVisibilityChange('cardtxntype')}
+        />
+        Card Txn Type Desc
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.terminalid}
+          onChange={() => handleColumnVisibilityChange('terminalid')}
+        />
+        Terminal ID
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.mid}
+          onChange={() => handleColumnVisibilityChange('mid')}
+        />
+        MId
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.nameoncard}
+          onChange={() => handleColumnVisibilityChange('nameoncard')}
+        />
+        Name On Card 
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.remarks}
+          onChange={() => handleColumnVisibilityChange('remarks')}
+        />
+        Remarks
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.loginid}
+          onChange={() => handleColumnVisibilityChange('loginid')}
+        />
+        Login ID
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.rrn}
+          onChange={() => handleColumnVisibilityChange('rrn')}
+        />
+       RRN
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.vpa}
+          onChange={() => handleColumnVisibilityChange('vpa')}
+        />
+        VPA
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.billamount}
+          onChange={() => handleColumnVisibilityChange('billamount')}
+        />
+        Bill Amount 
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.paymentdate}
+          onChange={() => handleColumnVisibilityChange('paymentdate')}
+        />
+        Payment Date
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.latitude}
+          onChange={() => handleColumnVisibilityChange('latitude')}
+        />
+        Latitude
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.longitude}
+          onChange={() => handleColumnVisibilityChange('longitude')}
+        />
+        Longitude 
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.fetchtype}
+          onChange={() => handleColumnVisibilityChange('fetchtype')}
+        />
+        Fetch Type
+      </label>
+    </CDropdownItem>
+    <CDropdownItem style={{ display: 'flex', alignItems: 'center' }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={columnsVisibility.consumermob}
+          onChange={() => handleColumnVisibilityChange('consumermob')}
+        />
+        ConsumerMobileNo
+      </label>
+    </CDropdownItem>
+    
+    {/* Continue with the remaining items */}
+  </div>
+</CDropdownMenu>
+</CDropdown>
+
         {/* <button 
           className="button-search" 
           onClick={handleSearch}
