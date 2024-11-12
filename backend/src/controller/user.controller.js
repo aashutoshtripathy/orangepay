@@ -2097,6 +2097,43 @@ const cancellationHistory = asyncHandler(async (req, res) => {
 });
 
 
+const resendCredential = asyncHandler(async (req, res) => {
+  const { userId } = req.body;
+
+
+  console.log(userId)
+
+  const user = await Register.findById(userId);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const smsMessage = `Welcome to ORANGEPAY Thank You for registration.  Your login details username:${user.userId}, Password: ${user.password}/${user.tpin} `;
+  const mobileNumber = user.mobileNumber;
+  const senderName = 'OrgPay';
+  const apiKey = 'e7d09e93-0dd3-4a00-9cfc-2c53854033f2';
+
+  const smsUrl = `http://login.aquasms.com/sendSMS?username=7004142281&message=${encodeURIComponent(smsMessage)}&sendername=${senderName}&smstype=TRANS&numbers=${mobileNumber}&apikey=${apiKey}`;
+  
+  try {
+    console.log("Sending SMS to URL:", smsUrl); // Log the complete URL for debugging
+    const smsResponse = await axios.get(smsUrl);
+    
+    // Check if the SMS was successfully sent
+    if (smsResponse.status === 200) {
+      return res.status(200).json({ message: 'Credentials resent successfully via SMS!' });
+    } else {
+      return res.status(500).json({ message: 'Failed to send SMS' });
+    }
+  } catch (error) {
+    console.error("Error sending SMS:", error);
+    return res.status(500).json({ message: 'An error occurred while sending SMS' });
+  }
+});
+ 
+
+
+
 const cancellationHistoryy = asyncHandler(async (req, res) => {
   try {
     const history = await CancellationDetail.find({}); 
@@ -2198,5 +2235,5 @@ const fetchUserByIdd = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser,cancellationHistoryy, validateTpin,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+export { registerUser,cancellationHistoryy,resendCredential, validateTpin,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 

@@ -51,7 +51,7 @@ const sessionCookie = getCookie('sessionID');
     if (!isColorModeSet()) {
       setColorMode(storedTheme);
     }
-  }, [setColorMode, storedTheme, navigate]);
+  }, [setColorMode, storedTheme, isAuthenticated ]);
 
   return (
     // <Router>
@@ -92,6 +92,7 @@ const sessionCookie = getCookie('sessionID');
           <Route path="*" element={<Login />} />
         </Routes>
       </Suspense>
+      // </Router>
   );
 };
 

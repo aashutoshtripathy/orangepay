@@ -245,6 +245,25 @@ const DataTableComponent = () => {
   };
 
 
+  const handleResend = async (row) => {
+    console.log("User ID:", row._id);
+  
+    try {
+      const response = await axios.post('/resend-credentials', { userId: row._id });
+  
+      if (response.status === 200) {
+        alert('Credentials resent successfully!');
+      } else {
+        alert('Failed to resend credentials.');
+      }
+    } catch (error) {
+      console.error("Error resending credentials:", error);
+      alert('An error occurred while resending credentials.');
+    }
+  };
+
+
+
 
   const handlePermission = async (row) => {
     console.log("User ID:", row._id);
@@ -420,6 +439,10 @@ const DataTableComponent = () => {
 
                 <button onClick={() => handlePermission(row)} className="block-unblock-btn block-btn">
                   <FontAwesomeIcon icon={faLock} /> Permissions
+                </button>
+
+                <button onClick={() => handleResend(row)} className="block-unblock-btn block-btn">
+                  <FontAwesomeIcon  /> Resend
                 </button>
               </>
             ) : row.status === 'Rejected' ? (

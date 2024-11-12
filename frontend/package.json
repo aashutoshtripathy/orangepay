@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "proxy": "http://1.6.61.79/",
+  "proxy": "http://localhost:8000/api/v1/users/",
   "private": true,
   "dependencies": {
     "@coreui/icons": "^3.0.1",

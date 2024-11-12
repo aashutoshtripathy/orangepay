@@ -386,7 +386,7 @@ input[type="date"] {
 
   label {
     position: relative;
-    padding-left: 30px; /* Adjust this to give space for the checkbox */
+    // padding-left: 30px; /* Adjust this to give space for the checkbox */
     cursor: pointer;
     font-size: 16px;
     user-select: none;
@@ -423,7 +423,7 @@ input[type="date"] {
   }
 }
 
-/* Add more styles for layout if needed */
+
 .dropdown-container {
   position: relative;
   display: inline-block;
