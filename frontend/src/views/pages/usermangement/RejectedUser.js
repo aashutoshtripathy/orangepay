@@ -37,7 +37,7 @@ const customStyles = {
 const downloadPDF = (data) => {
   const doc = new jsPDF();
 
-  // Set up margins and title
+  // Set up title and other static text
   const pageWidth = doc.internal.pageSize.getWidth();
   const title = "Table Data";
   const titleXPos = pageWidth / 2;
@@ -48,7 +48,7 @@ const downloadPDF = (data) => {
   doc.setFontSize(10);
   doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
 
-  // Define the columns and their widths
+  // Define columns and their corresponding data keys
   const columns = [
     { header: 'ID', dataKey: '_id' },
     { header: 'Name', dataKey: 'name' },
@@ -71,6 +71,7 @@ const downloadPDF = (data) => {
     { header: 'Updated At', dataKey: 'updatedAt' },
   ];
 
+  // Map data to match the column structure
   const rows = data.map(row => ({
     _id: row._id,
     name: row.name,
@@ -93,50 +94,94 @@ const downloadPDF = (data) => {
     updatedAt: row.updatedAt,
   }));
 
-  // Auto table options
-  doc.autoTable({
-    startY: 30, // Starting y position
-    head: columns.map(col => col.header), // Table headers
-    body: rows.map(row => columns.map(col => row[col.dataKey])), // Table data
-    margin: { top: 30 }, // Top margin to align with title
+  // Define autoTable options
+  const tableOptions = {
+    startY: 35, // Start after title and date
+    head: [columns.map(col => col.header)], // Header row
+    body: rows.map(row => columns.map(col => row[col.dataKey])), // Data rows
+    margin: { top: 5, left: 10, right: 10 },
     styles: {
-      fontSize: 8,
-      cellPadding: 3,
-      overflow: 'linebreak',
-      halign: 'left', // Horizontal alignment
+      fontSize: 6, // Reduced font size
+      cellPadding: 2, // Reduced padding
+      overflow: 'linebreak', // Handle text overflow
+      halign: 'left', // Align text in cells
       valign: 'middle', // Vertical alignment
+      lineWidth: 0.1, // Set thinner borders
     },
     headStyles: {
-      fillColor: [52, 58, 64], // Dark gray background
-      textColor: [255, 255, 255], // White text
-      fontStyle: 'bold',
+      fillColor: [52, 58, 64], // Dark gray background for headers
+      textColor: [255, 255, 255], // White text for headers
+      fontStyle: 'bold', // Bold font for headers
     },
     alternateRowStyles: {
-      fillColor: [220, 220, 220], // Light gray alternating row background
+      fillColor: [240, 240, 240], // Light gray for alternate rows
     },
     columnStyles: {
-      0: { cellWidth: 'auto' }, // Adjust column width automatically
-      1: { cellWidth: 'auto' }, // Adjust column width automatically
+      0: { cellWidth: 10 }, // ID column
+      1: { cellWidth: 10 }, // Automatically adjust for Name
+      2: { cellWidth: 10 }, // Automatically adjust for Father/Husband Name
+      3: { cellWidth: 10 }, // Date of Birth column
+      4: { cellWidth: 25 }, // Aadhar Number column
+      5: { cellWidth: 15 }, // Pan Number column
+      6: { cellWidth: 20 }, // Mobile Number column
+      7: { cellWidth: 15 }, // Gender column
+      8: { cellWidth: 25 }, // Marital Status column
+      9: { cellWidth: 20 }, // Education column
+      10: { cellWidth: 30 }, // Address column (wider for address text)
+      11: { cellWidth: 20 }, // Job Type column
+      12: { cellWidth: 25 }, // Email column
+      13: { cellWidth: 20 }, // Division column
+      14: { cellWidth: 20 }, // Sub-Division column
+      15: { cellWidth: 20 }, // Section column
+      16: { cellWidth: 20 }, // Section Type column
+      17: { cellWidth: 25 }, // Created At column
+      18: { cellWidth: 25 }, // Updated At column
     },
     didDrawPage: (data) => {
       // Add page number at the bottom
       const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(10);
+      doc.setFontSize(8);
       doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
-    }
-  });
+    },
+    pageBreak: 'auto', // Ensure page breaks when necessary
+    width: pageWidth - 20, // Ensure table fits within page width
+  };
+
+  // Add table to the PDF
+  doc.autoTable(tableOptions);
 
   // Download the PDF
   doc.save('table_data.pdf');
 };
 
+
+
+
+
 // Function to generate and download Excel
 const downloadExcel = (data) => {
-  const ws = XLSX.utils.json_to_sheet(data); // Convert JSON data to sheet
-  const wb = XLSX.utils.book_new(); // Create a new workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data"); // Append sheet to workbook
-  XLSX.writeFile(wb, 'table_data.xlsx'); // Write and download Excel file
+  const headers = [
+    ["ID", "Name", "Father/Husband Name", "DOB", "Aadhar No.", "Pan No.", "Mobile No.", "Gender", 
+     "Marital Status", "Education", "Address", "Job Type", "Email", "Division", "Sub-Division", 
+     "Section", "Section Type", "Created At", "Updated At"]
+  ];
+  
+  const rows = data.map(row => [
+    row._id, row.name, row.fatherorHusbandName, row.dob, row.aadharNumber, row.panNumber, 
+    row.mobileNumber, row.gender, row.maritalStatus, row.education, row.address, row.salaryBasis, 
+    row.email, row.division, row.subDivision, row.section, row.sectionType, row.createdAt, row.updatedAt
+  ]);
+
+  const ws = XLSX.utils.aoa_to_sheet([...headers, ...rows]); // Add headers to sheet
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Rejected User Data");
+
+  // Set custom column widths (adjust as needed)
+  ws['!cols'] = headers[0].map(() => ({ wpx: 100 }));
+
+  XLSX.writeFile(wb, 'table_data.xlsx');
 };
+
 
 const DataTableComponent = () => {
   const [data, setData] = useState([]);

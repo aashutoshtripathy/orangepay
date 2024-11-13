@@ -41,54 +41,49 @@ const customStyles = {
 
 const downloadPDF = (data) => {
   const doc = new jsPDF({
-    orientation: 'p', 
+    orientation: 'portrait',
     unit: 'mm',
-    format: 'a4'
+    format: 'a4',
   });
 
+  // Set title
   const pageWidth = doc.internal.pageSize.getWidth();
-  const title = "Fund Reports";
-  const titleXPos = pageWidth / 2;
-
   doc.setFontSize(16);
-  doc.text(title, titleXPos, 15, { align: 'center' });
+  doc.text("Fund Reports", pageWidth / 2, 15, { align: 'center' });
 
+  // Set date
   doc.setFontSize(10);
   doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
 
+  // Column definitions for PDF
   const columns = [
     { header: 'User ID', dataKey: 'userId' },
-    { header: 'Fund Amount', dataKey: 'fundAmount' },
-    { header: 'Bank Reference', dataKey: 'bankReference' },
-    { header: 'Payment Method', dataKey: 'paymentMethod' },
-    { header: 'Bank Name', dataKey: 'bankName' },
-    { header: 'Date of Payment', dataKey: 'datePayment' },
-    { header: 'Status', dataKey: 'status' },
-    { header: 'Created At', dataKey: 'createdAt' },
-    { header: 'Updated At', dataKey: 'updatedAt' },
+    { header: 'Transaction ID', dataKey: 'transactionId' },
+    { header: 'Consumer Number', dataKey: 'consumerNumber' },
+    { header: 'Payment Amount', dataKey: 'paymentAmount' },
+    { header: 'Payment Status', dataKey: 'paymentStatus' },
   ];
 
+  // Map data to rows
   const rows = data.map(row => ({
-    userId: row.uniqueId,
-    fundAmount: row.fundAmount,
-    bankReference: row.bankReference,
-    paymentMethod: row.paymentMethod,
-    bankName: row.bankName,
-    status: row.status,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    userId: row.userId,
+    transactionId: row.transactionId,
+    consumerNumber: row.consumerNumber,
+    paymentAmount: row.paymentAmount,
+    paymentStatus: row.paymentStatus,
   }));
 
+  // Generate PDF table
   doc.autoTable({
     startY: 30,
-    head: [columns.map(col => col.header)], 
-    body: rows.map(row => columns.map(col => row[col.dataKey])), 
-    margin: { top: 30, bottom: 10 }, 
+    head: [columns.map(col => col.header)],
+    body: rows.map(row => columns.map(col => row[col.dataKey])),
+    margin: { top: 30, bottom: 10 },
     styles: {
-      fontSize: 7, 
-      cellPadding: 1, 
+      fontSize: 8,
+      cellPadding: 1.5,
       overflow: 'linebreak',
-      halign: 'left',
+      halign: 'center',
       valign: 'middle',
     },
     headStyles: {
@@ -96,23 +91,9 @@ const downloadPDF = (data) => {
       textColor: [255, 255, 255],
       fontStyle: 'bold',
     },
-    alternateRowStyles: {
-      fillColor: [220, 220, 220],
-    },
-    columnStyles: {
-      0: { cellWidth: 20 },
-      1: { cellWidth: 20 },
-      2: { cellWidth: 25 },
-      3: { cellWidth: 30 },
-      4: { cellWidth: 30 },
-      5: { cellWidth: 20 },
-      6: { cellWidth: 25 },
-      7: { cellWidth: 25 },
-    },
     didDrawPage: (data) => {
-      const pageCount = doc.internal.getNumberOfPages();
       doc.setFontSize(8);
-      doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
+      doc.text(`Page ${doc.internal.getNumberOfPages()}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
     }
   });
 
@@ -123,66 +104,52 @@ const downloadPDF = (data) => {
 
 
 
+
 const downloadExcel = (data) => {
   const wb = XLSX.utils.book_new();
 
-  const headers = [
-    "User ID",
-    "Fund Amount",
-    "Bank Reference",
-    "Payment Method",
-    "Bank Name",
-    "Status",
-    "Created At",
-    "Updated At"
-  ];
-
+  // Define headers and format data
+  const headers = ["User ID", "Transaction ID", "Consumer Number", "Payment Amount", "Payment Status"];
   const wsData = data.map(row => ({
-    "User ID": row.uniqueId,
-    "Fund Amount": row.fundAmount,
-    "Bank Reference": row.bankReference,
-    "Payment Method": row.paymentMethod,
-    "Bank Name": row.bankName,
-    "Status": row.status,
-    "Created At": row.createdAt,
-    "Updated At": row.updatedAt,
+    "User ID": row.userId,
+    "Transaction ID": row.transactionId,
+    "Consumer Number": row.consumerNumber,
+    "Payment Amount": row.paymentAmount,
+    "Payment Status": row.paymentStatus,
   }));
 
-  const ws = XLSX.utils.json_to_sheet(wsData, { header: headers });
+  const ws = XLSX.utils.json_to_sheet(wsData);
 
-  const columnWidths = [
-    { wch: 15 }, 
-    { wch: 12 },  
-    { wch: 25 },  
-    { wch: 20 },  
-    { wch: 20 },  
-    { wch: 10 },  
-    { wch: 20 },  
-    { wch: 20 }   
+  // Adjust column widths
+  ws['!cols'] = [
+    { wch: 15 },  // User ID
+    { wch: 20 },  // Transaction ID
+    { wch: 20 },  // Consumer Number
+    { wch: 15 },  // Payment Amount
+    { wch: 15 },  // Payment Status
   ];
-
-  ws['!cols'] = columnWidths;
 
   XLSX.utils.book_append_sheet(wb, ws, "Fund Reports");
 
+  // Generate download
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-
-  function s2ab(s) {
-    const buf = new ArrayBuffer(s.length);
-    const view = new Uint8Array(buf);
-    for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-    return buf;
-  }
-
   const blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'fund_reports.xlsx'; 
+  a.download = 'fund_reports.xlsx';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
 };
+
+function s2ab(s) {
+  const buf = new ArrayBuffer(s.length);
+  const view = new Uint8Array(buf);
+  for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+  return buf;
+}
+
 
 
 const initialColumnsVisibility = {

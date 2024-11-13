@@ -35,109 +35,85 @@ const customStyles = {
 };
 
 // Function to generate and download PDF
+// Function to generate and download PDF
 const downloadPDF = (data) => {
   const doc = new jsPDF();
-
-  // Set up margins and title
   const pageWidth = doc.internal.pageSize.getWidth();
   const title = "Table Data";
   const titleXPos = pageWidth / 2;
 
   doc.setFontSize(18);
   doc.text(title, titleXPos, 15, { align: 'center' });
-
   doc.setFontSize(10);
   doc.text("Generated on: " + new Date().toLocaleDateString(), 14, 25);
 
-  // Define the columns and their widths
+  // Define all columns with their headers and data keys
   const columns = [
-    { header: 'ID', dataKey: '_id' },
-    { header: 'Name', dataKey: 'name' },
-    { header: 'Father/Husband Name', dataKey: 'fatherorHusbandName' },
-    { header: 'DOB', dataKey: 'dob' },
-    { header: 'Aadhar No.', dataKey: 'aadharNumber' },
-    { header: 'Pan No.', dataKey: 'panNumber' },
-    { header: 'Mobile No.', dataKey: 'mobileNumber' },
-    { header: 'Gender', dataKey: 'gender' },
-    { header: 'Marital Status', dataKey: 'maritalStatus' },
-    { header: 'Education', dataKey: 'education' },
-    { header: 'Address', dataKey: 'address' },
-    { header: 'Job Type', dataKey: 'salaryBasis' },
-    { header: 'Email', dataKey: 'email' },
-    { header: 'Division', dataKey: 'division' },
-    { header: 'Sub-Division', dataKey: 'subDivision' },
-    { header: 'Section', dataKey: 'section' },
-    { header: 'Section Type', dataKey: 'sectionType' },
-    { header: 'Created At', dataKey: 'createdAt' },
-    { header: 'Updated At', dataKey: 'updatedAt' },
+    { header: 'User ID', dataKey: 'uniqueId' },
+    { header: 'Fund Amount', dataKey: 'fundAmount' },
+    { header: 'Payment Method', dataKey: 'paymentMethod' },
+    { header: 'Bank Name', dataKey: 'bankName' },
+    // Add more columns here as needed
   ];
 
-  const rows = data.map(row => ({
-    _id: row._id,
-    name: row.name,
-    fatherorHusbandName: row.fatherorHusbandName,
-    dob: row.dob,
-    aadharNumber: row.aadharNumber,
-    panNumber: row.panNumber,
-    mobileNumber: row.mobileNumber,
-    gender: row.gender,
-    maritalStatus: row.maritalStatus,
-    education: row.education,
-    address: row.address,
-    salaryBasis: row.salaryBasis,
-    email: row.email,
-    division: row.division,
-    subDivision: row.subDivision,
-    section: row.section,
-    sectionType: row.sectionType,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-  }));
+  // Prepare rows for PDF based on all columns
+  const rows = data.map(row => {
+    const formattedRow = {};
+    columns.forEach(col => {
+      formattedRow[col.dataKey] = row[col.dataKey];
+    });
+    return formattedRow;
+  });
 
-  // Auto table options
+  // Use autoTable for PDF generation
   doc.autoTable({
-    startY: 30, // Starting y position
-    head: columns.map(col => col.header), // Table headers
-    body: rows.map(row => columns.map(col => row[col.dataKey])), // Table data
-    margin: { top: 30 }, // Top margin to align with title
+    startY: 30,
+    head: [columns.map(col => col.header)],
+    body: rows.map(row => columns.map(col => row[col.dataKey])),
+    margin: { top: 30 },
     styles: {
       fontSize: 8,
       cellPadding: 3,
       overflow: 'linebreak',
-      halign: 'left', // Horizontal alignment
-      valign: 'middle', // Vertical alignment
+      halign: 'left',
+      valign: 'middle',
     },
     headStyles: {
-      fillColor: [52, 58, 64], // Dark gray background
-      textColor: [255, 255, 255], // White text
+      fillColor: [52, 58, 64],
+      textColor: [255, 255, 255],
       fontStyle: 'bold',
     },
     alternateRowStyles: {
-      fillColor: [220, 220, 220], // Light gray alternating row background
+      fillColor: [220, 220, 220],
     },
-    columnStyles: {
-      0: { cellWidth: 'auto' }, // Adjust column width automatically
-      1: { cellWidth: 'auto' }, // Adjust column width automatically
-    },
-    didDrawPage: (data) => {
-      // Add page number at the bottom
-      const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(10);
-      doc.text(`Page ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
-    }
   });
 
-  // Download the PDF
   doc.save('table_data.pdf');
 };
 
 // Function to generate and download Excel
+// Function to generate and download Excel
 const downloadExcel = (data) => {
-  const ws = XLSX.utils.json_to_sheet(data); // Convert JSON data to sheet
-  const wb = XLSX.utils.book_new(); // Create a new workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Table Data"); // Append sheet to workbook
-  XLSX.writeFile(wb, 'table_data.xlsx'); // Write and download Excel file
+  // Select and structure data
+  const formattedData = data.map(row => ({
+    'User ID': row.uniqueId,
+    'Fund Amount': row.fundAmount,
+    'Payment Method': row.paymentMethod,
+    'Bank Name': row.bankName,
+    'Date': new Date(row.createdAt).toLocaleDateString(),
+  }));
+
+  // Convert JSON data to worksheet
+  const ws = XLSX.utils.json_to_sheet(formattedData);
+
+  // Create a new workbook and append the worksheet
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Fund Requests");
+
+  // Write and download Excel file
+  XLSX.writeFile(wb, 'FundRequestsReport.xlsx');
 };
+
 
 
 const initialColumnsVisibility = {

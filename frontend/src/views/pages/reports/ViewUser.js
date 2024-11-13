@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faTimesCircle, faUnlock, faLock, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faTimesCircle, faUnlock,faEllipsisV , faLock, faDownload, faFileExcel, faSearch } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { CDropdown, CForm, CButton, CFormInput, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react';
@@ -16,22 +16,28 @@ const customStyles = {
   rows: {
     style: {
       minHeight: '72px', // Set the minimum row height
+      borderTop: '1px solid #ddd', // Add a top border for each row
     },
   },
   headCells: {
     style: {
-      // backgroundColor: '#333', // Dark background for header cells
-      color: 'black', // Set font color to orange for header cells
+      color: 'black', // Set font color to black for header cells
       fontSize: '16px', // Adjust font size for header
       fontWeight: 'bold', // Make the header bold
       paddingLeft: '8px',
       paddingRight: '8px',
+      borderTop: '1px solid #ddd', // Add top border for header cells
+      borderLeft: '1px solid #ddd', // Add left border for header cells
+      borderRight: '1px solid #ddd', // Add left border for header cells
     },
   },
   cells: {
     style: {
       paddingLeft: '8px',
       paddingRight: '8px',
+      // borderTop: '1px solid #ddd', // Add top border for each cell
+      borderLeft: '1px solid #ddd', // Add left border for each cell
+      borderRight: '1px solid #ddd', // Add left border for each cell
     },
   },
 };
@@ -50,6 +56,12 @@ const DataTableComponent = () => {
   const [commission, setCommission] = useState(''); // State for commission
 
   const [commissionValues, setCommissionValues] = useState({});
+  const [showButtons, setShowButtons] = useState(false);
+
+// Toggle function for showing/hiding buttons
+const toggleButtons = () => {
+  setShowButtons(prevState => !prevState);
+};
 
   useEffect(() => {
     const fetchData = async () => {
@@ -429,21 +441,36 @@ const DataTableComponent = () => {
               )
             ) : row.status === 'Approved' ? (
               <>
-
-                <button
-                  className="block-unblock-btn block-btn"
-                  onClick={() => handleView(row)}
-                >
-                  <FontAwesomeIcon icon={faCheckCircle} /> View Details
-                </button>
-
-                <button onClick={() => handlePermission(row)} className="block-unblock-btn block-btn">
-                  <FontAwesomeIcon icon={faLock} /> Permissions
-                </button>
-
-                <button onClick={() => handleResend(row)} className="block-unblock-btn block-btn">
-                  <FontAwesomeIcon  /> Resend
-                </button>
+              {showButtons && (
+                <>
+                  <button
+                    className="block-unblock-btn block-btn"
+                    onClick={() => handleView(row)}
+                  >
+                    <FontAwesomeIcon icon={faCheckCircle} /> View Details
+                  </button>
+        
+                  <button
+                    onClick={() => handlePermission(row)}
+                    className="block-unblock-btn block-btn"
+                  >
+                    <FontAwesomeIcon icon={faLock} /> Permissions
+                  </button>
+        
+                  <button
+                    onClick={() => handleResend(row)}
+                    className="block-unblock-btn block-btn"
+                  >
+                    <FontAwesomeIcon /> Resend
+                  </button>
+                </>
+              )}
+        
+              {/* Ellipsis button for toggling action buttons */}
+              <button className="ellipsis-btn" onClick={toggleButtons}>
+                <FontAwesomeIcon icon={faEllipsisV} />
+              </button>
+          
               </>
             ) : row.status === 'Rejected' ? (
               <>
