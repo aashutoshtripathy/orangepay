@@ -278,7 +278,7 @@ const Register = () => {
       Arwal: ["Arwal Sadar", "Karpi"],
     }
   };
-  
+
 
 
 
@@ -1106,9 +1106,9 @@ const Register = () => {
       formErrors.address = "Address is required";
     }
 
-    
 
- 
+
+
 
     // Bank validation
     if (!formData.bank) {
@@ -1190,48 +1190,48 @@ const Register = () => {
   const formatPANNumber = (value) => {
     // Remove any non-alphanumeric characters
     value = value.replace(/[^a-zA-Z0-9]/g, '');
-  
+
     // Limit the length to 10 characters (PAN is typically 10 characters)
     if (value.length > 10) {
       value = value.substring(0, 10);
     }
-  
+
     return value.toUpperCase(); // PAN numbers are usually uppercase
   };
 
   const formatPincode = (value) => {
     // Remove non-numeric characters
     value = value.replace(/\D/g, '');
-  
+
     // Limit to 6 digits for pincode
     if (value.length > 6) {
       value = value.substring(0, 6);
     }
-  
+
     return value;
   };
-  
+
   const formatAccountNumber = (value) => {
     // Remove non-numeric characters
     value = value.replace(/\D/g, '');
-  
+
     // Here you can define any limit for the account number if needed, e.g., max 16 digits
     if (value.length > 16) {
       value = value.substring(0, 16); // Adjust limit if needed
     }
-  
+
     return value;
   };
 
   const formatMobileNumber = (value) => {
     // Remove non-numeric characters
     value = value.replace(/\D/g, '');
-  
+
     // Limit to 10 digits for mobile number
     if (value.length > 10) {
       value = value.substring(0, 10);
     }
-  
+
     return value;
   };
 
@@ -1265,7 +1265,7 @@ const Register = () => {
 
     if (name === "district") {
       newFormData.district = value;
-    }else if (name === "division") {
+    } else if (name === "division") {
       // Reset subDivision and section when division changes
       newFormData.division = value;
       newFormData.subDivision = "";
@@ -1352,141 +1352,141 @@ const Register = () => {
     // Initialize an error object
     let formErrors = {};
 
-      // Name validation
-      if (!formData.name.trim()) {
-        formErrors.name = "Name is required";
-      }
-  
-      // Father's/Husband's Name validation
-      if (!formData.fatherOrHusbandName.trim()) {
-        formErrors.fatherOrHusbandName = "Father's/Husband's Name is required";
-      }
-  
-      // Date of Birth validation
-      if (!formData.dob) {
-        formErrors.dob = "Date of Birth is required";
-      }
-  
-  
-  
-      if (!formData.district) {
-        formErrors.district = "District is required";
-      }
-  
-      if (formData.education.length === 0) {
-        formErrors.education = "Please select at least one education level.";
-      }
-  
-      // Aadhar Number validation
-      if (!formData.aadharNumber) {
-        formErrors.aadharNumber = "Aadhar Number is required";
-      } else if (formData.aadharNumber.length !== 14) {
-        formErrors.aadharNumber = "Aadhar Number must be 12 digits long";
-      }
-  
-      if (!formData.panNumber) {
-        formErrors.panNumber = "PAN Number is required";
-      } else if (formData.panNumber.length !== 10) {
-        formErrors.panNumber = "PAN Number must be exactly 10 characters long";
-      } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(formData.panNumber)) {
-        formErrors.panNumber = "PAN Number must follow the format: 5 letters, 4 digits, 1 letter";
-      }
-  
-  
-  
-  
-  
-      // Mobile Number validation
-      if (!formData.mobileNumber) {
-        formErrors.mobileNumber = "Mobile Number is required";
-      } else if (formData.mobileNumber.length !== 10) {
-        formErrors.mobileNumber = "Mobile Number must be 10 digits long";
-      }
-  
-      // Email validation
-      if (!formData.email) {
-        formErrors.email = "Email is required";
-      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        formErrors.email = "Email address is invalid";
-      }
-  
-      // Gender validation
-      if (!formData.gender) {
-        formErrors.gender = "Gender is required";
-      }
-  
-      // Marital Status validation
-      if (!formData.maritalStatus) {
-        formErrors.maritalStatus = "Marital Status is required";
-      }
-  
-      // Address validation
-      if (!formData.address.trim()) {
-        formErrors.address = "Address is required";
-      }
-  
-      
-  
-   
-  
-      // Bank validation
-      if (!formData.bank) {
-        formErrors.bank = "Bank is required";
-      }
-  
-      // IFSC validation
-      if (!formData.ifsc) {
-        formErrors.ifsc = "IFSC is required";
-      }
-  
-      // Account Number validation
-      if (!formData.accountno) {
-        formErrors.accountno = "Account Number is required";
-      }
+    // Name validation
+    if (!formData.name.trim()) {
+      formErrors.name = "Name is required";
+    }
 
-      if (!formData.district) {
-        formErrors.district = "District is required";
-      }
+    // Father's/Husband's Name validation
+    if (!formData.fatherOrHusbandName.trim()) {
+      formErrors.fatherOrHusbandName = "Father's/Husband's Name is required";
+    }
 
-      if (!formData.discom) {
-        formErrors.discom = "Discom is required";
-      }
-  
-  
-      // Pincode validation
-      if (!formData.pincode) {
-        formErrors.pincode = "Pincode is required";
-      } else if (formData.pincode.length !== 6) {
-        formErrors.pincode = "Pincode must be 6 digits long";
-      }
-  
-      // File uploads validation (if required)
-      if (!formData.photograph) {
-        formErrors.photograph = "Photograph is required";
-      }
-      if (!formData.signature) {
-        formErrors.signature = "Signature is required";
-      }
-      if (!formData.aadharCard) {
-        formErrors.aadharCard = "Aadhar Card is required";
-      }
-      if (!formData.panCard) {
-        formErrors.panCard = "PAN Card is required";
-      }
-      if (!formData.educationCertificate) {
-        formErrors.educationCertificate = "Education Certificate is required";
-      }
-      if (!formData.cheque) {
-        formErrors.cheque = "Cheque is required";
-      }
-  
-      if (!formData.role) {
-        formErrors.role = "Role is required";
-      }
-  
-      if (!formData.consumerId && !(formData.division && formData.subDivision && formData.section)) {
-        formErrors.general = "You must provide either the division, district, and sub-division or your Consumer ID.";
-      }
+    // Date of Birth validation
+    if (!formData.dob) {
+      formErrors.dob = "Date of Birth is required";
+    }
+
+
+
+    if (!formData.district) {
+      formErrors.district = "District is required";
+    }
+
+    if (formData.education.length === 0) {
+      formErrors.education = "Please select at least one education level.";
+    }
+
+    // Aadhar Number validation
+    if (!formData.aadharNumber) {
+      formErrors.aadharNumber = "Aadhar Number is required";
+    } else if (formData.aadharNumber.length !== 14) {
+      formErrors.aadharNumber = "Aadhar Number must be 12 digits long";
+    }
+
+    if (!formData.panNumber) {
+      formErrors.panNumber = "PAN Number is required";
+    } else if (formData.panNumber.length !== 10) {
+      formErrors.panNumber = "PAN Number must be exactly 10 characters long";
+    } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(formData.panNumber)) {
+      formErrors.panNumber = "PAN Number must follow the format: 5 letters, 4 digits, 1 letter";
+    }
+
+
+
+
+
+    // Mobile Number validation
+    if (!formData.mobileNumber) {
+      formErrors.mobileNumber = "Mobile Number is required";
+    } else if (formData.mobileNumber.length !== 10) {
+      formErrors.mobileNumber = "Mobile Number must be 10 digits long";
+    }
+
+    // Email validation
+    if (!formData.email) {
+      formErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      formErrors.email = "Email address is invalid";
+    }
+
+    // Gender validation
+    if (!formData.gender) {
+      formErrors.gender = "Gender is required";
+    }
+
+    // Marital Status validation
+    if (!formData.maritalStatus) {
+      formErrors.maritalStatus = "Marital Status is required";
+    }
+
+    // Address validation
+    if (!formData.address.trim()) {
+      formErrors.address = "Address is required";
+    }
+
+
+
+
+
+    // Bank validation
+    if (!formData.bank) {
+      formErrors.bank = "Bank is required";
+    }
+
+    // IFSC validation
+    if (!formData.ifsc) {
+      formErrors.ifsc = "IFSC is required";
+    }
+
+    // Account Number validation
+    if (!formData.accountno) {
+      formErrors.accountno = "Account Number is required";
+    }
+
+    if (!formData.district) {
+      formErrors.district = "District is required";
+    }
+
+    if (!formData.discom) {
+      formErrors.discom = "Discom is required";
+    }
+
+
+    // Pincode validation
+    if (!formData.pincode) {
+      formErrors.pincode = "Pincode is required";
+    } else if (formData.pincode.length !== 6) {
+      formErrors.pincode = "Pincode must be 6 digits long";
+    }
+
+    // File uploads validation (if required)
+    if (!formData.photograph) {
+      formErrors.photograph = "Photograph is required";
+    }
+    if (!formData.signature) {
+      formErrors.signature = "Signature is required";
+    }
+    if (!formData.aadharCard) {
+      formErrors.aadharCard = "Aadhar Card is required";
+    }
+    if (!formData.panCard) {
+      formErrors.panCard = "PAN Card is required";
+    }
+    if (!formData.educationCertificate) {
+      formErrors.educationCertificate = "Education Certificate is required";
+    }
+    if (!formData.cheque) {
+      formErrors.cheque = "Cheque is required";
+    }
+
+    if (!formData.role) {
+      formErrors.role = "Role is required";
+    }
+
+    if (!formData.consumerId && !(formData.division && formData.subDivision && formData.section)) {
+      formErrors.general = "You must provide either the division, district, and sub-division or your Consumer ID.";
+    }
 
     // Add other field validations as needed
 
@@ -1547,10 +1547,10 @@ const Register = () => {
         <CRow className="justify-content-center">
           <CCol md={10} lg={8} xl={7}>
             <CCard className="shadow-lg">
-            <CCardHeader className="text-center" style={{ backgroundColor: '#f36c23' }}>
-              <h2>Register</h2>
-              <p className="text-muted">Fill in the details below</p>
-            </CCardHeader>
+              <CCardHeader className="text-center" style={{ backgroundColor: '#f36c23' }}>
+                <h2>Register</h2>
+                <p className="text-muted">Fill in the details below</p>
+              </CCardHeader>
               <CCardBody className="p-4">
                 <CForm onSubmit={handleSubmit}>
                   <CRow>
@@ -1560,7 +1560,7 @@ const Register = () => {
                           <CIcon icon={cilUser} />
                         </CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           name="name"
                           placeholder="Name"
                           value={formData.name}
@@ -1580,7 +1580,7 @@ const Register = () => {
                           <CIcon icon={cilUser} />
                         </CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           name="fatherOrHusbandName"
                           placeholder="Father's/Husband Name"
                           value={formData.fatherOrHusbandName}
@@ -1647,7 +1647,7 @@ const Register = () => {
                         <CInputGroupText>Aadhar</CInputGroupText>
                         <CFormInput
                           name="aadharNumber"
-                           className="custom-input"
+                          className="custom-input"
                           placeholder="Aadhar Number"
                           type="text"
                           value={formData.aadharNumber}
@@ -1725,13 +1725,13 @@ const Register = () => {
                       {errors.email && (
                         <p className="text-danger">{errors.email}</p>
                       )} */}
-                     
-                      
-                     
+
+
+
                     </CCol>
 
                     <CCol md={6}>
-                    <CInputGroup className="mb-3">
+                      <CInputGroup className="mb-3">
                         <CInputGroupText>PAN</CInputGroupText>
                         <CFormInput
                           name="panNumber"
@@ -1861,93 +1861,93 @@ const Register = () => {
                         <p className="text-danger">{errors.maritalStatus}</p>
                       )} */}
 
-              
+
                     </CCol>
                     <CInputGroup className="mb-3">
-                        <CInputGroupText>Gender</CInputGroupText>
-                        <div className="d-flex m-2 align-items-center ">
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="gender"
-                            id="genderMale"
-                            label="Male"
-                            value="Male"
-                            checked={formData.gender === "Male"}
-                            onChange={handleRadioChange}
-                          />
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="gender"
-                            id="genderFemale"
-                            label="Female"
-                            value="Female"
-                            checked={formData.gender === "Female"}
-                            onChange={handleRadioChange}
-                            className="mx-2"
+                      <CInputGroupText>Gender</CInputGroupText>
+                      <div className="d-flex m-2 align-items-center ">
+                        <CFormCheck
+                          variant="inline"
+                          type="radio"
+                          name="gender"
+                          id="genderMale"
+                          label="Male"
+                          value="Male"
+                          checked={formData.gender === "Male"}
+                          onChange={handleRadioChange}
+                        />
+                        <CFormCheck
+                          variant="inline"
+                          type="radio"
+                          name="gender"
+                          id="genderFemale"
+                          label="Female"
+                          value="Female"
+                          checked={formData.gender === "Female"}
+                          onChange={handleRadioChange}
+                          className="mx-2"
 
-                          />
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="gender"
-                            id="genderOther"
-                            label="Other"
-                            value="Other"
-                            checked={formData.gender === "Other"}
-                            onChange={handleRadioChange}
-                              className="mx-2"
+                        />
+                        <CFormCheck
+                          variant="inline"
+                          type="radio"
+                          name="gender"
+                          id="genderOther"
+                          label="Other"
+                          value="Other"
+                          checked={formData.gender === "Other"}
+                          onChange={handleRadioChange}
+                          className="mx-2"
 
-                          />
-                        </div>
-                      </CInputGroup>
-                      {errors.gender && (
-                        <p className="text-danger">{errors.gender}</p>
-                      )}
-                       <CInputGroup className="mb-3">
-                        <CInputGroupText>Marital Status</CInputGroupText>
-                        <div className="d-flex m-2 align-items-center" >
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="maritalStatus"
-                            id="maritalSingle"
-                            label="Single"
-                            value="Single"
-                            checked={formData.maritalStatus === "Single"}
-                            onChange={handleRadioChange}
+                        />
+                      </div>
+                    </CInputGroup>
+                    {errors.gender && (
+                      <p className="text-danger">{errors.gender}</p>
+                    )}
+                    <CInputGroup className="mb-3">
+                      <CInputGroupText>Marital Status</CInputGroupText>
+                      <div className="d-flex m-2 align-items-center" >
+                        <CFormCheck
+                          variant="inline"
+                          type="radio"
+                          name="maritalStatus"
+                          id="maritalSingle"
+                          label="Single"
+                          value="Single"
+                          checked={formData.maritalStatus === "Single"}
+                          onChange={handleRadioChange}
 
 
-                          />
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="maritalStatus"
-                            id="maritalMarried"
-                            label="Married"
-                            value="Married"
-                            checked={formData.maritalStatus === "Married"}
-                            onChange={handleRadioChange}
-                            className="mx-2"
-                          />
-                          <CFormCheck
-                            variant="inline"
-                            type="radio"
-                            name="maritalStatus"
-                            id="maritalDivorced"
-                            label="Divorced"
-                            value="Divorced"
-                            checked={formData.maritalStatus === "Divorced"}
-                            onChange={handleRadioChange}
-                              className="mx-2"
+                        />
+                        <CFormCheck
+                          variant="inline"
+                          type="radio"
+                          name="maritalStatus"
+                          id="maritalMarried"
+                          label="Married"
+                          value="Married"
+                          checked={formData.maritalStatus === "Married"}
+                          onChange={handleRadioChange}
+                          className="mx-2"
+                        />
+                        <CFormCheck
+                          variant="inline"
+                          type="radio"
+                          name="maritalStatus"
+                          id="maritalDivorced"
+                          label="Divorced"
+                          value="Divorced"
+                          checked={formData.maritalStatus === "Divorced"}
+                          onChange={handleRadioChange}
+                          className="mx-2"
 
-                          />
-                        </div>
-                      </CInputGroup>
-                      {errors.maritalStatus && (
-                        <p className="text-danger">{errors.maritalStatus}</p>
-                      )}
+                        />
+                      </div>
+                    </CInputGroup>
+                    {errors.maritalStatus && (
+                      <p className="text-danger">{errors.maritalStatus}</p>
+                    )}
                     <CInputGroup className="mb-3">
                       <CInputGroupText>Education</CInputGroupText>
                       <div className="d-flex m-2 align-items-center">
@@ -2030,7 +2030,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText htmlFor="district">District</CInputGroupText>
                             <CFormSelect
-                             className="custom-input"
+                              className="custom-input"
                               id="district"
                               name="district"
                               value={formData.district}
@@ -2061,7 +2061,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText>Discom</CInputGroupText>
                             <CFormSelect
-                             className="custom-input"
+                              className="custom-input"
                               name="discom"
                               value={formData.discom}
                               onChange={handleDiscomChange}
@@ -2084,7 +2084,7 @@ const Register = () => {
 
 
 
-                        <CRow className="d-flex">
+                      <CRow className="d-flex">
                         <CCol md={6}>
 
                         </CCol>
@@ -2128,7 +2128,7 @@ const Register = () => {
                         <CInputGroup className="mb-3">
                           <CInputGroupText>Consumer ID</CInputGroupText>
                           <CFormInput
-                           className="custom-input"
+                            className="custom-input"
                             type="text"
                             name="consumerId"
                             value={formData.consumerId}
@@ -2143,7 +2143,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText>Division</CInputGroupText>
                             <CFormSelect
-                             className="custom-input"
+                              className="custom-input"
                               name="division"
                               value={formData.division}
                               onChange={handleChange}
@@ -2161,7 +2161,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText>Sub-Division</CInputGroupText>
                             <CFormSelect
-                             className="custom-input"
+                              className="custom-input"
                               name="subdivision"
                               value={formData.subDivision}
                               onChange={handleChange}
@@ -2180,7 +2180,7 @@ const Register = () => {
                           <CInputGroup className="mb-3">
                             <CInputGroupText>Select Section</CInputGroupText>
                             <CFormSelect
-                             className="custom-input"
+                              className="custom-input"
                               name="section"
                               value={formData.section}
                               onChange={handleChange}
@@ -2219,7 +2219,7 @@ const Register = () => {
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Bank Name</CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           name="bank"
                           placeholder="Bank Name"
                           value={formData.bank}
@@ -2237,7 +2237,7 @@ const Register = () => {
                       <CInputGroup className="mb-3">
                         <CInputGroupText>Bank Account Number</CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           name="accountno"
                           placeholder="Bank Account Number"
                           value={formData.accountno}
@@ -2255,7 +2255,7 @@ const Register = () => {
                       <CInputGroup className="mb-3">
                         <CInputGroupText>IFSC Code</CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           name="ifsc"
                           placeholder="IFSC Code"
                           value={formData.ifsc}
@@ -2272,12 +2272,12 @@ const Register = () => {
 
                     </CCol>
                     <CCol md={6}>
-                    <CInputGroup className="mb-3">
+                      <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           ref={fileInputRefs.photograph}
                           id="photograph"
                           name="photograph"
@@ -2305,7 +2305,7 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           ref={fileInputRefs.signature}
                           id="signature" // Add an id to the input element
                           name="signature"
@@ -2326,37 +2326,32 @@ const Register = () => {
                       </CInputGroup>
                       {errors.signature && (
                         <p className="text-danger">{errors.signature}</p>
-                        
+
                       )}
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           ref={fileInputRefs.educationCertificate}
                           id="educationCertificate"
                           name="educationCertificate"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: "none" }} 
+                          style={{ display: "none" }}
                         />
                         <CButton
                           color="secondary"
-                          onClick={() =>
-                            handleButtonClick("Education Certificate")
-                          }
+                          onClick={() => handleButtonClick("educationCertificate")}
                         >
-                          {fileNames.educationCertificate ||
-                            "Upload Education Certificate"}{" "}
+                          {fileNames.educationCertificate || "Upload Education Certificate"}
                         </CButton>
                       </CInputGroup>
                       {errors.educationCertificate && (
-                        <p className="text-danger">
-                          {errors.educationCertificate}
-                        </p>
+                        <p className="text-danger">{errors.educationCertificate}</p>
                       )}
-                      </CCol>
+                    </CCol>
 
                     <CCol md={6}>
                       <CInputGroup className="mb-3">
@@ -2364,7 +2359,7 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           ref={fileInputRefs.aadharCard}
                           id="aadharCard"
                           name="aadharCard"
@@ -2391,13 +2386,13 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           ref={fileInputRefs.panCard}
                           id="panCard"
                           name="panCard"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: "none" }} 
+                          style={{ display: "none" }}
                         />
                         <CButton
                           color="secondary"
@@ -2414,13 +2409,13 @@ const Register = () => {
                           <CIcon icon={cilImage} />
                         </CInputGroupText>
                         <CFormInput
-                         className="custom-input"
+                          className="custom-input"
                           ref={fileInputRefs.cheque}
-                          id="cheque" 
+                          id="cheque"
                           name="cheque"
                           type="file"
                           onChange={handleFileChange}
-                          style={{ display: "none" }} 
+                          style={{ display: "none" }}
                         />
                         <CButton
                           color="secondary"
@@ -2434,13 +2429,13 @@ const Register = () => {
                       )}
                     </CCol>
 
-                    
-                    
+
+
                   </CRow>
 
-                  <div className="d-grid"style={{ width: '20%' }}>
-                    <CButton className="register-btn"  type="submit" size="lg">
-                     Register
+                  <div className="d-grid" style={{ width: '20%' }}>
+                    <CButton className="register-btn" type="submit" size="lg">
+                      Register
                     </CButton>
                   </div>
                 </CForm>

@@ -24,30 +24,4 @@
 
 
 
-/* Initially hide the action buttons */
-.block-unblock-btn.block-btn {
-  display: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-/* When the parent is hovered or the ellipsis button is clicked, show buttons */
-button.ellipsis-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 0;
-  visibility: visible;
-}
-
-button.ellipsis-btn:hover {
-  visibility: visible;
-}
-
-/* If buttons are shown, display them */
-.show-buttons .block-unblock-btn.block-btn {
-  display: inline-block;
-  opacity: 1;
-}
 

@@ -13,34 +13,40 @@ import { useNavigate } from 'react-router-dom';
 
 // Define custom styles for the table
 const customStyles = {
+  table: {
+    style: {
+      borderCollapse: 'collapse', // Ensures there is no double border between cells
+      width: '100%', // Optional: makes the table full width
+    },
+  },
   rows: {
     style: {
       minHeight: '72px', // Set the minimum row height
-      borderTop: '1px solid #ddd', // Add a top border for each row
+      borderBottom: '1px solid #ddd', // Border between rows
     },
   },
   headCells: {
     style: {
-      color: 'black', // Set font color to black for header cells
-      fontSize: '16px', // Adjust font size for header
+      color: 'black', // Font color for header cells
+      fontSize: '16px', // Font size for header
       fontWeight: 'bold', // Make the header bold
-      paddingLeft: '8px',
-      paddingRight: '8px',
-      borderTop: '1px solid #ddd', // Add top border for header cells
-      borderLeft: '1px solid #ddd', // Add left border for header cells
-      borderRight: '1px solid #ddd', // Add left border for header cells
+      paddingLeft: '8px', // Left padding for header cells
+      paddingRight: '8px', // Right padding for header cells
+      border: '1px solid #ddd', // Border around header cells
+      textAlign: 'left', // Align text in header cells to the left (or change as needed)
     },
   },
   cells: {
     style: {
-      paddingLeft: '8px',
-      paddingRight: '8px',
-      // borderTop: '1px solid #ddd', // Add top border for each cell
-      borderLeft: '1px solid #ddd', // Add left border for each cell
-      borderRight: '1px solid #ddd', // Add left border for each cell
+      paddingLeft: '8px', // Left padding for regular cells
+      paddingRight: '8px', // Right padding for regular cells
+      border: '1px solid #ddd', // Border around regular cells
+      textAlign: 'left', // Align text in cells to the left (or change as needed)
     },
   },
 };
+
+
 
 const DataTableComponent = () => {
   const [data, setData] = useState([]);
@@ -579,7 +585,7 @@ const toggleButtons = () => {
       </div>
       <div className="data-table-container">
       <DataTable
-          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>View Users</h2>}
+          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', margin: 0, padding: 0, }}>View Users</h2>}
         columns={columns}
         data={filteredItems}
         pagination
