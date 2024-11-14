@@ -401,6 +401,30 @@ const getPayments = asyncHandler(async (req, res) => {
 
 
 
+const getTotalPayments = asyncHandler(async (req, res) => {
+  try {
+    // Fetch all payment records
+    const payments = await Payment.find().exec(); 
+
+    if (!payments || payments.length === 0) {
+      return res.status(404).json({ success: false, message: 'No payments found' });
+    }
+
+    console.log("Fetched all payments:", payments);
+
+    // Return the response with all the payments data
+    return res.status(200).json({ success: true, data: payments });
+
+  } catch (error) {
+    console.error("Error fetching payments:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
+
+
+
 const getPaymentss = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
@@ -569,5 +593,5 @@ const insertBillDetails = asyncHandler(async (req, res) => {
 
 
 
-export { processPayment, getPayment, WalletReport, getAllSbdata, getDailyBalance, BiharService, getPayments, getPaymentss, fetchReward, insertBillDetails, getTotalBalance };
+export { processPayment, getPayment, getTotalPayments, WalletReport, getAllSbdata, getDailyBalance, BiharService, getPayments, getPaymentss, fetchReward, insertBillDetails, getTotalBalance };
 

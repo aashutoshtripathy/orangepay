@@ -226,7 +226,10 @@ const AppHeader = () => {
                   <CNavLink href="#">SuperAdmin</CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink to='/requests' as={NavLink}>Requests</CNavLink>
+                  <CNavLink to='/requests' as={NavLink}>Agent Requests</CNavLink>
+                </CNavItem>
+                <CNavItem>
+                  <CNavLink to='/fundrequests' as={NavLink}>Fund Requests</CNavLink>
                 </CNavItem>
               </CHeaderNav>
               <CHeaderNav className="ms-auto">

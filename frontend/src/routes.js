@@ -5,6 +5,7 @@ const Login = React.lazy(() => import('./views/pages/login/Login'))
 const OrangePayReports = React.lazy(() => import('./views/pages/reports/OrangePayReportt.js'))
 const EzetapReports = React.lazy(() => import('./views/pages/reports/EzeTapReport'))
 const Profile = React.lazy(() => import('./views/pages/profile/Profile'))
+const RequestFundPage = React.lazy(() => import('./views/pages/profile/RequestFundPage.js'))
 const RequestedUser = React.lazy(() => import('./views/pages/requesteduser/RequestedUser'))
 const FundRequest = React.lazy(() => import('./views/pages/fundrequest/FundRequesttt.js'))
 const FundRequests = React.lazy(() => import('./views/pages/fundrequest/fundRequests'))
@@ -154,6 +155,7 @@ const routes = [
   { path: '/reports/:userId', name: 'View Details', element: SuperAdminReport },
   { path: '/paymentonline', name: 'View Details', element: PaymentOnline },
   { path: '/contact-us', name: 'Contact Us', element: ContactUs },
+  { path: '/request-fund', name: 'Request Fund', element: RequestFundPage },
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

@@ -61,6 +61,7 @@ import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import MainChart from './MainChart'
 import { setUserRole } from '../../store';
+import PieChart from './PieChart';
 
 
 const Dashboard = () => {
@@ -93,7 +94,7 @@ const Dashboard = () => {
 
 
   const [userCount, setUserCount] = useState(0);
-  const [userCounts, setUserCounts] = useState(0);
+  // const [userCounts, setUserCounts] = useState(0);
   const [userCountss, setUserCountss] = useState(0);
   const [userCountsss, setUserCountsss] = useState(0);
 
@@ -106,9 +107,11 @@ const Dashboard = () => {
   const [chartData, setChartData] = useState(null); // State to hold chart data
   const maxUsers = 100; // Define the total/maximum number of users
   const [totalBalance, setTotalBalance] = useState(0); // State to store total balance
+  const [userCounts, setUserCounts] = useState({ pending: 0, rejected: 0, blocked: 0 });
 
 
- 
+
+
 
   useEffect(() => {
     // Retrieve the user role from localStorage
@@ -123,35 +126,35 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList`); 
+        const response = await axios.get(`/fetchUserList`);
         const result = response.data.fetchUser || [];
-        
+
         // Filter the users with an existing (truthy) userId
-        const usersWithUserId = result.filter(user => user.userId && user.userId.length>0); 
-  
+        const usersWithUserId = result.filter(user => user.userId && user.userId.length > 0);
+
         // Set the filtered user data
         setData(usersWithUserId);
         setUserCount(usersWithUserId.length);
-  
+
         // Log or set the count of users with an existing userId
         console.log(`Number of users with userId: ${usersWithUserId.length}`);
 
 
         const totalBalanceResponse = await axios.get(`/getTotalBalance`);
         const roundedBalance = Math.round(totalBalanceResponse.data.totalBalance);
-        
+
         // Set the total balance as the rounded value
         setTotalBalance(roundedBalance);
-        
+
         console.log(`Total Balance: ${roundedBalance}`);
-        
+
 
 
         const fetchData = await axios.get(`/fetch_data`);
         const results = fetchData.data.data || [];
 
         // If you want to filter users that have a specific condition, like having an `_id`:
-        const usersWithId = results.filter(user => user._id && user._id.length > 0); 
+        const usersWithId = results.filter(user => user._id && user._id.length > 0);
 
         // If you want to filter by another field, such as `status` being 'Pending':
         const pendingUsers = results.filter(user => user.status === 'Pending');
@@ -168,7 +171,7 @@ const Dashboard = () => {
         const resultss = fetchDataa.data.data || [];
 
         // If you want to filter users that have a specific condition, like having an `_id`:
-        const usersWithIddd = resultss.filter(user => user._id && user._id.length > 0); 
+        const usersWithIddd = resultss.filter(user => user._id && user._id.length > 0);
 
         // If you want to filter by another field, such as `status` being 'Pending':
         const rejectedUsers = resultss.filter(user => user.status === 'Rejected');
@@ -191,7 +194,7 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, []);
 
@@ -199,9 +202,9 @@ const Dashboard = () => {
 
 
 
-  
-  
- 
+
+
+
 
 
   // const dispatch = useDispatch();
@@ -223,8 +226,8 @@ const Dashboard = () => {
 
 
   const progressExample = [
-    { title: 'Total Amount', value: `${totalBalance}`, percent: 20, color: 'info' },
-    { title: 'Agents', value:  `${userCount} Users`, percent: calculatePercentage(userCount, maxUsers), color: 'success' },
+    { title: 'Total Fund Amount', value: `${totalBalance}`, percent: 20, color: 'info' },
+    { title: 'Agents', value: `${userCount} Users`, percent: calculatePercentage(userCount, maxUsers), color: 'success' },
     { title: 'Rejected User', value: `${userCountss} Users`, percent: 80, color: 'danger' },
     { title: 'New Request', value: `${userCounts}`, percent: 40.15, color: 'primary' },
     { title: 'Blocked User', value: `${userCountss}`, percent: 40.15, color: 'danger' },
@@ -357,7 +360,7 @@ const Dashboard = () => {
         const userId = localStorage.getItem('userId');
         console.log('User ID:', userId); // Debugging line
         const response = await axios.get(`/status/${userId}`); // Updated API endpoint
-  
+
         if (response.data.hasChanged) {
           alert('Your account has been updated, logging you out.');
           // Call the logout API
@@ -370,10 +373,10 @@ const Dashboard = () => {
         console.error('Failed to check user status:', error.response ? error.response.data : error);
       }
     };
-  
+
     // Poll every 5 seconds
     const interval = setInterval(checkUserStatus, 5000);
-  
+
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
@@ -396,7 +399,7 @@ const Dashboard = () => {
     // Fetch initial chart data on component mount
     fetchChartData(selectedInterval);
   }, []);
-  
+
 
   return (
     <>
@@ -417,22 +420,29 @@ const Dashboard = () => {
                     <CIcon icon={cilCloudDownload} />
                   </CButton>
                   <CButtonGroup className="float-end me-3">
-                {['Day', 'Month', 'Year'].map((value) => (
-                  <CButton
-                    color="outline-secondary"
-                    key={value}
-                    className="mx-0"
-                    active={value === selectedInterval}
-                    onClick={() => handleIntervalChange(value)} // Set the interval on click
-                  >
-                    {value}
-                  </CButton>
-                ))}
-              </CButtonGroup>
+                    {['Day', 'Month', 'Year'].map((value) => (
+                      <CButton
+                        color="outline-secondary"
+                        key={value}
+                        className="mx-0"
+                        active={value === selectedInterval}
+                        onClick={() => handleIntervalChange(value)} // Set the interval on click
+                      >
+                        {value}
+                      </CButton>
+                    ))}
+                  </CButtonGroup>
 
                 </CCol>
               </CRow>
               <MainChart selectedInterval={selectedInterval} />
+              {userCounts && userCounts.pending !== undefined && userCounts.rejected !== undefined && userCounts.blocked !== undefined && (
+               <>
+               <PieChart data={userCounts} />
+               <p>{JSON.stringify(userCounts)}</p> {/* Log the data */}
+             </>
+              )}
+
             </CCardBody>
             <CCardFooter>
               <CRow
@@ -468,65 +478,65 @@ const Dashboard = () => {
 
       {userRole !== 'dummy' && (
         <>
-        <WidgetsDropdown className="mb-4" />
-        <CCard className="mb-4">
-          <CCardBody>
-            <CRow>
-              <CCol sm={5}>
-                <h4 id="traffic" className="card-title mb-0">
-                  Traffic
-                </h4>
-                <div className="small text-body-secondary">January - July 2023</div>
-              </CCol>
-              <CCol sm={7} className="d-none d-md-block">
-                <CButton color="primary" className="float-end">
-                  <CIcon icon={cilCloudDownload} />
-                </CButton>
-                <CButtonGroup className="float-end me-3">
-              {['Day', 'Month', 'Year'].map((value) => (
-                <CButton
-                  color="outline-secondary"
-                  key={value}
-                  className="mx-0"
-                  active={value === selectedInterval}
-                  onClick={() => handleIntervalChange(value)} // Set the interval on click
-                >
-                  {value}
-                </CButton>
-              ))}
-            </CButtonGroup>
-
-              </CCol>
-            </CRow>
-            <MainChart />
-          </CCardBody>
-          <CCardFooter>
-            <CRow
-              xs={{ cols: 1, gutter: 4 }}
-              sm={{ cols: 2 }}
-              lg={{ cols: 4 }}
-              xl={{ cols: 5 }}
-              className="mb-2 text-center"
-            >
-              {progressExample.map((item, index, items) => (
-                <CCol
-                  className={classNames({
-                    'd-none d-xl-block': index + 1 === items.length,
-                  })}
-                  key={index}
-                >
-                  <div className="text-body-secondary">{item.title}</div>
-                  <div className="fw-semibold text-truncate">
-                    {item.value} ({item.percent}%)
-                  </div>
-                  <CProgress thin className="mt-2" color={item.color} value={item.percent} />
+          <WidgetsDropdown className="mb-4" />
+          <CCard className="mb-4">
+            <CCardBody>
+              <CRow>
+                <CCol sm={5}>
+                  <h4 id="traffic" className="card-title mb-0">
+                    Traffic
+                  </h4>
+                  <div className="small text-body-secondary">January - July 2023</div>
+                </CCol>
+                <CCol sm={7} className="d-none d-md-block">
+                  <CButton color="primary" className="float-end">
+                    <CIcon icon={cilCloudDownload} />
+                  </CButton>
+                  <CButtonGroup className="float-end me-3">
+                    {['Day', 'Month', 'Year'].map((value) => (
+                      <CButton
+                        color="outline-secondary"
+                        key={value}
+                        className="mx-0"
+                        active={value === selectedInterval}
+                        onClick={() => handleIntervalChange(value)} // Set the interval on click
+                      >
+                        {value}
+                      </CButton>
+                    ))}
+                  </CButtonGroup>
 
                 </CCol>
-              ))}
-            </CRow>
-          </CCardFooter>
-        </CCard>
-      </>
+              </CRow>
+              <MainChart />
+            </CCardBody>
+            <CCardFooter>
+              <CRow
+                xs={{ cols: 1, gutter: 4 }}
+                sm={{ cols: 2 }}
+                lg={{ cols: 4 }}
+                xl={{ cols: 5 }}
+                className="mb-2 text-center"
+              >
+                {progressExample.map((item, index, items) => (
+                  <CCol
+                    className={classNames({
+                      'd-none d-xl-block': index + 1 === items.length,
+                    })}
+                    key={index}
+                  >
+                    <div className="text-body-secondary">{item.title}</div>
+                    <div className="fw-semibold text-truncate">
+                      {item.value} ({item.percent}%)
+                    </div>
+                    <CProgress thin className="mt-2" color={item.color} value={item.percent} />
+
+                  </CCol>
+                ))}
+              </CRow>
+            </CCardFooter>
+          </CCard>
+        </>
       )}
 
 

@@ -90,7 +90,7 @@ export const adminNavItems = [
     name: 'Reports',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Reports' , to: '/report' },
+      { component: CNavItem, name: 'Collection Reports' , to: '/report' },
       { component: CNavItem, name: 'Fund Reports' , to: '/fund-report' },
     ],
   },
@@ -120,6 +120,7 @@ export const distributorNavItems = (permissions , userId) =>  [
       { component: CNavItem, name: 'Topup', to: '/topup' , hidden: !permissions.topup, },
       { component: CNavItem, name: 'Get Prepaid Balance', to: '/prepaid-services' ,   hidden: !permissions.getPrepaidBalance, },
       { component: CNavItem, name: 'Cancelation Request', to: '/request-cancelation' ,   hidden: !permissions.requestCancellation, },
+      { component: CNavItem, name: 'Fund Request', to: '/request-fund' ,    },
     ],
   },
   {

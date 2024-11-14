@@ -23,10 +23,11 @@ const WidgetsDropdown = (props) => {
   const widgetChartRef1 = useRef(null)
   const widgetChartRef2 = useRef(null)
   const [userRole, setUserRole] = useState('');
+  const [totalPayments, setTotalPayments] = useState('');
   const [userCount, setUserCount] = useState(0);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [totalBalance, setTotalBalance] = useState(0); // State to store total balance
+  const [totalBalance, setTotalBalance] = useState(0);
   const [data, setData] = useState(null);
 
 
@@ -51,40 +52,75 @@ const WidgetsDropdown = (props) => {
 
 
 
+  const [filterType, setFilterType] = useState('all');
+
+  const filterByDate = (items, filterType) => {
+    const today = new Date();
+    
+    return items.filter((item) => {
+      const date = new Date(item.paymentdate || item.createdAt); 
+      if (isNaN(date)) return false;
+  
+      switch (filterType) {
+        case 'day':
+          return date.toDateString() === today.toDateString();
+        case 'month':
+          return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+        case 'year':
+          return date.getFullYear() === today.getFullYear();
+        default:
+          return true;
+      }
+    });
+  };
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList`);
-        const result = response.data.fetchUser || [];
-
-        // Filter the users with an existing (truthy) userId
-        const usersWithUserId = result.filter(user => user.userId && user.userId.length > 0);
-
-        // Set the filtered user data
-        setData(usersWithUserId);
-        setUserCount(usersWithUserId.length);
-
-        // Log or set the count of users with an existing userId
-        console.log(`Number of users with userId: ${usersWithUserId.length}`);
-
-
-        const totalBalanceResponse = await axios.get(`/getTotalBalance`);
-        const roundedBalance = Math.round(totalBalanceResponse.data.totalBalance);
-
-        // Set the total balance as the rounded value
-        setTotalBalance(roundedBalance);
-
-        console.log(`Total Balance: ${roundedBalance}`);
-        console.log(`Total Balance: ${totalBalanceResponse.data.totalBalance}`);
+        // Fetch users
+        const userResponse = await axios.get(`/fetchUserList`);
+        const users = userResponse.data.fetchUser || [];
+        // setData(users.filter(user => user.userId && user.userId.length > 0));
+        // setUserCount(users.length);
+  
+        // Fetch balance data
+        const balanceResponse = await axios.get(`/fundrequests`);
+        const initialBalance = balanceResponse.data.fundRequests || [];
+  
+        // Fetch payments data
+        const paymentsResponse = await axios.get(`/getTotalPayments`);
+        const paymentsData = paymentsResponse.data.data || [];
+  
+        // Filter payments and balances based on filterType
+        const filteredPayments = filterByDate(paymentsData, filterType);
+        const filteredBalance = filterByDate(initialBalance, filterType);
+        const filteredUsers = filterByDate(users, filterType);
+  
+        // Calculate total payments and balance based on filtered data
+        setTotalPayments(filteredPayments.reduce((acc, item) => acc + parseFloat(item.paidamount || 0), 0));
+        setUserCount(filteredUsers.length);
+        setTotalBalance(
+          filteredBalance.reduce((acc, item) => {
+            // Add condition to check for status being 'success'
+            if (item.status === 'approved') {
+              return acc + parseFloat(item.fundAmount || 0);
+            }
+            return acc;
+          }, 0));
       } catch (error) {
         setError(error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
-  }, []);
+  }, [filterType]); // Re-fetch data when filterType changes
+  
+  const handleFilterChange = (type) => setFilterType(type);
+
+
+
 
 
 
@@ -108,6 +144,9 @@ const WidgetsDropdown = (props) => {
     })
   }, [widgetChartRef1, widgetChartRef2])
 
+
+  const validTotalPayments = !isNaN(parseFloat(totalPayments)) ? parseFloat(totalPayments) : 0;
+
   return (
     <>
       {userRole === 'dummy' && (
@@ -115,26 +154,101 @@ const WidgetsDropdown = (props) => {
           <CRow className={props.className} xs={{ gutter: 4 }}>
           <CCol sm={6} xl={4} xxl={3}>
               <CWidgetStatsA
-                color="info"
+                color="warning"
                 value={
                   <>
-                    {totalBalance}{' '}
+                    ₹ {validTotalPayments.toFixed(2)}{' '}
                     <span className="fs-6 fw-normal">
-                      (<CIcon icon={cilArrowTop} />)
+                      {/* (84.7% <CIcon icon={cilArrowTop} />) */}
                     </span>
                   </>
                 }
-                title="Fund Management"
-                // action={
-                //   <CDropdown alignment="end">
-                //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-                //       <CIcon icon={cilOptions} />
-                //     </CDropdownToggle>
-                //     <CDropdownMenu>
-                //       <CDropdownItem><Link to="/active" style={{textDecoration:"none"}}>Agent Management</Link></CDropdownItem>
-                //     </CDropdownMenu>
-                //   </CDropdown>
-                // }
+                title="Collection Amount"
+                action={
+                  <CDropdown alignment="end">
+                    <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                      <CIcon icon={cilOptions} />
+                    </CDropdownToggle>
+                    <CDropdownMenu>
+                    <CDropdownItem onClick={() => handleFilterChange('day')}>Day</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('month')}>Month</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('year')}>Year</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('total')}>Total</CDropdownItem>
+                    </CDropdownMenu>
+                  </CDropdown>
+                }
+                chart={
+                  <CChartLine
+                    className="mt-3"
+                    style={{ height: '70px' }}
+                    data={{
+                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                      datasets: [
+                        {
+                          label: 'My First dataset',
+                          backgroundColor: 'rgba(255,255,255,.2)',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          data: [78, 81, 80, 45, 34, 12, 40],
+                          fill: true,
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          display: false,
+                        },
+                        y: {
+                          display: false,
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 2,
+                          tension: 0.4,
+                        },
+                        point: {
+                          radius: 0,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }}
+                  />
+                }
+              />
+            </CCol>
+          <CCol sm={6} xl={4} xxl={3}>
+              <CWidgetStatsA
+                color="info"
+                value={
+                  <>
+                    {`₹ ${totalBalance.toFixed(2)}`}{' '}
+                    <span className="fs-6 fw-normal">
+                      {/* (<CIcon icon={cilArrowTop} />) */}
+                    </span>
+                  </>
+                }
+                title="Fund Amount"
+                action={
+                  <CDropdown alignment="end">
+                    <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                      <CIcon icon={cilOptions} />
+                    </CDropdownToggle>
+                    <CDropdownMenu>
+                    <CDropdownItem onClick={() => handleFilterChange('day')}>Day</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('month')}>Month</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('year')}>Year</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('total')}>Total</CDropdownItem>
+                    </CDropdownMenu>
+                  </CDropdown>
+                }
                 chart={
                   <CChartLine
                     ref={widgetChartRef2}
@@ -206,26 +320,24 @@ const WidgetsDropdown = (props) => {
                   <>
                     {userCount}{' '}
                     <span className="fs-6 fw-normal">
-                      (<CIcon icon={cilArrowTop} />)
+                      {/* (<CIcon icon={cilArrowTop} />) */}
                     </span>
                   </>
                 }
                 title="User Management"
-                // action={
-                //   <CDropdown alignment="end">
-                //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-                //       <CIcon icon={cilOptions} />
-                //     </CDropdownToggle>
-                //     <CDropdownMenu>
-                //     <CDropdownItem>
-                //       <Link to="/add-user" style={{textDecoration:"none"}}>Add User</Link>
-                //     </CDropdownItem>
-                //     <CDropdownItem>
-                //       <Link to="/view-user" style={{textDecoration:"none"}}>View User</Link>
-                //     </CDropdownItem>
-                //     </CDropdownMenu>
-                //   </CDropdown>
-                // }
+                action={
+                  <CDropdown alignment="end">
+                    <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                      <CIcon icon={cilOptions} />
+                    </CDropdownToggle>
+                    <CDropdownMenu>
+                    <CDropdownItem onClick={() => handleFilterChange('day')}>Day</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('month')}>Month</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('year')}>Year</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('total')}>Total</CDropdownItem>
+                    </CDropdownMenu>
+                    </CDropdown>
+                 }
                 chart={
                   <CChartLine
                     ref={widgetChartRef1}
@@ -377,7 +489,7 @@ const WidgetsDropdown = (props) => {
                 }
               />
             </CCol> */}
-            <CCol sm={6} xl={4} xxl={3}>
+            {/* <CCol sm={6} xl={4} xxl={3}>
               <CWidgetStatsA
                 color="warning"
                 value={
@@ -446,7 +558,7 @@ const WidgetsDropdown = (props) => {
                   />
                 }
               />
-            </CCol>
+            </CCol> */}
             <CCol sm={6} xl={4} xxl={3}>
               <CWidgetStatsA
                 color="danger"
