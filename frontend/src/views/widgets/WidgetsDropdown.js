@@ -10,6 +10,7 @@ import {
   CDropdownItem,
   CDropdownToggle,
   CWidgetStatsA,
+  CSpinner,
 } from '@coreui/react'
 import { getStyle } from '@coreui/utils'
 import { CChartBar, CChartLine } from '@coreui/react-chartjs'
@@ -24,11 +25,14 @@ const WidgetsDropdown = (props) => {
   const widgetChartRef2 = useRef(null)
   const [userRole, setUserRole] = useState('');
   const [totalPayments, setTotalPayments] = useState('');
+  const [totalPaymentss, setTotalPaymentss] = useState('');
   const [userCount, setUserCount] = useState(0);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [totalBalances, setTotalBalances] = useState(0);
   const [data, setData] = useState(null);
+  const userId = localStorage.getItem('userId')
 
 
 
@@ -86,18 +90,32 @@ const WidgetsDropdown = (props) => {
         // Fetch balance data
         const balanceResponse = await axios.get(`/fundrequests`);
         const initialBalance = balanceResponse.data.fundRequests || [];
+
+
+        const balanceResponsee = await axios.get(`/fund-request/${userId}`);
+        const initialBalances = balanceResponsee.data.fundRequest || [];
   
         // Fetch payments data
         const paymentsResponse = await axios.get(`/getTotalPayments`);
         const paymentsData = paymentsResponse.data.data || [];
-  
+        
+
+        const paymentsResponseData = await axios.get(`/getPayments/${userId}`);
+        const paymentsDataa = paymentsResponseData.data.balance || [];
+        
+        // Log fetched payment data for debugging
+        console.log("Amount:", paymentsDataa);
+        
         // Filter payments and balances based on filterType
         const filteredPayments = filterByDate(paymentsData, filterType);
+        const filteredPaymentss = filterByDate(paymentsDataa, filterType);
         const filteredBalance = filterByDate(initialBalance, filterType);
+        const filteredBalances = filterByDate(initialBalances, filterType);
         const filteredUsers = filterByDate(users, filterType);
   
         // Calculate total payments and balance based on filtered data
         setTotalPayments(filteredPayments.reduce((acc, item) => acc + parseFloat(item.paidamount || 0), 0));
+        setTotalPaymentss(filteredPaymentss.reduce((acc, item) => acc + parseFloat(item.paidamount || 0), 0));
         setUserCount(filteredUsers.length);
         setTotalBalance(
           filteredBalance.reduce((acc, item) => {
@@ -107,6 +125,14 @@ const WidgetsDropdown = (props) => {
             }
             return acc;
           }, 0));
+          setTotalBalances(
+            filteredBalances.reduce((acc, item) => {
+              // Add condition to check for status being 'success'
+              if (item.status === 'approved') {
+                return acc + parseFloat(item.fundAmount || 0);
+              }
+              return acc;
+            }, 0));
       } catch (error) {
         setError(error);
       } finally {
@@ -117,11 +143,19 @@ const WidgetsDropdown = (props) => {
     fetchData();
   }, [filterType]); // Re-fetch data when filterType changes
   
-  const handleFilterChange = (type) => setFilterType(type);
+  // const handleFilterChange = (type) => setFilterType(type);
 
 
 
+  const handleFilterChange = (type) => {
+    setLoading(true);  // Start loader
+    setFilterType(type)
 
+    setTimeout(() => {
+      setLoading(false);  // Stop loader after data is fetched
+    }, 3000);  // Adjust the timeout to simulate the data fetching duration
+  };
+  
 
 
 
@@ -146,6 +180,7 @@ const WidgetsDropdown = (props) => {
 
 
   const validTotalPayments = !isNaN(parseFloat(totalPayments)) ? parseFloat(totalPayments) : 0;
+  const validTotalPaymentss = !isNaN(parseFloat(totalPaymentss)) ? parseFloat(totalPaymentss) : 0;
 
   return (
     <>
@@ -153,16 +188,17 @@ const WidgetsDropdown = (props) => {
         <>
           <CRow className={props.className} xs={{ gutter: 4 }}>
           <CCol sm={6} xl={4} xxl={3}>
-              <CWidgetStatsA
-                color="warning"
-                value={
-                  <>
-                    ₹ {validTotalPayments.toFixed(2)}{' '}
-                    <span className="fs-6 fw-normal">
-                      {/* (84.7% <CIcon icon={cilArrowTop} />) */}
-                    </span>
-                  </>
-                }
+          <CWidgetStatsA
+              color="warning"
+              value={
+                loading ? (
+                  <div>
+                    <CSpinner color="light" size="sm" /> Please wait...
+                  </div>
+                ) : (
+                  <>₹ {validTotalPayments.toFixed(2)}</>
+                )
+              }
                 title="Collection Amount"
                 action={
                   <CDropdown alignment="end">
@@ -225,16 +261,17 @@ const WidgetsDropdown = (props) => {
               />
             </CCol>
           <CCol sm={6} xl={4} xxl={3}>
-              <CWidgetStatsA
-                color="info"
-                value={
-                  <>
-                    {`₹ ${totalBalance.toFixed(2)}`}{' '}
-                    <span className="fs-6 fw-normal">
-                      {/* (<CIcon icon={cilArrowTop} />) */}
-                    </span>
-                  </>
-                }
+          <CWidgetStatsA
+              color="info"
+              value={
+                loading ? (
+                  <div>
+                    <CSpinner color="light" size="sm" /> Please wait...
+                  </div>
+                ) : (
+                  <>₹ {totalBalance.toFixed(2)}</>
+                )
+              }
                 title="Fund Amount"
                 action={
                   <CDropdown alignment="end">
@@ -314,16 +351,17 @@ const WidgetsDropdown = (props) => {
               />
             </CCol>
             <CCol sm={6} xl={4} xxl={3}>
-              <CWidgetStatsA
-                color="primary"
-                value={
-                  <>
-                    {userCount}{' '}
-                    <span className="fs-6 fw-normal">
-                      {/* (<CIcon icon={cilArrowTop} />) */}
-                    </span>
-                  </>
-                }
+            <CWidgetStatsA
+              color="primary"
+              value={
+                loading ? (
+                  <div>
+                    <CSpinner color="light" size="sm" /> Please wait...
+                  </div>
+                ) : (
+                  <>{userCount}</>
+                )
+              }
                 title="User Management"
                 action={
                   <CDropdown alignment="end">
@@ -578,7 +616,7 @@ const WidgetsDropdown = (props) => {
                 //     </CDropdownToggle>
                 //     <CDropdownMenu>
                 //     <CDropdownItem><Link to="" style={{textDecoration:"none"}}>Reports</Link></CDropdownItem>
-                //     <CDropdownItem><Link to="/fund-report" style={{textDecoration:"none"}}>Fund Reports</Link></CDropdownItem>
+                //     <CDropdownItem><Link to="/fund-report" style={{textDecoration:"none"}}></Link></CDropdownItem>
                 //     </CDropdownMenu>
                 //   </CDropdown>
                 // }
@@ -659,44 +697,44 @@ const WidgetsDropdown = (props) => {
         <>
           <CRow className={props.className} xs={{ gutter: 4 }}>
             <CCol sm={6} xl={4} xxl={3}>
-              <CWidgetStatsA
-                color="primary"
-                value={
-                  <>
-                    4 Types of{' '}
-                    <span className="fs-6 fw-normal">
-                      {/* (-12.4% <CIcon icon={cilArrowBottom} />) */}
-                    </span>
-                  </>
-                }
-                title="Servicves"
+            <CWidgetStatsA
+              color="warning"
+              value={
+                loading ? (
+                  <div>
+                    <CSpinner color="light" size="sm" /> Please wait...
+                  </div>
+                ) : (
+                  <>₹ {validTotalPaymentss.toFixed(2)}</>
+                )
+              }
+                title="Collection Amount"
                 action={
                   <CDropdown alignment="end">
                     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
                       <CIcon icon={cilOptions} />
                     </CDropdownToggle>
                     <CDropdownMenu>
-                      <CDropdownItem>Bill Payment</CDropdownItem>
-                      <CDropdownItem>Topup</CDropdownItem>
-                      <CDropdownItem>Get Prepaid Balance</CDropdownItem>
-                      <CDropdownItem>Cancelation Request</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('day')}>Day</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('month')}>Month</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('year')}>Year</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('total')}>Total</CDropdownItem>
                     </CDropdownMenu>
                   </CDropdown>
                 }
                 chart={
                   <CChartLine
-                    ref={widgetChartRef1}
-                    className="mt-3 mx-3"
+                    className="mt-3"
                     style={{ height: '70px' }}
                     data={{
                       labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                       datasets: [
                         {
                           label: 'My First dataset',
-                          backgroundColor: 'transparent',
+                          backgroundColor: 'rgba(255,255,255,.2)',
                           borderColor: 'rgba(255,255,255,.55)',
-                          pointBackgroundColor: getStyle('--cui-primary'),
-                          data: [65, 59, 84, 84, 51, 55, 40],
+                          data: [78, 81, 80, 45, 34, 12, 40],
+                          fill: true,
                         },
                       ],
                     }}
@@ -709,36 +747,19 @@ const WidgetsDropdown = (props) => {
                       maintainAspectRatio: false,
                       scales: {
                         x: {
-                          border: {
-                            display: false,
-                          },
-                          grid: {
-                            display: false,
-                            drawBorder: false,
-                          },
-                          ticks: {
-                            display: false,
-                          },
+                          display: false,
                         },
                         y: {
-                          min: 30,
-                          max: 89,
                           display: false,
-                          grid: {
-                            display: false,
-                          },
-                          ticks: {
-                            display: false,
-                          },
                         },
                       },
                       elements: {
                         line: {
-                          borderWidth: 1,
+                          borderWidth: 2,
                           tension: 0.4,
                         },
                         point: {
-                          radius: 4,
+                          radius: 0,
                           hitRadius: 10,
                           hoverRadius: 4,
                         },
@@ -748,31 +769,29 @@ const WidgetsDropdown = (props) => {
                 }
               />
             </CCol>
-            <CCol sm={6} xl={4} xxl={3}>
-              <CWidgetStatsA
-                color="info"
-                value={
-                  <>
-                    $6.200{' '}
-                    <span className="fs-6 fw-normal">
-                      (40.9% <CIcon icon={cilArrowTop} />)
-                    </span>
-                  </>
-                }
-                title="My Account"
+          <CCol sm={6} xl={4} xxl={3}>
+          <CWidgetStatsA
+              color="info"
+              value={
+                loading ? (
+                  <div>
+                    <CSpinner color="light" size="sm" /> Please wait...
+                  </div>
+                ) : (
+                  <>₹ {totalBalances.toFixed(2)}</>
+                )
+              }
+                title="Fund Amount"
                 action={
                   <CDropdown alignment="end">
                     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
                       <CIcon icon={cilOptions} />
                     </CDropdownToggle>
                     <CDropdownMenu>
-                      <CDropdownItem>Transactions Report-Ezetap</CDropdownItem>
-                      <CDropdownItem>Transactions Report-OrangePay</CDropdownItem>
-                      <CDropdownItem>Fund Request</CDropdownItem>
-                      <CDropdownItem>Fund Transfer</CDropdownItem>
-                      <CDropdownItem>Fund Report</CDropdownItem>
-                      <CDropdownItem>Reports</CDropdownItem>
-                      <CDropdownItem>Top-Up Report</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('day')}>Day</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('month')}>Month</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('year')}>Year</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('total')}>Total</CDropdownItem>
                     </CDropdownMenu>
                   </CDropdown>
                 }
@@ -785,7 +804,7 @@ const WidgetsDropdown = (props) => {
                       labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                       datasets: [
                         {
-                          label: 'My First dataset',
+                          label: 'Recharge amount',
                           backgroundColor: 'transparent',
                           borderColor: 'rgba(255,255,255,.55)',
                           pointBackgroundColor: getStyle('--cui-info'),

@@ -4,6 +4,8 @@ import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import classNames from 'classnames'
 import axios from 'axios';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'; 
+
 
 import {
   CAvatar,
@@ -61,7 +63,6 @@ import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import MainChart from './MainChart'
 import { setUserRole } from '../../store';
-import PieChart from './PieChart';
 
 
 const Dashboard = () => {
@@ -108,6 +109,7 @@ const Dashboard = () => {
   const maxUsers = 100; // Define the total/maximum number of users
   const [totalBalance, setTotalBalance] = useState(0); // State to store total balance
   const [userCounts, setUserCounts] = useState({ pending: 0, rejected: 0, blocked: 0 });
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']; // Define the COLORS array
 
 
 
@@ -123,80 +125,7 @@ const Dashboard = () => {
   }, [])
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`/fetchUserList`);
-        const result = response.data.fetchUser || [];
 
-        // Filter the users with an existing (truthy) userId
-        const usersWithUserId = result.filter(user => user.userId && user.userId.length > 0);
-
-        // Set the filtered user data
-        setData(usersWithUserId);
-        setUserCount(usersWithUserId.length);
-
-        // Log or set the count of users with an existing userId
-        console.log(`Number of users with userId: ${usersWithUserId.length}`);
-
-
-        const totalBalanceResponse = await axios.get(`/getTotalBalance`);
-        const roundedBalance = Math.round(totalBalanceResponse.data.totalBalance);
-
-        // Set the total balance as the rounded value
-        setTotalBalance(roundedBalance);
-
-        console.log(`Total Balance: ${roundedBalance}`);
-
-
-
-        const fetchData = await axios.get(`/fetch_data`);
-        const results = fetchData.data.data || [];
-
-        // If you want to filter users that have a specific condition, like having an `_id`:
-        const usersWithId = results.filter(user => user._id && user._id.length > 0);
-
-        // If you want to filter by another field, such as `status` being 'Pending':
-        const pendingUsers = results.filter(user => user.status === 'Pending');
-
-        // Set the count based on the filtered users
-        setUserCounts(pendingUsers.length);
-
-        console.log(`Total Users with Pending status: ${pendingUsers.length}`);
-
-
-
-
-        const fetchDataa = await axios.get(`/fetch_data_rejected`);
-        const resultss = fetchDataa.data.data || [];
-
-        // If you want to filter users that have a specific condition, like having an `_id`:
-        const usersWithIddd = resultss.filter(user => user._id && user._id.length > 0);
-
-        // If you want to filter by another field, such as `status` being 'Pending':
-        const rejectedUsers = resultss.filter(user => user.status === 'Rejected');
-        const blockedUsers = resultss.filter(user => user.status === 'Blocked');
-
-        // Set the count based on the filtered users
-        setUserCountss(rejectedUsers.length);
-        setUserCountsss(blockedUsers.length);
-
-        console.log(`Total Users with Pending status: ${pendingUsers.length}`);
-
-
-
-
-        console.log(`Total Balance: ${totalBalanceResponse.data.totalBalance}`);
-
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
 
 
@@ -385,20 +314,87 @@ const Dashboard = () => {
 
   const handleIntervalChange = (value) => {
     setSelectedInterval(value);
-    fetchChartData(value); // Fetch new chart data based on the selected interval
+    fetchData(value); // Fetch new chart data based on the selected interval
   };
 
-  const fetchChartData = (interval) => {
-    // Replace with actual data fetching logic based on the interval
-    console.log(`Fetching data for interval: ${interval}`);
-    // For demonstration, you can set some mock data
-    setChartData(`Data for ${interval}`);
-  };
+  // const fetchChartData = (interval) => {
+  //   // Replace with actual data fetching logic based on the interval
+  //   console.log(`Fetching data for interval: ${interval}`);
+  //   // For demonstration, you can set some mock data
+  //   setChartData(`Data for ${interval}`);
+  // };
 
-  useEffect(() => {
-    // Fetch initial chart data on component mount
-    fetchChartData(selectedInterval);
-  }, []);
+  // useEffect(() => {
+  //   // Fetch initial chart data on component mount
+  //   fetchChartData(selectedInterval);
+  // }, []);
+
+  // const fetchChartData = (interval) => {
+  //   console.log(`Fetching data for interval: ${interval}`);
+  //   setUserCounts({
+  //     pending: 10, 
+  //     rejected: 5,
+  //     blocked: 3,
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   fetchChartData(selectedInterval);
+  // }, [selectedInterval]);
+
+  
+  const fetchData = async () => {
+    try {
+      const [userListResponse, fundRequestsResponse, fetchDataResponse, rejectedDataResponse] = await Promise.all([
+        axios.get('/fetchUserList'),
+        axios.get('/fundrequests'),
+        axios.get('/fetch_data'),
+        axios.get('/fetch_data_rejected')
+      ]);
+  
+      // Process user list
+      const userList = userListResponse.data.fetchUser || [];
+      const usersWithUserId = userList.filter(user => user.userId && user.userId.length > 0);
+      setData(usersWithUserId);
+      setUserCount(usersWithUserId.length);
+  
+      // Process fund requests
+      const fundRequests = fundRequestsResponse.data.fundRequests || [];
+      const calculatedBalance = fundRequests.reduce((acc, item) => {
+        return item.status === 'approved' ? acc + parseFloat(item.fundAmount || 0) : acc;
+      }, 0);
+      setTotalBalance(calculatedBalance);
+  
+      // Process user statuses
+      const userStatusData = fetchDataResponse.data.data || [];
+      const pendingUsers = userStatusData.filter(user => user.status === 'Pending');
+      
+      // Update userCounts with pending, rejected, and blocked counts
+      const rejectedUsers = rejectedDataResponse.data.data || [];
+      setUserCounts({
+        pending: pendingUsers.length,
+        rejected: rejectedUsers.filter(user => user.status === 'Rejected').length,
+        blocked: rejectedUsers.filter(user => user.status === 'Blocked').length
+      });
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(()=>{
+    fetchData();
+  },[])
+  const [selectedSlice, setSelectedSlice] = useState(null);
+  const handlePieClick = (data, index) => {
+    // data is the data of the clicked slice, index is the index of the slice
+    setSelectedSlice({
+      name: data.name,
+      value: data.value,
+    });
+  };
+  
+  
 
 
   return (
@@ -436,12 +432,8 @@ const Dashboard = () => {
                 </CCol>
               </CRow>
               <MainChart selectedInterval={selectedInterval} />
-              {userCounts && userCounts.pending !== undefined && userCounts.rejected !== undefined && userCounts.blocked !== undefined && (
-               <>
-               <PieChart data={userCounts} />
-               <p>{JSON.stringify(userCounts)}</p> {/* Log the data */}
-             </>
-              )}
+              
+
 
             </CCardBody>
             <CCardFooter>
@@ -508,7 +500,7 @@ const Dashboard = () => {
 
                 </CCol>
               </CRow>
-              <MainChart />
+              <MainChart selectedInterval={selectedInterval} />
             </CCardBody>
             <CCardFooter>
               <CRow

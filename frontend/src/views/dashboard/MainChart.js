@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { CChartLine } from '@coreui/react-chartjs';
 import { getStyle } from '@coreui/utils';
 import axios from 'axios';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
-const MainChart = ({selectedInterval}) => {
+const MainChart = ({ selectedInterval }) => {
   const chartRef = useRef(null);
-  // const [selectedInterval, setSelectedInterval] = useState('Month'); // Default to Month
   const [data, setData] = useState({
     labels: [],
     datasets: [
@@ -104,13 +104,39 @@ const MainChart = ({selectedInterval}) => {
     selectedInterval(interval);
   };
 
+  // Pie chart data for active, pending, and rejected users
+  const pieData = [
+    { name: 'Active', value: data.datasets[0].data.reduce((a, b) => a + b, 0) },
+    { name: 'Pending', value: data.datasets[1].data.reduce((a, b) => a + b, 0) },
+    { name: 'Rejected', value: data.datasets[2].data.reduce((a, b) => a + b, 0) },
+  ];
+
   return (
     <>
-      {/* <div>
-        <button onClick={() => handleIntervalChange('Day')}>Day</button>
-        <button onClick={() => handleIntervalChange('Month')}>Month</button>
-        <button onClick={() => handleIntervalChange('Year')}>Year</button>
-      </div> */}
+
+<ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie
+            data={pieData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            innerRadius={60}
+            outerRadius={80}
+            fill="#8884d8"
+            onClick={(e) => console.log('Pie Chart Data:', e)}
+          >
+            {pieData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={getStyle(index === 0 ? '--cui-info' : index === 1 ? '--cui-success' : '--cui-danger')} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
+      </ResponsiveContainer>
+
+
+      
       <CChartLine
         ref={chartRef}
         style={{ height: '300px', marginTop: '40px' }}
@@ -147,6 +173,9 @@ const MainChart = ({selectedInterval}) => {
           },
         }}
       />
+
+      {/* Pie chart */}
+    
     </>
   );
 };
