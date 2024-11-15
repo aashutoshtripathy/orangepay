@@ -104,7 +104,7 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedInterval, setSelectedInterval] = useState('Month'); // Default interval
+  const [selectedInterval, setSelectedInterval] = useState('month'); // Default interval
   const [chartData, setChartData] = useState(null); // State to hold chart data
   const maxUsers = 100; // Define the total/maximum number of users
   const [totalBalance, setTotalBalance] = useState(0); // State to store total balance
@@ -416,7 +416,7 @@ const Dashboard = () => {
                     <CIcon icon={cilCloudDownload} />
                   </CButton>
                   <CButtonGroup className="float-end me-3">
-                    {['Day', 'Month', 'Year'].map((value) => (
+                    {['day', 'month', 'year'].map((value) => (
                       <CButton
                         color="outline-secondary"
                         key={value}

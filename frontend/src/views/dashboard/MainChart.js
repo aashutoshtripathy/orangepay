@@ -11,7 +11,7 @@ const MainChart = ({ selectedInterval }) => {
     labels: [],
     datasets: [
       {
-        label: 'Active Users',
+        label: 'Total Collections',
         backgroundColor: `rgba(${getStyle('--cui-info-rgb')}, .1)`,
         borderColor: getStyle('--cui-info'),
         pointHoverBackgroundColor: getStyle('--cui-info'),
@@ -20,7 +20,7 @@ const MainChart = ({ selectedInterval }) => {
         fill: true,
       },
       {
-        label: 'Pending Users',
+        label: 'Total Fund',
         backgroundColor: 'transparent',
         borderColor: getStyle('--cui-success'),
         pointHoverBackgroundColor: getStyle('--cui-success'),
@@ -28,7 +28,7 @@ const MainChart = ({ selectedInterval }) => {
         data: [],
       },
       {
-        label: 'Rejected Users',
+        label: 'Total Users',
         backgroundColor: 'transparent',
         borderColor: getStyle('--cui-danger'),
         pointHoverBackgroundColor: getStyle('--cui-danger'),
@@ -41,21 +41,22 @@ const MainChart = ({ selectedInterval }) => {
 
   const [filterType, setFilterType] = useState('all'); // Default filter type is 'today'
 
-  const filterByDate = (data, filterType) => {
-    // Assuming filterType is 'today', 'week', 'month', etc.
+  const filterByDate = (items, selectedInterval) => {
     const today = new Date();
-    return data.filter(item => {
-      const itemDate = new Date(item.date); // Assuming items have a 'date' field
-      switch (filterType) {
-        case 'today':
-          return itemDate.toDateString() === today.toDateString();
-        case 'week':
-          const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-          return itemDate >= startOfWeek;
+    
+    return items.filter((item) => {
+      const date = new Date(item.paymentdate || item.createdAt); 
+      if (isNaN(date)) return false;
+  
+      switch (selectedInterval) {
+        case 'day':
+          return date.toDateString() === today.toDateString();
         case 'month':
-          return itemDate.getMonth() === today.getMonth() && itemDate.getFullYear() === today.getFullYear();
+          return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+        case 'year':
+          return date.getFullYear() === today.getFullYear();
         default:
-          return true; // No filtering
+          return true;
       }
     });
   };
@@ -80,11 +81,11 @@ const MainChart = ({ selectedInterval }) => {
       const paymentsDataa = paymentsResponseData.data.balance || [];
 
       // Filter payments and balances based on filterType
-      const filteredPayments = filterByDate(paymentsData, filterType);
-      const filteredPaymentss = filterByDate(paymentsDataa, filterType);
-      const filteredBalance = filterByDate(initialBalance, filterType);
-      const filteredBalances = filterByDate(initialBalances, filterType);
-      const filteredUsers = filterByDate(users, filterType);
+      const filteredPayments = filterByDate(paymentsData, selectedInterval);
+      const filteredPaymentss = filterByDate(paymentsDataa, selectedInterval);
+      const filteredBalance = filterByDate(initialBalance, selectedInterval);
+      const filteredBalances = filterByDate(initialBalances, selectedInterval);
+      const filteredUsers = filterByDate(users, selectedInterval);
 
       // Calculate total payments and balance based on filtered data
       const totalPayments = filteredPayments.reduce((acc, item) => acc + parseFloat(item.paidamount || 0), 0);
@@ -163,9 +164,9 @@ const MainChart = ({ selectedInterval }) => {
 
   // Pie chart data for active, pending, and rejected users
   const pieData = [
-    { name: 'Active', value: data.datasets[0].data.reduce((a, b) => a + b, 0) },
-    { name: 'Pending', value: data.datasets[1].data.reduce((a, b) => a + b, 0) },
-    { name: 'Rejected', value: data.datasets[2].data.reduce((a, b) => a + b, 0) },
+    // { name: 'Total Collection', value: data.datasets[0].data.reduce((a, b) => a + b, 0) },
+    { name: 'Total Fund', value: data.datasets[1].data.reduce((a, b) => a + b, 0) },
+    { name: 'Users', value: data.datasets[2].data.reduce((a, b) => a + b, 0) },
   ];
 
   return (
