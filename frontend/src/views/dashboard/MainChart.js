@@ -6,6 +6,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 const MainChart = ({ selectedInterval }) => {
   const chartRef = useRef(null);
+  const userId = localStorage.getItem('userId')
   const [data, setData] = useState({
     labels: [],
     datasets: [
@@ -38,18 +39,74 @@ const MainChart = ({ selectedInterval }) => {
     ],
   });
 
+  const [filterType, setFilterType] = useState('all'); // Default filter type is 'today'
+
+  const filterByDate = (data, filterType) => {
+    // Assuming filterType is 'today', 'week', 'month', etc.
+    const today = new Date();
+    return data.filter(item => {
+      const itemDate = new Date(item.date); // Assuming items have a 'date' field
+      switch (filterType) {
+        case 'today':
+          return itemDate.toDateString() === today.toDateString();
+        case 'week':
+          const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+          return itemDate >= startOfWeek;
+        case 'month':
+          return itemDate.getMonth() === today.getMonth() && itemDate.getFullYear() === today.getFullYear();
+        default:
+          return true; // No filtering
+      }
+    });
+  };
+
   const fetchData = async () => {
     try {
-      const response = await axios.get(`/fetchUserList?interval=${selectedInterval.toLowerCase()}`);
-      const users = response.data.fetchUser || [];
-      const usersWithUserId = users.filter(user => user.userId && user.userId.length > 0);
-      const totalUsers = usersWithUserId.length;
+      const userResponse = await axios.get(`/fetchUserList`);
+      const users = userResponse.data.fetchUser || [];
 
-      const pendingResponse = await axios.get(`/fetch_data?interval=${selectedInterval.toLowerCase()}`);
-      const pendingUsers = pendingResponse.data.data.filter(user => user.status === 'Pending').length;
+      // Fetch balance data
+      const balanceResponse = await axios.get(`/fundrequests`);
+      const initialBalance = balanceResponse.data.fundRequests || [];
 
-      const rejectedResponse = await axios.get(`/fetch_data_rejected?interval=${selectedInterval.toLowerCase()}`);
-      const rejectedUsers = rejectedResponse.data.data.filter(user => user.status === 'Rejected').length;
+      const balanceResponsee = await axios.get(`/fund-request/${userId}`);
+      const initialBalances = balanceResponsee.data.fundRequest || [];
+
+      // Fetch payments data
+      const paymentsResponse = await axios.get(`/getTotalPayments`);
+      const paymentsData = paymentsResponse.data.data || [];
+
+      const paymentsResponseData = await axios.get(`/getPayments/${userId}`);
+      const paymentsDataa = paymentsResponseData.data.balance || [];
+
+      // Filter payments and balances based on filterType
+      const filteredPayments = filterByDate(paymentsData, filterType);
+      const filteredPaymentss = filterByDate(paymentsDataa, filterType);
+      const filteredBalance = filterByDate(initialBalance, filterType);
+      const filteredBalances = filterByDate(initialBalances, filterType);
+      const filteredUsers = filterByDate(users, filterType);
+
+      // Calculate total payments and balance based on filtered data
+      const totalPayments = filteredPayments.reduce((acc, item) => acc + parseFloat(item.paidamount || 0), 0);
+      const totalPaymentss = filteredPaymentss.reduce((acc, item) => acc + parseFloat(item.paidamount || 0), 0);
+      const totalBalance = filteredBalance.reduce((acc, item) => {
+        if (item.status === 'approved') {
+          return acc + parseFloat(item.fundAmount || 0);
+        }
+        return acc;
+      }, 0);
+      const totalBalances = filteredBalances.reduce((acc, item) => {
+        if (item.status === 'approved') {
+          return acc + parseFloat(item.fundAmount || 0);
+        }
+        return acc;
+      }, 0);
+      const userCount = filteredUsers.length;
+
+      console.log('Total Payments:', totalPayments);
+      console.log('Total Balance:', totalBalance);
+      console.log('User Count:', userCount);
+
 
       // Prepare labels and data arrays based on the selected interval
       let labels = [];
@@ -62,25 +119,25 @@ const MainChart = ({ selectedInterval }) => {
         activeData = Array(24).fill(0);
         pendingData = Array(24).fill(0);
         rejectedData = Array(24).fill(0);
-        activeData[new Date().getHours()] = totalUsers; // Set current hour's data
-        pendingData[new Date().getHours()] = pendingUsers;
-        rejectedData[new Date().getHours()] = rejectedUsers;
+        activeData[new Date().getHours()] = totalPayments; // Set current hour's data
+        pendingData[new Date().getHours()] = totalBalance;
+        rejectedData[new Date().getHours()] = userCount;
       } else if (selectedInterval === 'Month') {
         labels = Array.from({ length: 30 }, (_, i) => `${i + 1}`);
         activeData = Array(30).fill(0);
         pendingData = Array(30).fill(0);
         rejectedData = Array(30).fill(0);
-        activeData[new Date().getDate() - 1] = totalUsers; // Set today's data
-        pendingData[new Date().getDate() - 1] = pendingUsers;
-        rejectedData[new Date().getDate() - 1] = rejectedUsers;
+        activeData[new Date().getDate() - 1] = totalPayments; // Set today's data
+        pendingData[new Date().getDate() - 1] = totalBalance;
+        rejectedData[new Date().getDate() - 1] = userCount;
       } else { // Year
         labels = Array.from({ length: 12 }, (_, i) => new Date(0, i + 1).toLocaleString('default', { month: 'long' }));
         activeData = Array(12).fill(0);
         pendingData = Array(12).fill(0);
         rejectedData = Array(12).fill(0);
-        activeData[new Date().getMonth()] = totalUsers; // Set this month's data
-        pendingData[new Date().getMonth()] = pendingUsers;
-        rejectedData[new Date().getMonth()] = rejectedUsers;
+        activeData[new Date().getMonth()] = totalPayments; // Set this month's data
+        pendingData[new Date().getMonth()] = totalBalance;
+        rejectedData[new Date().getMonth()] = userCount;
       }
 
       setData({
