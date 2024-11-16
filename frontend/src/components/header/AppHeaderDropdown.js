@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'          
-import {        
+import { Link } from 'react-router-dom'
+import {
   CAvatar,
   CBadge,
   CDropdown,
@@ -99,14 +99,14 @@ const AppHeaderDropdown = () => {
   // }, [dispatch]);
 
 
-  
+
   // const handleLogout = () => {
   //   dispatch(logout()); // Dispatch the logout action to clear state and localStorage
   //   navigate('/login'); // Redirect to login page
   // };
 
 
-console.log(userRole)
+  console.log(userRole)
   const handleLogout = async () => {
     try {
       // const userId = localStorage.getItem('userId'); 
@@ -116,15 +116,15 @@ console.log(userRole)
       // });
 
 
-         // Extract token from cookies or headers
-    // const token = req.cookies.accessToken || req.headers.authorization?.split(' ')[1];
+      // Extract token from cookies or headers
+      // const token = req.cookies.accessToken || req.headers.authorization?.split(' ')[1];
 
-    await axios.post('/logout', { userRole }, {
+      await axios.post('/logout', { userRole }, {
         withCredentials: true, // Include cookies with the request
       });
 
-   
-  
+
+
       // Clear client-side storage
       localStorage.removeItem('username');
       localStorage.removeItem('userId');
@@ -141,21 +141,23 @@ console.log(userRole)
   };
 
 
- 
-  
+
+
 
 
 
   return (
     <>
-    {userRole === 'dummy' &&(
-      <>
-      <CDropdown variant="nav-item">
-      <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
-        <CAvatar src="avatar8" size="md" />
-      </CDropdownToggle>
-       <CDropdownMenu className="pt-0" placement="bottom-end">
-      {/*
+      {userRole === 'dummy' && (
+        <>
+          <CDropdown variant="nav-item d-flex align-items-center">
+            <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
+              <div className="profile-icon d-flex justify-content-center align-items-center">
+                <CIcon icon={cilUser} size="xl" />
+              </div>
+            </CDropdownToggle>
+            <CDropdownMenu className="pt-0" placement="bottom-end">
+              {/*
         <CDropdownItem href="#">
           <CIcon icon={cilBell} className="me-2" />
           Updates
@@ -205,27 +207,31 @@ console.log(userRole)
           </CBadge>
         </CDropdownItem>
         <CDropdownDivider />*/}
-          <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>   
-        <CDropdownItem href="#">
-          <CIcon icon={cilUser} className="me-2" />
-          Profile
-        </CDropdownItem>
-        <CDropdownItem onClick={handleLogout}>
-          <CIcon icon={cilLockLocked} className="me-2" />
-          Log Out
-        </CDropdownItem>
-      </CDropdownMenu> 
-    </CDropdown>
-    </>
-  )}
-  {userRole !== 'dummy' &&(
-      <>
-      <CDropdown variant="nav-item">
-      <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
-        <CAvatar src={avatar8} size="md" />
-      </CDropdownToggle>
-       <CDropdownMenu className="pt-0" placement="bottom-end">
-      {/*  <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
+              <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
+              <Link to={`/profile/${userId}`} style={{ textDecoration: 'none' }}>
+                <CDropdownItem>
+                  <CIcon icon={cilUser} className="me-2" />
+                  Profile
+                </CDropdownItem>
+              </Link>
+              <CDropdownItem onClick={handleLogout}>
+                <CIcon icon={cilLockLocked} className="me-2" />
+                Log Out
+              </CDropdownItem>
+            </CDropdownMenu>
+          </CDropdown>
+        </>
+      )}
+      {userRole !== 'dummy' && (
+        <>
+          <CDropdown variant="nav-item  d-flex align-items-centerq">
+            <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
+              <div className="profile-icon d-flex justify-content-center align-items-center">
+                <CIcon icon={cilUser} size="xl" />
+              </div>
+            </CDropdownToggle>
+            <CDropdownMenu className="pt-0" placement="bottom-end">
+              {/*  <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
         <CDropdownItem href="#">
           <CIcon icon={cilBell} className="me-2" />
           Updates
@@ -254,18 +260,18 @@ console.log(userRole)
             42
           </CBadge>
         </CDropdownItem> */}
-        <CDropdownHeader className="bg-body-secondary fw-semibold my-2">Settings</CDropdownHeader>
-        <Link to={`/profile/${userId}`} style={{ textDecoration: 'none' }}>
-          <CDropdownItem>
-            <CIcon icon={cilUser} className="me-2" />
-            Profile
-          </CDropdownItem>
-          </Link>
-        <CDropdownItem href="#">
-          <CIcon icon={cilSettings} className="me-2" />
-          Settings
-        </CDropdownItem>
-        {/* <CDropdownItem href="#">
+              <CDropdownHeader className="bg-body-secondary fw-semibold my-2">Settings</CDropdownHeader>
+              <Link to={`/profile/${userId}`} style={{ textDecoration: 'none' }}>
+                <CDropdownItem>
+                  <CIcon icon={cilUser} className="me-2" />
+                  Profile
+                </CDropdownItem>
+              </Link>
+              <CDropdownItem href="#">
+                <CIcon icon={cilSettings} className="me-2" />
+                Settings
+              </CDropdownItem>
+              {/* <CDropdownItem href="#">
           <CIcon icon={cilCreditCard} className="me-2" />
           Payments
           <CBadge color="secondary" className="ms-2">
@@ -280,14 +286,14 @@ console.log(userRole)
           </CBadge>
         </CDropdownItem>
         <CDropdownDivider /> */}
-        <CDropdownItem onClick={handleLogout}>
-          <CIcon icon={cilLockLocked} className="me-2" />
-          Log Out
-        </CDropdownItem>
-      </CDropdownMenu>
-    </CDropdown>
-    </>
-  )}
+              <CDropdownItem onClick={handleLogout}>
+                <CIcon icon={cilLockLocked} className="me-2" />
+                Log Out
+              </CDropdownItem>
+            </CDropdownMenu>
+          </CDropdown>
+        </>
+      )}
     </>
   )
 }

@@ -69,16 +69,66 @@ const UpdateProfile = () => {
         // Validate form fields
         if (!formData.mobileNumber) formErrors.mobileNumber = "Mobile Number is required";
         if (!formData.address) formErrors.address = "Address is required";
-
+        if (!formData.pincode) formErrors.pincode = "Pin Code is required";
+        if (!formData.bank) formErrors.bank = "Bank Name is required";
+        if (!formData.accountno) formErrors.accountno = "Account Number is required";
+        if (!formData.ifsc) formErrors.ifsc = "IFSC code is required";
+        if (!formData.email) formErrors.email = "Email is required";
+        if (!formData.district) formErrors.district = "District is required";
+      
         setErrors(formErrors);
         return Object.keys(formErrors).length === 0;
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        
+        // Clear error for the field when typing
+        if (value) {
+            setErrors((prevErrors) => {
+                const updatedErrors = { ...prevErrors };
+                delete updatedErrors[name]; // Remove the error for the field
+                return updatedErrors;
+            });
+        }
+        
         setFormData({ ...formData, [name]: value });
     };
 
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+    
+        // Validate the specific field
+        let error = "";
+    
+        if (name === "mobileNumber" && !value) {
+            error = "Mobile Number is required";
+        } else if (name === "address" && !value) {
+            error = "Address is required";
+        } else if (name === "district" && !value) {
+            error = "District is required";
+        } else if (name === "pincode" && !value) {
+            error = "Pin Code is required";
+        } else if (name === "bank" && !value) {
+            error = "Bank Name is required";
+        } else if (name === "accountno" && !value) {
+            error = "Account number is required";
+        } else if (name === "ifsc" && !value) {
+            error = "IFSC Code is required";
+        } else if (name === "email" && !value) {
+            error = "Email is required";
+        } 
+    
+        // Update errors state for this field only
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            [name]: error,
+        }));
+    };
+    
+
+    
 
 
     const handleCheckboxChange = (e) => {
@@ -161,33 +211,7 @@ const UpdateProfile = () => {
 
                                         <CCol md={6}>
 
-                                            <CInputGroup className="mb-3">
-                                                <CInputGroupText>Job Type</CInputGroupText>
-                                                <div className="d-flex m-2 align-items-center">
-                                                    <CFormCheck
-                                                        variant="inline"
-                                                        type="radio"
-                                                        name="salaryBasis"
-                                                        id="salaryBased"
-                                                        label="Salary Based"
-                                                        value="salary based"
-                                                        checked={formData.salaryBasis === "salary based"}
-                                                        onChange={handleChange}
-                                                    />
-                                                    <CFormCheck
-                                                        variant="inline"
-                                                        type="radio"
-                                                        name="salaryBasis"
-                                                        id="comissionbased"
-                                                        label="Commission Based"
-                                                        value="commission based"
-                                                        checked={formData.salaryBasis === "commission based"}
-                                                        onChange={handleChange}
-                                                    />
-                                                </div>
-                                            </CInputGroup>
-                                            {errors.salaryBasis && <p className="text-danger">{errors.salaryBasis}</p>}
-
+                                            
 
 
 
@@ -206,6 +230,7 @@ const UpdateProfile = () => {
                                                     value={formData.mobileNumber}
                                                     onChange={handleChange}
                                                     autoComplete="tel"
+                                                    onBlur={handleBlur}
                                                 />
                                             </CInputGroup>
                                             {errors.mobileNumber && <p className="text-danger">{errors.mobileNumber}</p>}
@@ -221,6 +246,8 @@ const UpdateProfile = () => {
                                                     type="email"
                                                     value={formData.email}
                                                     onChange={handleChange}
+                                                    onBlur={handleBlur}
+
                                                     autoComplete="email"
                                                 />
                                             </CInputGroup>
@@ -300,6 +327,8 @@ const UpdateProfile = () => {
                                                     placeholder="Full Address"
                                                     value={formData.address}
                                                     onChange={handleChange}
+                                                    onBlur={handleBlur}
+
                                                     autoComplete="street-address"
                                                 />
                                             </CInputGroup>
@@ -317,6 +346,8 @@ const UpdateProfile = () => {
                                                             placeholder="District"
                                                             value={formData.district}
                                                             onChange={handleChange}
+                                                    onBlur={handleBlur}
+
                                                             autoComplete="street-address"
                                                         />
                                                     </CInputGroup>
@@ -335,6 +366,8 @@ const UpdateProfile = () => {
                                                             placeholder="Pin Code"
                                                             value={formData.pincode}
                                                             onChange={handleChange}
+                                                    onBlur={handleBlur}
+
                                                             autoComplete="street-address"
                                                         />
                                                     </CInputGroup>
@@ -352,6 +385,8 @@ const UpdateProfile = () => {
                                                     placeholder="Bank Name"
                                                     value={formData.bank}
                                                     onChange={handleChange}
+                                                    onBlur={handleBlur}
+
                                                     autoComplete="off"
                                                 />
 
@@ -366,6 +401,8 @@ const UpdateProfile = () => {
                                                     placeholder="Bank Account Number"
                                                     value={formData.accountno}
                                                     onChange={handleChange}
+                                                    onBlur={handleBlur}
+
                                                     autoComplete="off"
                                                 />
 
@@ -380,6 +417,7 @@ const UpdateProfile = () => {
                                                     placeholder="IFSC Code"
                                                     value={formData.ifsc}
                                                     onChange={handleChange}
+                                                    onBlur={handleBlur}
                                                     autoComplete="off"
                                                 />
 

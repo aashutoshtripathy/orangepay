@@ -19,6 +19,8 @@ import {
   CInputGroup,
   CInputGroupText,
 } from "@coreui/react";
+import { CModalTitle, CForm } from '@coreui/react';
+
 import CIcon from '@coreui/icons-react'; // Default import
 import { cilImage } from '@coreui/icons'; // Named import
 
@@ -46,7 +48,22 @@ const Profile = () => {
   const [fileNames, setFileNames] = useState({ photograph: "" });
   const fileInputRef = useRef(null);
 
+  const [adminData, setAdminData] = useState({
+    name: '',
+    email: '',
+    password: '',
+  });
 
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    console.log('Creating SuperAdmin with data:', adminData);
+
+    // You can make an API call here to create the SuperAdmin
+
+    // Close the modal after submission
+    setModalVisible(false);
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -75,12 +92,18 @@ const Profile = () => {
         const response = await axios.get(`/balance/${userId}`);
         setBalance(response.data.balance);
       } catch (err) {
-        console.error("Error fetching balance:", err);
-        setError("Failed to fetch balance");
+        if (err.response && err.response.status === 404) {
+          // Handle case where the wallet does not exist
+          setBalance(null); // No wallet found for this user
+        } else {
+          console.error("Error fetching balance:", err);
+          setError("Failed to fetch balance");
+        }
       } finally {
         setLoading(false);
       }
     };
+
 
     fetchBalance();
   }, [userId]);
@@ -159,7 +182,7 @@ const Profile = () => {
       setBankName("");
       setDatePayment(""); // Clear datePayment
       setImagePreview(null); // Clear the image preview
-    setFileNames((prev) => ({ ...prev, photograph: '' }));
+      setFileNames((prev) => ({ ...prev, photograph: '' }));
       setModalVisible(false);
     } catch (error) {
       console.error("Error requesting fund:", error);
@@ -265,7 +288,7 @@ const Profile = () => {
         </CCardHeader>
         <CCardBody>
           <CRow className="justify-content-center">
-            <CCol sm={6} className="text-center ">
+            <CCol sm={balance !== null ? 6 : 12} className="text-center ">
               {user ? (
                 <>
                   <h5>Account ID : {user.userId}</h5>
@@ -281,10 +304,14 @@ const Profile = () => {
               )}
             </CCol>
             <CCol sm={6} className="text-center mt-4">
-              <h5>Available Balance : {balance}</h5>
-              <h5>
-                Margin ({month} {year}) : {availableBalance}
-              </h5>
+              {balance !== null && (
+                <>
+                  <h5>Available Balance: {balance}</h5>
+                  <h5>
+                    Margin ({month} {year}): {availableBalance}
+                  </h5>
+                </>
+              ) }
             </CCol>
           </CRow>
         </CCardBody>
@@ -294,13 +321,23 @@ const Profile = () => {
               Update User
             </CButton>
           </Link>
-          <CButton
+          {balance !== null ? (
+            <CButton
+              color="primary"
+              size="lg"
+              onClick={() => setModalVisible(true)}
+            >
+              Request Fund
+            </CButton>
+          ) : (
+            <CButton
             color="primary"
             size="lg"
             onClick={() => setModalVisible(true)}
           >
-            Request Fund
+            Create SuperAdmin
           </CButton>
+          )}
         </CCardFooter>
       </CCard>
 
@@ -563,6 +600,54 @@ const Profile = () => {
             </CModalFooter>
           </form>
         </CModalBody>
+      </CModal>
+
+
+
+      <CModal visible={modalVisible} onClose={() => setModalVisible(false)}>
+        <CModalHeader onClose={() => setModalVisible(false)}>
+          <CModalTitle>Create SuperAdmin</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          {/* Form to create SuperAdmin */}
+          <CForm onSubmit={handleFormSubmit}>
+            <CFormInput
+              type="text"
+              name="name"
+              value={adminData.name}
+              onChange={handleInputChange}
+              label="Full Name"
+              placeholder="Enter name"
+              required
+            />
+            <CFormInput
+              type="email"
+              name="email"
+              value={adminData.email}
+              onChange={handleInputChange}
+              label="Email"
+              placeholder="Enter email"
+              required
+            />
+            <CFormInput
+              type="password"
+              name="password"
+              value={adminData.password}
+              onChange={handleInputChange}
+              label="Password"
+              placeholder="Enter password"
+              required
+            />
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setModalVisible(false)}>
+            Close
+          </CButton>
+          <CButton color="primary" onClick={handleFormSubmit}>
+            Create Admin
+          </CButton>
+        </CModalFooter>
       </CModal>
     </>
   );

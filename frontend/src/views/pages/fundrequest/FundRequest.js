@@ -274,6 +274,7 @@ const DataTableComponent = ({userId}) => {
         highlightOnHover
         customStyles={customStyles}
       />
+      
     </div>
     </div>
   );

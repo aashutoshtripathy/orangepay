@@ -3,10 +3,12 @@ import { CChartLine } from '@coreui/react-chartjs';
 import { getStyle } from '@coreui/utils';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { Spinner } from "reactstrap";
 
 const MainChart = ({ selectedInterval }) => {
   const chartRef = useRef(null);
   const userId = localStorage.getItem('userId')
+  const [loading, setLoading] = useState(true);
   const [data, setData] = useState({
     labels: [],
     datasets: [
@@ -43,11 +45,11 @@ const MainChart = ({ selectedInterval }) => {
 
   const filterByDate = (items, selectedInterval) => {
     const today = new Date();
-    
+
     return items.filter((item) => {
-      const date = new Date(item.paymentdate || item.createdAt); 
+      const date = new Date(item.paymentdate || item.createdAt);
       if (isNaN(date)) return false;
-  
+
       switch (selectedInterval) {
         case 'day':
           return date.toDateString() === today.toDateString();
@@ -60,6 +62,19 @@ const MainChart = ({ selectedInterval }) => {
       }
     });
   };
+
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false); 
+    }, 6000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+
+  // const getStyle = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable);
+
 
   const fetchData = async () => {
     try {
@@ -164,7 +179,7 @@ const MainChart = ({ selectedInterval }) => {
 
   // Pie chart data for active, pending, and rejected users
   const pieData = [
-    // { name: 'Total Collection', value: data.datasets[0].data.reduce((a, b) => a + b, 0) },
+    { name: 'Total Collection', value: data.datasets[0].data.reduce((a, b) => a + b, 0) },
     { name: 'Total Fund', value: data.datasets[1].data.reduce((a, b) => a + b, 0) },
     { name: 'Users', value: data.datasets[2].data.reduce((a, b) => a + b, 0) },
   ];
@@ -172,29 +187,52 @@ const MainChart = ({ selectedInterval }) => {
   return (
     <>
 
-<ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={pieData}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            innerRadius={60}
-            outerRadius={80}
-            fill="#8884d8"
-            onClick={(e) => console.log('Pie Chart Data:', e)}
-          >
-            {pieData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={getStyle(index === 0 ? '--cui-info' : index === 1 ? '--cui-success' : '--cui-danger')} />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
+<div style={{ position: "relative", height: "300px", width: "100%" }}>
+      {loading ? (
+        // Loader centered absolutely
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 10,
+          }}
+        >
+          <Spinner color="primary" /> 
+          <p style={{ marginTop: "10px", marginRight:"auto",  color: "#888", fontSize: "14px" }}>Please wait...</p>
+
+        </div>
+      ) : (
+        // Render PieChart when loading is complete
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={pieData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              fill="#8884d8"
+              onClick={(e) => console.log("Pie Chart Data:", e)}
+            >
+              {pieData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={getStyle(index === 0 ? "--cui-info" : index === 1 ? "--cui-success" : "--cui-danger")}
+                />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      )}
+    </div>
 
 
-      
+
       <CChartLine
         ref={chartRef}
         style={{ height: '300px', marginTop: '40px' }}
@@ -233,7 +271,7 @@ const MainChart = ({ selectedInterval }) => {
       />
 
       {/* Pie chart */}
-    
+
     </>
   );
 };

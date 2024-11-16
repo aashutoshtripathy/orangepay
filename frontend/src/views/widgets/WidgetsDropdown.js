@@ -362,7 +362,7 @@ const WidgetsDropdown = (props) => {
                   <>{userCount}</>
                 )
               }
-                title="User Management"
+                title="Agent Management"
                 action={
                   <CDropdown alignment="end">
                     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">

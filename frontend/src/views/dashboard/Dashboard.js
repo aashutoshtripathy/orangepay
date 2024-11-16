@@ -393,6 +393,16 @@ const Dashboard = () => {
       value: data.value,
     });
   };
+
+
+
+
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const startMonth = "January"; // Change as needed
+  const endMonth = currentDate.toLocaleString("default", { month: "long" }); // Current month
+
+  const dateRange = `${startMonth} - ${endMonth} ${currentYear}`;
   
   
 
@@ -407,9 +417,9 @@ const Dashboard = () => {
               <CRow>
                 <CCol sm={5}>
                   <h4 id="traffic" className="card-title mb-0">
-                    Traffic
+                    Charts
                   </h4>
-                  <div className="small text-body-secondary">January - July 2023</div>
+                  <div className="small text-body-secondary">{dateRange}</div>
                 </CCol>
                 <CCol sm={7} className="d-none d-md-block">
                   <CButton color="primary" className="float-end">
@@ -476,9 +486,9 @@ const Dashboard = () => {
               <CRow>
                 <CCol sm={5}>
                   <h4 id="traffic" className="card-title mb-0">
-                    Traffic
+                    Charts
                   </h4>
-                  <div className="small text-body-secondary">January - July 2023</div>
+                  <div className="small text-body-secondary">{dateRange}</div>
                 </CCol>
                 <CCol sm={7} className="d-none d-md-block">
                   <CButton color="primary" className="float-end">
