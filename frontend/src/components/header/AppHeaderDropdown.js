@@ -69,7 +69,7 @@ const AppHeaderDropdown = () => {
 
   useEffect(() => {
     // Retrieve the user role from localStorage and set it in local state
-    const role = localStorage.getItem('username');
+    const role = localStorage.getItem('status');
     if (role) {
       setUserRole(role);
     }
@@ -129,6 +129,7 @@ const AppHeaderDropdown = () => {
       localStorage.removeItem('username');
       localStorage.removeItem('userId');
       localStorage.removeItem('token');
+      localStorage.removeItem('status');
       localStorage.removeItem('expirationTime');
       sessionStorage.clear();
 
@@ -148,7 +149,7 @@ const AppHeaderDropdown = () => {
 
   return (
     <>
-      {userRole === 'dummy' && (
+      {userRole === 'Activated' && (
         <>
           <CDropdown variant="nav-item d-flex align-items-center">
             <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
@@ -222,7 +223,7 @@ const AppHeaderDropdown = () => {
           </CDropdown>
         </>
       )}
-      {userRole !== 'dummy' && (
+      {userRole !== 'Activated' && (
         <>
           <CDropdown variant="nav-item  d-flex align-items-centerq">
             <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>

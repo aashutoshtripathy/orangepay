@@ -3,6 +3,7 @@ import axios from 'axios';
 import DataTable from 'react-data-table-component';
 import { debounce } from 'lodash';
 
+
 const SbdataTable = () => {
   const [sbdata, setSbdata] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,8 +99,15 @@ const SbdataTable = () => {
     },
   ];
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="cspinner"></div>
+      </div>
+    );
+  }
+  
+    if (error) return <div>{error}</div>;
 
   return (
     <div>

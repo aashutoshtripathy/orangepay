@@ -183,8 +183,14 @@ const UpdateProfile = () => {
 
   
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p className="text-danger">{error}</p>;
+    if (loading) {
+        return (
+          <div className="d-flex justify-content-center align-items-center vh-100">
+            <div className="cspinner"></div>
+          </div>
+        );
+      }
+          if (error) return <p className="text-danger">{error}</p>;
 
     return (
         <div className="bg-light min-vh-10 d-flex flex-row align-items-center">

@@ -223,8 +223,13 @@ const DataTableComponent = () => {
 
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="cspinner"></div>
+      </div>
+    );
   }
+  
 
   if (error) {
     return <div>Error: {error.message}</div>;

@@ -46,7 +46,7 @@ const AppSidebar = () => {
 
   useEffect(() => {
     // Retrieve the user role from localStorage
-    const storedRole = localStorage.getItem('username');
+    const storedRole = localStorage.getItem('status');
     if (storedRole) {
       setRole(storedRole);
     }
@@ -91,7 +91,7 @@ const AppSidebar = () => {
   let navItems = [];
 
   switch (role) {
-    case 'dummy':
+    case 'Activated':
       navItems = adminNavItems;
       break;
     // case 'agent':

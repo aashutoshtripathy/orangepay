@@ -117,7 +117,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Retrieve the user role from localStorage
-    const role = localStorage.getItem('username')
+    const role = localStorage.getItem('Status')
     console.log(role)
     if (role) {
       setUserRole(role)
@@ -409,7 +409,7 @@ const Dashboard = () => {
 
   return (
     <>
-      {userRole === 'dummy' && (
+      {userRole === 'Activated' && (
         <>
           <WidgetsDropdown className="mb-4" />
           <CCard className="mb-4">
@@ -478,7 +478,7 @@ const Dashboard = () => {
 
 
 
-      {userRole !== 'dummy' && (
+      {userRole !== 'Activated' && (
         <>
           <WidgetsDropdown className="mb-4" />
           <CCard className="mb-4">

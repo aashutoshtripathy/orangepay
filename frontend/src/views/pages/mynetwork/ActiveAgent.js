@@ -299,6 +299,15 @@ const DataTableComponent = () => {
     item.userId && item.userId.toLowerCase().includes(filterText.toLowerCase())
   );
 
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="cspinner"></div>
+      </div>
+    );
+  }
+  
+
   return (
     <div>
       <div className="button-container">
@@ -356,7 +365,6 @@ const DataTableComponent = () => {
         customStyles={customStyles}
         pagination
         // selectableRows
-        progressPending={loading}
         highlightOnHover
         striped
       />

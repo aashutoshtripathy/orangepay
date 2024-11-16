@@ -60,7 +60,7 @@ const AppHeader = () => {
 
   useEffect(() => {
     // Retrieve the user role from localStorage and set it in local state
-    const role = localStorage.getItem('username');
+    const role = localStorage.getItem('status');
     if (role) {
       setUserRole(role);
     }
@@ -193,7 +193,7 @@ const AppHeader = () => {
 
   return (
     <>
-      {userRole === 'dummy' && (
+      {userRole === 'Activated' && (
         <>
           <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
             <CContainer className="border-bottom px-4" fluid>
@@ -219,7 +219,7 @@ const AppHeader = () => {
               <CHeaderNav className="d-none d-md-flex">
                 <CNavItem>
                   <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
-                    Welcome {userRole}
+                    Welcome {user.name}
                   </CNavLink>
                 </CNavItem>
                 <CNavItem>
@@ -305,7 +305,7 @@ const AppHeader = () => {
           </CHeader>
         </>
       )}
-      {userRole !== 'dummy' && (
+      {userRole !== 'Activated' && (
         <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
           <CContainer className="border-bottom px-4" fluid>
             <CHeaderToggler

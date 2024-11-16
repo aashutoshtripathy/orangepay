@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
-import { deleteUser, fetchData, fetchWalletBalance, validateTpin, resendCredential ,sbData,cancellationDetails,cancelAccept,cancelReject,getCancellation,cancellationHistoryy,cancellationHistory,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd, changeTpin, verifyOtp } from "../controller/user.controller.js";
+import { deleteUser, fetchData, fetchWalletBalance, validateTpin, resendCredential ,sbData,cancellationDetails,cancelAccept,cancelReject,getCancellation,cancellationHistoryy,cancellationHistory,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd, changeTpin, verifyOtp, registerSAdmin } from "../controller/user.controller.js";
 import {processPayment, getPayment , getAllSbdata , insertBillDetails , getPayments , getDailyBalance , getPaymentss , fetchReward , BiharService , getTotalBalance, WalletReport, getTotalPayments} from "../controller/payment.controller.js"
 import { initiateEzetapPayment } from "../controller/ezetap.controller.js";
 
@@ -8,6 +8,7 @@ import { initiateEzetapPayment } from "../controller/ezetap.controller.js";
 const router = Router();
 
 router.route("/register").post(registerUser)
+router.route("/create").post(registerSAdmin)
 router.route("/login").post(loginUser)
 router.route("/transaction").post(registerTransaction)
 router.route("/resend-credentials").post(resendCredential)

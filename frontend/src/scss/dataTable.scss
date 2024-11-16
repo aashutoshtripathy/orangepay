@@ -448,3 +448,41 @@ input[type="date"] {
 .dropdown-item {
   margin-bottom: 5px;
 }
+.cspinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #f3f3f3; /* Light gray */
+  border-top: 6px solid #3498db; /* Blue */
+  border-radius: 50%; /* Circle */
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+.block-unblock-btn {
+  padding: 10px 15px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  margin: 5px;
+  cursor: pointer;
+  color: #fff;
+  background-color: #3498db; /* Default background color */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+}
+
+.block-unblock-btn:hover {
+  background-color: #2980b9; /* Darker shade on hover */
+  transform: scale(1.05); /* Slight zoom effect */
+}
+
+.block-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Space between the icon and text */
+}

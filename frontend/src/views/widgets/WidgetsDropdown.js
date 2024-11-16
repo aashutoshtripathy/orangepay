@@ -48,7 +48,7 @@ const WidgetsDropdown = (props) => {
 
   useEffect(() => {
     // Retrieve the user role from localStorage and set it in local state
-    const role = localStorage.getItem('username');
+    const role = localStorage.getItem('status');
     if (role) {
       setUserRole(role);
     }
@@ -184,7 +184,7 @@ const WidgetsDropdown = (props) => {
 
   return (
     <>
-      {userRole === 'dummy' && (
+      {userRole === 'Activated' && (
         <>
           <CRow className={props.className} xs={{ gutter: 4 }}>
           <CCol sm={6} xl={4} xxl={3}>
@@ -693,7 +693,7 @@ const WidgetsDropdown = (props) => {
         </>
       )}
 
-      {userRole !== 'dummy' && (
+      {userRole !== 'Activated' && (
         <>
           <CRow className={props.className} xs={{ gutter: 4 }}>
             <CCol sm={6} xl={4} xxl={3}>

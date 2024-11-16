@@ -125,6 +125,98 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
 
+
+
+const registerSAdmin = asyncHandler(async (req, res) => {
+  const { name, email, mnumber, password, role ,aadharNumber } = req.body;
+
+  console.log(req.body);
+
+  // Input validation
+  if (!name || !email || !mnumber || !password || !aadharNumber) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, null, "All fields are required."));
+  }
+
+  try {
+    // Check if a user with the same mobile number exists and has a status of "Activated"
+    const existingUserByMobile = await Register.findOne({ 
+      mobileNumber: mnumber, 
+      status: "Activated" 
+    });
+    if (existingUserByMobile) {
+      return res
+        .status(400)
+        .json(new ApiResponse(400, null, "Mobile number is already registered with activated status."));
+    }
+
+    // Check if a user with the same email exists and has a status of "Activated"
+    const existingUserByEmail = await Register.findOne({ 
+      email: email, 
+      status: "Activated" 
+    });
+    if (existingUserByEmail) {
+      return res
+        .status(400)
+        .json(new ApiResponse(400, null, "Email is already registered with activated status."));
+    }
+
+    // Check if a user with the same mobile number exists but has a different status
+    const existingUserByMobileStatus = await Register.findOne({ 
+      mobileNumber: mnumber 
+    });
+    if (existingUserByMobileStatus && existingUserByMobileStatus.status !== "Activated") {
+      // Allow creation of new user even if the status is not "Activated"
+      console.log("Mobile number found but status is not Activated. Creating new user.");
+    }
+
+    // Check if a user with the same email exists but has a different status
+    const existingUserByEmailStatus = await Register.findOne({ 
+      email: email 
+    });
+    if (existingUserByEmailStatus && existingUserByEmailStatus.status !== "Activated") {
+      // Allow creation of new user even if the status is not "Activated"
+      console.log("Email found but status is not Activated. Creating new user.");
+    }
+
+    // Create new user
+    const user = await Register.create({
+      name,
+      role: role || "superadmin",
+      mobileNumber: mnumber,
+      email,
+      password,
+      aadharNumber,
+      userId: mnumber, // Assuming mnumber as unique userId
+      status: "Activated", // The new user will be activated
+    });
+
+    // Log files (if any)
+    console.log(req.files);
+
+    // Send success response
+    return res.status(201).json(
+      new ApiResponse(201, user, "User Registered Successfully")
+    );
+  } catch (error) {
+    console.error("Error registering user:", error);
+
+    // Send generic error response
+    return res
+      .status(500)
+      .json(new ApiResponse(500, null, "Internal Server Error"));
+  }
+});
+
+
+
+
+
+
+
+
+
 const generateRandomId = (name) => {
   const randomSuffix = Math.floor(Math.random() * 100000); // Generate a random 4-digit number
   const namePart = name ? name.substring(0, 4).toUpperCase() : 'USER'; // Take the first 4 letters of the name
@@ -712,7 +804,7 @@ const verifyAadhaar = asyncHandler(async (req, res) => {
   try {
     // Find users whose Aadhaar last four digits match and status is active
     const matchedUser = await Register.findOne({
-      status: 'Approved',
+      status: { $in: ['Approved', 'Activated'] },
       aadharNumber: { $regex: `${aadhaarLastFour}$` } // Use regex to match last four digits
     });
 
@@ -953,25 +1045,25 @@ const fetchFundRequests = asyncHandler(async (req, res) => {
 
 const fetchUserList = asyncHandler(async (req, res) => {
   try {
-    // Find all users with status 'approved' from the database
-    // const fetchUser = await Register.find({ status: 'Approved' }).exec();
-    const fetchUser = await Register.find({}).exec();
+    // Find all users, excluding those with status 'activated'
+    const fetchUser = await Register.find({ status: { $ne: 'Activated' } }).exec();
 
-    console.log("Approved Users: ", fetchUser);
+    console.log("Users (excluding 'activated' status): ", fetchUser);
 
-    // If no approved users are found, return a message indicating no users found
+    // If no users are found, return a message indicating no users found
     if (fetchUser.length === 0) {
-      return res.status(404).json({ success: false, message: 'No approved users found' });
+      return res.status(404).json({ success: false, message: 'No users found' });
     }
 
-    // Return the list of approved users
+    // Return the list of users
     return res.status(200).json({ success: true, fetchUser });
 
   } catch (error) {
-    console.error("Error fetching approved users:", error);
+    console.error("Error fetching users:", error);
     return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 });
+
 
 
 
@@ -1476,7 +1568,7 @@ const loginUser = asyncHandler(async (req, res) => {
       throw new ApiError(400, "User does not exist");
     }
 
-    if (user.status !== "Approved" || user.isBlocked) {
+    if (user.status !== "Approved" && user.status !== "Activated" || user.isBlocked) {
       throw new ApiError(400, "User account is Temporarily Blocked");
     }
 
@@ -1526,7 +1618,8 @@ const loginUser = asyncHandler(async (req, res) => {
         user: {
           id: user._id,
           username: user.username,
-          email: user.email
+          email: user.email,
+          status: user.status
         },
         token: accessToken,
         session: req.sessionID
@@ -2235,5 +2328,5 @@ const fetchUserByIdd = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser,cancellationHistoryy,resendCredential, validateTpin,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+export { registerUser,cancellationHistoryy,registerSAdmin,resendCredential, validateTpin,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 

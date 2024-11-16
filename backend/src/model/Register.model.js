@@ -14,21 +14,22 @@ const registerSchema = new Schema({
   },
   dob: { 
     type: Date, 
-    required: [true, 'Date of Birth is required'] 
+    // required: [true, 'Date of Birth is required'] 
   },
   role:{
     type: String,
     trim: true
   },
-  aadharNumber: { 
+  aadharNumber: {   
     type: String, 
-    required: [true, 'Aadhar Number is required'], 
-    unique: true, 
+    sparse: true,
     trim: true 
+    // required: [true, "Aadhar Number is required"], 
+    // unique: true, 
   },
+
   panNumber: { 
     type: String, 
-    required: [true, 'PAN Number is required'], 
     trim: true 
   },
   mobileNumber: { 
@@ -40,7 +41,6 @@ const registerSchema = new Schema({
   gender: { 
     type: String, 
     enum: ['Male', 'Female', 'Other'], 
-    required: [true, 'Gender is required'] 
   },
   maritalStatus: { 
     type: String, 
@@ -52,7 +52,6 @@ const registerSchema = new Schema({
   },
   address: { 
     type: String, 
-    required: [true, 'Address is required'], 
     trim: true 
   },
   email: { 
@@ -156,7 +155,7 @@ const registerSchema = new Schema({
   // Status field to track registration status
   status: { 
     type: String, 
-    enum: ['Pending', 'Approved', 'Rejected', 'Blocked'], 
+    enum: ['Pending', 'Approved', 'Rejected', 'Blocked' , 'Activated'], 
     default: 'Pending' 
   },
   isBlocked: { 

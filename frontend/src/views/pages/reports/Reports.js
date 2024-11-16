@@ -317,7 +317,13 @@ const Reports = ({userId}) => {
 ].filter(Boolean); // Filter out any columns that are false (not visible)
 
 
-  if (loading) return <div>Loading...</div>;
+if (loading) {
+  return (
+    <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className="cspinner"></div>
+    </div>
+  );
+}
   if (error) return <div>Error: {error.message}</div>;
 
   return (

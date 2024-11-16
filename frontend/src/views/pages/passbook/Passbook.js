@@ -294,7 +294,7 @@ const Passbook = ({userId}) => {
           data={filteredItems}
           pagination
           highlightOnHover
-          progressPending={loading}
+          // progressPending={loading}
           customStyles={customStyles}
         />
 

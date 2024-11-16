@@ -80,6 +80,7 @@ const Login = () => {
       // Save user info in localStorage
       localStorage.setItem('username', username);
       localStorage.setItem('userId', user.id);
+      localStorage.setItem('status', user.status);
 
       localStorage.setItem('expirationTime', expirationTime);
 

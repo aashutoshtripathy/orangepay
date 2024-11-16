@@ -317,7 +317,7 @@ const DataTableComponent = () => {
         customStyles={customStyles}
         pagination
         selectableRows
-        progressPending={loading}
+        // progressPending={loading}
         highlightOnHover
         striped
       />
