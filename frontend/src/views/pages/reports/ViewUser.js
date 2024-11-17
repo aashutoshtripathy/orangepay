@@ -62,7 +62,7 @@ const DataTableComponent = () => {
   const [commission, setCommission] = useState(''); // State for commission
 
   const [commissionValues, setCommissionValues] = useState({});
-  const [showButtons, setShowButtons] = useState(false);
+  const [showButtons, setShowButtons] = useState(true);
 
 // Toggle function for showing/hiding buttons
 const toggleButtons = () => {
@@ -392,7 +392,7 @@ const toggleButtons = () => {
         type="text"
         id={`commission-${row._id}`}
         name="commission"
-        value={commissionValues[row._id] || '0'}
+        value={commissionValues[row._id] }
         onChange={handleCommissionChange(row._id)}
         onBlur={() => handleChangeClick(row._id)} 
         placeholder="Enter commission amount"
@@ -448,36 +448,38 @@ const toggleButtons = () => {
             ) : row.status === 'Approved' ? (
               <>
               {showButtons && (
-                <>
-                  <button
-                    className="block-unblock-btn block-btn"
-                    onClick={() => handleView(row)}
-                  >
-                    <FontAwesomeIcon icon={faCheckCircle} /> View Details
+                <div className="hover-container">
+                  {/* Ellipsis button to trigger hover */}
+                  <button className="ellipsis-btn">
+                    <FontAwesomeIcon icon={faEllipsisV} />
                   </button>
-        
-                  <button
-                    onClick={() => handlePermission(row)}
-                    className="block-unblock-btn block-btn"
-                  >
-                    <FontAwesomeIcon icon={faLock} /> Permissions
-                  </button>
-        
-                  <button
-                    onClick={() => handleResend(row)}
-                    className="block-unblock-btn block-btn"
-                  >
-                    <FontAwesomeIcon /> Resend
-                  </button>
-                </>
+  
+                  {/* Action buttons that appear on hover */}
+                  <div className="hover-btn">
+                    <button
+                      className="block-unblock-btn block-btn"
+                      onClick={() => handleView(row)}
+                    >
+                      <FontAwesomeIcon icon={faCheckCircle} /> View Details
+                    </button>
+  
+                    <button
+                      onClick={() => handlePermission(row)}
+                      className="block-unblock-btn block-btn"
+                    >
+                      <FontAwesomeIcon icon={faLock} /> Permissions
+                    </button>
+  
+                    <button
+                      onClick={() => handleResend(row)}
+                      className="block-unblock-btn block-btn"
+                    >
+                      <FontAwesomeIcon icon={faLock} /> Resend
+                    </button>
+                  </div>
+                </div>
               )}
-        
-              {/* Ellipsis button for toggling action buttons */}
-              <button className="ellipsis-btn" onClick={toggleButtons}>
-                <FontAwesomeIcon icon={faEllipsisV} />
-              </button>
-          
-              </>
+            </>
             ) : row.status === 'Rejected' ? (
               <>
 

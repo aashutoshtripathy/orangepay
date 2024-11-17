@@ -486,3 +486,76 @@ input[type="date"] {
   align-items: center;
   gap: 8px; /* Space between the icon and text */
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Container wrapping the ellipsis button and hover-box */
+.action-container {
+  position: relative; /* Ensures the hover-box is positioned relative to this container */
+  display: inline-block; /* Keeps the ellipsis button and hover-box together */
+}
+
+/* Styling for the ellipsis button */
+.ellipsis-btn {
+  background: transparent;
+  border: none;
+  color: #555; /* Default color */
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  border-radius: 50%; /* Circle shape */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.ellipsis-btn:hover {
+  background-color: #f0f0f0;
+  color: #3498db;
+  transform: scale(1.1);
+  display: block;
+}
+
+/* The hover-box is hidden by default */
+.hover-box {
+  position: absolute;
+  top: 100%; /* Position it below the ellipsis button */
+  left: 50%;
+  transform: translateX(-50%);
+  display: none; /* Initially hidden */
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.action-container:hover .hover-box {
+  display: block; /* Make the hover-box visible */
+}
+
+.block-unblock-btn {
+  display: block; /* Stack the buttons vertically */
+  margin: 5px 0;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.block-unblock-btn:hover {
+  background-color: #e0e0e0;
+}

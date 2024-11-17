@@ -38,5 +38,63 @@
 }
 
 
+/* Hover container that holds the ellipsis button and the action buttons */
+.hover-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Style for the ellipsis button */
+.ellipsis-btn {
+  background: transparent;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.ellipsis-btn:hover {
+  background-color: #f0f0f0;
+  color: #3498db;
+}
+
+/* Initially hide the action buttons */
+.hover-btn {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  flex-direction: column;
+}
+
+/* Show the action buttons when the parent container is hovered */
+.hover-container:hover .hover-btn {
+  display: flex;
+}
+
+/* Style for each action button */
+.block-unblock-btn {
+  margin: 5px 0;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.block-unblock-btn:hover {
+  background-color: #e0e0e0;
+}
 
 
