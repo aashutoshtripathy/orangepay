@@ -5,7 +5,7 @@ import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { Spinner } from "reactstrap";
 
-const MainChart = ({ selectedInterval }) => {
+const MainChart = ({ selectedInterval , status }) => {
   const chartRef = useRef(null);
   const userId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(true);
@@ -187,7 +187,9 @@ const MainChart = ({ selectedInterval }) => {
   return (
     <>
 
-<div style={{ position: "relative", height: "300px", width: "100%" }}>
+{ status === 'Activated' ? (
+  <>
+  <div style={{ position: "relative", height: "300px", width: "100%" }}>
       {loading ? (
         // Loader centered absolutely
         <div
@@ -269,9 +271,97 @@ const MainChart = ({ selectedInterval }) => {
           },
         }}
       />
-
       {/* Pie chart */}
 
+      </>
+):(
+  <>
+  <div style={{ position: "relative", height: "300px", width: "100%" }}>
+      {loading ? (
+        // Loader centered absolutely
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 10,
+          }}
+        >
+          <Spinner color="primary" /> 
+          <p style={{ marginTop: "10px", marginRight:"auto",  color: "#888", fontSize: "14px" }}>Please wait...</p>
+
+        </div>
+      ) : (
+        // Render PieChart when loading is complete
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={pieData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              fill="#8884d8"
+              onClick={(e) => console.log("Pie Chart Data:", e)}
+            >
+              {pieData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={getStyle(index === 0 ? "--cui-info" : index === 1 ? "--cui-success" : "--cui-danger")}
+                />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      )}
+    </div>
+
+
+
+      <CChartLine
+        ref={chartRef}
+        style={{ height: '300px', marginTop: '40px' }}
+        data={data}
+        options={{
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+            },
+          },
+          scales: {
+            x: {
+              grid: {
+                color: getStyle('--cui-border-color-translucent'),
+                drawOnChartArea: false,
+              },
+              ticks: {
+                color: getStyle('--cui-body-color'),
+              },
+            },
+            y: {
+              beginAtZero: true,
+              border: {
+                color: getStyle('--cui-border-color-translucent'),
+              },
+              grid: {
+                color: getStyle('--cui-border-color-translucent'),
+              },
+              ticks: {
+                color: getStyle('--cui-body-color'),
+              },
+            },
+          },
+        }}
+      />
+      {/* Pie chart */}
+
+      </>
+)}
     </>
   );
 };

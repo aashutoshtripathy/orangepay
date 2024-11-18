@@ -153,7 +153,7 @@ const PaymentOnline = () => {
 
 
 
-  const API_URL = '/BiharService/BillInterface.asmx';
+  const API_URL = '/appi/BiharService/BillInterface.asmx';
   // const SECONDARY_API_URL = '/BiharService/BillInterface'
   const SECONDARY_API_URL = '/BiharService/BillInterface.asmx?op=PaymentDetails'
 

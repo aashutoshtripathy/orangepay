@@ -336,7 +336,7 @@ if (loading) {
   <CDropdownToggle className="button-download">
     <FontAwesomeIcon  icon="eye" /> Visibility
   </CDropdownToggle>
-<CDropdownMenu>
+<CDropdownMenu color='primary'>
   <div
     className="column-visibility-controls"
     style={{

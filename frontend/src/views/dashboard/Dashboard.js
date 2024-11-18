@@ -110,6 +110,7 @@ const Dashboard = () => {
   const [totalBalance, setTotalBalance] = useState(0); // State to store total balance
   const [userCounts, setUserCounts] = useState({ pending: 0, rejected: 0, blocked: 0 });
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']; // Define the COLORS array
+  const status = localStorage.getItem('status')
 
 
 
@@ -495,7 +496,7 @@ const Dashboard = () => {
                     <CIcon icon={cilCloudDownload} />
                   </CButton>
                   <CButtonGroup className="float-end me-3">
-                    {['Day', 'Month', 'Year'].map((value) => (
+                    {['day', 'month', 'year'].map((value) => (
                       <CButton
                         color="outline-secondary"
                         key={value}
@@ -510,7 +511,7 @@ const Dashboard = () => {
 
                 </CCol>
               </CRow>
-              <MainChart selectedInterval={selectedInterval} />
+              <MainChart selectedInterval={selectedInterval} status={status} />
             </CCardBody>
             <CCardFooter>
               <CRow

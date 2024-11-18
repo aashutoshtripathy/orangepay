@@ -380,6 +380,7 @@ const DataTableComponent = () => {
           
 
                 <button
+                style={{backgroundColor:"#f36c23"}}
                   className="block-unblock-btn block-btn"
                   onClick={() => handleView(row)}
                 >
@@ -423,7 +424,7 @@ const DataTableComponent = () => {
      
 
         <CDropdown >
-          <CDropdownToggle className="button-download">
+          <CDropdownToggle color='primary' style={{backgroundColor: "#f36c23"}} className="button-download">
             {statusFilter === 'all' ? 'All Users' :
               statusFilter === 'Approved' ? 'Active Users' :
                 statusFilter === 'Blocked' ? 'Blocked Users' : ''}

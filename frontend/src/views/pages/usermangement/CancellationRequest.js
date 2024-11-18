@@ -210,7 +210,7 @@ const DataTableComponent = () => {
         cell: row => (
           <button 
             onClick={() => handleViewDetails(row)}
-            style={{ padding: '8px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}
+            style={{ padding: '8px 12px', backgroundColor: '#6362e1', color: 'white', border: 'none', borderRadius: '4px' }}
           >
             View Details
           </button>

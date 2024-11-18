@@ -77,7 +77,7 @@ const AppHeader = () => {
         const userId = localStorage.getItem('userId');
         console.log('User ID:', userId); // Debugging line
         const response = await axios.get(`/status/${userId}`); // Updated API endpoint
-  
+
         if (response.data.hasChanged) {
           alert('Your account has been updated, logging you out.');
           // Call the logout API
@@ -90,10 +90,10 @@ const AppHeader = () => {
         console.error('Failed to check user status:', error.response ? error.response.data : error);
       }
     };
-  
+
     // Poll every 5 seconds
     const interval = setInterval(checkUserStatus, 5000);
-  
+
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
@@ -173,17 +173,17 @@ const AppHeader = () => {
 
   function formatBalance(balance) {
     if (balance === null || isNaN(balance)) return '₹ 0.00';
-  
+
     // Split the number into whole and decimal parts
     const [whole, decimal] = balance.toFixed(2).split('.');
-  
+
     // Format the whole part with commas every three digits
     const formattedWhole = whole.replace(/(\d)(?=(\d{2})+(\d{1})$)/g, '$1,');
-  
+
     return `₹ ${formattedWhole}.${decimal}`;
   }
-  
-  
+
+
 
 
   // let balance = 10;
@@ -217,19 +217,29 @@ const AppHeader = () => {
                 OrangePay
               </h2>
               <CHeaderNav className="d-none d-md-flex">
-                <CNavItem>
+                <CNavItem className='d-flex align-items-center'>
                   <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
-                    Welcome {user.name}
+                    <span className="font-weight-normal">Welcome, </span>
+                    <span className="font-weight-bold">{user.name}</span>
                   </CNavLink>
                 </CNavItem>
-                <CNavItem>
+                <CNavItem className='d-flex align-items-center'>
                   <CNavLink href="#">SuperAdmin</CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink to='/requests' as={NavLink}>Agent Requests</CNavLink>
+                  {/* <CNavLink to='/requests' as={NavLink}>Agent Requests</CNavLink> */}
+                  <CNavLink to='/requests' as={NavLink} className="border p-2 m-1 rounded bg-transparent text-dark">
+                    <div className="d-flex flex-column">
+                      <span>Agent Requests</span>
+                    </div>
+                  </CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink to='/fundrequests' as={NavLink}>Fund Requests</CNavLink>
+                  <CNavLink to='/fundrequests' as={NavLink}  className="border p-2 m-1 rounded bg-transparent text-dark">
+                  <div className="d-flex flex-column">
+                      <span>Fund Requests</span>
+                    </div>
+                  </CNavLink>
                 </CNavItem>
               </CHeaderNav>
               <CHeaderNav className="ms-auto">
@@ -330,7 +340,8 @@ const AppHeader = () => {
             <CHeaderNav className="d-none d-md-flex">
               <CNavItem>
                 <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
-                  Welcome {user.name}
+                  <span className="font-weight-bold">Welcome, </span>
+                  <span className="font-weight-bold">{user.name}</span>
                 </CNavLink>
               </CNavItem>
               {/* <CNavItem>
@@ -359,7 +370,7 @@ const AppHeader = () => {
                       }}
                     />
                     <span style={{ fontWeight: 'bold' }}>
-                     {formatBalance(balance)}
+                      {formatBalance(balance)}
 
                     </span>
                   </span>

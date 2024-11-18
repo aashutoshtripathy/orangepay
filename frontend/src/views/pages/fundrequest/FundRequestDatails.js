@@ -80,7 +80,7 @@ const FundRequestDatails = () => {
         </CTableHead>
         <CTableBody>
           <CTableRow>
-            <CTableHeaderCell scope="row">Unique ID</CTableHeaderCell>
+            <CTableHeaderCell scope="row">User ID</CTableHeaderCell>
             <CTableDataCell>{userData.uniqueId}</CTableDataCell>
           </CTableRow>
           <CTableRow>

@@ -53,9 +53,9 @@ const Profile = () => {
     name: '',
     email: '',
     password: '',
-    mnumber:'',
-    cpassword:'',
-    aadharNumber:''
+    mnumber: '',
+    cpassword: '',
+    aadharNumber: ''
   });
 
 
@@ -293,6 +293,8 @@ const Profile = () => {
     else if (!/\S+@\S+\.\S+/.test(adminData.email)) newErrors.email = "Invalid email address.";
     if (!adminData.mnumber) newErrors.mnumber = "Mobile number is required.";
     else if (!/^\d{10}$/.test(adminData.mnumber)) newErrors.mnumber = "Mobile number must be 10 digits.";
+    if (!adminData.aadharNumber) newErrors.aadharNumber = "Aadhar number is required.";
+    else if (!/^\d{12}$/.test(adminData.aadharNumber)) newErrors.aadharNumber = "Aadhar number must be 12 digits.";
     if (!adminData.password) newErrors.password = "Password is required.";
     if (!adminData.cpassword) newErrors.cpassword = "Confirm password is required.";
     else if (adminData.password !== adminData.cpassword) newErrors.cpassword = "Passwords do not match.";
@@ -324,7 +326,7 @@ const Profile = () => {
     }
     setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
   };
-  
+
 
   const handleFormSubmited = async (e) => {
     e.preventDefault();
@@ -333,11 +335,11 @@ const Profile = () => {
     try {
       const payload = { ...adminData, role: "superadmin" };
 
-      const response = await axios.post("/create", payload); 
+      const response = await axios.post("/create", payload);
       console.log("Admin created successfully:", response.data);
       // alert("SuperAdmin created successfully!");
       setModalVisibleCreateAdmin(false);
-      setAdminData({ name: "", email: "", mnumber: "", password: "", cpassword: "", aadharNumber:"" }); 
+      setAdminData({ name: "", email: "", mnumber: "", password: "", cpassword: "", aadharNumber: "" });
     } catch (error) {
       console.error("Error creating admin:", error);
       alert("Failed to create SuperAdmin. Please try again.");
@@ -357,7 +359,7 @@ const Profile = () => {
       </div>
     );
   }
-    if (error) return <div>Error: {error}</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <>
@@ -396,12 +398,14 @@ const Profile = () => {
         </CCardBody>
         <CCardFooter className="text-center">
           <Link to={`/update-user/${userId}`}>
-            <CButton color="success" size="lg" className="me-3">
+            <CButton style={{ backgroundColor: "#f36c23", border: "none" }}
+              color="primary" size="lg" className="me-3">
               Update User
             </CButton>
           </Link>
           {balance !== null ? (
             <CButton
+              style={{ backgroundColor: "#f36c23", border: "none" }}
               color="primary"
               size="lg"
               onClick={() => setModalVisible(true)}
@@ -410,6 +414,7 @@ const Profile = () => {
             </CButton>
           ) : (
             <CButton
+              style={{ backgroundColor: "#f36c23", border: "none" }}
               color="primary"
               size="lg"
               onClick={() => setModalVisibleCreateAdmin(true)}
@@ -684,94 +689,96 @@ const Profile = () => {
 
 
       <CModal visible={modalVisibleCreateAdmin} onClose={() => setModalVisibleCreateAdmin(false)}>
-      <CModalHeader onClose={() => setModalVisibleCreateAdmin(false)}>
-        <CModalTitle>Create SuperAdmin</CModalTitle>
-      </CModalHeader>
-      <CModalBody>
-        <CForm onSubmit={handleFormSubmit}>
-          <CFormInput
-            type="text"
-            name="name"
-            value={adminData.name}
-            onChange={handleInputChanged}
-            onBlur={(e) => validateField(e.target.name, e.target.value)}
-            label="Full Name"
-            placeholder="Enter name"
-            required
-            feedback={errors.name}
-            invalid={!!errors.name}
-          />
-          <CFormInput
-            type="email"
-            name="email"
-            value={adminData.email}
-            onChange={handleInputChanged}
-            onBlur={(e) => validateField(e.target.name, e.target.value)}
-            label="Email"
-            placeholder="Enter email"
-            required
-            feedback={errors.email}
-            invalid={!!errors.email}
-          />
-          <CFormInput
-            type="text"
-            name="mnumber"
-            value={adminData.mnumber}
-            onChange={handleInputChanged}
-            onBlur={(e) => validateField(e.target.name, e.target.value)}
-            label="Mobile Number"
-            placeholder="Enter Mobile Number"
-            required
-            feedback={errors.mnumber}
-            invalid={!!errors.mnumber}
-          />
-          <CFormInput
-            type="text"
-            name="aadharNumber"
-            value={adminData.aadharNumber}
-            onChange={handleInputChanged}
-            onBlur={(e) => validateField(e.target.name, e.target.value)}
-            label="Aadhar Number"
-            placeholder="Enter Aadhar Number"
-            required
-            feedback={errors.aadharNumber}
-            invalid={!!errors.aadharNumber}
-          />
-          <CFormInput
-            type="password"
-            name="password"
-            value={adminData.password}
-            onChange={handleInputChanged}
-            onBlur={(e) => validateField(e.target.name, e.target.value)}
-            label="Password"
-            placeholder="Enter password"
-            required
-            feedback={errors.password}
-            invalid={!!errors.password}
-          />
-          <CFormInput
-            type="password"
-            name="cpassword"
-            value={adminData.cpassword}
-            onChange={handleInputChanged}
-            onBlur={(e) => validateField(e.target.name, e.target.value)}
-            label="Confirm Password"
-            placeholder="Enter password again"
-            required
-            feedback={errors.cpassword}
-            invalid={!!errors.cpassword}
-          />
-        </CForm>
-      </CModalBody>
-      <CModalFooter>
-        <CButton color="secondary" onClick={() => setModalVisibleCreateAdmin(false)}>
-          Close
-        </CButton>
-        <CButton color="primary" onClick={handleFormSubmited}>
-          Create Admin
-        </CButton>
-      </CModalFooter>
-    </CModal>
+        <CModalHeader onClose={() => setModalVisibleCreateAdmin(false)}>
+          <CModalTitle>Create SuperAdmin</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CForm onSubmit={handleFormSubmit}>
+            <CFormInput
+              type="text"
+              name="name"
+              value={adminData.name}
+              onChange={handleInputChanged}
+              onBlur={(e) => validateField(e.target.name, e.target.value)}
+              label="Full Name"
+              placeholder="Enter name"
+              required
+              feedback={errors.name}
+              invalid={!!errors.name}
+              className="w-100"
+
+            />
+            <CFormInput
+              type="email"
+              name="email"
+              value={adminData.email}
+              onChange={handleInputChanged}
+              onBlur={(e) => validateField(e.target.name, e.target.value)}
+              label="Email"
+              placeholder="Enter email"
+              required
+              feedback={errors.email}
+              invalid={!!errors.email}
+            />
+            <CFormInput
+              type="text"
+              name="mnumber"
+              value={adminData.mnumber}
+              onChange={handleInputChanged}
+              onBlur={(e) => validateField(e.target.name, e.target.value)}
+              label="Mobile Number"
+              placeholder="Enter Mobile Number"
+              required
+              feedback={errors.mnumber}
+              invalid={!!errors.mnumber}
+            />
+            <CFormInput
+              type="text"
+              name="aadharNumber"
+              value={adminData.aadharNumber}
+              onChange={handleInputChanged}
+              onBlur={(e) => validateField(e.target.name, e.target.value)}
+              label="Aadhar Number"
+              placeholder="Enter Aadhar Number"
+              required
+              feedback={errors.aadharNumber}
+              invalid={!!errors.aadharNumber}
+            />
+            <CFormInput
+              type="password"
+              name="password"
+              value={adminData.password}
+              onChange={handleInputChanged}
+              onBlur={(e) => validateField(e.target.name, e.target.value)}
+              label="Password"
+              placeholder="Enter password"
+              required
+              feedback={errors.password}
+              invalid={!!errors.password}
+            />
+            <CFormInput
+              type="password"
+              name="cpassword"
+              value={adminData.cpassword}
+              onChange={handleInputChanged}
+              onBlur={(e) => validateField(e.target.name, e.target.value)}
+              label="Confirm Password"
+              placeholder="Enter password again"
+              required
+              feedback={errors.cpassword}
+              invalid={!!errors.cpassword}
+            />
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setModalVisibleCreateAdmin(false)}>
+            Close
+          </CButton>
+          <CButton color="primary" onClick={handleFormSubmited}>
+            Create Admin
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </>
   );
 };

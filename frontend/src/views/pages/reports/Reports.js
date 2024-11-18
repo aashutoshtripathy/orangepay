@@ -336,7 +336,7 @@ if (loading) {
           onChange={(e) => setFilterText(e.target.value)}
         />
 <CDropdown >
-  <CDropdownToggle className="button-download">
+  <CDropdownToggle className="button-download" >
     <FontAwesomeIcon  icon="eye" /> Visibility
   </CDropdownToggle>
 <CDropdownMenu>

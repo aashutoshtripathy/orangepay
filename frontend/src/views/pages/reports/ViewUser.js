@@ -537,7 +537,7 @@ const toggleButtons = () => {
      
 
         <CDropdown >
-          <CDropdownToggle className="button-download">
+          <CDropdownToggle className="button-download"  style={{backgroundColor: "#f36c23"}} color='primary'>
             {statusFilter === 'all' ? 'All Users' :
               statusFilter === 'Approved' ? 'Active Users' :
                 statusFilter === 'Blocked' ? 'Blocked Users' :

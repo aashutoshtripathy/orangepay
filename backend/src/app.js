@@ -8,6 +8,7 @@ import multer from "multer";
 import { fileURLToPath } from "url";
 import  session  from "express-session";
 import MongoStore from "connect-mongo"
+import createProxyMiddleware from "http-proxy-middleware"
 
 
 
@@ -17,6 +18,8 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN,
     Credential: true
 }))
+
+
 
 app.use(express.json({limit:"16kb"}))
 
