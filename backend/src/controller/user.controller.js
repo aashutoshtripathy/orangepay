@@ -1554,6 +1554,34 @@ const reports = asyncHandler(async (req, res) => {
 
 
 
+
+// Encryption key and IV setup
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || crypto.randomBytes(32); // 32 bytes for AES-256
+const IV_LENGTH = 16; // AES block size for IV
+
+// Encrypt function
+function encryptData(data) {
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), iv);
+  let encrypted = cipher.update(JSON.stringify(data));
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return {
+    iv: iv.toString("hex"),
+    encryptedData: encrypted.toString("hex"),
+  };
+}
+
+// Decrypt function
+function decryptData(encrypted) {
+  const iv = Buffer.from(encrypted.iv, "hex");
+  const encryptedText = Buffer.from(encrypted.encryptedData, "hex");
+  const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), iv);
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return JSON.parse(decrypted.toString());
+}
+
+// Updated loginUser function
 const loginUser = asyncHandler(async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -1577,16 +1605,16 @@ const loginUser = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Invalid User Credentials");
     }
 
-
-
     await Register.findByIdAndUpdate(user._id, { loggedOut: false });
 
-
-
-
     // Save session details
-    req.session.user = { id: user._id, username: user.username, email: user.email };
+    const sessionData = { id: user._id, username: user.username, email: user.email };
+    req.session.user = sessionData;
     console.log('Session ID:', req.sessionID);
+
+    // Encrypt session ID and user data
+    const encryptedSession = encryptData({ sessionID: req.sessionID });
+    const encryptedUser = encryptData(sessionData);
 
     // Generate JWT token
     const accessToken = jwt.sign(
@@ -1595,34 +1623,35 @@ const loginUser = asyncHandler(async (req, res) => {
       { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
     );
 
-    // Set cookies
-    res.cookie('sessionID', req.sessionID, {
+    // Set cookies with encrypted session and token
+    res.cookie('sessionData', JSON.stringify(encryptedSession), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
-      path: '/' // Ensure the path is correct
+      path: '/',
     });
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
-      path: '/' // Ensure the path is correct
+      path: '/',
     });
 
-    // Respond with success
+    // Respond with success and encrypted user data
     return res.status(200).json(
       new ApiResponse(200, {
         success: true,
         message: "User Logged in Successfully",
+        encryptedUser, // Send encrypted user details
         user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          status: user.status
-        },
+                    id: user._id,
+                    username: user.username,
+                    email: user.email,
+                    status: user.status
+                  },
         token: accessToken,
-        session: req.sessionID
+        encryptedSession, // Send encrypted session ID
       })
     );
   } catch (error) {
@@ -1634,6 +1663,90 @@ const loginUser = asyncHandler(async (req, res) => {
     }
   }
 });
+
+
+
+
+// const loginUser = asyncHandler(async (req, res) => {
+//   try {
+//     const { username, password } = req.body;
+
+//     if (!username || !password) {
+//       throw new ApiError(400, "Username and password are required");
+//     }
+
+//     const user = await Register.findOne({ userId: username });
+
+//     if (!user) {
+//       throw new ApiError(400, "User does not exist");
+//     }
+
+//     if (user.status !== "Approved" && user.status !== "Activated" || user.isBlocked) {
+//       throw new ApiError(400, "User account is Temporarily Blocked");
+//     }
+
+//     // Check password - Assuming plain text comparison here
+//     if (user.password !== password) {
+//       throw new ApiError(400, "Invalid User Credentials");
+//     }
+
+
+
+//     await Register.findByIdAndUpdate(user._id, { loggedOut: false });
+
+
+
+
+//     // Save session details
+//     req.session.user = { id: user._id, username: user.username, email: user.email };
+//     console.log('Session ID:', req.sessionID);
+
+//     // Generate JWT token
+//     const accessToken = jwt.sign(
+//       { _id: user._id, username: user.username, email: user.email },
+//       process.env.ACCESS_TOKEN_SECRET,
+//       { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+//     );
+
+//     // Set cookies
+//     res.cookie('sessionID', req.sessionID, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === 'production',
+//       sameSite: 'Strict',
+//       path: '/' // Ensure the path is correct
+//     });
+
+//     res.cookie('accessToken', accessToken, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === 'production',
+//       sameSite: 'Strict',
+//       path: '/' // Ensure the path is correct
+//     });
+
+//     // Respond with success
+//     return res.status(200).json(
+//       new ApiResponse(200, {
+//         success: true,
+//         message: "User Logged in Successfully",
+//         user: {
+//           id: user._id,
+//           username: user.username,
+//           email: user.email,
+//           status: user.status
+//         },
+//         token: accessToken,
+//         session: req.sessionID
+//       })
+//     );
+//   } catch (error) {
+//     console.error("Error in loginUser function:", error);
+//     if (error instanceof ApiError) {
+//       return res.status(error.statusCode).json(error);
+//     } else {
+//       return res.status(500).json(new ApiError(500, "Internal Server Error"));
+//     }
+//   }
+// });
 
 
 

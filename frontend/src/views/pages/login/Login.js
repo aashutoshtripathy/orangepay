@@ -61,7 +61,7 @@ const Login = () => {
       // const { user } = response.data.data;
       // const { id } = user;
 
-      const { token, user, session } = response.data.data;
+      const { token, user, session , encryptedSession } = response.data.data;
 
 
       const expirationTime = new Date().getTime() + 60 * 60 * 1000; // 1 hour from now
@@ -73,6 +73,11 @@ const Login = () => {
       // console.log('Login Successful:', data);
       // sessionStorage.setItem('session', JSON.stringify(session));
       sessionStorage.setItem('session', session)
+      sessionStorage.setItem('encryptedSession', encryptedSession)
+      
+      
+      localStorage.setItem("user", JSON.stringify(user));
+
 
 
       // localStorage.setItem('userId', user.id)
