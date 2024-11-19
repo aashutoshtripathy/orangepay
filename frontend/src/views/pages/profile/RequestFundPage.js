@@ -95,7 +95,7 @@ const RequestFundPage = () => {
       <CCol md={6}>
         <CCard>
           <CCardHeader>
-            <h5>Request Fund</h5>
+            <h5 style={{color:"#f36c23"}}>Request Fund</h5>
           </CCardHeader>
           <CCardBody>
 
@@ -222,7 +222,7 @@ const RequestFundPage = () => {
                 )}
               </>
             )}
-            <CButton color="primary" type="submit" className="mt-4">
+            <CButton color="primary" style={{backgroundColor:"#f36c23",border:"none"}} type="submit" className="mt-4">
               Request Fund
             </CButton>
           </form>

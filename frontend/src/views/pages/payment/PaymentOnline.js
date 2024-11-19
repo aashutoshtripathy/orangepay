@@ -290,7 +290,7 @@ const PaymentOnline = () => {
     try {
       const checksum = calculateChecksum(amount, 'd8bKEaX1XEtB');
       const formattedDateTime = formatDateTime();
-    const transactionRef = transactionId || generateUniqueTransactionId();
+      const transactionRef = transactionId || generateUniqueTransactionId();
       const soapRequest = (billData, amount, checksum) => `
       <?xml version="1.0" encoding="utf-8"?>
       <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -316,31 +316,31 @@ const PaymentOnline = () => {
       `.trim();
 
 
-        const xmlPayload = soapRequest(billData, amount, checksum); 
+      const xmlPayload = soapRequest(billData, amount, checksum);
 
-        if (!xmlPayload) {
-          console.error("Failed to generate XML payload due to missing amount.");
-          return;
-        } const response = await axios.post(SECONDARY_API_URL, xmlPayload, {
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Accept': 'application/xml, text/xml, application/json',
-          },
-        });
-        console.log(response.data); // Check the response
-        const statusFlagMatch = response.data.match(/<StatusFlag>(.*?)<\/StatusFlag>/);
-        const messageMatch = response.data.match(/<Message>(.*?)<\/Message>/);
-      
-        const statusFlag = statusFlagMatch ? statusFlagMatch[1] : null;
-        const message = messageMatch ? messageMatch[1] : 'No message found';
-      
-        if (statusFlag === '1') {
-          console.log('Transaction successful:', message);
-                  setShowSuccessModal(true);
+      if (!xmlPayload) {
+        console.error("Failed to generate XML payload due to missing amount.");
+        return;
+      } const response = await axios.post(SECONDARY_API_URL, xmlPayload, {
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+          'Accept': 'application/xml, text/xml, application/json',
+        },
+      });
+      console.log(response.data); // Check the response
+      const statusFlagMatch = response.data.match(/<StatusFlag>(.*?)<\/StatusFlag>/);
+      const messageMatch = response.data.match(/<Message>(.*?)<\/Message>/);
 
-      
-          // Create SOAP request for fetching the receipt
-          const receiptSoapRequest = `
+      const statusFlag = statusFlagMatch ? statusFlagMatch[1] : null;
+      const message = messageMatch ? messageMatch[1] : 'No message found';
+
+      if (statusFlag === '1') {
+        console.log('Transaction successful:', message);
+        setShowSuccessModal(true);
+
+
+        // Create SOAP request for fetching the receipt
+        const receiptSoapRequest = `
             <?xml version="1.0" encoding="utf-8"?>
             <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
               <soap:Body>
@@ -352,63 +352,63 @@ const PaymentOnline = () => {
               </soap:Body>
             </soap:Envelope>
           `.trim();
-      
-          try {
-            const receiptResponse = await axios.post('/BiharService/BillInterface.asmx?op=PaymentReceiptDetails', receiptSoapRequest, {
-              headers: {
-                'Content-Type': 'text/xml; charset=utf-8',
-                'Accept': 'application/xml, text/xml, application/json',
-              },
-            });
-      
-            console.log('Receipt Response:', receiptResponse.data);
-            const response = receiptResponse.data
-            const xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
-      const receiptData = {
-        receiptNo: xmlDoc.getElementsByTagName('BSPDCL_Receipt_No')[0]?.textContent || 'N/A',
-        transactionId: xmlDoc.getElementsByTagName('Transaction_Id')[0]?.textContent || 'N/A',
-        consumerNo: xmlDoc.getElementsByTagName('CANumber')[0]?.textContent || 'N/A',
-        consumerName: xmlDoc.getElementsByTagName('ConsumerName')[0]?.textContent || 'N/A',
-        billAmount: xmlDoc.getElementsByTagName('AmountPaid')[0]?.textContent || 'N/A',
-        paymentMode: xmlDoc.getElementsByTagName('ModePayment')[0]?.textContent || 'N/A',
-        paymentDate: xmlDoc.getElementsByTagName('PaymentDateTime')[0]?.textContent || 'N/A',
-      };
 
-      // Set the parsed data in state
-      setData(receiptData);
-            
-          } catch (error) {
-            console.error('Error fetching receipt:', error);
-          }
-        } else {
-          console.error('Transaction failed:', message);
+        try {
+          const receiptResponse = await axios.post('/BiharService/BillInterface.asmx?op=PaymentReceiptDetails', receiptSoapRequest, {
+            headers: {
+              'Content-Type': 'text/xml; charset=utf-8',
+              'Accept': 'application/xml, text/xml, application/json',
+            },
+          });
+
+          console.log('Receipt Response:', receiptResponse.data);
+          const response = receiptResponse.data
+          const xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+          const receiptData = {
+            receiptNo: xmlDoc.getElementsByTagName('BSPDCL_Receipt_No')[0]?.textContent || 'N/A',
+            transactionId: xmlDoc.getElementsByTagName('Transaction_Id')[0]?.textContent || 'N/A',
+            consumerNo: xmlDoc.getElementsByTagName('CANumber')[0]?.textContent || 'N/A',
+            consumerName: xmlDoc.getElementsByTagName('ConsumerName')[0]?.textContent || 'N/A',
+            billAmount: xmlDoc.getElementsByTagName('AmountPaid')[0]?.textContent || 'N/A',
+            paymentMode: xmlDoc.getElementsByTagName('ModePayment')[0]?.textContent || 'N/A',
+            paymentDate: xmlDoc.getElementsByTagName('PaymentDateTime')[0]?.textContent || 'N/A',
+          };
+
+          // Set the parsed data in state
+          setData(receiptData);
+
+        } catch (error) {
+          console.error('Error fetching receipt:', error);
         }
-      } catch (error) {
-        console.error('Error during payment or receipt fetch:', error);
-        if (error.response) {
-          console.error('Error Response:', error.response.data); // Log the error response if available
-        }
+      } else {
+        console.error('Transaction failed:', message);
+      }
+    } catch (error) {
+      console.error('Error during payment or receipt fetch:', error);
+      if (error.response) {
+        console.error('Error Response:', error.response.data); // Log the error response if available
       }
     }
+  }
 
 
-    const parser = new DOMParser();
-    // const xmlDoc = parser.parseFromString(response.data, 'text/xml');
+  const parser = new DOMParser();
+  // const xmlDoc = parser.parseFromString(response.data, 'text/xml');
 
-    // const receiptData = {
-    //   receiptNo: xmlDoc.getElementsByTagName('BSPDCL_Receipt_No')[0]?.textContent,
-    //   transactionId: xmlDoc.getElementsByTagName('Transaction_Id')[0]?.textContent,
-    //   consumerId: xmlDoc.getElementsByTagName('CANumber')[0]?.textContent,
-    //   consumerName: xmlDoc.getElementsByTagName('ConsumerName')[0]?.textContent,
-    //   billNo: xmlDoc.getElementsByTagName('BillNo')[0]?.textContent,
-    //   billDueDate: xmlDoc.getElementsByTagName('BillDueDate')[0]?.textContent,
-    //   amountPaid: xmlDoc.getElementsByTagName('AmountPaid')[0]?.textContent,
-    //   paymentDateTime: xmlDoc.getElementsByTagName('PaymentDateTime')[0]?.textContent,
-    //   modePayment: xmlDoc.getElementsByTagName('ModePayment')[0]?.textContent,
-    // };
+  // const receiptData = {
+  //   receiptNo: xmlDoc.getElementsByTagName('BSPDCL_Receipt_No')[0]?.textContent,
+  //   transactionId: xmlDoc.getElementsByTagName('Transaction_Id')[0]?.textContent,
+  //   consumerId: xmlDoc.getElementsByTagName('CANumber')[0]?.textContent,
+  //   consumerName: xmlDoc.getElementsByTagName('ConsumerName')[0]?.textContent,
+  //   billNo: xmlDoc.getElementsByTagName('BillNo')[0]?.textContent,
+  //   billDueDate: xmlDoc.getElementsByTagName('BillDueDate')[0]?.textContent,
+  //   amountPaid: xmlDoc.getElementsByTagName('AmountPaid')[0]?.textContent,
+  //   paymentDateTime: xmlDoc.getElementsByTagName('PaymentDateTime')[0]?.textContent,
+  //   modePayment: xmlDoc.getElementsByTagName('ModePayment')[0]?.textContent,
+  // };
 
-    // // Set the extracted data in state
-    // setData(receiptData);
+  // // Set the extracted data in state
+  // setData(receiptData);
 
   const generateUniqueTransactionId = () => `OP${Date.now()}`;
 
@@ -632,10 +632,13 @@ const PaymentOnline = () => {
   // };
 
   return (
-    <CContainer className="p-4">
-      <CCard>
-        <CCardHeader>
-          <h2>Payment Information</h2>
+    <CContainer
+      className="d-flex justify-content-center align-items-center"
+    // Centers the card vertically and horizontally
+    >   
+    <CCard style={{ width: '50%' }}>
+    <CCardHeader>
+          <h2 style={{color:"#f36c23"}}>Payment Information</h2>
         </CCardHeader>
 
         <CCardBody>
@@ -663,6 +666,7 @@ const PaymentOnline = () => {
                 <CCol md={6}>
                   <CFormLabel htmlFor="consumerId">Consumer ID</CFormLabel>
                   <CFormInput
+                  style={{width:"200%"}}
                     type="text"
                     id="consumerId"
                     value={consumerId}
@@ -675,7 +679,7 @@ const PaymentOnline = () => {
                 </CCol>
               </CRow>
 
-              <CButton color="primary" onClick={handleFetchBill}>
+              <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={handleFetchBill}>
                 Fetch Bill
               </CButton>
             </>
@@ -881,7 +885,7 @@ const PaymentOnline = () => {
           <p><strong>Transaction ID:</strong> {data.transactionId || 'N/A'}</p>
 
           <p><strong>Payment Status:</strong> Transaction success</p>
-        
+
 
           <p>Thanks for Payment!</p>
 

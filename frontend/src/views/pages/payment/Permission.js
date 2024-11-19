@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CCard, CCardBody, CCardHeader, CForm, CFormCheck, CFormInput, CButton } from '@coreui/react';
+import { CCard, CCardBody, CCardHeader, CContainer , CForm, CFormCheck, CFormInput, CButton } from '@coreui/react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -148,8 +148,12 @@ const Permission = () => {
   };
 
   return (
+    <CContainer fluid>
+
     <CCard className="mb-4">
-      <CCardHeader>Update Options</CCardHeader>
+                
+
+      <CCardHeader><h5>Update Options</h5></CCardHeader>
       <CCardBody>
         <CForm>
           {/* Checkbox Group */}
@@ -278,6 +282,7 @@ const Permission = () => {
         <CForm>
           {/* Input field for commission */}
           <CFormInput
+          style={{width:"30%"}}
             type="number"
             id="commission"
             name="commission"
@@ -294,6 +299,7 @@ const Permission = () => {
         </CForm>
       </CCardBody>
     </CCard>
+    </CContainer>
   );
 };
 

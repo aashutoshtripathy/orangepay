@@ -192,10 +192,13 @@ const Payment = () => {
   };
 
   return (
-    <CContainer className="p-4">
-      <CCard>
-        <CCardHeader>
-          <h2>Check Prepaid Balance</h2>
+    <CContainer
+      className="d-flex justify-content-center align-items-center"
+    // Centers the card vertically and horizontally
+    >
+    <CCard style={{ width: '50%' }}>
+    <CCardHeader>
+          <h2 style={{color:"#f36c23"}}>Check Prepaid Balance</h2>
         </CCardHeader>
 
         <CCardBody>
@@ -219,6 +222,7 @@ const Payment = () => {
                 <CCol md={6}>
                   <label htmlFor="paymentMethod">Select Meter Type</label>
                   <CFormSelect
+                  style={{width:"200%"}}
                     id="paymentMethod"
                     value={selectedMethod}
                     onChange={handleMethodChange}
@@ -234,6 +238,7 @@ const Payment = () => {
                 <CCol md={6}>
                   <CFormLabel htmlFor="consumerId">Enter Consumer Number</CFormLabel>
                   <CFormInput
+                    style={{width:"200%"}}
                     type="text"
                     id="consumerId"
                     value={consumerId}
@@ -245,7 +250,7 @@ const Payment = () => {
               </CRow>
 
               {/* Fetch Bill Button */}
-              <CButton color="primary" onClick={handleFetchBill}>
+              <CButton style={{backgroundColor:"#f36c23",border:"none"}} color='primary' onClick={handleFetchBill}>
                 Get Balance
               </CButton>
             </>

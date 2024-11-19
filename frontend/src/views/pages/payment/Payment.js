@@ -425,10 +425,13 @@ const handleConsumerIdFocus = () => {
   };
 
   return (
-    <CContainer className="p-4">
-      <CCard>
+    <CContainer
+    className="d-flex justify-content-center align-items-center"
+   // Centers the card vertically and horizontally
+  >
+    <CCard style={{ width: '50%' }}>
         <CCardHeader>
-          <h2>Payment Information</h2>
+          <h2 style={{color:"#f36c23"}}>Payment Information</h2>
         </CCardHeader>
 
         <CCardBody>
@@ -447,6 +450,7 @@ const handleConsumerIdFocus = () => {
                 <CCol md={6}>
                   <CFormLabel htmlFor="consumerId">Consumer ID</CFormLabel>
                   <CFormInput
+                  style={{width:"200%"}}
                     type="text"
                     id="consumerId"
                     value={consumerId}
@@ -459,7 +463,7 @@ const handleConsumerIdFocus = () => {
     </CCol>
               </CRow>
 
-              <CButton color="primary" onClick={handleFetchBill}>
+              <CButton color="primary" style={{backgroundColor:"#f36c23",border:"none"}} onClick={handleFetchBill}>
                 Fetch Bill
               </CButton>
             </>
@@ -510,7 +514,9 @@ const handleConsumerIdFocus = () => {
                   <label htmlFor="paymentMethod">Payment Method</label>
                   <div className="d-flex justify-content-between mt-2">
                     {billPaymentMethods.wallet && (
-                      <CCard className={`mb-3 ${selectedMethod === 'wallet' ? 'border-primary' : ''}`} onClick={() => handleMethodChange({ target: { value: 'wallet' } })}>
+                      <CCard   className="mb-3" 
+                      style={selectedMethod === 'wallet' ? { backgroundColor: '#f36c23', color: 'white' } : {}}
+                      onClick={() => handleMethodChange({ target: { value: 'wallet' } })}>
                         <CCardBody>
                           <CFormCheck
                             type="radio"
@@ -527,7 +533,8 @@ const handleConsumerIdFocus = () => {
                       </CCard>
                     )}
                     {billPaymentMethods.ezetap && (
-                      <CCard className={`mb-3 ${selectedMethod === 'ezetap' ? 'border-primary' : ''}`} onClick={() => handleMethodChange({ target: { value: 'ezetap' } })}>
+                      <CCard  className="mb-3" 
+                      style={selectedMethod === 'ezetap' ? { backgroundColor: '#f36c23', color: 'white' } : {}} onClick={() => handleMethodChange({ target: { value: 'ezetap' } })}>
                         <CCardBody>
                           <CFormCheck
                             type="radio"
@@ -544,7 +551,8 @@ const handleConsumerIdFocus = () => {
                       </CCard>
                     )}
                     {billPaymentMethods.upiQr && (
-                      <CCard className={`mb-3 ${selectedMethod === 'upi-qr' ? 'border-primary' : ''}`} onClick={() => handleMethodChange({ target: { value: 'upi-qr' } })}>
+                      <CCard className="mb-3" 
+                      style={selectedMethod === 'upi-qr' ? { backgroundColor: '#f36c23', color: 'white' } : {}} onClick={() => handleMethodChange({ target: { value: 'upi-qr' } })}>
                         <CCardBody>
                           <CFormCheck
                             type="radio"
@@ -561,7 +569,8 @@ const handleConsumerIdFocus = () => {
                       </CCard>
                     )}
                     {billPaymentMethods.rrn && (
-                      <CCard className={`mb-3 ${selectedMethod === 'rrn' ? 'border-primary' : ''}`} onClick={() => handleMethodChange({ target: { value: 'rrn' } })}>
+                      <CCard  className="mb-3" 
+                      style={selectedMethod === 'rrn' ? { backgroundColor: '#f36c23', color: 'white' } : {}} onClick={() => handleMethodChange({ target: { value: 'rrn' } })}>
                         <CCardBody>
                           <CFormCheck
                             type="radio"
@@ -608,7 +617,7 @@ const handleConsumerIdFocus = () => {
                 </CCol>
               </CRow>
 
-              <CButton color="primary" onClick={handlePayment}>
+              <CButton color="primary" style={{backgroundColor:"#f36c23", border: "none"}} onClick={handlePayment}>
                 Pay Bill
               </CButton>
             </>

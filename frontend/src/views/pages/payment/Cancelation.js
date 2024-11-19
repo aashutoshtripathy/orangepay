@@ -14,7 +14,7 @@ import {
   CModalTitle,
   CModalBody,
   CModalFooter,
-} from '@coreui/react'; 
+} from '@coreui/react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,7 +23,7 @@ const Cancelation = () => {
   const [consumerId, setConsumerId] = useState('');
   const [errors, setErrors] = useState({});
   const [userId, setUserId] = useState({});
-  
+
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [fetchBillSuccess, setFetchBillSuccess] = useState(false);
   const [cancellationData, setCancellationData] = useState(null);
@@ -52,15 +52,15 @@ const Cancelation = () => {
   const handleFetchBill = async () => {
     setFormSubmitted(true);
     setFetchError(''); // Reset error state on new search
-  
+
     if (!validate()) return;
-  
+
     try {
       const response = await axios.post('/get-cancellation', {
         consumerId,
         userId
       });
-  
+
       if (response.status === 200) {
         if (response.data && response.data.length > 0) {
           setCancellationData(response.data);
@@ -80,7 +80,7 @@ const Cancelation = () => {
   const handleCardClick = (item) => {
     if (item.paymentmode === 'wallet') {
       setSelectedItem(item); // Save the selected item
-      navigate('/request-cancelation-details', { state: { selectedItem: item } }); 
+      navigate('/request-cancelation-details', { state: { selectedItem: item } });
     }
   };
 
@@ -88,13 +88,16 @@ const Cancelation = () => {
     setIsModalVisible(false);
     setSelectedItem(null); // Clear the selected item
   };
-  
+
 
   return (
-    <CContainer className="p-4">
-      <CCard>
+    <CContainer
+      className="d-flex justify-content-center align-items-center"
+    // Centers the card vertically and horizontally
+    >
+      <CCard style={{ width: '50%' }}>
         <CCardHeader>
-          <h2>Transaction Reversal Request</h2>
+          <h2 style={{color:"#f36c23"}}>Transaction Reversal Request</h2>
         </CCardHeader>
 
         <CCardBody>
@@ -104,33 +107,35 @@ const Cancelation = () => {
                 <CCol md={6}>
                   <CFormLabel htmlFor="consumerId">Enter Consumer Number</CFormLabel>
                   <CFormInput
+                  style={{width:"200%"}}
                     type="text"
                     id="consumerId"
                     value={consumerId}
                     onChange={(e) => setConsumerId(e.target.value)}
                     placeholder="Enter Consumer Number"
+                    
                   />
                   {formSubmitted && errors.consumerId && <p className="text-danger">{errors.consumerId}</p>}
                 </CCol>
               </CRow>
 
-              <CButton color="primary" onClick={handleFetchBill}>
+              <CButton color="primary" style={{backgroundColor:"#f36c23" , border:"none"}} onClick={handleFetchBill}>
                 Search
               </CButton>
             </>
           )}
 
-{fetchError && <p className="text-danger">{fetchError}</p>} 
+          {fetchError && <p className="text-danger">{fetchError}</p>}
 
           {fetchBillSuccess && (
             <>
-              
+
               <p><strong>Consumer Number:</strong> {cancellationData[0].canumber || 'N/A'}</p>
 
               <CRow className="mt-4">
                 {cancellationData.map((item) => (
                   <CCol md={6} key={item._id}>
-<CCard onClick={() => handleCardClick(item)} style={{ cursor: 'pointer' }}>
+                    <CCard onClick={() => handleCardClick(item)} style={{ cursor: 'pointer' }}>
                       <CCardHeader>
                         <h5>Cancellation Details</h5>
                       </CCardHeader>
@@ -150,7 +155,7 @@ const Cancelation = () => {
               </CRow>
             </>
           )}
-          
+
         </CCardBody>
       </CCard>
       <CModal visible={isModalVisible} onClose={closeModal}>

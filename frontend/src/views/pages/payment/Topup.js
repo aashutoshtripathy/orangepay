@@ -102,10 +102,11 @@ const Topup = () => {
             <CCardBody>
               <CFormLabel htmlFor="amount">Amount</CFormLabel>
               <CFormInput
+              style={{width:"100%"}}
                 type="number"
                 id="amount"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)} // Update amount state
+                onChange={(e) => setAmount(e.target.value)} 
                 placeholder="Enter Amount"
                 invalid={formSubmitted && !!errors.amount}
               />

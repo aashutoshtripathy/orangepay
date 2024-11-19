@@ -14,25 +14,28 @@ const customStyles = {
   rows: {
     style: {
       minHeight: '72px', // Set the minimum row height
+      cursor: 'pointer', // Add pointer cursor for rows
     },
   },
   headCells: {
     style: {
-      // backgroundColor: '#333', // Dark background for header cells
-      color: 'black', // Set font color to orange for header cells
+      backgroundColor: '#f4f4f9', // Light background for header cells
+      color: '#333', // Set font color to dark for header cells
       fontSize: '16px', // Adjust font size for header
       fontWeight: 'bold', // Make the header bold
-      paddingLeft: '8px',
-      paddingRight: '8px',
+      paddingLeft: '12px',
+      paddingRight: '12px',
+      borderBottom: '2px solid #e1e1e1', // Add a bottom border for header cells
     },
   },
   cells: {
     style: {
-      paddingLeft: '8px',
-      paddingRight: '8px',
+      paddingLeft: '12px',
+      paddingRight: '12px',
     },
   },
 };
+
 
 // Function to generate and download PDF
 // Function to generate and download PDF
