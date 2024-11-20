@@ -61,49 +61,72 @@ const Payment = () => {
   };
 
   // const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
-  const API_URL = '/BiharService/BillInterface'
+  const API_URL = 'http://hargharbijli.bsphcl.co.in/WebServiceExternal/WebServiceOPSM.asmx'
 
-  const soapRequest = (consumerId, amount) => `
-  <?xml version="1.0" encoding="utf-8"?>
-  <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Body>
-      <BillDetails xmlns="http://tempuri.org/">
-        <strCANumber>${consumerId}</strCANumber>
-        <strDivision></strDivision>
-        <strSubDivision></strSubDivision>
-        <strLegacyNo></strLegacyNo>
-        <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
-        <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
-        <Amount>${amount}</Amount>
-      </BillDetails>
-    </soap:Body>
-  </soap:Envelope>
+  const soapRequest = (consumerId) => `
+<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Header>
+    <UserCredentials xmlns="http://bsphcl.co.in/">
+      <username>SMOR</username>
+      <password>Op#4321@$M</password>
+    </UserCredentials>
+  </soap12:Header>
+  <soap12:Body>
+    <GetConsumerBalanceDetails xmlns="http://bsphcl.co.in/">
+          <StrCANumber>${consumerId}</StrCANumber>
+    </GetConsumerBalanceDetails>
+  </soap12:Body>
+</soap12:Envelope>
+
 `;
 
 
-  const handleFetchBill = async () => {
-    setFormSubmitted(true);
-    setIsBillFetched(true);
-    setFetchBillSuccess(false); // Set to false initially to indicate fetching process
+  
 
-    try {
-      const response = await axios.post(API_URL, {
-        consumerId: consumerId, // Sending consumerId in the JSON body
-      });
-
-      const consumerData = response.data; // Assuming this is the API response
-
-      if (Array.isArray(consumerData) && consumerData.length > 0) {
-        const consumer = consumerData[0]; // Access the first consumer object
-
-        // Extract the details
-        const extractedConsumerId = consumer.ConsumeId || ''; // Fallback to empty string
-        const consumerName = consumer.ConsumerName || 'N/A'; // Provide a fallback
-        const address = consumer.Address || 'N/A';
-        const mobileNo = consumer.MobileNo || 'N/A';
-        const divisionName = consumer.DivisionName || 'N/A';
-        const subDivision = consumer.SubDivision || 'N/A';
-
+    const handleFetchBill = async () => {
+      setFormSubmitted(true);
+      setIsBillFetched(true);
+      setFetchBillSuccess(false); // Set to false initially to indicate fetching process
+    
+      try {
+        const soapXml = soapRequest(consumerId);
+    
+        // Log the SOAP request to verify the structure
+        console.log("SOAP Request:", soapXml);
+    
+        const response = await axios.post(API_URL, soapXml, {
+          headers: {
+            'Content-Type': 'application/soap+xml', // Required for SOAP request
+          },
+        });
+    
+        // Log the full response to inspect any details returned
+        console.log("SOAP Response:", response.data);
+    
+        // Assuming the response is XML, parse it
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(response.data, "text/xml");
+    
+        // Check if a SOAP Fault exists in the response
+        const fault = xmlDoc.getElementsByTagName('soap:Fault')[0];
+        if (fault) {
+          const faultCode = fault.getElementsByTagName('faultcode')[0]?.textContent;
+          const faultString = fault.getElementsByTagName('faultstring')[0]?.textContent;
+          console.error("SOAP Fault:", faultCode, faultString);
+          alert(`Error: ${faultString || 'Unknown error'}`);
+          return;
+        }
+    
+        // Parse the actual response data (if no fault)
+        const consumer = xmlDoc.getElementsByTagName('Consumer')[0]; // Adjust this based on the XML structure
+        const extractedConsumerId = consumer.getElementsByTagName('ConsumeId')[0]?.textContent || '';
+        const consumerName = consumer.getElementsByTagName('ConsumerName')[0]?.textContent || 'N/A';
+        const address = consumer.getElementsByTagName('Address')[0]?.textContent || 'N/A';
+        const mobileNo = consumer.getElementsByTagName('MobileNo')[0]?.textContent || 'N/A';
+        const divisionName = consumer.getElementsByTagName('DivisionName')[0]?.textContent || 'N/A';
+        const subDivision = consumer.getElementsByTagName('SubDivision')[0]?.textContent || 'N/A';
+    
         // Set the extracted details to state
         setBillDetails({
           consumerId: extractedConsumerId,
@@ -113,17 +136,15 @@ const Payment = () => {
           divisionName,
           subDivision,
         });
+    
         setFetchBillSuccess(true);
-      } else {
-        console.error('No consumer data found.');
-        // Handle case when no data is found
+    
+      } catch (error) {
+        console.error('Error fetching bill:', error);
+        alert('An error occurred while fetching the bill details.');
       }
-    } catch (error) {
-      console.error('Error fetching bill:', error);
-      // Handle error appropriately, e.g., show an alert
-    }
-  };
-  console.log(billDetails)
+    };
+    
 
   const handleProceedToPay = async () => {
     setFormSubmitted(true);
@@ -259,77 +280,7 @@ const Payment = () => {
           {/* Conditional Rendering for Bill Details and Payment Fields */}
           {isBillFetched && (
             <>
-              {/* Display Bill Details */}
-              {/* {billDetails && (
-                <div className="mt-4">
-                  <h4>Bill Details</h4>
-                  <p>Amount Due: {billDetails.amountDue}</p>
-                  <p>Due Date: {billDetails.dueDate}</p>
-                </div>
-              )} */}
-
-              {/* Mobile Number Field */}
-              {/* <CRow className="mb-3">
-                <CCol md={6}>
-                  <CFormLabel htmlFor="mobileNumber">Mobile Number</CFormLabel>
-                  <CFormInput
-                    type="text"
-                    id="mobileNumber"
-                    value={mobileNumber}
-                    onChange={(e) => setMobileNumber(e.target.value)}
-                    placeholder="Enter Mobile Number"
-                  />
-                  {formSubmitted && errors.mobileNumber && <p className="text-danger">{errors.mobileNumber}</p>}
-                </CCol>
-              </CRow>
-              <CRow className="mb-3">
-                <CCol md={6}>
-                  <label htmlFor="paymentMethod">Payment Method</label>
-                  <CFormSelect
-                    id="paymentMethod"
-                    value={selectedMethod}
-                    onChange={handleMethodChange}
-                  >
-                    <option value="">Select Payment Method</option>
-                    <option value="wallet">WALLET</option>
-                    <option value="ezetap">EZETAP</option>
-                    <option value="upi-qr">UPI-QR</option>
-                  </CFormSelect>
-                </CCol>
-              </CRow> */}
-
-              {/* Amount Field */}
-              {/* <CRow className="mb-3">
-                <CCol md={6}>
-                  <CFormLabel htmlFor="defaultAmount">Amount</CFormLabel>
-                  <CFormInput
-                    type="number"
-                    id="amount"
-                    value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value))}
-                    placeholder="Enter amount"
-                  />
-                </CCol>
-              </CRow> */}
-
-              {/* Remark Field */}
-              {/* <CRow className="mb-3">
-                <CCol md={6}>
-                  <CFormLabel htmlFor="remark">Remark</CFormLabel>
-                  <CFormInput
-                    type="text"
-                    id="remark"
-                    value={remark}
-                    onChange={(e) => setRemark(e.target.value)}
-                    placeholder="Enter a remark (optional)"
-                  />
-                </CCol>
-              </CRow> */}
-
-              {/* Pay Bill Button */}
-              {/* <CButton color="primary" onClick={handleProceedToPay}>
-                Pay Bill
-              </CButton> */}
+             
             </>
           )}
         </CCardBody>

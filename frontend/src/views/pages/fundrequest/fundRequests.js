@@ -143,10 +143,11 @@ const DataTableComponent = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/fundrequests`);
-        const result = response.data.fundRequests || []; // Access the data array from the nested data object
+        const result = response.data.fundRequests || []; 
         setData(result.reverse());
         } catch (error) {
         setError(error);
+        setData([]);
       } finally {
         setLoading(false);
       }

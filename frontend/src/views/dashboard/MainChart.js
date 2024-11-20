@@ -3,12 +3,17 @@ import { CChartLine } from '@coreui/react-chartjs';
 import { getStyle } from '@coreui/utils';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import { Spinner } from "reactstrap";
+import { Spinner, Modal, ModalBody, ModalHeader } from "reactstrap";
+import DataTable from 'react-data-table-component';
+
 
 const MainChart = ({ selectedInterval , status }) => {
   const chartRef = useRef(null);
   const userId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(true);
+  const [dataForTable, setDataForTable] = useState('');
+  const [popupVisible, setPopupVisible] = useState(false); // Popup state
+  const [popupData, setPopupData] = useState(null); 
   const [data, setData] = useState({
     labels: [],
     datasets: [
@@ -40,6 +45,24 @@ const MainChart = ({ selectedInterval , status }) => {
       },
     ],
   });
+
+  const columns = [
+    {
+      name: 'Column 1',
+      selector: (row) => row.column1,
+      sortable: true,
+    },
+    {
+      name: 'Column 2',
+      selector: (row) => row.column2,
+      sortable: true,
+    },
+    {
+      name: 'Column 3',
+      selector: (row) => row.column3,
+      sortable: true,
+    },
+  ];
 
   const [filterType, setFilterType] = useState('all'); // Default filter type is 'today'
 
@@ -80,6 +103,14 @@ const MainChart = ({ selectedInterval , status }) => {
     try {
       const userResponse = await axios.get(`/fetchUserList`);
       const users = userResponse.data.fetchUser || [];
+
+      const transformedData = users.map((user) => ({
+        column1: user.name, // Replace with actual field
+        column2: user.email, // Replace with actual field
+        column3: user.phone, // Replace with actual field
+      }));
+  
+      setDataForTable(transformedData);
 
       // Fetch balance data
       const balanceResponse = await axios.get(`/fundrequests`);
@@ -177,11 +208,24 @@ const MainChart = ({ selectedInterval , status }) => {
     selectedInterval(interval);
   };
 
+
+  const handlePieClick = (entry) => {
+    // Set popup data and open the popup
+    setPopupData(entry);
+    setPopupVisible(true);
+  };
+
+  const closePopup = () => {
+    // Close the popup
+    setPopupVisible(false);
+    setPopupData(null);
+  };
+
   // Pie chart data for active, pending, and rejected users
   const pieData = [
     { name: 'Total Collection', value: data.datasets[0].data.reduce((a, b) => a + b, 0) },
     { name: 'Total Fund', value: data.datasets[1].data.reduce((a, b) => a + b, 0) },
-    { name: 'Users', value: data.datasets[2].data.reduce((a, b) => a + b, 0) },
+    // { name: 'Users', value: data.datasets[2].data.reduce((a, b) => a + b, 0) },
   ];
 
   return (
@@ -218,8 +262,8 @@ const MainChart = ({ selectedInterval , status }) => {
               innerRadius={60}
               outerRadius={80}
               fill="#8884d8"
-              onClick={(e) => console.log("Pie Chart Data:", e)}
-            >
+              onClick={(entry) => handlePieClick(entry)}
+              >
               {pieData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
@@ -362,6 +406,36 @@ const MainChart = ({ selectedInterval , status }) => {
 
       </>
 )}
+
+<Modal isOpen={popupVisible} toggle={closePopup}>
+        <ModalHeader toggle={closePopup}>Pie Chart Details</ModalHeader>
+        <ModalBody>
+        {popupData && popupData.details && popupData.details.length > 0 ? (
+          <>
+            <p>
+              <strong>Name:</strong> {popupData.name}
+            </p>
+            <p>
+              <strong>Value:</strong> {popupData.value}
+            </p>
+            {/* React Data Table Component */}
+            <DataTable
+               columns={[
+                { name: 'Name', selector: (row) => row.column1, sortable: true },
+                { name: 'Email', selector: (row) => row.column2, sortable: true },
+                { name: 'Phone', selector: (row) => row.column3, sortable: true },
+              ]}
+              data={dataForTable}
+              pagination
+              highlightOnHover
+              responsive
+            />
+          </>
+        ) : (
+          <p>No data available</p>
+        )}
+        </ModalBody>
+      </Modal>
     </>
   );
 };
