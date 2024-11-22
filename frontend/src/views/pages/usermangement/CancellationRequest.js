@@ -160,7 +160,7 @@ const DataTableComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/cancellationHistoryy`);
+        const response = await axios.get(`/api/v1/users/cancellationHistoryy`);
         const result = response.data.data || []; // Ensure to get data array
         setData(result); // Set the fetched data
       } catch (error) {

@@ -179,7 +179,7 @@ const DataTableComponent = ({userId}) => {
   useEffect(() => {
     const fetchData = async () => { 
       try {
-        const response = await axios.get(`/cancellationHistory/${userId}`);
+        const response = await axios.get(`/api/v1/users/cancellationHistory/${userId}`);
         const result = response.data.data || []; 
         const reversedResult = result.reverse(); 
         setData(reversedResult);

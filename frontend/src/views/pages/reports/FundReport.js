@@ -196,7 +196,7 @@ const DataTableComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fundrequests`); 
+        const response = await axios.get(`/api/v1/users/fundrequests`); 
         const result = response.data.fundRequests || []; // Access the data array from the nested data object
         setData(result.reverse());
       } catch (error) {

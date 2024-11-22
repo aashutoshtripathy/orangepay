@@ -50,7 +50,7 @@ const UpdateProfile = () => {
             }
 
             try {
-                const response = await axios.get(`/fetchUserById/${userId}`);
+                const response = await axios.get(`/api/v1/users/fetchUserById/${userId}`);
                 setFormData(response.data.user);
             } catch (err) {
                 console.error('Error fetching user data:', err.message);

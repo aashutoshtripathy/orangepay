@@ -76,12 +76,12 @@ const AppHeader = () => {
       try {
         const userId = localStorage.getItem('userId');
         console.log('User ID:', userId); // Debugging line
-        const response = await axios.get(`/status/${userId}`); // Updated API endpoint
+        const response = await axios.get(`/api/v1/users/status/${userId}`); // Updated API endpoint
 
         if (response.data.hasChanged) {
           alert('Your account has been updated, logging you out.');
           // Call the logout API
-          await axios.post('/logout');
+          await axios.post('/api/v1/users/logout');
           // Clear local storage and redirect to login
           localStorage.clear();
           window.location.href = '/login'; // Redirect to login page
@@ -104,7 +104,7 @@ const AppHeader = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`/fetchUserById/${userId}`);
+        const response = await axios.get(`/api/v1/users/fetchUserById/${userId}`);
         setUser(response.data.user);
         setLoading(false);
       } catch (err) {
@@ -135,7 +135,7 @@ const AppHeader = () => {
       setLoading(true);
       try {
         console.log('Fetching balance for userId:', userId); // Add this line
-        const response = await axios.get(`/balance/${userId}`);
+        const response = await axios.get(`/api/v1/users/balance/${userId}`);
         console.log('Balance response:', response.data); // Add this line
         setBalance(response.data.balance);
       } catch (err) {

@@ -37,8 +37,6 @@ const Payment = () => {
 
 
 
-  const MERCHANT_CODE = 'BSPDCL_RAPDRP_16';
-  const MERCHANT_PASSWORD = 'OR1f5pJeM9q@G26TR9nPY';
 
 
 
@@ -54,14 +52,14 @@ const Payment = () => {
   const validate = () => {
     const errors = {};
     if (!consumerId) errors.consumerId = 'Consumer ID is required.';
-    if (isBillFetched && !mobileNumber) errors.mobileNumber = 'Mobile number is required.';
-    if (isBillFetched && (!amount || isNaN(amount) || amount <= 0)) errors.amount = 'A valid amount is required.';
+    // if (isBillFetched && !mobileNumber) errors.mobileNumber = 'Mobile number is required.';
+    // if (isBillFetched && (!amount || isNaN(amount) || amount <= 0)) errors.amount = 'A valid amount is required.';
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   // const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
-  const API_URL = 'http://hargharbijli.bsphcl.co.in/WebServiceExternal/WebServiceOPSM.asmx'
+  // const API_URL = '/api/v1/hargharbijli/WebServiceExternal/WebServiceOPSM.asmx'
 
   const soapRequest = (consumerId) => `
 <?xml version="1.0" encoding="utf-8"?>
@@ -74,76 +72,75 @@ const Payment = () => {
   </soap12:Header>
   <soap12:Body>
     <GetConsumerBalanceDetails xmlns="http://bsphcl.co.in/">
-          <StrCANumber>${consumerId}</StrCANumber>
+      <StrCANumber>${consumerId}</StrCANumber>
     </GetConsumerBalanceDetails>
   </soap12:Body>
 </soap12:Envelope>
+`.trim();
 
-`;
 
 
   
 
-    const handleFetchBill = async () => {
-      setFormSubmitted(true);
-      setIsBillFetched(true);
-      setFetchBillSuccess(false); // Set to false initially to indicate fetching process
-    
-      try {
-        const soapXml = soapRequest(consumerId);
-    
-        // Log the SOAP request to verify the structure
-        console.log("SOAP Request:", soapXml);
-    
-        const response = await axios.post(API_URL, soapXml, {
-          headers: {
-            'Content-Type': 'application/soap+xml', // Required for SOAP request
-          },
-        });
-    
-        // Log the full response to inspect any details returned
-        console.log("SOAP Response:", response.data);
-    
-        // Assuming the response is XML, parse it
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(response.data, "text/xml");
-    
-        // Check if a SOAP Fault exists in the response
-        const fault = xmlDoc.getElementsByTagName('soap:Fault')[0];
-        if (fault) {
-          const faultCode = fault.getElementsByTagName('faultcode')[0]?.textContent;
-          const faultString = fault.getElementsByTagName('faultstring')[0]?.textContent;
-          console.error("SOAP Fault:", faultCode, faultString);
-          alert(`Error: ${faultString || 'Unknown error'}`);
-          return;
-        }
-    
-        // Parse the actual response data (if no fault)
-        const consumer = xmlDoc.getElementsByTagName('Consumer')[0]; // Adjust this based on the XML structure
-        const extractedConsumerId = consumer.getElementsByTagName('ConsumeId')[0]?.textContent || '';
-        const consumerName = consumer.getElementsByTagName('ConsumerName')[0]?.textContent || 'N/A';
-        const address = consumer.getElementsByTagName('Address')[0]?.textContent || 'N/A';
-        const mobileNo = consumer.getElementsByTagName('MobileNo')[0]?.textContent || 'N/A';
-        const divisionName = consumer.getElementsByTagName('DivisionName')[0]?.textContent || 'N/A';
-        const subDivision = consumer.getElementsByTagName('SubDivision')[0]?.textContent || 'N/A';
-    
-        // Set the extracted details to state
-        setBillDetails({
-          consumerId: extractedConsumerId,
-          consumerName,
-          address,
-          mobileNo,
-          divisionName,
-          subDivision,
-        });
-    
-        setFetchBillSuccess(true);
-    
-      } catch (error) {
-        console.error('Error fetching bill:', error);
-        alert('An error occurred while fetching the bill details.');
+  const handleFetchBill = async () => {
+    if (!consumerId) {
+      alert("Consumer ID is required.");
+      return;
+    }
+  
+    setFormSubmitted(true);
+    setIsBillFetched(true);
+    setFetchBillSuccess(false);
+  
+    try {
+      const soapXml = soapRequest(consumerId);
+  
+      console.log("SOAP Request:", soapXml);
+  
+      const response = await axios.post(`https://hargharbijli.bsphcl.co.in/WebServiceExternal/WebServiceOPSM.asmx`, soapXml, {
+        headers: {
+          'Content-Type': 'application/soap+xml; charset=utf-8',
+          'SOAPAction': 'http://bsphcl.co.in/GetConsumerBalanceDetails',
+        },
+      });
+  
+      console.log("SOAP Response:", response.data);
+  
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(response.data, "text/xml");
+  
+      const fault = xmlDoc.getElementsByTagName('soap:Fault')[0];
+      if (fault) {
+        const faultCode = fault.getElementsByTagName('faultcode')[0]?.textContent;
+        const faultString = fault.getElementsByTagName('faultstring')[0]?.textContent;
+        alert(`Error: ${faultString || 'Unknown error'}`);
+        return;
       }
-    };
+  
+      const resultJsonString = xmlDoc.getElementsByTagName('GetConsumerBalanceDetailsResult')[0]?.textContent || '{}';
+      const result = JSON.parse(resultJsonString);
+  
+        setBillDetails({
+          consumerId: result.Consumer_number || 'N/A',
+          balance: result.Balance || 'N/A',
+          lastPaymentDate: result.LastPayDt || 'N/A',
+          lastPaymentAmount: result.LastPayAmt || 'N/A',
+          meterNumber: result.MeterNumber || 'N/A',
+          connectionStatus: result.ConnectionStatus === 'Y' ? 'Active' : 'Inactive', // Format status
+          ResponseDateTime: result.responseDateTime,
+          Status: result.status,
+        });
+
+
+
+        
+  
+      setFetchBillSuccess(true);
+    } catch (error) {
+      console.error('Error fetching bill:', error);
+      alert('An error occurred while fetching the bill details.');
+    }
+  };
     
 
   const handleProceedToPay = async () => {
@@ -152,7 +149,7 @@ const Payment = () => {
     if (!validate()) return;
 
     try {
-      const response = await fetch('/payment', {
+      const response = await fetch('/api/v1/users/payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -226,13 +223,15 @@ const Payment = () => {
           {fetchBillSuccess && (
             <div className="mb-4">
               <h4>Consumer Information</h4>
-              <p><strong>Consumer ID:</strong> {consumerId}</p>
-              <p><strong>Consumer Name:</strong> {billDetails.consumerName || 'N/A'}</p> {/* Fallback if null */}
-              <p><strong>Mobile No:</strong> {billDetails.mobileNo || 'N/A'}</p>
-              <p><strong>Address:</strong> {billDetails.address || 'N/A'}</p>
-              <p>
-                <strong>Service:</strong> <span className="text-danger">Temporarily Unavailable</span>
-              </p>
+              <p><strong>Consumer ID:</strong> {billDetails.consumerId|| 'N/A'}</p>
+              <p><strong>Consumer Name:</strong> {billDetails.balance || 'N/A'}</p> {/* Fallback if null */}
+              <p><strong>Mobile No:</strong> {billDetails.ResponseDateTime || 'N/A'}</p>
+              <p><strong>Address:</strong> {billDetails.Status || 'N/A'}</p>
+              <p><strong>Address:</strong> {billDetails.meterNumber || 'N/A'}</p>
+              <p><strong>Address:</strong> {billDetails.connectionStatus || 'N/A'}</p>
+              <p><strong>Address:</strong> {billDetails.lastPaymentAmount || 'N/A'}</p>
+              <p><strong>Address:</strong> {billDetails.lastPaymentDate || 'N/A'}</p>
+            
 
             </div>
           )}

@@ -68,7 +68,7 @@ const AppSidebar = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList/${userId}`);
+        const response = await axios.get(`/api/v1/users/fetchUserList/${userId}`);
         const result = response.data.fetchUser || {};
   
         // Store the permissions for sidebar visibility

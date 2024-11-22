@@ -72,7 +72,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`/fetchUserById/${userId}`);
+        const response = await axios.get(`/api/v1/users/fetchUserById/${userId}`);
         setUser(response.data.user);
         setLoading(false);
       } catch (err) {
@@ -93,7 +93,7 @@ const Profile = () => {
 
     const fetchBalance = async () => {
       try {
-        const response = await axios.get(`/balance/${userId}`);
+        const response = await axios.get(`/api/v1/users/balance/${userId}`);
         setBalance(response.data.balance);
       } catch (err) {
         if (err.response && err.response.status === 404) {
@@ -115,7 +115,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList/${userId}`);
+        const response = await axios.get(`/api/v1/users/fetchUserList/${userId}`);
         const result = response.data.fetchUser || {};
 
         // Update state with the fetched data

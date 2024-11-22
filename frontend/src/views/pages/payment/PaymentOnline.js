@@ -101,7 +101,7 @@ const PaymentOnline = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList/${userId}`);
+        const response = await axios.get(`/api/v1/users/fetchUserList/${userId}`);
         const result = response.data.fetchUser || {};
 
         // Update state with the fetched data
@@ -153,9 +153,9 @@ const PaymentOnline = () => {
 
 
 
-  const API_URL = '/appi/BiharService/BillInterface.asmx';
+  const API_URL = '/api/v1/biharpayment/BiharService/BillInterface.asmx';
   // const SECONDARY_API_URL = '/BiharService/BillInterface'
-  const SECONDARY_API_URL = '/BiharService/BillInterface.asmx?op=PaymentDetails'
+  const SECONDARY_API_URL = '/api/v1/biharpayment/BiharService/BillInterface.asmx?op=PaymentDetails'
 
 
   const soapRequest = (consumerId) => `
@@ -354,7 +354,7 @@ const PaymentOnline = () => {
           `.trim();
 
         try {
-          const receiptResponse = await axios.post('/BiharService/BillInterface.asmx?op=PaymentReceiptDetails', receiptSoapRequest, {
+          const receiptResponse = await axios.post('/api/v1/biharpayment/BiharService/BillInterface.asmx?op=PaymentReceiptDetails', receiptSoapRequest, {
             headers: {
               'Content-Type': 'text/xml; charset=utf-8',
               'Accept': 'application/xml, text/xml, application/json',

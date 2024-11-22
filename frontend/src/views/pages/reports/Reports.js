@@ -203,7 +203,7 @@ const Reports = ({userId}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/getTotalPayments`);
+        const response = await axios.get(`/api/v1/users/getTotalPayments`);
         const result = response.data.data || [];
         const reversedResult = result.reverse();
     setData(reversedResult);

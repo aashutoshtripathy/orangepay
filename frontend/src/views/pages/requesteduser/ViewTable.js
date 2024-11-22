@@ -37,7 +37,7 @@ const ViewTable = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetch-data/${userId}`);
+        const response = await axios.get(`/api/v1/users/fetch-data/${userId}`);
         console.log("Image Path:", response.data.data[0].photograph);
         console.log("API Response:", response.data);
         setTableData(response.data.data);  // Ensure you're setting the correct field

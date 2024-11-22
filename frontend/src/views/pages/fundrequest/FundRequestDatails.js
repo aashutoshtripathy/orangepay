@@ -20,7 +20,7 @@ const FundRequestDatails = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userResponse = await axios.get(`/fetchUserByIdd/${userId}`);
+        const userResponse = await axios.get(`/api/v1/users/fetchUserByIdd/${userId}`);
         if (userResponse.data.success) {
           setUserData(userResponse.data.user); // Set user data directly
         } else {

@@ -73,7 +73,7 @@ const toggleButtons = () => {
     const fetchData = async () => {
       setLoading(true); // Set loading before the fetch
       try {
-        const response = await axios.get(`/fetchUserList`);
+        const response = await axios.get(`/api/v1/users/fetchUserList`);
         const result = response.data.fetchUser || [];
         setData(result);
         const commissions = result.reduce((acc, user) => {
@@ -94,7 +94,7 @@ const toggleButtons = () => {
   useEffect((row) => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList/${userId}`);
+        const response = await axios.get(`/api/v1/users/fetchUserList/${userId}`);
         const result = response.data.fetchUser || {};
 
 

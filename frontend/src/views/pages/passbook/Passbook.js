@@ -167,7 +167,7 @@ const Passbook = ({userId}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/getPayment/${userId}`);
+        const response = await axios.get(`/api/v1/users/getPayment/${userId}`);
         const result = response.data.balance
           ? response.data.balance.flatMap(balance => balance.transactions).reverse() // Merge and reverse transactions
           : [];

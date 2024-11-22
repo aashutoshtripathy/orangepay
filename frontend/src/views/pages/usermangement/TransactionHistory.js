@@ -125,7 +125,7 @@ const TransactionHistory = ({userId}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/getpaymentss/${userId}`);
+        const response = await axios.get(`/api/v1/users/getpaymentss/${userId}`);
         const balanceData = Array.isArray(response.data.balance) ? response.data.balance : [];
 
         const sortedData = balanceData.sort((a, b) => {

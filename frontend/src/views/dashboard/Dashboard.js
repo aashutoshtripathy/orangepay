@@ -294,7 +294,7 @@ const Dashboard = () => {
         if (response.data.hasChanged) {
           alert('Your account has been updated, logging you out.');
           // Call the logout API
-          await axios.post('/logout');
+          await axios.post('/api/v1/users/logout');
           // Clear local storage and redirect to login
           localStorage.clear();
           window.location.href = '/login'; // Redirect to login page
@@ -347,10 +347,10 @@ const Dashboard = () => {
   const fetchData = async () => {
     try {
       const [userListResponse, fundRequestsResponse, fetchDataResponse, rejectedDataResponse] = await Promise.all([
-        axios.get('/fetchUserList'),
-        axios.get('/fundrequests'),
-        axios.get('/fetch_data'),
-        axios.get('/fetch_data_rejected')
+        axios.get('/api/v1/users/fetchUserList'),
+        axios.get('/api/v1/users/fundrequests'),
+        axios.get('/api/v1/users/fetch_data'),
+        axios.get('/api/v1/users/fetch_data_rejected')
       ]);
   
       // Process user list

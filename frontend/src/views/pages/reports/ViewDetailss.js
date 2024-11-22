@@ -54,7 +54,7 @@ const DataTableComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList`);
+        const response = await axios.get(`/api/v1/users/fetchUserList`);
         const result = response.data.fetchUser || [];
         setData(result);
         // Initialize commissionValues with the fetched data
@@ -77,7 +77,7 @@ const DataTableComponent = () => {
   useEffect((row) => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList/${userId}`);
+        const response = await axios.get(`/api/v1/users/fetchUserList/${userId}`);
         const result = response.data.fetchUser || {};
 
 

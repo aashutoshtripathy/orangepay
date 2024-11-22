@@ -199,7 +199,7 @@ const DataTableComponent = () => {
       // Clear any previous error
       setError(null);
   
-      const response = await axios.get('/blockUserList');
+      const response = await axios.get('/api/v1/users/blockUserList');
       
       // Handle response if status is 404
       if (response.status === 404) {

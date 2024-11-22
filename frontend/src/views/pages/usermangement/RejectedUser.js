@@ -194,7 +194,7 @@ const DataTableComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/fetch_data_rejected');
+        const response = await axios.get('/api/v1/users/fetch_data_rejected');
         const result = response.data.data || []; // Access the data array from the nested data object
         setData(result);
       } catch (error) {

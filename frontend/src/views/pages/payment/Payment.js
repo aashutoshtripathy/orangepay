@@ -86,7 +86,7 @@ const validateConsumerId = (value) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fetchUserList/${userId}`);
+        const response = await axios.get(`/api/v1/users/fetchUserList/${userId}`);
         const result = response.data.fetchUser || {};
 
         // Update state with the fetched data
@@ -136,7 +136,7 @@ const validateConsumerId = (value) => {
   };
 
   // const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
-  const API_URL = '/BiharService/BillInterface'
+  const API_URL = '/api/v1/users/BiharService/BillInterface'
 
   const soapRequest = (consumerId, amount) => `
   <?xml version="1.0" encoding="utf-8"?>
@@ -213,7 +213,7 @@ const validateConsumerId = (value) => {
 
 
     try {
-      const response = await fetch('/payment', {
+      const response = await fetch('/api/v1/users/payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

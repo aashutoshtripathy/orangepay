@@ -142,7 +142,7 @@ const DataTableComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fundrequests`);
+        const response = await axios.get(`/api/v1/users/fundrequests`);
         const result = response.data.fundRequests || []; 
         setData(result.reverse());
         } catch (error) {
@@ -167,7 +167,7 @@ const DataTableComponent = () => {
 
   const handleFetch = async (row) => {
     try {
-      const response = await axios.get(`/fundrequests/${row._id}`);
+      const response = await axios.get(`/api/v1/users/fundrequests/${row._id}`);
 
       if (response.status === 200) {  // Check if the response is successful
         setData((prevData) =>

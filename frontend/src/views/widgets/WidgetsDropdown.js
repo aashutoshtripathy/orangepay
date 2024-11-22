@@ -82,25 +82,25 @@ const WidgetsDropdown = (props) => {
     const fetchData = async () => {
       try {
         // Fetch users
-        const userResponse = await axios.get(`/fetchUserList`);
+        const userResponse = await axios.get(`/api/v1/users/fetchUserList`);
         const users = userResponse.data.fetchUser || [];
         // setData(users.filter(user => user.userId && user.userId.length > 0));
         // setUserCount(users.length);
   
         // Fetch balance data
-        const balanceResponse = await axios.get(`/fundrequests`);
+        const balanceResponse = await axios.get(`/api/v1/users/fundrequests`);
         const initialBalance = balanceResponse.data.fundRequests || [];
 
 
-        const balanceResponsee = await axios.get(`/fund-request/${userId}`);
+        const balanceResponsee = await axios.get(`/api/v1/users/fund-request/${userId}`);
         const initialBalances = balanceResponsee.data.fundRequest || [];
   
         // Fetch payments data
-        const paymentsResponse = await axios.get(`/getTotalPayments`);
+        const paymentsResponse = await axios.get(`/api/v1/users/getTotalPayments`);
         const paymentsData = paymentsResponse.data.data || [];
         
 
-        const paymentsResponseData = await axios.get(`/getPayments/${userId}`);
+        const paymentsResponseData = await axios.get(`/api/v1/users/getPayments/${userId}`);
         const paymentsDataa = paymentsResponseData.data.balance || [];
         
         // Log fetched payment data for debugging

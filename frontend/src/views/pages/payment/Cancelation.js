@@ -56,7 +56,7 @@ const Cancelation = () => {
     if (!validate()) return;
 
     try {
-      const response = await axios.post('/get-cancellation', {
+      const response = await axios.post('/api/v1/users/get-cancellation', {
         consumerId,
         userId
       });

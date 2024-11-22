@@ -164,7 +164,7 @@ const DataTableComponent = ({userId}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/fund-request/${userId}`); 
+        const response = await axios.get(`/api/v1/users/fund-request/${userId}`); 
         console.log(userId)
         const result = response.data.fundRequest ? response.data.fundRequest.reverse() : []; 
         setData(result);

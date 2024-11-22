@@ -125,7 +125,7 @@ const WalletReport = ({userId}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/walletreport/${userId}`);
+        const response = await axios.get(`/api/v1/users/walletreport/${userId}`);
         const result = response.data.balance || [];
          const sortedData = result.sort((a, b) => new Date(b.date) - new Date(a.date));
 

@@ -203,7 +203,7 @@ const OrangePayReport = ({userId}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/getPayments/${userId}`);
+        const response = await axios.get(`/api/v1/users/getPayments/${userId}`);
         const result = response.data.balance ? response.data.balance : [];
         const reversedResult = result.reverse();
     setData(reversedResult);

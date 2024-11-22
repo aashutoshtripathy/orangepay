@@ -119,7 +119,7 @@ const AppHeaderDropdown = () => {
       // Extract token from cookies or headers
       // const token = req.cookies.accessToken || req.headers.authorization?.split(' ')[1];
 
-      await axios.post('/logout', { userRole }, {
+      await axios.post('/api/v1/users/logout', { userRole }, {
         withCredentials: true, // Include cookies with the request
       });
 
