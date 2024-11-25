@@ -558,16 +558,11 @@ const PaymentOnline = () => {
   const handlePayment = async () => {
     setFormSubmitted(true);
   
-    // Validate form inputs
     if (!validate()) return;
   
-    // Show PIN modal before proceeding
     setShowPinModal(true);
-  
-    // Payment logic after PIN validation
-   
+     
       try {
-        // Prepare the payment payload
         const payload = {
           userId,
           consumerId: consumerId,
@@ -633,15 +628,6 @@ const PaymentOnline = () => {
   const formatAmount = (value) => {
     return new Intl.NumberFormat('en-IN').format(value);
   };
-
-
-
-  // const formatAmount = (value) => {
-  //   return new Intl.NumberFormat('en-IN', {
-  //     style: 'currency',
-  //     currency: 'INR',
-  //   }).format(value);
-  // };
 
   return (
     <CContainer

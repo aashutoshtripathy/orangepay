@@ -97,7 +97,7 @@ const Payment = () => {
   
       console.log("SOAP Request:", soapXml);
   
-      const response = await axios.post(`https://hargharbijli.bsphcl.co.in/WebServiceExternal/WebServiceOPSM.asmx`, soapXml, {
+      const response = await axios.post(`/api/v1/hargharbijli/WebServiceExternal/WebServiceOPSM.asmx`, soapXml, {
         headers: {
           'Content-Type': 'application/soap+xml; charset=utf-8',
           'SOAPAction': 'http://bsphcl.co.in/GetConsumerBalanceDetails',
@@ -126,7 +126,7 @@ const Payment = () => {
           lastPaymentDate: result.LastPayDt || 'N/A',
           lastPaymentAmount: result.LastPayAmt || 'N/A',
           meterNumber: result.MeterNumber || 'N/A',
-          connectionStatus: result.ConnectionStatus === 'Y' ? 'Active' : 'Inactive', // Format status
+          connectionStatus: result.ConnectionStatus === 'Y' ? 'Active' : 'Inactive',
           ResponseDateTime: result.responseDateTime,
           Status: result.status,
         });
