@@ -28,7 +28,7 @@ const Payment = () => {
   const [data, setData] = useState({});
   const [amount, setAmount] = useState(500);
   const [defaultAmount, setDefaultAmount] = useState(500); // State for default amount
-  const [selectedMethod, setSelectedMethod] = useState('');
+  const [selectedMethod, setSelectedMethod] = useState('wallet');
   const [remark, setRemark] = useState('');
   const [userId, setUserId] = useState('');
   const [errors, setErrors] = useState({});
@@ -384,7 +384,7 @@ const handleConsumerIdFocus = () => {
   const handlePinSubmit = async () => {
     try {
       // Send the entered PIN to the backend for validation
-      const response = await axios.post('/validate-tpin', {
+      const response = await axios.post('/api/v1/users/validate-tpin', {
         userId, // Assumes userId is stored in localStorage
         tpin: pin,
       });
@@ -594,7 +594,7 @@ const handleConsumerIdFocus = () => {
                 <CCol md={6}>
                   <CFormLabel htmlFor="defaultAmount">Amount</CFormLabel>
                   <CFormInput
-                    type="number"
+                    type="text"
                     id="amount"
                     value={amount}
                     onChange={(e) => setAmount(Number(e.target.value))}

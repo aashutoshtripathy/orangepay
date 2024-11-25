@@ -115,11 +115,11 @@ const Permission = () => {
         ...fundRequestMethods,
         ...billPaymentMethods,
       };
-      const response = await axios.put(`/updateUserPermissions/${userId}`, updateData);
+      const response = await axios.put(`/api/v1/users/updateUserPermissions/${userId}`, updateData);
 
       if (response.data.success) {
         console.log('Permissions updated successfully:', response.data.updatedUser);
-        naviagte(`/view-user`)
+        naviagte(`/api/v1/users/view-user`)
         // You might want to show a success message or update the UI accordingly
       } else {
         console.error('Update failed:', response.data.message);
@@ -134,7 +134,7 @@ const Permission = () => {
     const updatedData = { commission };
 
     try {
-      const response = await axios.put(`/updateCommission/${userId}`, updatedData);
+      const response = await axios.put(`/api/v1/users/updateCommission/${userId}`, updatedData);
       
       if (response.data.success) {
         console.log('Commission updated successfully:', response.data.updatedUser);

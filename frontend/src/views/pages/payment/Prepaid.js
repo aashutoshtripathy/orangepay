@@ -247,7 +247,7 @@ const Payment = () => {
                     value={selectedMethod}
                     onChange={handleMethodChange}
                   >
-                    <option value="">Select Meter Type</option>
+                    <option value="" disabled>Select Meter Type</option>
                     <option value="secure">Secure</option>
                     <option value="eesl">EESL</option>
                     <option value="genus">Genus</option>

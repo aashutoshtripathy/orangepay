@@ -30,8 +30,10 @@ const PaymentOnline = () => {
   const [data, setData] = useState({});
   const [amount, setAmount] = useState(500);
   const [defaultAmount, setDefaultAmount] = useState(500);
-  const [selectedMethod, setSelectedMethod] = useState('');
+  const [selectedMethod, setSelectedMethod] = useState('wallet');
   const [remark, setRemark] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);  // State for modal visibility
+  const [errorMessage, setErrorMessage] = useState('');  
   const [userId, setUserId] = useState('');
   const [errors, setErrors] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -219,48 +221,34 @@ const PaymentOnline = () => {
         setFetchBillSuccess(false);
         console.error('No BillDetailsResult found in response from primary API.');
 
-        // // Ensure you have the correct namespace
-        // const namespaceURI = "http://tempuri.org/"; // Replace with the correct namespace if necessary
-
-        // // Check if the XML response is valid
-        // const secondaryXmlDoc = parser.parseFromString(secondaryResponse.data, "text/xml");
-        // console.log(secondaryXmlDoc); // Log the parsed XML
-
-        // // Attempt to find BillDetailsResult
-        // const secondaryBillDetails = secondaryXmlDoc.getElementsByTagNameNS(namespaceURI, "BillDetailsResult")[0];
-
-        // if (secondaryBillDetails) {
-        //   // Function to safely extract values from XML
-        //   const getTagValue = (tagName) => {
-        //     const element = secondaryBillDetails.getElementsByTagNameNS(namespaceURI, tagName)[0];
-        //     return element ? element.textContent.trim() : 'N/A';
-        //   };
-
-        //   // Map the data as per your response structure
-        //   const secondaryFetchedBillData = {
-        //     consumerId: getTagValue("CANumber"),
-        //     consumerName: getTagValue("ConsumerName"),
-        //     address: getTagValue("Address"),
-        //     mobileNo: getTagValue("MobileNumber"),
-        //     divisionName: getTagValue("Division"),
-        //     subDivision: getTagValue("SubDivision"),
-        //     companyName: getTagValue("CompanyName"),
-        //     billMonth: getTagValue("BillMonth"),
-        //     amount: getTagValue("Amount"),
-        //     dueDate: getTagValue("DueDate"),
-        //     invoiceNo: getTagValue("InvoiceNO"),
-        //   };
-
-        //   setBillData(secondaryFetchedBillData);
-        //   setFetchBillSuccess(true);
-        //   console.log('Fetched from secondary API:', secondaryFetchedBillData);
-        // } else {
-        //   console.error('No BillDetailsResult found in secondary response.');
-        // }
-
+       
       }
     } catch (error) {
       console.error('Error fetching bill details:', error);
+    }
+  };
+
+
+  const fetchWalletBalance = async (userId) => {
+    try {
+      const response = await fetch(`/api/v1/users/balance/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch wallet balance');
+      }
+  
+      const data = await response.json();
+  
+      // Assuming the wallet balance is part of the response data
+      return data.balance; // Adjust based on your API response structure
+    } catch (error) {
+      console.error('Error fetching wallet balance:', error);
+      throw error;
     }
   };
 
@@ -288,6 +276,19 @@ const PaymentOnline = () => {
 
 
     try {
+
+
+      const walltBalance = await fetchWalletBalance(userId); // Assuming this function fetches the wallet balance
+      const walletBalance = walltBalance.toFixed(2)
+
+      if (walletBalance < amount) {
+        console.log(`Insufficient balance. Wallet balance: ${walletBalance}, Requested amount: ${amount}`);
+        setErrorMessage(`Insufficient balance. Wallet balance: ${walletBalance}, Requested amount: ${amount}`);
+        setShowErrorModal(true); // Show the modal with the error message
+        return;
+      }
+
+
       const checksum = calculateChecksum(amount, 'd8bKEaX1XEtB');
       const formattedDateTime = formatDateTime();
       const transactionRef = transactionId || generateUniqueTransactionId();
@@ -392,81 +393,21 @@ const PaymentOnline = () => {
   }
 
 
+
+  const handleCloseErrorModal = () => {
+    setShowErrorModal(false);
+  };
+
+
   const parser = new DOMParser();
-  // const xmlDoc = parser.parseFromString(response.data, 'text/xml');
 
-  // const receiptData = {
-  //   receiptNo: xmlDoc.getElementsByTagName('BSPDCL_Receipt_No')[0]?.textContent,
-  //   transactionId: xmlDoc.getElementsByTagName('Transaction_Id')[0]?.textContent,
-  //   consumerId: xmlDoc.getElementsByTagName('CANumber')[0]?.textContent,
-  //   consumerName: xmlDoc.getElementsByTagName('ConsumerName')[0]?.textContent,
-  //   billNo: xmlDoc.getElementsByTagName('BillNo')[0]?.textContent,
-  //   billDueDate: xmlDoc.getElementsByTagName('BillDueDate')[0]?.textContent,
-  //   amountPaid: xmlDoc.getElementsByTagName('AmountPaid')[0]?.textContent,
-  //   paymentDateTime: xmlDoc.getElementsByTagName('PaymentDateTime')[0]?.textContent,
-  //   modePayment: xmlDoc.getElementsByTagName('ModePayment')[0]?.textContent,
-  // };
-
-  // // Set the extracted data in state
-  // setData(receiptData);
 
   const generateUniqueTransactionId = () => `OP${Date.now()}`;
 
 
 
 
-  // try {
-  //   const response = await fetch('/payment', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({
-  //       userId,
-  //       consumerId: consumerId,
-  //       mobileNumber,
-  //       amount,
-  //       paymentMethod: selectedMethod,
-  //       remark,
-  //       consumerName: billDetails.consumerName,
-  //       divisionName: billDetails.divisionName,
-  //       subDivision: billDetails.subDivision,
-  //     }),
-  //   });
-
-  //     const result = await response.json();
-  //     if (response.ok && result.success) {
-  //       setTransactionId(result.data.invoice?.transactionId || 'N/A');
-  //       setData(result.data.invoice);
-  //       setShowSuccessModal(true);
-  //       // Reset form fields
-  //       setConsumerId('');
-  //       setMobileNumber('');
-  //       setAmount(defaultAmount); // Reset to default amount
-  //       setRemark('');
-  //       setBillDetails({});
-  //       setIsBillFetched(false);
-  //       setErrors({});
-  //     } else {
-  //       const errorMessage = result.error.length > 0 ? result.error[0] : 'An unknown error occurred.';
-  //       alert(`Error: ${errorMessage}`);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error processing payment:', error);
-  //     alert('An error occurred while processing the payment.');
-  //   }
-  // };
-
-
-  // const handlePinSubmit = async () => {
-  //   // Assuming '1234' is the correct PIN for this example; replace with your logic
-  //   if (pin === '1234') {
-  //     setShowPinModal(false); // Close the PIN modal
-  //     await handleProceedToPay(); // Proceed to payment
-  //   } else {
-  //     setPinError('Incorrect PIN. Please try again.');
-  //   }
-  // };
+  
 
   const handleClosePinModal = () => {
     setShowPinModal(false); // Close the PIN modal
@@ -574,25 +515,36 @@ const PaymentOnline = () => {
   // const handleSetDefaultAmount = () => {
   //   setAmount(defaultAmount);
   // };
-  const handlePayment = async () => {
-    setFormSubmitted(true);
+  // const handlePayment = async () => {
+  //   setFormSubmitted(true);
 
-    // Validate form inputs
-    if (!validate()) return;
+  //   // Validate form inputs
+  //   if (!validate()) return;
 
-    // Show PIN modal before proceeding
-    setShowPinModal(true);
-  };
+  //   // Show PIN modal before proceeding
+  //   setShowPinModal(true);
+  // };
 
-  const handlePinSubmit = async () => {
-    // Check if the entered PIN is correct
-    if (pin === '1234') { // Replace with your actual PIN logic
-      setShowPinModal(false); // Close the PIN modal
-      await handleProceedToPay(); // Proceed to payment
-    } else {
-      setPinError('Incorrect PIN. Please try again.'); // Show error if PIN is incorrect
-    }
-  };
+    const handlePinSubmit = async () => {
+      try {
+        // Send the entered PIN to the backend for validation
+        const response = await axios.post('/api/v1/users/validate-tpin', {
+          userId, // Assumes userId is stored in localStorage
+          tpin: pin,
+        });
+    
+        // Check the response from the backend
+        if (response.data.success) { // Assuming backend sends { success: true } if PIN is correct
+          setShowPinModal(false); // Close the PIN modal
+          await handleProceedToPay(); // Proceed to payment
+        } else {
+          setPinError('Incorrect PIN. Please try again.'); // Show error if PIN is incorrect
+        }
+      } catch (error) {
+        console.error('Error validating Tpin:', error);
+        setPinError('An error occurred. Please try again later.'); // Display generic error
+      }
+    };
 
   const handleMethodChange = (e) => {
     const selectedValue = e.target.value;
@@ -602,6 +554,66 @@ const PaymentOnline = () => {
       console.log("Credit method selected.");
     }
   };
+
+  const handlePayment = async () => {
+    setFormSubmitted(true);
+  
+    // Validate form inputs
+    if (!validate()) return;
+  
+    // Show PIN modal before proceeding
+    setShowPinModal(true);
+  
+    // Payment logic after PIN validation
+   
+      try {
+        // Prepare the payment payload
+        const payload = {
+          userId,
+          consumerId: consumerId,
+          mobileNumber,
+          amount,
+          paymentMethod: selectedMethod,
+          remark,
+          consumerName: billDetails.consumerName,
+          divisionName: billDetails.divisionName,
+          subDivision: billDetails.subDivision,
+        };
+  
+        // Send the payment data to the backend
+        const response = await fetch('/api/v1/users/payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId,
+            consumerId: consumerId,
+            mobileNumber,
+            amount,
+            paymentMethod: selectedMethod,
+            remark,
+            consumerName: billDetails.consumerName,
+            divisionName: billDetails.divisionName,
+            subDivision: billDetails.subDivision,
+          }),
+        });
+  
+        const result = await response.json();
+  
+        if (response.ok && result.success) {
+          console.log('Payment successful:', result);
+          // Perform any additional success actions, e.g., navigating or showing a success message
+          // setPaymentSuccess(true);
+          setShowPinModal(false);
+        } else {
+          throw new Error(result.message || 'Payment failed.');
+        }
+      } catch (error) {
+        console.error('Payment error:', error);
+        setErrors(error.message || 'An error occurred while processing the payment.');
+      }
+    };
 
   const handleCloseModal = () => {
     setShowSuccessModal(false); // Close the modal
@@ -898,6 +910,18 @@ const PaymentOnline = () => {
             Print
           </CButton>
           <CButton color="secondary" onClick={handleCloseModal}>
+            Close
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
+      <CModal visible={showErrorModal} onClose={handleCloseErrorModal}>
+        <CModalHeader>Warning</CModalHeader>
+        <CModalBody>
+          <p className="text-danger">{errorMessage}</p> {/* Display the error message */}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="primary" onClick={handleCloseErrorModal}>
             Close
           </CButton>
         </CModalFooter>

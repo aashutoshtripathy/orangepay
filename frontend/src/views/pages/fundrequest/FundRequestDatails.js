@@ -38,7 +38,7 @@ const FundRequestDatails = () => {
   const handleAccept = async () => {
     if (!userData) return; // Prevent actions if user data is not available
     try {
-      const response = await axios.patch(`/fundrequests/${userData._id}/approve`);
+      const response = await axios.patch(`/api/v1/users/fundrequests/${userData._id}/approve`);
       if (response.status === 200) {
         // Handle successful acceptance (e.g., navigate back or show a success message)
         console.log('Request accepted successfully');
@@ -52,7 +52,7 @@ const FundRequestDatails = () => {
   const handleReject = async () => {
     if (!userData) return; // Prevent actions if user data is not available
     try {
-      const response = await axios.patch(`/fundrequests/${userData._id}/reject`);
+      const response = await axios.patch(`/api/v1/users/fundrequests/${userData._id}/reject`);
       if (response.status === 200) {
         // Handle successful rejection (e.g., navigate back or show a success message)
         console.log('Request rejected successfully');
