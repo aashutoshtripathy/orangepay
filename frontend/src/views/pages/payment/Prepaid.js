@@ -224,13 +224,14 @@ const Payment = () => {
             <div className="mb-4">
               <h4>Consumer Information</h4>
               <p><strong>Consumer ID:</strong> {billDetails.consumerId|| 'N/A'}</p>
-              <p><strong>Consumer Name:</strong> {billDetails.balance || 'N/A'}</p> {/* Fallback if null */}
-              <p><strong>Mobile No:</strong> {billDetails.ResponseDateTime || 'N/A'}</p>
-              <p><strong>Address:</strong> {billDetails.Status || 'N/A'}</p>
-              <p><strong>Address:</strong> {billDetails.meterNumber || 'N/A'}</p>
-              <p><strong>Address:</strong> {billDetails.connectionStatus || 'N/A'}</p>
-              <p><strong>Address:</strong> {billDetails.lastPaymentAmount || 'N/A'}</p>
-              <p><strong>Address:</strong> {billDetails.lastPaymentDate || 'N/A'}</p>
+              <p><strong>Current Balance:</strong> {billDetails.balance || 'N/A'}</p> 
+              <p><strong>Response Date & Time:</strong> {billDetails.ResponseDateTime || 'N/A'}</p>
+              <p><strong>Meter Number:</strong> {billDetails.meterNumber || 'N/A'}</p>
+              <p><strong>Status:</strong> {billDetails.connectionStatus || 'N/A'}</p>
+              <p><strong>Last Payment Amount:</strong> {billDetails.lastPaymentAmount || 'N/A'}</p>
+              <p><strong>Last Payment Date:</strong> {billDetails.lastPaymentDate || 'N/A'}</p>
+              <p><strong>Payment Status:</strong> {billDetails.Status || 'N/A'}</p>
+
             
 
             </div>

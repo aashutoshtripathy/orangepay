@@ -32,7 +32,7 @@ const PaymentOnline = () => {
   const [defaultAmount, setDefaultAmount] = useState(500);
   const [selectedMethod, setSelectedMethod] = useState('wallet');
   const [remark, setRemark] = useState('');
-  const [showErrorModal, setShowErrorModal] = useState(false);  // State for modal visibility
+  const [showErrorModal, setShowErrorModal] = useState(false);  
   const [errorMessage, setErrorMessage] = useState('');  
   const [userId, setUserId] = useState('');
   const [errors, setErrors] = useState({});
@@ -340,6 +340,45 @@ const PaymentOnline = () => {
         setShowSuccessModal(true);
 
 
+
+        try {
+          const payload = {
+            userId,
+            consumerId: billData.consumerId,
+            mobileNumber: billData.mobileNumber,
+            amount,
+            paymentMethod: selectedMethod,
+            remark: 'Payment for bill ' + billData.invoiceNo,
+            consumerName: billData.consumerName,
+            divisionName: billData.divisionName,
+            subDivision: billData.subDivision,
+          };
+  
+          // Send the payment data to the backend
+          const paymentResponse = await fetch('/api/v1/users/payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+  
+          const paymentResult = await paymentResponse.json();
+  
+          if (paymentResponse.ok && paymentResult.success) {
+            console.log('Payment successful:', paymentResult);
+            // Perform any additional success actions, e.g., navigating or showing a success message
+            // setPaymentSuccess(true);
+            setShowPinModal(false);
+          } else {
+            throw new Error(paymentResult.message || 'Payment failed.');
+          }
+        } catch (error) {
+          console.error('Payment error:', error);
+          setErrors(error.message || 'An error occurred while processing the payment.');
+        }
+
+
         // Create SOAP request for fetching the receipt
         const receiptSoapRequest = `
             <?xml version="1.0" encoding="utf-8"?>
@@ -526,7 +565,12 @@ const PaymentOnline = () => {
   // };
 
     const handlePinSubmit = async () => {
+
+      setShowPinModal(true);
+
+
       try {
+
         // Send the entered PIN to the backend for validation
         const response = await axios.post('/api/v1/users/validate-tpin', {
           userId, // Assumes userId is stored in localStorage
@@ -826,7 +870,7 @@ const PaymentOnline = () => {
                 </CCol>
               </CRow>
 
-              <CButton color="primary" onClick={handlePayment}>
+              <CButton color="primary" onClick={handlePinSubmit}>
                 Pay Bill
               </CButton>
             </>
