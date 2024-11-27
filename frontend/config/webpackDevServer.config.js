@@ -56,7 +56,7 @@ module.exports = function (proxy, allowedHost) {
     devMiddleware: {
       publicPath: paths.publicUrlOrPath.slice(0, -1),
     },
-    host: 'boborange.in',
+    host: 'localhost',
     port: 3000,
     historyApiFallback: {
       disableDotRule: true,
