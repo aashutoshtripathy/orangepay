@@ -53,7 +53,7 @@ const Login = () => {
     if (!valid) return;
 
     try {
-      const response = await axios.post(`http://boborange.in/api/v1/users/login`, {
+      const response = await axios.post(`/api/v1/users/login`, {
         username,
         password,
       }, { withCredentials: true })

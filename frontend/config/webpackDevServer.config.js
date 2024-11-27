@@ -66,7 +66,7 @@ module.exports = function (proxy, allowedHost) {
     proxy: [
       {
         context: ['/api/v1/users'],  // Match the specific API endpoint
-        target: 'http://127.0.0.1:8000',  // Proxy to local backend
+        target: 'http://localhost:8000',  // Proxy to local backend
         changeOrigin: true,
         pathRewrite: {
           '^/api/v1/users': '/api/v1/users/',  // Path rewriting rule
