@@ -1520,7 +1520,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post("/register", formDataToSend, {
+      const response = await axios.post("/api/v1/users/register", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
