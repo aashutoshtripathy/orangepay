@@ -59,7 +59,7 @@ const Payment = () => {
   };
 
   // const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
-  const API_URL = '/api/v1/hargharbijli/WebServiceExternal/WebServiceOPSM.asmx'
+  const API_URL = '/api/v1/hargharbijli/WebServiceExternal/WebServiceOPSM.asmx?op=GetConsumerBalanceDetails'
 
   const soapRequest = (consumerId) => `
 <?xml version="1.0" encoding="utf-8"?>
