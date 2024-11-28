@@ -92,11 +92,11 @@ module.exports = function (proxy, allowedHost) {
         secure: false,
       },
       {
-        context: ['/api/v1/hargharbijli'],  // Match the specific API endpoint
-        target: 'http://hargharbijli.bsphcl.co.in',  // Proxy to local backend
+        context: ['/api/v1/hargharbijlee'],
+        target: 'http://115.240.80.104',
         changeOrigin: true,
         pathRewrite: {
-          '^/api/v1/hargharbijli': '',  // Path rewriting rule
+          '^/api/v1/hargharbijlee': '',  // Path rewriting rule
         },
         secure: false,
       },
