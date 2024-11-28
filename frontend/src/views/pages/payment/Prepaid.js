@@ -59,7 +59,7 @@ const Payment = () => {
   };
 
   // const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
-  // const API_URL = '/api/v1/hargharbijli/WebServiceExternal/WebServiceOPSM.asmx'
+  const API_URL = '/api/v1/hargharbijli/WebServiceExternal/WebServiceOPSM.asmx'
 
   const soapRequest = (consumerId) => `
 <?xml version="1.0" encoding="utf-8"?>
@@ -97,7 +97,8 @@ const handleFetchBill = async () => {
 
     console.log("SOAP Request:", soapXml);
 
-    const response = await axios.post(`/api/v1/hargharbijli/WebServiceExternal/WebServiceOPSM.asmx`, soapXml, {
+    const response = await axios.post(API_URL, soapXml, {
+      // const response = await axios.post(`/api/v1/hargharbijli/WebServiceExternal/WebServiceOPSM.asmx`, soapXml, {
       headers: {
         'Content-Type': 'application/soap+xml; charset=utf-8',
         'SOAPAction': 'http://bsphcl.co.in/GetConsumerBalanceDetails',
