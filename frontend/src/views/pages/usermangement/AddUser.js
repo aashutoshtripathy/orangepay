@@ -1238,7 +1238,7 @@ const AddUser = () => {
                     <CCol md={12} className="mb-3">
                       <CInputGroup className="mb-3">
                         <CInputGroupText>
-                          <CIcon icon={cilUser} />
+                          <CIcon icon={cilUser} Name />
                         </CInputGroupText>
                         <CFormInput
                           name="name"
