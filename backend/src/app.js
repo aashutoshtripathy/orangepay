@@ -15,9 +15,11 @@ import createProxyMiddleware from "http-proxy-middleware"
 const app = express();
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    Credential: true
-}))
+  origin: process.env.CORS_ORIGIN,
+  credentials: true
+}));
+
+app.options('*', cors());
 
 
 

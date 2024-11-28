@@ -74,6 +74,15 @@ module.exports = function (proxy, allowedHost) {
         secure: false,
       },
       {
+        context: ['http://boborange.in'],  // Match the specific API endpoint
+        target: 'http://127.0.0.1:8000',  // Proxy to local backend
+        changeOrigin: true,
+        pathRewrite: {
+          '^http://boborange.in': '',  // Path rewriting rule
+        },
+        secure: false,
+      },
+      {
         context: ['/api/v1/biharpayment'],  // Match the specific API endpoint
         target: 'http://1.6.61.79',  // Proxy to local backend
         changeOrigin: true,
