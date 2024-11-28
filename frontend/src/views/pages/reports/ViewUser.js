@@ -127,7 +127,7 @@ const toggleButtons = () => {
     console.log(`Commission to update:`, commission);
   
     try {
-      const response = await axios.put(`/updateCommission/${_id}`, { commission }); // Send commission directly
+      const response = await axios.put(`/api/v1/users/updateCommission/${_id}`, { commission }); // Send commission directly
       console.log('Server Response:', response.data);
   
       if (response.data.success) {
@@ -251,7 +251,7 @@ const toggleButtons = () => {
 
   const handleBlockUnblock = async (row, action) => {
     try {
-      const url = action === 'block' ? `/block/${row._id}` : `/unblock/${row._id}`;
+      const url = action === 'block' ? `/api/v1/users/block/${row._id}` : `/api/v1/users/unblock/${row._id}`;
       console.log(url)
       const response = await axios.post(url, { userId: row._id });
       if (response.status === 200) {
@@ -267,7 +267,7 @@ const toggleButtons = () => {
     console.log("User ID:", row._id);
   
     try {
-      const response = await axios.post('/resend-credentials', { userId: row._id });
+      const response = await axios.post('/api/v1/users/resend-credentials', { userId: row._id });
   
       if (response.status === 200) {
         alert('Credentials resent successfully!');
@@ -293,7 +293,7 @@ const toggleButtons = () => {
 
   const handleAccept = async (row) => {
     try {
-      const response = await axios.patch(`/users/${row._id}/approve`);
+      const response = await axios.patch(`/api/v1/users/users/${row._id}/approve`);
 
       if (response.status === 200) {  // Check if the response is successful
         setData((prevData) => prevData.filter((item) => item._id !== row._id));
@@ -427,6 +427,7 @@ const toggleButtons = () => {
     {
       name: 'Actions',
       cell: (row) => (
+       
         <div className="actions-cell">
           <div>
             {row.status === 'Blocked' ? (

@@ -1548,7 +1548,7 @@ const Register = () => {
           <CCol md={10} lg={8} xl={7}>
             <CCard className="shadow-lg">
               <CCardHeader className="text-center" style={{ backgroundColor: '#f36c23' }}>
-                <h2>Register</h2>
+                <h2  style={{ color: '#fff' }}>Register</h2>
                 <p className="text-muted">Fill in the details below</p>
               </CCardHeader>
               <CCardBody className="p-4">
@@ -1629,7 +1629,6 @@ const Register = () => {
                         aria-label="Select Role"
                       >
                         <option value="">Select Role</option>
-                        <option value="distributor" disabled>Distributor</option>
                         <option value="agent">Agent</option>
                       </CFormSelect>
                     </CInputGroup>

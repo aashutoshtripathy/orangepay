@@ -119,7 +119,7 @@ const Permission = () => {
 
       if (response.data.success) {
         console.log('Permissions updated successfully:', response.data.updatedUser);
-        naviagte(`/api/v1/users/view-user`)
+        naviagte(`/view-user`)
         // You might want to show a success message or update the UI accordingly
       } else {
         console.error('Update failed:', response.data.message);

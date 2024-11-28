@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import axios from "axios";
+import '../../../scss/register.scss';
 import {
   CButton,
   CCard,
@@ -1200,7 +1201,7 @@ const AddUser = () => {
     }
 
     try {
-      const response = await axios.post("/register", formDataToSend, {
+      const response = await axios.post("/api/v1/users/register", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -1214,7 +1215,7 @@ const AddUser = () => {
 
   const handleModalClose = () => {
     setModalVisible(false);
-    navigate("/login");
+    // navigate("/login");
   };
 
   const handleButtonClick = (inputId) => {
@@ -1227,8 +1228,8 @@ const AddUser = () => {
         <CRow className="justify-content-center">
           <CCol md={10} lg={8} xl={7}>
             <CCard className="shadow-lg">
-            <CCardHeader className="text-center" style={{ backgroundColor: 'orange' }}>
-              <h2>Add User</h2>
+            <CCardHeader className="text-center" style={{ backgroundColor: '#f36c23' }}>
+              <h2 style={{ color: '#fff' }}>Add User</h2>
               <p className="text-muted">Fill in the details below</p>
             </CCardHeader>
               <CCardBody className="p-4">
@@ -1305,7 +1306,9 @@ const AddUser = () => {
                         aria-label="Select Role"
                       >
                         <option value="">Select Role</option>
-                        <option value="distributor" disabled>Distributor</option>
+                        <option value="admin" >Admin</option>
+                        <option value="manager" >Manager</option>
+                        <option value="distributor" >Distributor</option>
                         <option value="agent">Agent</option>
                       </CFormSelect>
                     </CInputGroup>
@@ -1315,95 +1318,231 @@ const AddUser = () => {
 
 
 
-                    <CCol md={6}>
+                        <CCol md={6}>
 
 
 
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>Aadhar</CInputGroupText>
-                        <CFormInput
-                          name="aadharNumber"
-                          placeholder="Aadhar Number"
-                          type="text"
-                          value={formData.aadharNumber}
-                          onChange={handleChange}
-                          onFocus={handleFocus}
-                          onBlur={handleBlur}
+                        <CInputGroup className="mb-3">
+                          <CInputGroupText>Aadhar</CInputGroupText>
+                          <CFormInput
+                            name="aadharNumber"
+                            className="custom-input"
+                            placeholder="Aadhar Number"
+                            type="text"
+                            value={formData.aadharNumber}
+                            onChange={handleChange}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
 
-                          autoComplete="off"
-                        />
-                      </CInputGroup>
-                      {errors.aadharNumber && (
-                        <p className="text-danger">{errors.aadharNumber}</p>
-                      )}
+                            autoComplete="off"
+                          />
+                        </CInputGroup>
+                        {errors.aadharNumber && (
+                          <p className="text-danger">{errors.aadharNumber}</p>
+                        )}
 
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>PAN</CInputGroupText>
-                        <CFormInput
-                          name="panNumber"
-                          placeholder="Pan Number"
-                          value={formData.panNumber}
-                          onChange={handleChange}
-                          onFocus={handleFocus}
-                          onBlur={handleBlur}
+                        {/* <CInputGroup className="mb-3">
+                          <CInputGroupText>PAN</CInputGroupText>
+                          <CFormInput
+                            name="panNumber"
+                            className="custom-input"
+                            placeholder="Pan Number"
+                            value={formData.panNumber}
+                            onChange={handleChange}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
 
-                          style={{ textTransform: "uppercase" }}
-                          autoComplete="off"
-                        />
-                      </CInputGroup>
-                      {errors.panNumber && (
-                        <p className="text-danger">{errors.panNumber}</p>
-                      )}
+                            style={{ textTransform: "uppercase" }}
+                            autoComplete="off"
+                          />
+                        </CInputGroup>
+                        {errors.panNumber && (
+                          <p className="text-danger">{errors.panNumber}</p>
+                        )} */}
 
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          <CIcon icon={cilPhone} />
-                        </CInputGroupText>
-                        <CInputGroupText>+91</CInputGroupText>
-                        <CFormInput
-                          name="mobileNumber"
-                          placeholder="Mobile Number"
-                          type="text"
-                          value={formData.mobileNumber}
-                          onChange={handleChange}
-                          onFocus={handleFocus}
-                          onBlur={handleBlur}
+                        <CInputGroup className="mb-3">
+                          <CInputGroupText>
+                            <CIcon icon={cilPhone} />
+                          </CInputGroupText>
+                          <CInputGroupText>+91</CInputGroupText>
+                          <CFormInput
+                            name="mobileNumber"
+                            placeholder="Mobile Number"
+                            className="custom-input"
+                            type="text"
+                            value={formData.mobileNumber}
+                            onChange={handleChange}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
 
-                          autoComplete="tel"
-                          style={{ paddingLeft: '1rem' }}
-                        />
-                      </CInputGroup>
-                      {errors.mobileNumber && (
-                        <p className="text-danger">{errors.mobileNumber}</p>
-                      )}
-
-
-                      <CInputGroup className="mb-3">
-                        <CInputGroupText>
-                          <CIcon icon={cilEnvelopeClosed} />
-                        </CInputGroupText>
-                        <CFormInput
-                          name="email"
-                          placeholder="Email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          onFocus={handleFocus}
-                          onBlur={handleBlur}
-
-                          autoComplete="email"
-                        />
-                      </CInputGroup>
-                      {errors.email && (
-                        <p className="text-danger">{errors.email}</p>
-                      )}
+                            autoComplete="tel"
+                            style={{ paddingLeft: '1rem' }}
+                          />
+                        </CInputGroup>
+                        {errors.mobileNumber && (
+                          <p className="text-danger">{errors.mobileNumber}</p>
+                        )}
 
 
+                        {/* <CInputGroup className="mb-3">
+                          <CInputGroupText>
+                            <CIcon icon={cilEnvelopeClosed} />
+                          </CInputGroupText>
+                          <CFormInput
+                            name="email"
+                            className="custom-input"
+                            placeholder="Email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
 
-                    </CCol>
+                            autoComplete="email"
+                          />
+                        </CInputGroup>
+                        {errors.email && (
+                          <p className="text-danger">{errors.email}</p>
+                        )} */}
 
-                    <CCol md={6}>
-                      <CInputGroup className="mb-3">
+
+
+                        </CCol>
+
+                        <CCol md={6}>
+                        <CInputGroup className="mb-3">
+                          <CInputGroupText>PAN</CInputGroupText>
+                          <CFormInput
+                            name="panNumber"
+                            className="custom-input"
+                            placeholder="Pan Number"
+                            value={formData.panNumber}
+                            onChange={handleChange}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
+
+                            style={{ textTransform: "uppercase" }}
+                            autoComplete="off"
+                          />
+                        </CInputGroup>
+                        {errors.panNumber && (
+                          <p className="text-danger">{errors.panNumber}</p>
+                        )}
+
+                        <CInputGroup className="mb-3">
+                          <CInputGroupText>
+                            <CIcon icon={cilEnvelopeClosed} />
+                          </CInputGroupText>
+                          <CFormInput
+                            name="email"
+                            className="custom-input"
+                            placeholder="Email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
+
+                            autoComplete="email"
+                          />
+                        </CInputGroup>
+                        {errors.email && (
+                          <p className="text-danger">{errors.email}</p>
+                        )}
+
+
+                        {/* <CInputGroup className="mb-3">
+                          <CInputGroupText>Gender</CInputGroupText>
+                          <div className="d-flex m-2 align-items-center ">
+                            <CFormCheck
+                              variant="inline"
+                              type="radio"
+                              name="gender"
+                              id="genderMale"
+                              label="Male"
+                              value="Male"
+                              checked={formData.gender === "Male"}
+                              onChange={handleRadioChange}
+                            />
+                            <CFormCheck
+                              variant="inline"
+                              type="radio"
+                              name="gender"
+                              id="genderFemale"
+                              label="Female"
+                              value="Female"
+                              checked={formData.gender === "Female"}
+                              onChange={handleRadioChange}
+                              className="mx-2"
+
+                            />
+                            <CFormCheck
+                              variant="inline"
+                              type="radio"
+                              name="gender"
+                              id="genderOther"
+                              label="Other"
+                              value="Other"
+                              checked={formData.gender === "Other"}
+                              onChange={handleRadioChange}
+                                className="mx-2"
+
+                            />
+                          </div>
+                        </CInputGroup>
+                        {errors.gender && (
+                          <p className="text-danger">{errors.gender}</p>
+                        )}
+
+
+
+                        <CInputGroup className="mb-3">
+                          <CInputGroupText>Marital Status</CInputGroupText>
+                          <div className="d-flex m-2 align-items-center" >
+                            <CFormCheck
+                              variant="inline"
+                              type="radio"
+                              name="maritalStatus"
+                              id="maritalSingle"
+                              label="Single"
+                              value="Single"
+                              checked={formData.maritalStatus === "Single"}
+                              onChange={handleRadioChange}
+
+
+                            />
+                            <CFormCheck
+                              variant="inline"
+                              type="radio"
+                              name="maritalStatus"
+                              id="maritalMarried"
+                              label="Married"
+                              value="Married"
+                              checked={formData.maritalStatus === "Married"}
+                              onChange={handleRadioChange}
+                              className="mx-2"
+                            />
+                            <CFormCheck
+                              variant="inline"
+                              type="radio"
+                              name="maritalStatus"
+                              id="maritalDivorced"
+                              label="Divorced"
+                              value="Divorced"
+                              checked={formData.maritalStatus === "Divorced"}
+                              onChange={handleRadioChange}
+                                className="mx-2"
+
+                            />
+                          </div>
+                        </CInputGroup>
+                        {errors.maritalStatus && (
+                          <p className="text-danger">{errors.maritalStatus}</p>
+                        )} */}
+
+
+                        </CCol>
+                        <CInputGroup className="mb-3">
                         <CInputGroupText>Gender</CInputGroupText>
                         <div className="d-flex m-2 align-items-center ">
                           <CFormCheck
@@ -1437,18 +1576,15 @@ const AddUser = () => {
                             value="Other"
                             checked={formData.gender === "Other"}
                             onChange={handleRadioChange}
-                              className="mx-2"
+                            className="mx-2"
 
                           />
                         </div>
-                      </CInputGroup>
-                      {errors.gender && (
+                        </CInputGroup>
+                        {errors.gender && (
                         <p className="text-danger">{errors.gender}</p>
-                      )}
-
-                    
-
-                      <CInputGroup className="mb-3">
+                        )}
+                        <CInputGroup className="mb-3">
                         <CInputGroupText>Marital Status</CInputGroupText>
                         <div className="d-flex m-2 align-items-center" >
                           <CFormCheck
@@ -1483,53 +1619,48 @@ const AddUser = () => {
                             value="Divorced"
                             checked={formData.maritalStatus === "Divorced"}
                             onChange={handleRadioChange}
-                              className="mx-2"
+                            className="mx-2"
 
                           />
                         </div>
-                      </CInputGroup>
-                      {errors.maritalStatus && (
+                        </CInputGroup>
+                        {errors.maritalStatus && (
                         <p className="text-danger">{errors.maritalStatus}</p>
-                      )}
-
-              
-                    </CCol>
-
-                    <CInputGroup className="mb-3">
-                      <CInputGroupText>Education</CInputGroupText>
-                      <div className="d-flex m-2 align-items-center">
-                        <CFormCheck
-                          type="checkbox"
-                          name="education"
-                          id="graduate"
-                          label="Graduate"
-                          value="Graduate"
-                          checked={formData.education.includes("Graduate")}
-                          onChange={handleCheckboxChange}
-                        />
-                        <CFormCheck
-                          type="checkbox"
-                          name="education"
-                          id="above12th"
-                          label="Above 12th Pass"
-                          value="Above 12th Pass"
-                          checked={formData.education.includes("Above 12th Pass")}
-                          onChange={handleCheckboxChange}
-                          className="mx-2"
-                        />
-                        <CFormCheck
-                          type="checkbox"
-                          name="education"
-                          id="other"
-                          label="Other"
-                          value="Other"
-                          checked={formData.education.includes("Other")}
-                          onChange={handleCheckboxChange}
-                          className="mx-2"
-                        />
-                      </div>
-                    </CInputGroup>
-                    {errors.education && <p className="text-danger">{errors.education}</p>}
+                        )}
+                        <CInputGroup className="mb-3">
+                        <CInputGroupText>Education</CInputGroupText>
+                        <div className="d-flex m-2 align-items-center">
+                          <CFormCheck
+                            name="education"
+                            id="graduate"
+                            label="Graduate"
+                            value="Graduate"
+                            checked={formData.education.includes("Graduate")}
+                            onChange={handleCheckboxChange}
+                          />
+                          <CFormCheck
+                            type="checkbox"
+                            name="education"
+                            id="above12th"
+                            label="Above 12th Pass"
+                            value="Above 12th Pass"
+                            checked={formData.education.includes("Above 12th Pass")}
+                            onChange={handleCheckboxChange}
+                            className="mx-2"
+                          />
+                          <CFormCheck
+                            type="checkbox"
+                            name="education"
+                            id="other"
+                            label="Other"
+                            value="Other"
+                            checked={formData.education.includes("Other")}
+                            onChange={handleCheckboxChange}
+                            className="mx-2"
+                          />
+                        </div>
+                        </CInputGroup>
+                        {errors.education && <p className="text-danger">{errors.education}</p>}
 
 
                     <CCol md={12} className="mb-3">
@@ -1970,7 +2101,7 @@ const AddUser = () => {
                   </CRow>
 
                   <div className="d-grid"style={{ width: '20%' }}>
-                    <CButton color="warning" type="submit" size="lg">
+                    <CButton className="register-btn" type="submit" size="lg">
                      Submit
                     </CButton>
                   </div>

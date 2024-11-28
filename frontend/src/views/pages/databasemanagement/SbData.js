@@ -16,7 +16,7 @@ const SbdataTable = () => {
   useEffect(() => {
     const fetchSbdata = async () => {
       try {
-        const response = await axios.get('getAllSbdata'); // Fetch your data
+        const response = await axios.get('/api/v1/users/getAllSbdata'); // Fetch your data
         setSbdata(response.data);
         setFilteredData(response.data); // Initialize filtered data
       } catch (err) {

@@ -224,7 +224,7 @@ const DataTableComponent = () => {
 
   const handleBlockUnblock = async (row, action) => {
     try {
-      const url = action === 'block' ? `/block/${row._id}` : `/unblock/${row._id}`;
+      const url = action === 'block' ? `/api/v1/users/block/${row._id}` : `/api/v1/users/unblock/${row._id}`;
       console.log(url)
       const response = await axios.post(url , { userId: row._id });
       if (response.status === 200) {
@@ -271,10 +271,14 @@ const DataTableComponent = () => {
     // { name: 'password', selector: 'password', sortable: true },
     { name: 'Actions', 
       cell: (row) => (
-        <div className="actions-cell">
+        <div className="actions-cell" style={{width:"-webkit-fill-available"}}>
           {row.isBlocked ? (
           <button 
             className="block-unblock-btn unblock-btn" 
+            style={{display:"flex",
+              justifyContent:"center",
+              alignItems:"center"
+            }}
             onClick={() => handleBlockUnblock(row, 'unblock')}
           >
             Unblock
@@ -282,6 +286,10 @@ const DataTableComponent = () => {
         ) : (
           <button 
             className="block-unblock-btn block-btn" 
+            style={{display:"flex",
+              justifyContent:"center",
+              alignItems:"center"
+            }}
             onClick={() => handleBlockUnblock(row, 'block')}
           >
             Block
