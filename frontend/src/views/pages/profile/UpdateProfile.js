@@ -162,7 +162,7 @@ const UpdateProfile = () => {
         }
 
         try {
-                const response = await axios.put(`/updateProfile/${userId}`, formDataToSend, {
+                const response = await axios.put(`/api/v1/users/updateProfile/${userId}`, formDataToSend, {
 
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -237,6 +237,7 @@ const UpdateProfile = () => {
                                                     onChange={handleChange}
                                                     autoComplete="tel"
                                                     onBlur={handleBlur}
+                                                    disabled
                                                 />
                                             </CInputGroup>
                                             {errors.mobileNumber && <p className="text-danger">{errors.mobileNumber}</p>}

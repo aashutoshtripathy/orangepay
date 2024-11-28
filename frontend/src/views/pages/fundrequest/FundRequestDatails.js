@@ -8,12 +8,20 @@ import {
   CTableDataCell,
   CContainer,
   CButton,
+  CModal,
+  CModalHeader,
+  CModalBody,
+  CModalFooter,
+  CFormInput,
+  CFormTextarea,
 } from '@coreui/react';
 import axios from 'axios';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 const FundRequestDatails = () => {
   const [userData, setUserData] = useState(null); // State to hold user data
+  const [reason, setReason] = useState('');
+  const [isRejectModalVisible, setRejectModalVisible] = useState(false); // Modal visibility state
   const { userId } = useParams();
   const navigate = useNavigate();
 
@@ -56,6 +64,7 @@ const FundRequestDatails = () => {
       if (response.status === 200) {
         // Handle successful rejection (e.g., navigate back or show a success message)
         console.log('Request rejected successfully');
+        setRejectModalVisible(false);
         navigate(-1); // Navigate back after rejection
       }
     } catch (error) {
@@ -136,12 +145,36 @@ const FundRequestDatails = () => {
             <CTableDataCell>
               <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
                 <CButton color="success" onClick={handleAccept}>Accept</CButton>
-                <CButton color="danger" onClick={handleReject}>Reject</CButton>
+                <CButton color="danger" onClick={() => setRejectModalVisible(true)}>Reject</CButton>
               </div>
             </CTableDataCell>
           </CTableRow>
         </CTableBody>
       </CTable>
+      <CModal
+        visible={isRejectModalVisible}
+        onClose={() => setRejectModalVisible(false)}
+      >
+        <CModalHeader>Reject Fund Request</CModalHeader>
+        <CModalBody>
+          <CFormTextarea
+            rows={4}
+            placeholder="Enter the reason for rejection"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          />
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setRejectModalVisible(false)}>Cancel</CButton>
+          <CButton
+            color="danger"
+            onClick={handleReject}
+            disabled={!reason.trim()} // Disable button if no reason
+          >
+            Reject
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </CContainer>
   );
 };

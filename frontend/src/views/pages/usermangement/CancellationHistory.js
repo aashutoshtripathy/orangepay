@@ -17,7 +17,7 @@ import '../../../scss/dataTable.scss';
 const customStyles = {
   rows: {
     style: {
-      minHeight: '72px', 
+      minHeight: '40px', 
     },
   },
   headCells: {
@@ -169,6 +169,8 @@ const DataTableComponent = ({userId}) => {
   const [filterText, setFilterText] = useState('');
   const [menuOpen, setMenuOpen] = useState(null);
   const [columnsVisibility, setColumnsVisibility] = useState(initialColumnsVisibility);
+  const [showButtons, setShowButtons] = useState(true);
+
 
 
 
@@ -215,11 +217,7 @@ const DataTableComponent = ({userId}) => {
 
 
   const toggleMenu = (index) => {
-    if (menuOpen === index) {
-      setMenuOpen(null); 
-    } else {
-      setMenuOpen(index); 
-    }
+    setMenuOpen(menuOpen === index ? null : index); // Toggle menu visibility
   };
 
   const handleClearDates = () => {
@@ -243,22 +241,26 @@ const DataTableComponent = ({userId}) => {
     columnsVisibility.paymentStatus && { name: 'Payment Status', selector: 'paymentStatus', sortable: true },
     {
       name: 'Actions',
-      center: true, 
-      cell: (row, index) => (
-        <div className="action-menu" onMouseLeave={() => setMenuOpen(null)}>
+      center: true,
+      cell: (row) => (
+        <div className="action-menu">
           <FontAwesomeIcon
             icon={faCircleInfo}
             style={{ cursor: 'pointer' }}
-            onClick={() => toggleMenu(index)}
           />
-          {menuOpen === index && (
-            <div className="dropdown-menu">
-              <div className="button-container">
-                <button className="button-view-details">View Details</button>
-              </div>
+          <div className="dropdown-menu" style={{padding:"0px"}}>
+            <div className="button-container" style={{padding:"0px",margin:"6px"}}>
+              <button
+                className="button-view-details"
+                style={{width:"-webkit-fill-available"}}
+                onClick={() => handleViewDetails(row)}
+              >
+                View Details
+              </button>
             </div>
-          )}
+          </div>
         </div>
+          
       ),
     },
   ].filter(Boolean); 

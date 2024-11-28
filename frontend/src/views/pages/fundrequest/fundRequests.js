@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 const customStyles = {
   rows: {
     style: {
-      minHeight: '72px', // Set the minimum row height
+      minHeight: '40px', // Set the minimum row height
       cursor: 'pointer', // Add pointer cursor for rows
     },
   },

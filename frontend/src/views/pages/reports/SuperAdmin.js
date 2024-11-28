@@ -46,32 +46,32 @@ const SuperAdmin = () => {
         <CCardBody>
           <CRow className="text-center">
             <CCol md={2}>
-              <CButton color="primary" onClick={() => handleButtonClick('passbook')}>
+              <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={() => handleButtonClick('passbook')}>
                 Passbook
               </CButton>
             </CCol>
             <CCol md={2}>
-              <CButton color="success" onClick={() => handleButtonClick('walletReport')}>
+              <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={() => handleButtonClick('walletReport')}>
                 Wallet Report
               </CButton>
             </CCol>
             <CCol md={2}>
-              <CButton color="info" onClick={() => handleButtonClick('commissionReport')}>
+              <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={() => handleButtonClick('commissionReport')}>
                 Commission Report
               </CButton>
             </CCol>
             <CCol md={2}>
-              <CButton color="warning" onClick={() => handleButtonClick('orangepayReport')}>
+              <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={() => handleButtonClick('orangepayReport')}>
                 OrangePay Report
               </CButton>
             </CCol>
             <CCol md={2}>
-              <CButton color="danger" onClick={() => handleButtonClick('fundRequestReport')}>
-                Fund Request Report
+              <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={() => handleButtonClick('fundRequestReport')}>
+                Fund Report
               </CButton>
             </CCol>
             <CCol md={2}>
-              <CButton color="sacondary" onClick={() => handleButtonClick('cancellationReport')}>
+              <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={() => handleButtonClick('cancellationReport')}>
                 Cancellation Report
               </CButton>
             </CCol>

@@ -12,7 +12,7 @@ import TransactionHistoryyyy from './TransactionHistoryyyy';
 const customStyles = {
   rows: {
     style: {
-      minHeight: '72px', // Set the minimum row height
+      minHeight: '40px', // Set the minimum row height
     },
   },
   headCells: {

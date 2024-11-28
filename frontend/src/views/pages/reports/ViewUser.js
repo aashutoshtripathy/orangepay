@@ -21,7 +21,7 @@ const customStyles = {
   },
   rows: {
     style: {
-      minHeight: '72px', // Set the minimum row height
+      minHeight: '40px', // Set the minimum row height
       borderBottom: '1px solid #ddd', // Border between rows
     },
   },

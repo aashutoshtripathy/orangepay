@@ -336,9 +336,9 @@ const PaymentOnline = () => {
       const message = messageMatch ? messageMatch[1] : 'No message found';
 
       if (statusFlag === '1') {
-        console.log('Transaction successful:', message);
-        setShowSuccessModal(true);
-
+        console.log('Transaction successful');
+        await handlePayment(); // Call handlePayment for backend API interaction
+      
 
 
         try {
@@ -430,6 +430,57 @@ const PaymentOnline = () => {
       }
     }
   }
+
+
+  const checkStatusFlag = async () => {
+    try {
+
+      const checksum = calculateChecksum(amount, 'd8bKEaX1XEtB');
+      const formattedDateTime = formatDateTime();
+      const transactionRef = transactionId || generateUniqueTransactionId();
+      const soapRequest = (billData, amount, checksum) => `
+      <?xml version="1.0" encoding="utf-8"?>
+      <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Body>
+          <PaymentDetails xmlns="http://tempuri.org/">
+            <strCANumber>${billData.consumerId}</strCANumber>
+            <strInvoiceNo>${billData.invoiceNo}</strInvoiceNo>
+            <strDueDate>${billData.dueDate}</strDueDate>
+            <strAmount>${amount}</strAmount>
+            <strCompanyCode>${'SBPDCL'}</strCompanyCode>
+            <strTransactionId>${transactionRef}</strTransactionId>
+            <strTransactionDateTime>${formatDateTime()}</strTransactionDateTime> <!-- Current timestamp -->
+            <strReceiptNo>${transactionRef}</strReceiptNo> <!-- Generated or passed dynamically -->
+            <strBankRefCode>${'BR1234567890'}</strBankRefCode> <!-- Can be dynamic -->
+            <strBankId></strBankId> 
+            <strPaymentMode>${selectedMethod || 'CreditCard'}</strPaymentMode>
+            <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+            <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+            <strCkeckSum>${checksum}</strCkeckSum> <!-- Call checksum function here -->
+          </PaymentDetails>
+        </soap:Body>
+      </soap:Envelope>
+      `.trim();
+
+
+      
+      const xmlPayload = soapRequest(billData, amount, checksum);
+  
+      const response = await axios.post(SECONDARY_API_URL, soapRequest, {
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+          'Accept': 'application/xml, text/xml, application/json',
+        },
+      });
+  
+      const statusFlagMatch = response.data.match(/<StatusFlag>(.*?)<\/StatusFlag>/);
+      return statusFlagMatch ? statusFlagMatch[1] : null;
+    } catch (error) {
+      console.error('Error checking status flag:', error);
+      return null;
+    }
+  };
+  
 
 
 
@@ -619,6 +670,9 @@ const PaymentOnline = () => {
           subDivision: billDetails.subDivision,
         };
   
+        const statusFlag = await checkStatusFlag(); // New function to check the status flag
+
+
         // Send the payment data to the backend
         const response = await fetch('/api/v1/users/payment', {
           method: 'POST',
@@ -870,7 +924,7 @@ const PaymentOnline = () => {
                 </CCol>
               </CRow>
 
-              <CButton color="primary" onClick={handlePinSubmit}>
+              <CButton color="primary" onClick={handlePayment}>
                 Pay Bill
               </CButton>
             </>

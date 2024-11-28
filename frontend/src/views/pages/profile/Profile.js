@@ -48,6 +48,15 @@ const Profile = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [fileNames, setFileNames] = useState({ photograph: "" });
   const fileInputRef = useRef(null);
+  const [isThanksModalVisible, setThanksModalVisible] = useState(false);
+  const [isRequestModalVisible, setRequestModalVisible] = useState(false);
+
+
+const handleFundRequest = () => {
+  // Logic for fund request
+  setRequestModalVisible(false);
+  setThanksModalVisible(true); // Show the "Thanks" modal
+};
 
   const [adminData, setAdminData] = useState({
     name: '',
@@ -141,6 +150,8 @@ const Profile = () => {
 
   const handleRequestFund = async (e) => {
     e.preventDefault();
+    handleFundRequest();
+
     const newErrors = {};
 
     if (!fundAmount) newErrors.fundAmount = "Amount is required";
@@ -685,6 +696,23 @@ const Profile = () => {
           </form>
         </CModalBody>
       </CModal>
+
+
+      <CModal
+  visible={isThanksModalVisible}
+  onClose={() => setThanksModalVisible(false)}
+>
+  <CModalBody>Thanks for making a fund request!</CModalBody>
+  <CModalFooter>
+    <CButton
+      color="primary"
+      style={{backgroundColor:"#f36c23",border:"none"}}
+      onClick={() => setThanksModalVisible(false)}
+    >
+      Close
+    </CButton>
+  </CModalFooter>
+</CModal>
 
 
 

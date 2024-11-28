@@ -59,7 +59,7 @@ const ViewTable = () => {
   // Handle Accept Fund Request
   const handleAccept = async (row) => {
     try {
-      const response = await axios.patch(`/users/${row._id}/approve`);
+      const response = await axios.patch(`/api/v1/users/users/${row._id}/approve`);
       if (response.status === 200) {
         setTableData((prevData) => prevData.filter((item) => item._id !== row._id));
         navigate('/requests')
@@ -85,7 +85,7 @@ const ViewTable = () => {
   // Handle Download Images
   const handleDownload = async (row) => {
     try {
-      const response = await axios.get(`/download-images/${row.aadharNumber}`, {
+      const response = await axios.get(`/api/v1/users/download-images/${row.aadharNumber}`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -116,7 +116,7 @@ const ViewTable = () => {
     }
 
     try {
-      const response = await axios.patch(`/users/${user._id}/reject`, { remarks });
+      const response = await axios.patch(`/api/v1/users/users/${user._id}/reject`, { remarks });
       if (response.status === 200) {
         setTableData((prevData) => prevData.filter((item) => item._id !== user._id));
         setShowRejectModal(false);
@@ -133,7 +133,7 @@ const ViewTable = () => {
 
   return (
     <CContainer fluid    className="table-container">
-      <CButton color="secondary" onClick={() => navigate(-1)}>Back</CButton>
+      <CButton style={{marginBottom:"2px"}}color="secondary" onClick={() => navigate(-1)}>Back</CButton>
       <CTable striped hover bordered responsive>
         <CTableHead>
           <CTableRow>
@@ -281,7 +281,7 @@ const ViewTable = () => {
             {tableData.map((user) => {
               const photographPath = user.photograph;
               const filename = photographPath.split('/').pop();
-              const imagePath = `/images/${user.aadharNumber}/${filename}`;
+              const imagePath = `/api/v1/users/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
@@ -302,7 +302,7 @@ const ViewTable = () => {
             {tableData.map((user) => {
               const photographPath = user.aadharCard;
               const filename = photographPath.split('/').pop();
-              const imagePath = `/images/${user.aadharNumber}/${filename}`;
+              const imagePath = `/api/v1/users/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
@@ -323,7 +323,7 @@ const ViewTable = () => {
             {tableData.map((user) => {
               const photographPath = user.panCard;
               const filename = photographPath.split('/').pop();
-              const imagePath = `/images/${user.aadharNumber}/${filename}`;
+              const imagePath = `/api/v1/users/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
@@ -344,7 +344,7 @@ const ViewTable = () => {
             {tableData.map((user) => {
               const photographPath = user.educationCertificate;
               const filename = photographPath.split('/').pop();
-              const imagePath = `/images/${user.aadharNumber}/${filename}`;
+              const imagePath = `/api/v1/users/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
@@ -366,7 +366,7 @@ const ViewTable = () => {
             {tableData.map((user) => {
               const photographPath = user.cheque;
               const filename = photographPath.split('/').pop();
-              const imagePath = `/images/${user.aadharNumber}/${filename}`;
+              const imagePath = `/api/v1/users/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
@@ -388,7 +388,7 @@ const ViewTable = () => {
             {tableData.map((user) => {
               const photographPath = user.signature;
               const filename = photographPath.split('/').pop();
-              const imagePath = `/images/${user.aadharNumber}/${filename}`;
+              const imagePath = `/api/v1/users/images/${user.aadharNumber}/${filename}`;
 
               return (
                 <CTableDataCell key={user.id}>
@@ -456,7 +456,7 @@ const ViewTable = () => {
       </CModal>
 
       <CModal visible={modal} onClose={() => setModal(false)}>
-        <CModalHeader onClose={() => setModal(false)}>Image Preview</CModalHeader>
+        <CModalHeader style={{backgroundColor:"#f36c23"}} onClose={() => setModal(false)}>Image Preview</CModalHeader>
         <CModalBody>
           <img src={selectedImage} alt="Full Size" style={{ width: '100%' }} />
         </CModalBody>

@@ -55,7 +55,7 @@ export const adminNavItems = [
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Add User' , to: '/add-user' },
+      { component: CNavItem, name: 'Add User' , to: '-user' },
       { component: CNavItem, name: 'Fund Request', to: `/fundrequests` },
       { component: CNavItem, name: 'Cancellation Request', to: `/cancellationrequests` },
       // { component: CNavItem, name: 'Manage User', to: '/manage-user' },

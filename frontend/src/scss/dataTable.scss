@@ -562,3 +562,45 @@ input[type="date"] {
 
 
 
+.action-menu {
+  position: relative; /* Ensures the dropdown is positioned relative to this container */
+  display: inline-block;
+
+}
+
+.dropdown-menu {
+  display: none; /* Initially hidden */
+  position: absolute;
+  top: -20px; /* Adjust based on your layout */
+  left: 0; /* Align with the parent */
+  background-color: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  z-index: 1000; /* Ensure it appears above other elements */
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.action-menu:hover .dropdown-menu {
+  display: block; /* Show the dropdown menu when the user hovers */
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-view-details {
+  background-color: #6362e1;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.button-view-details:hover {
+  background-color: #30078f;
+}

@@ -92,7 +92,7 @@ const CancellationDetailss = () => {
 
   return (
     <CContainer fluid>
-      <CButton color="secondary" onClick={() => navigate(-1)}>Back</CButton>
+      <CButton style={{ marginBottom:"2px" }} color="secondary" onClick={() => navigate(-1)}>Back</CButton>
       <CTable striped hover bordered responsive>
         <CTableHead>
           <CTableRow>

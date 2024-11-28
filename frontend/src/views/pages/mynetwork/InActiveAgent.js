@@ -11,7 +11,7 @@ import '../../../scss/dataTable.scss';
 const customStyles = {
   rows: {
     style: {
-      minHeight: '72px',
+      minHeight: '40px',
     },
   },
   headCells: {
