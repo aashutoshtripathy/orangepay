@@ -64,17 +64,17 @@ const Payment = () => {
 
   const soapRequest = (consumerId) => `
 <?xml version="1.0" encoding="utf-8"?>
-<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+<soap12:Envelope xmlns:soap12="http://www.w3.org/2003/05/soap-envelope" xmlns:bsphcl="http://bsphcl.co.in/">
   <soap12:Header>
-    <UserCredentials xmlns="http://bsphcl.co.in/">
-      <username>SMOR</username>
-      <password>Op#4321@$M</password>
-    </UserCredentials>
+    <bsphcl:UserCredentials>
+      <bsphcl:username>SMOR</bsphcl:username>
+      <bsphcl:password>Op#4321@$M</bsphcl:password>
+    </bsphcl:UserCredentials>
   </soap12:Header>
   <soap12:Body>
-    <GetConsumerBalanceDetails xmlns="http://bsphcl.co.in/">
-      <StrCANumber>${consumerId}</StrCANumber>
-    </GetConsumerBalanceDetails>
+    <bsphcl:GetConsumerBalanceDetails>
+      <bsphcl:StrCANumber>${consumerId}</bsphcl:StrCANumber>
+    </bsphcl:GetConsumerBalanceDetails>
   </soap12:Body>
 </soap12:Envelope>
 `.trim();

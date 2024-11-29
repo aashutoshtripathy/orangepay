@@ -93,7 +93,7 @@ module.exports = function (proxy, allowedHost) {
       },
       {
         context: ['/api/v1/hargharbijlee'],
-        target: 'http://115.240.80.104',
+        target: 'http://hargharbijli.bsphcl.co.in',
         changeOrigin: true,
         pathRewrite: {
           '^/api/v1/hargharbijlee': '',  // Path rewriting rule
