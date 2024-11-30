@@ -25,8 +25,8 @@ const paymentSchema = new Schema({
   },
   transactionId: {
     type: String,
-    required: true,
-    unique: true 
+    required: false,
+    // unique: true 
   },
   refrencenumber: {
     type: String,
@@ -66,7 +66,7 @@ const paymentSchema = new Schema({
   },
   reciptno: {
     type: String,
-    enum: ['Success', 'Pending', 'Failed'], 
+    // enum: ['Success', 'Pending', 'Failed'], 
     required: false
   },
   billposton: {

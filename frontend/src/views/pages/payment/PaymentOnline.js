@@ -61,6 +61,8 @@ const PaymentOnline = () => {
     amount: 'N/A',
     dueDate: 'N/A',
     invoiceNo: 'N/A',
+    paymentDate:"N/A",
+    receiptNo:"N/A",
   });
 
 
@@ -200,6 +202,15 @@ const PaymentOnline = () => {
           return element && element.textContent.trim() ? element.textContent : 'N/A';
         };
 
+        const fetchedTransactionId = `OP${Date.now()}`;
+      setTransactionId(fetchedTransactionId);
+
+      const fetchedCompanyName = getTagValue("CompanyName");
+const companyCode =
+  fetchedCompanyName === "SOUTH BIHAR POWER DISTRIBUTION COMPANY LTD"
+    ? "SBPDCL"
+    : fetchedCompanyName;
+
         const fetchedBillData = {
           consumerId: getTagValue("CANumber"),
           consumerName: getTagValue("ConsumerName"),
@@ -212,6 +223,10 @@ const PaymentOnline = () => {
           amount: getTagValue("Amount"),
           dueDate: getTagValue("DueDate"),
           invoiceNo: getTagValue("InvoiceNO"),
+          companyName: companyCode,
+          transactionId: transactionId,
+          paymentDate: getTagValue("PaymentDateTime"),
+          receiptNo: getTagValue("BillNo")
         };
 
         setBillData(fetchedBillData);
@@ -278,15 +293,15 @@ const PaymentOnline = () => {
     try {
 
 
-      const walltBalance = await fetchWalletBalance(userId); // Assuming this function fetches the wallet balance
-      const walletBalance = walltBalance.toFixed(2)
+      // const walltBalance = await fetchWalletBalance(userId); // Assuming this function fetches the wallet balance
+      // const walletBalance = walltBalance.toFixed(2)
 
-      if (walletBalance < amount) {
-        console.log(`Insufficient balance. Wallet balance: ${walletBalance}, Requested amount: ${amount}`);
-        setErrorMessage(`Insufficient balance. Wallet balance: ${walletBalance}, Requested amount: ${amount}`);
-        setShowErrorModal(true); // Show the modal with the error message
-        return;
-      }
+      // if (walletBalance < amount) {
+      //   console.log(`Insufficient balance. Wallet balance: ${walletBalance}, Requested amount: ${amount}`);
+      //   setErrorMessage(`Insufficient balance. Wallet balance: ${walletBalance}, Requested amount: ${amount}`);
+      //   setShowErrorModal(true); // Show the modal with the error message
+      //   return;
+      // }
 
 
       const checksum = calculateChecksum(amount, 'd8bKEaX1XEtB');
@@ -302,9 +317,9 @@ const PaymentOnline = () => {
             <strDueDate>${billData.dueDate}</strDueDate>
             <strAmount>${amount}</strAmount>
             <strCompanyCode>${'SBPDCL'}</strCompanyCode>
-            <strTransactionId>${transactionRef}</strTransactionId>
+            <strTransactionId>${transactionId}</strTransactionId>
             <strTransactionDateTime>${formatDateTime()}</strTransactionDateTime> <!-- Current timestamp -->
-            <strReceiptNo>${transactionRef}</strReceiptNo> <!-- Generated or passed dynamically -->
+            <strReceiptNo>${transactionId}</strReceiptNo> <!-- Generated or passed dynamically -->
             <strBankRefCode>${'BR1234567890'}</strBankRefCode> <!-- Can be dynamic -->
             <strBankId></strBankId> 
             <strPaymentMode>${selectedMethod || 'CreditCard'}</strPaymentMode>
@@ -337,46 +352,48 @@ const PaymentOnline = () => {
 
       if (statusFlag === '1') {
         console.log('Transaction successful');
-        await handlePayment(); // Call handlePayment for backend API interaction
+        setShowSuccessModal(true)
+
+        // await handlePayment(); // Call handlePayment for backend API interaction
       
 
 
-        try {
-          const payload = {
-            userId,
-            consumerId: billData.consumerId,
-            mobileNumber: billData.mobileNumber,
-            amount,
-            paymentMethod: selectedMethod,
-            remark: 'Payment for bill ' + billData.invoiceNo,
-            consumerName: billData.consumerName,
-            divisionName: billData.divisionName,
-            subDivision: billData.subDivision,
-          };
+        // try {
+        //   const payload = {
+        //     userId,
+        //     consumerId: billData.consumerId,
+        //     mobileNumber: billData.mobileNumber,
+        //     amount,
+        //     paymentMethod: selectedMethod,
+        //     remark: 'Payment for bill ' + billData.invoiceNo,
+        //     consumerName: billData.consumerName,
+        //     divisionName: billData.divisionName,
+        //     subDivision: billData.subDivision,
+        //   };
   
-          // Send the payment data to the backend
-          const paymentResponse = await fetch('/api/v1/users/payment', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-          });
+        //   // Send the payment data to the backend
+        //   const paymentResponse = await fetch('/api/v1/users/payment', {
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        //   });
   
-          const paymentResult = await paymentResponse.json();
+        //   const paymentResult = await paymentResponse.json();
   
-          if (paymentResponse.ok && paymentResult.success) {
-            console.log('Payment successful:', paymentResult);
-            // Perform any additional success actions, e.g., navigating or showing a success message
-            // setPaymentSuccess(true);
-            setShowPinModal(false);
-          } else {
-            throw new Error(paymentResult.message || 'Payment failed.');
-          }
-        } catch (error) {
-          console.error('Payment error:', error);
-          setErrors(error.message || 'An error occurred while processing the payment.');
-        }
+        //   if (paymentResponse.ok && paymentResult.success) {
+        //     console.log('Payment successful:', paymentResult);
+        //     // Perform any additional success actions, e.g., navigating or showing a success message
+        //     // setPaymentSuccess(true);
+        //     setShowPinModal(false);
+        //   } else {
+        //     throw new Error(paymentResult.message || 'Payment failed.');
+        //   }
+        // } catch (error) {
+        //   console.error('Payment error:', error);
+        //   setErrors(error.message || 'An error occurred while processing the payment.');
+        // }
 
 
         // Create SOAP request for fetching the receipt
@@ -385,7 +402,7 @@ const PaymentOnline = () => {
             <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
               <soap:Body>
                 <PaymentReceiptDetails xmlns="http://tempuri.org/">
-                  <strTransactionId>${transactionRef}</strTransactionId>
+                  <strTransactionId>${transactionId}</strTransactionId>
                   <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
                   <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
                 </PaymentReceiptDetails>
@@ -401,6 +418,8 @@ const PaymentOnline = () => {
             },
           });
 
+
+          
           console.log('Receipt Response:', receiptResponse.data);
           const response = receiptResponse.data
           const xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
@@ -615,31 +634,70 @@ const PaymentOnline = () => {
   //   setShowPinModal(true);
   // };
 
-    const handlePinSubmit = async () => {
-
+  const handlePinSubmit = async () => {
+    try {
       setShowPinModal(true);
-
-
-      try {
-
-        // Send the entered PIN to the backend for validation
-        const response = await axios.post('/api/v1/users/validate-tpin', {
-          userId, // Assumes userId is stored in localStorage
-          tpin: pin,
-        });
-    
-        // Check the response from the backend
-        if (response.data.success) { // Assuming backend sends { success: true } if PIN is correct
-          setShowPinModal(false); // Close the PIN modal
-          await handleProceedToPay(); // Proceed to payment
-        } else {
-          setPinError('Incorrect PIN. Please try again.'); // Show error if PIN is incorrect
+  
+      // Validate PIN with backend
+      const response = await axios.post('/api/v1/users/validate-tpin', {
+        userId, // Assumes userId is stored in localStorage
+        tpin: pin,
+      });
+  
+      if (response.data.success) {
+        // PIN is correct, execute additional payment logic
+        try {
+          const payload = {
+            userId,
+            consumerId: consumerId,
+            invoiceNo:billData.invoiceNo,
+            billMonth:billData.billMonth,
+            dueDate:billData.dueDate,
+            transactionId,
+            paymentDate: billData.paymentDate,
+            brandCode:billData.brandCode,
+            mobileNumber,
+            brandCode: billData.companyName,
+            amount,
+            receiptNo: billData.receiptNo,
+            paymentMethod: selectedMethod,
+            remark,
+            consumerName: billData.consumerName,
+            divisionName: billData.divisionName,
+            subDivision: billData.subDivision,
+          };
+  
+          const paymentResponse = await fetch('/api/v1/users/payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+  
+          const result = await paymentResponse.json();
+  
+          if (paymentResponse.ok && result.success) {
+            console.log('Payment successful:', result);
+            setShowPinModal(false); // Close the PIN modal
+            await handleProceedToPay(); // Proceed to handle payment
+          } else {
+            setShowPinModal(false);
+            alert('Same CANumber same amount Pay within 30 minutes')
+            throw new Error(result.message || 'Payment failed.');
+          }
+        } catch (error) {
+          console.error('Payment error:', error);
+          setErrors(error.message || 'An error occurred while processing the payment.');
         }
-      } catch (error) {
-        console.error('Error validating Tpin:', error);
-        setPinError('An error occurred. Please try again later.'); // Display generic error
+      } else {
+        setPinError('Incorrect PIN. Please try again.'); // Show error if PIN is incorrect
       }
-    };
+    } catch (error) {
+      console.error('Error validating Tpin:', error);
+      setPinError('An error occurred. Please try again later.'); // Display generic error
+    }
+  };
 
   const handleMethodChange = (e) => {
     const selectedValue = e.target.value;
@@ -657,55 +715,55 @@ const PaymentOnline = () => {
   
     setShowPinModal(true);
      
-      try {
-        const payload = {
-          userId,
-          consumerId: consumerId,
-          mobileNumber,
-          amount,
-          paymentMethod: selectedMethod,
-          remark,
-          consumerName: billDetails.consumerName,
-          divisionName: billDetails.divisionName,
-          subDivision: billDetails.subDivision,
-        };
+      // try {
+      //   const payload = {
+      //     userId,
+      //     consumerId: consumerId,
+      //     mobileNumber,
+      //     amount,
+      //     paymentMethod: selectedMethod,
+      //     remark,
+      //     consumerName: billDetails.consumerName,
+      //     divisionName: billDetails.divisionName,
+      //     subDivision: billDetails.subDivision,
+      //   };
   
-        const statusFlag = await checkStatusFlag(); // New function to check the status flag
+      //   // const statusFlag = await checkStatusFlag(); // New function to check the status flag
 
 
-        // Send the payment data to the backend
-        const response = await fetch('/api/v1/users/payment', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId,
-            consumerId: consumerId,
-            mobileNumber,
-            amount,
-            paymentMethod: selectedMethod,
-            remark,
-            consumerName: billDetails.consumerName,
-            divisionName: billDetails.divisionName,
-            subDivision: billDetails.subDivision,
-          }),
-        });
+      //   // Send the payment data to the backend
+      //   const response = await fetch('/api/v1/users/payment', {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify({
+      //       userId,
+      //       consumerId: consumerId,
+      //       mobileNumber,
+      //       amount,
+      //       paymentMethod: selectedMethod,
+      //       remark,
+      //       consumerName: billDetails.consumerName,
+      //       divisionName: billDetails.divisionName,
+      //       subDivision: billDetails.subDivision,
+      //     }),
+      //   });
   
-        const result = await response.json();
+      //   const result = await response.json();
   
-        if (response.ok && result.success) {
-          console.log('Payment successful:', result);
-          // Perform any additional success actions, e.g., navigating or showing a success message
-          // setPaymentSuccess(true);
-          setShowPinModal(false);
-        } else {
-          throw new Error(result.message || 'Payment failed.');
-        }
-      } catch (error) {
-        console.error('Payment error:', error);
-        setErrors(error.message || 'An error occurred while processing the payment.');
-      }
+      //   if (response.ok && result.success) {
+      //     console.log('Payment successful:', result);
+      //     // Perform any additional success actions, e.g., navigating or showing a success message
+      //     // setPaymentSuccess(true);
+      //     // setShowPinModal(false);
+      //   } else {
+      //     throw new Error(result.message || 'Payment failed.');
+      //   }
+      // } catch (error) {
+      //   console.error('Payment error:', error);
+      //   setErrors(error.message || 'An error occurred while processing the payment.');
+      // }
     };
 
   const handleCloseModal = () => {
@@ -904,9 +962,18 @@ const PaymentOnline = () => {
                     type="text"
                     id="amount"
                     value={formatAmount(amount)}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onChange={(e) => {
+                      let input = e.target.value;
+              
+                      // Remove leading zeros
+                      input = input.replace(/^0+/, '');
+              
+                      // Update the state
+                      setAmount(input);
+                    }}
                     placeholder="Enter amount"
                   />
+                   
                 </CCol>
               </CRow>
 

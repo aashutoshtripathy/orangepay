@@ -1,10 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CChartLine } from '@coreui/react-chartjs';
+import { CButton } from '@coreui/react';
 import { getStyle } from '@coreui/utils';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { Spinner, Modal, ModalBody, ModalHeader } from "reactstrap";
 import DataTable from 'react-data-table-component';
+import DataTableComponent from '../pages/requesteduser/RequestedUser';
+import FundReport from '../pages/reports/FundReport';
+import Reports from '../pages/reports/Reports';
 
 
 const MainChart = ({ selectedInterval , status }) => {
@@ -14,6 +18,9 @@ const MainChart = ({ selectedInterval , status }) => {
   const [dataForTable, setDataForTable] = useState('');
   const [popupVisible, setPopupVisible] = useState(false); // Popup state
   const [popupData, setPopupData] = useState(null); 
+  const [currentReport, setCurrentReport] = useState('FundReport');
+
+ 
   const [data, setData] = useState({
     labels: [],
     datasets: [
@@ -86,6 +93,11 @@ const MainChart = ({ selectedInterval , status }) => {
     });
   };
 
+
+   // Function to switch between reports
+   const switchReport = (reportType) => {
+    setCurrentReport(reportType);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -406,36 +418,22 @@ const MainChart = ({ selectedInterval , status }) => {
 
       </>
 )}
+ <Modal isOpen={popupVisible} toggle={closePopup}>
+      <ModalHeader toggle={closePopup}>Details</ModalHeader>
+      <ModalBody>
+        <div className="d-flex justify-content-between mb-3">
+          <CButton onClick={() => switchReport('FundReport')} color="primary">
+            Fund Reports
+          </CButton>
+          <CButton onClick={() => switchReport('Reports')} color="secondary">
+            Collection Reports
+          </CButton>
+        </div>
 
-<Modal isOpen={popupVisible} toggle={closePopup}>
-        <ModalHeader toggle={closePopup}>Pie Chart Details</ModalHeader>
-        <ModalBody>
-        {popupData && popupData.details && popupData.details.length > 0 ? (
-          <>
-            <p>
-              <strong>Name:</strong> {popupData.name}
-            </p>
-            <p>
-              <strong>Value:</strong> {popupData.value}
-            </p>
-            {/* React Data Table Component */}
-            <DataTable
-               columns={[
-                { name: 'Name', selector: (row) => row.column1, sortable: true },
-                { name: 'Email', selector: (row) => row.column2, sortable: true },
-                { name: 'Phone', selector: (row) => row.column3, sortable: true },
-              ]}
-              data={dataForTable}
-              pagination
-              highlightOnHover
-              responsive
-            />
-          </>
-        ) : (
-          <p>No data available</p>
-        )}
-        </ModalBody>
-      </Modal>
+        {currentReport === 'FundReport' ? <FundReport /> : <Reports />}
+      </ModalBody>
+    </Modal>
+
     </>
   );
 };

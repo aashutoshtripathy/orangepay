@@ -17,7 +17,7 @@ import { WalletOpeningClosing } from "../model/WalletOpeningClosing.model.js";
 
 const processPayment = asyncHandler(async (req, res) => {
   const {
-    userId, consumerId, amount, paymentMethod, divisionName, subDivision, consumerName
+    userId, consumerId, amount, paymentMethod, divisionName, subDivision, consumerName ,invoiceNo,billMonth,brandCode,dueDate,receiptNo,paymentdate,remark,transactionId
   } = req.body;
 
   // Log the request body for debugging
@@ -28,6 +28,7 @@ const processPayment = asyncHandler(async (req, res) => {
 
   // Query for recent payment attempts within the last 30 minutes
   const recentPaymentAttempt = await Payment.findOne({
+    userId,
     canumber: consumerId,
     paidamount: amount,
     createdon: { $gte: thirtyMinutesAgo }
@@ -106,39 +107,39 @@ const processPayment = asyncHandler(async (req, res) => {
       id: userId,
       userId: wallet.uniqueId,
       canumber: consumerId,
-      invoicenumber: "",
-      billmonth: "N/A",
-      transactionId: `OP${Date.now()}`,
+      invoicenumber: invoiceNo,
+      billmonth: billMonth,
+      transactionId: transactionId,
       refrencenumber: ``,
-      bankid: '', // Assuming bank id is not available at this point, set it as empty or fetch if applicable
+      bankid: '', 
       paymentmode: paymentMethod,
-      paymentstatus: 'Pending', // 1 for 'Pending'
+      paymentstatus: 'Success', 
       createdon: Date.now(),
-      createdby: wallet.uniqueId, // Assuming the user creating the payment is also `createdby`
-      billpoststatus: 'Pending', // 'Bill Payment', 'Recharge', 'Other Services' depending on your use case
+      createdby: wallet.uniqueId, 
+      billpoststatus: 'Success', 
       paidamount: amount,
-      reciptno: 'Pending', // 'Success', 'Pending', 'Failed'
-      billposton: Date.now(), // Set to current date or leave empty initially
-      getway: 'wallet', // Gateway processing time, set as per requirement
-      cardtxntype: 'N/A', // Assuming it's not applicable, set as N/A or applicable value
-      terminalid: 0, // Assuming no terminal involved, set default as 0 or actual terminal id if present
-      mid: 'wallet', // Assuming the default MID is ezytap, change accordingly
-      nameoncard: "N/A", // Change if name on card is needed (e.g., fetch from request body)
-      remarks: '', // Leave empty initially or populate if remarks are provided
-      loginid: '', // Passed from request body
-      rrn: '', // Retrieval Reference Number, leave empty initially or fetch as required
-      vpa: '', // Virtual Payment Address, empty or populated if applicable
-      billamount: amount, // Original bill amount
-      paymentdate: new Date(), // Current date for payment processing
-      latitude: '', // From request body
-      longitude: '', // From request body
-      fetchtype: '', // Set fetch type if applicable
-      consumermob: '', // Consumer mobile number from request body
-      ltht: '', // Low tension/high tension value, populate if applicable
-      duedate: '', // Populate the due date if available, otherwise leave empty
-      brandcode: user.discom || '', // If brand code is available, populate, otherwise leave empty
-      division: divisionName, // Populate division if applicable
-      subdivision: subDivision, // Populate subdivision if applicable
+      reciptno: receiptNo, 
+      billposton: paymentdate, 
+      getway: 'wallet', 
+      cardtxntype: 'N/A', 
+      terminalid: 0, 
+      mid: 'wallet', 
+      nameoncard: "N/A", 
+      remarks: remark, 
+      loginid: '',
+      rrn: '', 
+      vpa: '',  
+      billamount: amount, 
+      paymentdate: paymentdate, 
+      latitude: '', 
+      longitude: '', 
+      fetchtype: '', 
+      consumermob: '', 
+      ltht: '', 
+      duedate: dueDate, 
+      brandcode: brandCode, 
+      division: divisionName, 
+      subdivision: subDivision, 
       consumerName: consumerName,
 
       commission: commissionAmount,
@@ -167,7 +168,7 @@ const processPayment = asyncHandler(async (req, res) => {
 
     invoice.balanceAfterDeduction = balanceBeforeDeduction; // Set balance after deduction
     invoice.balanceAfterCommission = wallet.balance; // Set balance after commission
-    invoice.paymentstatus = 'Completed';
+    invoice.paymentstatus = 'Success';
     await invoice.save();
 
 

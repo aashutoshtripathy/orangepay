@@ -245,8 +245,8 @@ const validateConsumerId = (value) => {
         setIsBillFetched(false);
         setErrors({});
       } else {
-        const errorMessage = result.error.length > 0 ? result.error[0] : 'An unknown error occurred.';
-        alert(`Error: ${errorMessage}`);
+        const errorMessage = result.error.length > 0 ? result.error[0] : 'Insufficient Wallet Balance.';
+        alert(`${errorMessage}`);
       }
     } catch (error) {
       console.error('Error processing payment:', error);

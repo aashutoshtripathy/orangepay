@@ -32,6 +32,26 @@ const Topup = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+  
+    const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  
+    useEffect(() => {
+      const loadScript = async () => {
+        const loaded = await loadRazorpayScript();
+        setIsScriptLoaded(loaded);
+      };
+      loadScript();
+    }, []);
+  
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
@@ -56,7 +76,7 @@ const Topup = () => {
     };
 
     try {
-      const response = await axios.post("/ezetap", data);
+      const response = await axios.post("/api/v1/users/ezetap", data);
       if (response.data.id) {
         handleRazorpayScreen(response.data.amount);
       } else {
@@ -69,27 +89,34 @@ const Topup = () => {
   };
 
   const handleRazorpayScreen = async (amount) => {
+    if (!isScriptLoaded) {
+      alert('Razorpay SDK failed to load. Please refresh the page.');
+      return;
+    }
+
     const options = {
-      key: 'rzp_test_GcZZFDPP0jHtC4',
-      amount: amount,
+      key: 'rzp_test_GcZZFDPP0jHtC4', // Replace with your Razorpay API key
+      amount: amount, // Amount in paise
       currency: 'INR',
       name: "OrangePay",
       description: "Payment to OrangePay",
       handler: function (response) {
-        // Handle the response here
+        console.log('Payment Successful:', response);
+        setSuccessMessage('Payment successful! Transaction ID: ' + response.razorpay_payment_id);
       },
       prefill: {
         name: "OrangePay",
-        email: "OrangePay@gmail.com"
+        email: "OrangePay@gmail.com",
       },
       theme: {
-        color: "#F4C430"
-      }
+        color: "#F4C430",
+      },
     };
 
     const paymentObject = new window.Razorpay(options);
     paymentObject.open();
   };
+
 
   return (
     <CContainer className="p-4">

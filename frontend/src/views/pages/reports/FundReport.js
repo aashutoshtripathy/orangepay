@@ -184,7 +184,7 @@ const downloadExcel = (data) => {
 
 
 
-const DataTableComponent = () => {
+const FundReport = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -330,4 +330,4 @@ const DataTableComponent = () => {
   );
 };
 
-export default DataTableComponent;
+export default FundReport;

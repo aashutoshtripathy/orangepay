@@ -53,7 +53,7 @@ const RequestFundPage = () => {
     event.preventDefault();
 
     try {
-      const response = await axios.post("/fund-request", {
+      const response = await axios.post("/api/v1/users/fund-request", {
         userId,
         fundAmount,
         bankReference,
