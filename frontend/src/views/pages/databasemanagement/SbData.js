@@ -82,15 +82,22 @@ const SbdataTable = () => {
       sortable: true,
     },
     {
-      name: 'Field 1',
-      selector: 'field1',
+      name: 'Consumer Name',
+      selector: 'ConsumerName',
       sortable: true,
     },
     {
-      name: 'Field 2',
-      selector: 'field2',
+      name: 'Division',
+      selector: 'DivisionName',
       sortable: true,
     },
+    {
+      name: 'SubDivision',
+      selector: 'SubDivision',
+      sortable: true,
+    },
+    
+    
     {
       name: 'Created On',
       selector: 'CreatedOn', // Ensure you display the `createdOn` field

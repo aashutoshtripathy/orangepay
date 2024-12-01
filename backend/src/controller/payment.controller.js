@@ -198,6 +198,31 @@ const processPayment = asyncHandler(async (req, res) => {
     await transaction.save();
 
 
+    const existingSbdata = await Sbdata.findOne({ ConsumerId: consumerId });
+    if (!existingSbdata) {
+      const sbdataEntry = new Sbdata({
+        ConsumerId: consumerId,
+        ConsumerName:consumerName,
+        amount,
+        paymentMethod,
+        DivisionName:divisionName,
+        SubDivision:subDivision,
+        consumerName,
+        invoiceNo,
+        billMonth,
+        brandCode,
+        dueDate,
+        paymentdate,
+        remark,
+        CreatedOn: Date.now(),
+      });
+      await sbdataEntry.save();
+      console.log(`Data saved to sbdata collection. CANumber: ${consumerId}`);
+    } else {
+      console.log(`Data not saved to sbdata collection. CANumber ${consumerId} already exists.`);
+    }
+
+
     // Convert payment date to just the date portion (without time)
     const paymentDate = new Date(invoice.paymentdate);
     const paymentDateKey = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), paymentDate.getDate()); // Get the date only
