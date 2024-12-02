@@ -673,7 +673,7 @@ const approveUserRequest = asyncHandler(async (req, res) => {
     await wallet.save();
     
 
-    const smsMessage = `Welcome to ORANGEPAY Thank You for registration.  Your login details username:${customId}, Password: ${updatedUser.password}/${pin} `;
+    const smsMessage = `Welcome to ORANGEPAY Thank You for registration. Your login details username:${customId}, Password: ${updatedUser.password}/${pin} `;
     const mobileNumber = updatedUser.mobileNumber;
     const senderName = 'OrgPay'; 
     const apiKey =  'e7d09e93-0dd3-4a00-9cfc-2c53854033f2'; 

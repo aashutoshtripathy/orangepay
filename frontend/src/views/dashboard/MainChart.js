@@ -11,16 +11,16 @@ import FundReport from '../pages/reports/FundReport';
 import Reports from '../pages/reports/Reports';
 
 
-const MainChart = ({ selectedInterval , status }) => {
+const MainChart = ({ selectedInterval, status }) => {
   const chartRef = useRef(null);
   const userId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(true);
   const [dataForTable, setDataForTable] = useState('');
   const [popupVisible, setPopupVisible] = useState(false); // Popup state
-  const [popupData, setPopupData] = useState(null); 
+  const [popupData, setPopupData] = useState(null);
   const [currentReport, setCurrentReport] = useState('FundReport');
 
- 
+
   const [data, setData] = useState({
     labels: [],
     datasets: [
@@ -94,14 +94,14 @@ const MainChart = ({ selectedInterval , status }) => {
   };
 
 
-   // Function to switch between reports
-   const switchReport = (reportType) => {
+  // Function to switch between reports
+  const switchReport = (reportType) => {
     setCurrentReport(reportType);
   };
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setLoading(false); 
+      setLoading(false);
     }, 6000);
 
     return () => clearTimeout(timer);
@@ -121,7 +121,7 @@ const MainChart = ({ selectedInterval , status }) => {
         column2: user.email, // Replace with actual field
         column3: user.phone, // Replace with actual field
       }));
-  
+
       setDataForTable(transformedData);
 
       // Fetch balance data
@@ -243,196 +243,201 @@ const MainChart = ({ selectedInterval , status }) => {
   return (
     <>
 
-{ status === 'Activated' ? (
-  <>
-  <div style={{ position: "relative", height: "300px", width: "100%" }}>
-      {loading ? (
-        // Loader centered absolutely
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 10,
-          }}
-        >
-          <Spinner color="primary" /> 
-          <p style={{ marginTop: "10px", marginRight:"auto",  color: "#888", fontSize: "14px" }}>Please wait...</p>
-
-        </div>
-      ) : (
-        // Render PieChart when loading is complete
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={pieData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={80}
-              fill="#8884d8"
-              onClick={(entry) => handlePieClick(entry)}
+      {status === 'Activated' ? (
+        <>
+          <div style={{ position: "relative", height: "300px", width: "100%" }}>
+            {loading ? (
+              // Loader centered absolutely
+              <div
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  zIndex: 10,
+                }}
               >
-              {pieData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={getStyle(index === 0 ? "--cui-info" : index === 1 ? "--cui-success" : "--cui-danger")}
-                />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
-      )}
-    </div>
+                <Spinner color="primary" />
+                <p style={{ marginTop: "10px", marginRight: "auto", color: "#888", fontSize: "14px" }}>Please wait...</p>
+
+              </div>
+            ) : (
+              // Render PieChart when loading is complete
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    onClick={(entry) => handlePieClick(entry)}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={getStyle(index === 0 ? "--cui-info" : index === 1 ? "--cui-success" : "--cui-danger")}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
 
 
 
-      <CChartLine
-        ref={chartRef}
-        style={{ height: '300px', marginTop: '40px' }}
-        data={data}
-        options={{
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-            },
-          },
-          scales: {
-            x: {
-              grid: {
-                color: getStyle('--cui-border-color-translucent'),
-                drawOnChartArea: false,
+          <CChartLine
+            ref={chartRef}
+            style={{ height: '300px', marginTop: '40px' }}
+            data={data}
+            options={{
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: true,
+                },
               },
-              ticks: {
-                color: getStyle('--cui-body-color'),
+              scales: {
+                x: {
+                  grid: {
+                    color: getStyle('--cui-border-color-translucent'),
+                    drawOnChartArea: false,
+                  },
+                  ticks: {
+                    color: getStyle('--cui-body-color'),
+                  },
+                },
+                y: {
+                  beginAtZero: true,
+                  border: {
+                    color: getStyle('--cui-border-color-translucent'),
+                  },
+                  grid: {
+                    color: getStyle('--cui-border-color-translucent'),
+                  },
+                  ticks: {
+                    color: getStyle('--cui-body-color'),
+                  },
+                },
               },
-            },
-            y: {
-              beginAtZero: true,
-              border: {
-                color: getStyle('--cui-border-color-translucent'),
-              },
-              grid: {
-                color: getStyle('--cui-border-color-translucent'),
-              },
-              ticks: {
-                color: getStyle('--cui-body-color'),
-              },
-            },
-          },
-        }}
-      />
-      {/* Pie chart */}
+            }}
+          />
+          {/* Pie chart */}
 
-      </>
-):(
-  <>
-  <div style={{ position: "relative", height: "300px", width: "100%" }}>
-      {loading ? (
-        // Loader centered absolutely
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 10,
-          }}
-        >
-          <Spinner color="primary" /> 
-          <p style={{ marginTop: "10px", marginRight:"auto",  color: "#888", fontSize: "14px" }}>Please wait...</p>
-
-        </div>
+        </>
       ) : (
-        // Render PieChart when loading is complete
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={pieData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={80}
-              fill="#8884d8"
-              onClick={(e) => console.log("Pie Chart Data:", e)}
-            >
-              {pieData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={getStyle(index === 0 ? "--cui-info" : index === 1 ? "--cui-success" : "--cui-danger")}
-                />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
+        <>
+          <div style={{ position: "relative", height: "300px", width: "100%" }}>
+            {loading ? (
+              // Loader centered absolutely
+              <div
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  zIndex: 10,
+                }}
+              >
+                <Spinner color="primary" />
+                <p style={{ marginTop: "10px", marginRight: "auto", color: "#888", fontSize: "14px" }}>Please wait...</p>
+
+              </div>
+            ) : (
+              // Render PieChart when loading is complete
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    onClick={(e) => console.log("Pie Chart Data:", e)}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={getStyle(index === 0 ? "--cui-info" : index === 1 ? "--cui-success" : "--cui-danger")}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+
+
+          <CChartLine
+            ref={chartRef}
+            style={{ height: '300px', marginTop: '40px' }}
+            data={data}
+            options={{
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: true,
+                },
+              },
+              scales: {
+                x: {
+                  grid: {
+                    color: getStyle('--cui-border-color-translucent'),
+                    drawOnChartArea: false,
+                  },
+                  ticks: {
+                    color: getStyle('--cui-body-color'),
+                  },
+                },
+                y: {
+                  beginAtZero: true,
+                  border: {
+                    color: getStyle('--cui-border-color-translucent'),
+                  },
+                  grid: {
+                    color: getStyle('--cui-border-color-translucent'),
+                  },
+                  ticks: {
+                    color: getStyle('--cui-body-color'),
+                  },
+                },
+              },
+            }}
+          />
+          {/* Pie chart */}
+
+        </>
       )}
-    </div>
+      <Modal
+        isOpen={popupVisible}
+        toggle={closePopup}
+        style={{ maxWidth: '800px', width: '100%' }}
+      >
+        <ModalHeader toggle={closePopup}>Details</ModalHeader>
+        <ModalBody>
+          <div className="d-flex justify-content-between mb-3">
+            <CButton onClick={() => switchReport('FundReport')} color="primary" style={{ backgroundColor: "#f36c23", border: "none" }}>
+              Fund Reports
+            </CButton>
+            <CButton onClick={() => switchReport('Reports')} color="primary" style={{ backgroundColor: "#f36c23", border: "none" }}>
+              Collection Reports
+            </CButton>
+          </div>
 
+          {currentReport === 'FundReport' ? <FundReport /> : <Reports />}
+        </ModalBody>
+      </Modal>
 
-
-      <CChartLine
-        ref={chartRef}
-        style={{ height: '300px', marginTop: '40px' }}
-        data={data}
-        options={{
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-            },
-          },
-          scales: {
-            x: {
-              grid: {
-                color: getStyle('--cui-border-color-translucent'),
-                drawOnChartArea: false,
-              },
-              ticks: {
-                color: getStyle('--cui-body-color'),
-              },
-            },
-            y: {
-              beginAtZero: true,
-              border: {
-                color: getStyle('--cui-border-color-translucent'),
-              },
-              grid: {
-                color: getStyle('--cui-border-color-translucent'),
-              },
-              ticks: {
-                color: getStyle('--cui-body-color'),
-              },
-            },
-          },
-        }}
-      />
-      {/* Pie chart */}
-
-      </>
-)}
- <Modal isOpen={popupVisible} toggle={closePopup}>
-      <ModalHeader toggle={closePopup}>Details</ModalHeader>
-      <ModalBody>
-        <div className="d-flex justify-content-between mb-3">
-          <CButton onClick={() => switchReport('FundReport')} color="primary">
-            Fund Reports
-          </CButton>
-          <CButton onClick={() => switchReport('Reports')} color="secondary">
-            Collection Reports
-          </CButton>
-        </div>
-
-        {currentReport === 'FundReport' ? <FundReport /> : <Reports />}
-      </ModalBody>
-    </Modal>
 
     </>
   );

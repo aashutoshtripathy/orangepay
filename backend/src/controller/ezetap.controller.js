@@ -1,32 +1,60 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import Razorpay from "razorpay";
+import axios from "axios";
 
 
 
 
+
+
+// Initialize Razorpay instance
 const razorpay = new Razorpay({
-    key_id: "rzp_test_GcZZFDPP0jHtC4",
-    key_secret: "6JdtQv2u7oUw7EWziYeyoewJ"
+    key_id: "rzp_test_GcZZFDPP0jHtC4", // Your Razorpay key
+    key_secret: "6JdtQv2u7oUw7EWziYeyoewJ" // Your Razorpay secret
 });
 
 // Function to create Razorpay order
 const createOrder = async (amount, currency) => {
     const options = {
-        amount: amount,
+        amount: amount * 100, // Convert to paise (1 INR = 100 paise)
         currency,
-        receipt: `receipt_order_${new Date().getTime()}`,
+        receipt: `receipt_order_${new Date()}`,
         payment_capture: 1, // Auto-capture payment
     };
 
-    return await razorpay.orders.create(options);
+    try {
+        // Creating the order using Razorpay API
+        const order = await razorpay.orders.create(options);
+
+        // Return the created order details
+        return order;
+    } catch (error) {
+        // Log the message and stack trace instead of the whole error object
+        console.error('Error during Razorpay order creation:', error.message);
+        console.error('Stack Trace:', error.stack);
+
+        // Check if the error is a response from Razorpay API
+        if (error.response) {
+            console.error('Razorpay API Response Error:', error.response.data);
+            throw new Error(`Razorpay API error: ${error.response.data.error.description}`);
+        }
+
+        // If no response, log the general error
+        throw new Error('Error creating Razorpay order: ' + error.message);
+    }
 };
 
 // Function to handle payment initiation
 const initiateEzetapPayment = asyncHandler(async (req, res) => {
-    // Hardcoded values for amount and currency
     const amount = req.body.amount; // Amount in rupees
     const currency = 'INR'; // Currency code
-    console.log(req.body);
+
+
+    console.log("amount:" ,amount)
+
+    if (!amount || isNaN(amount) || amount <= 0) {
+        return res.status(400).json({ error: 'Invalid amount provided' });
+    }
 
     try {
         const order = await createOrder(amount, currency);
@@ -34,30 +62,20 @@ const initiateEzetapPayment = asyncHandler(async (req, res) => {
         // Log the order response for debugging
         console.log('Razorpay Order Response:', order);
 
-        // Handle success case
+        // If order creation is successful, send order details back to client
         if (order && order.id) {
-            res.json(order); // Send the order details back to the client
+            res.json(order);
         } else {
-            console.error('Payment initiation failed response:', order);
+            console.error('Payment initiation failed: No order ID returned');
             res.status(400).json({ error: 'Payment initiation failed' });
         }
     } catch (error) {
-        // Improved error logging
-        if (error.response) {
-            // Server responded with a status other than 2xx
-            console.error('Server Error:', error.response.data, error.response.status);
-            res.status(error.response.status).json({
-                error: error.response.data || 'Unknown server error occurred'
-            });
-        } else if (error.request) {
-            // The request was made but no response was received
-            console.error('No Response from server:', error.request);
-            res.status(500).json({ error: 'No response from Razorpay server' });
-        } else {
-            // Something else happened while setting up the request
-            console.error('Request Setup Error:', error.message);
-            res.status(500).json({ error: `Request setup failed: ${error.message}` });
-        }
+        console.error('Error initiating payment:', error);
+
+        // Improved error handling
+        res.status(500).json({
+            error: error.message || 'An error occurred while initiating payment',
+        });
     }
 });
 
@@ -65,4 +83,5 @@ const initiateEzetapPayment = asyncHandler(async (req, res) => {
 
 
 
-export { initiateEzetapPayment };
+
+export { initiateEzetapPayment , createOrder };

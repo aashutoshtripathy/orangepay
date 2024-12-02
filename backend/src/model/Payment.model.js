@@ -26,7 +26,7 @@ const paymentSchema = new Schema({
   transactionId: {
     type: String,
     required: false,
-    // unique: true 
+    unique: true 
   },
   refrencenumber: {
     type: String,

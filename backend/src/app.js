@@ -6,9 +6,12 @@ import { registerUser } from "./controller/user.controller.js";
 import path from "path";
 import multer from "multer";
 import { fileURLToPath } from "url";
-import  session  from "express-session";
+import session from "express-session";
 import MongoStore from "connect-mongo"
 import createProxyMiddleware from "http-proxy-middleware"
+import cron from "node-cron";
+import axios from "axios";
+
 
 
 
@@ -23,9 +26,9 @@ app.options('*', cors());
 
 
 
-app.use(express.json({limit:"16kb"}))
+app.use(express.json({ limit: "16kb" }))
 
-app.use(express.urlencoded({extended: true, limit: "16kb"}))
+app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 // app.use(express.static())
 app.use(cookieParser())
 app.use(bodyParser.json())
@@ -80,6 +83,7 @@ app.post('/fetch-bill', async (req, res) => {
 
 import userRouter from "./routes/user.routes.js"
 import bodyParser from "body-parser";
+import { Payment } from "./model/Payment.model.js";
 
 // const storage = multer.diskStorage({
 //     destination: function (req, file, cb) {
@@ -111,6 +115,119 @@ import bodyParser from "body-parser";
 //         res.status(500).send(error.message);
 //     }
 // });
+
+
+cron.schedule('* * * * *', async () => {
+  try {
+    console.log('Scheduler running: Checking pending billpoststatus every 2 hours');
+
+    // Fetch records where billpoststatus is 'pending'
+    const pendingPayments = await Payment.find({ billpoststatus: 'Pending' }).exec();
+
+    if (!pendingPayments || pendingPayments.length === 0) {
+      console.log('No pending payments found');
+      return;
+    }
+
+    console.log(`Found ${pendingPayments.length} pending payments`);
+
+    // Process each pending payment
+    for (const payment of pendingPayments) {
+      try {
+        console.log(`Processing payment ID: ${payment._id}`);
+        const consumerId = payment.canumber;
+
+        const MERCHANT_CODE = 'BSPDCL_RAPDRP_16';
+        const MERCHANT_PASSWORD = 'OR1f5pJeM9q@G26TR9nPY';
+
+
+        const soapRequest = (consumerId) => `
+        <?xml version="1.0" encoding="utf-8"?>
+        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+          <soap:Body>
+            <BillDetails xmlns="http://tempuri.org/">
+              <strCANumber>${consumerId}</strCANumber>
+              <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+              <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+            </BillDetails>
+          </soap:Body>
+        </soap:Envelope>
+        `;
+
+
+        const xmlPayload = soapRequest(consumerId); // Generate the SOAP XML payload
+        // console.log(xmlPayload)
+
+        if (!xmlPayload) {
+          console.error("Failed to generate XML payload due to missing CANumber.");
+          return;
+        }
+
+        // Send SOAP request via Axios
+        const response = await axios.post(`http://1.6.61.79/BiharService/BillInterface.asmx`, xmlPayload, {
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Accept': 'application/xml, text/xml, application/json',
+          },
+        });
+      
+        console.log("SOAP Response:", response.data);
+        // Parse the XML response using DOMParser
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(response.data, "text/xml");
+        const namespaceURI = "http://tempuri.org/";
+
+        // Extract BillDetailsResult using the namespace
+        const billDetails = xmlDoc.getElementsByTagNameNS(namespaceURI, "BillDetailsResult")[0];
+        console.log(billDetails)
+
+        if (billDetails) {
+          const statusFlag = billDetails.getElementsByTagName("StatusFlag")[0].textContent;
+          const message = billDetails.getElementsByTagName("Message")[0].textContent;
+
+          console.log("StatusFlag:", statusFlag);
+          console.log("Message:", message);
+
+          if (statusFlag === '1') {
+            console.log('Transaction successful');
+          } else {
+            console.error('Transaction failed:', message);
+          }
+        } else {
+          console.error("BillDetailsResult not found in the response.");
+        }
+
+        // Hit the server API to verify/update the billpoststatus
+        // const response = await axios.post('http://your-server-api-url.com/endpoint', {
+        //   paymentId: payment._id,
+        //   amount: payment.amount,
+        //   otherDetails: payment.otherDetails, // Include other required fields
+        // });
+
+        if (response.data.success && response.data.updatedStatus === 'success') {
+          console.log(`Payment ID ${payment._id} updated successfully`);
+
+          // Update the status in the database
+          // payment.billpoststatus = 'success';
+          await payment.save();
+        } else {
+          console.log(
+            `Payment ID ${payment._id} not updated. Server response: `,
+            response.data
+          );
+        }
+      } catch (apiError) {
+        console.error(
+          `Error updating payment ID ${payment._id}: `,
+          apiError.message
+        );
+      }
+    }
+  } catch (error) {
+    console.error('Error running scheduler:', error);
+  }
+});
+
 
 
 

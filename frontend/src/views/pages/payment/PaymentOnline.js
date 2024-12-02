@@ -16,6 +16,7 @@ import {
   CFormCheck,
   CFormSelect,
 } from '@coreui/react';
+import { CSpinner } from '@coreui/react';
 import crc32 from 'crc-32';
 import axios from 'axios';
 import log from "../.././../assets/images/log (1).png";
@@ -32,8 +33,8 @@ const PaymentOnline = () => {
   const [defaultAmount, setDefaultAmount] = useState(500);
   const [selectedMethod, setSelectedMethod] = useState('wallet');
   const [remark, setRemark] = useState('');
-  const [showErrorModal, setShowErrorModal] = useState(false);  
-  const [errorMessage, setErrorMessage] = useState('');  
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [userId, setUserId] = useState('');
   const [errors, setErrors] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -49,6 +50,7 @@ const PaymentOnline = () => {
   const [showPrintView, setShowPrintView] = useState(false);
   const printRef = useRef();
   const [consumerIdError, setConsumerIdError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [billData, setBillData] = useState({
     consumerId: '',
     consumerName: '',
@@ -61,8 +63,8 @@ const PaymentOnline = () => {
     amount: 'N/A',
     dueDate: 'N/A',
     invoiceNo: 'N/A',
-    paymentDate:"N/A",
-    receiptNo:"N/A",
+    paymentDate: "N/A",
+    receiptNo: "N/A",
   });
 
 
@@ -181,6 +183,7 @@ const PaymentOnline = () => {
       setErrors(prevErrors => ({ ...prevErrors, consumerId: error }));
       return;
     }
+    setIsLoading(true);
 
     try {
       const xmlPayload = soapRequest(consumerId).trim(); // Ensure no whitespace before XML declaration
@@ -203,13 +206,13 @@ const PaymentOnline = () => {
         };
 
         const fetchedTransactionId = `OP${Date.now()}`;
-      setTransactionId(fetchedTransactionId);
+        setTransactionId(fetchedTransactionId);
 
-      const fetchedCompanyName = getTagValue("CompanyName");
-const companyCode =
-  fetchedCompanyName === "SOUTH BIHAR POWER DISTRIBUTION COMPANY LTD"
-    ? "SBPDCL"
-    : fetchedCompanyName;
+        const fetchedCompanyName = getTagValue("CompanyName");
+        const companyCode =
+          fetchedCompanyName === "SOUTH BIHAR POWER DISTRIBUTION COMPANY LTD"
+            ? "SBPDCL"
+            : fetchedCompanyName;
 
         const fetchedBillData = {
           consumerId: getTagValue("CANumber"),
@@ -236,10 +239,12 @@ const companyCode =
         setFetchBillSuccess(false);
         console.error('No BillDetailsResult found in response from primary API.');
 
-       
+
       }
     } catch (error) {
       console.error('Error fetching bill details:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -252,13 +257,13 @@ const companyCode =
           'Content-Type': 'application/json',
         },
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to fetch wallet balance');
       }
-  
+
       const data = await response.json();
-  
+
       // Assuming the wallet balance is part of the response data
       return data.balance; // Adjust based on your API response structure
     } catch (error) {
@@ -355,7 +360,7 @@ const companyCode =
         setShowSuccessModal(true)
 
         // await handlePayment(); // Call handlePayment for backend API interaction
-      
+
 
 
         // try {
@@ -370,7 +375,7 @@ const companyCode =
         //     divisionName: billData.divisionName,
         //     subDivision: billData.subDivision,
         //   };
-  
+
         //   // Send the payment data to the backend
         //   const paymentResponse = await fetch('/api/v1/users/payment', {
         //     method: 'POST',
@@ -379,9 +384,9 @@ const companyCode =
         //     },
         //     body: JSON.stringify(payload),
         //   });
-  
+
         //   const paymentResult = await paymentResponse.json();
-  
+
         //   if (paymentResponse.ok && paymentResult.success) {
         //     console.log('Payment successful:', paymentResult);
         //     // Perform any additional success actions, e.g., navigating or showing a success message
@@ -419,7 +424,7 @@ const companyCode =
           });
 
 
-          
+
           console.log('Receipt Response:', receiptResponse.data);
           const response = receiptResponse.data
           const xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
@@ -482,16 +487,16 @@ const companyCode =
       `.trim();
 
 
-      
+
       const xmlPayload = soapRequest(billData, amount, checksum);
-  
+
       const response = await axios.post(SECONDARY_API_URL, soapRequest, {
         headers: {
           'Content-Type': 'text/xml; charset=utf-8',
           'Accept': 'application/xml, text/xml, application/json',
         },
       });
-  
+
       const statusFlagMatch = response.data.match(/<StatusFlag>(.*?)<\/StatusFlag>/);
       return statusFlagMatch ? statusFlagMatch[1] : null;
     } catch (error) {
@@ -499,7 +504,7 @@ const companyCode =
       return null;
     }
   };
-  
+
 
 
 
@@ -516,7 +521,7 @@ const companyCode =
 
 
 
-  
+
 
   const handleClosePinModal = () => {
     setShowPinModal(false); // Close the PIN modal
@@ -637,25 +642,25 @@ const companyCode =
   const handlePinSubmit = async () => {
     try {
       setShowPinModal(true);
-  
+
       // Validate PIN with backend
       const response = await axios.post('/api/v1/users/validate-tpin', {
         userId, // Assumes userId is stored in localStorage
         tpin: pin,
       });
-  
+
       if (response.data.success) {
         // PIN is correct, execute additional payment logic
         try {
           const payload = {
             userId,
             consumerId: consumerId,
-            invoiceNo:billData.invoiceNo,
-            billMonth:billData.billMonth,
-            dueDate:billData.dueDate,
+            invoiceNo: billData.invoiceNo,
+            billMonth: billData.billMonth,
+            dueDate: billData.dueDate,
             transactionId,
             paymentDate: billData.paymentDate,
-            brandCode:billData.brandCode,
+            brandCode: billData.brandCode,
             mobileNumber,
             brandCode: billData.companyName,
             amount,
@@ -666,7 +671,7 @@ const companyCode =
             divisionName: billData.divisionName,
             subDivision: billData.subDivision,
           };
-  
+
           const paymentResponse = await fetch('/api/v1/users/payment', {
             method: 'POST',
             headers: {
@@ -674,9 +679,9 @@ const companyCode =
             },
             body: JSON.stringify(payload),
           });
-  
+
           const result = await paymentResponse.json();
-  
+
           if (paymentResponse.ok && result.success) {
             console.log('Payment successful:', result);
             setShowPinModal(false); // Close the PIN modal
@@ -710,61 +715,61 @@ const companyCode =
 
   const handlePayment = async () => {
     setFormSubmitted(true);
-  
+
     if (!validate()) return;
-  
+
     setShowPinModal(true);
-     
-      // try {
-      //   const payload = {
-      //     userId,
-      //     consumerId: consumerId,
-      //     mobileNumber,
-      //     amount,
-      //     paymentMethod: selectedMethod,
-      //     remark,
-      //     consumerName: billDetails.consumerName,
-      //     divisionName: billDetails.divisionName,
-      //     subDivision: billDetails.subDivision,
-      //   };
-  
-      //   // const statusFlag = await checkStatusFlag(); // New function to check the status flag
+
+    // try {
+    //   const payload = {
+    //     userId,
+    //     consumerId: consumerId,
+    //     mobileNumber,
+    //     amount,
+    //     paymentMethod: selectedMethod,
+    //     remark,
+    //     consumerName: billDetails.consumerName,
+    //     divisionName: billDetails.divisionName,
+    //     subDivision: billDetails.subDivision,
+    //   };
+
+    //   // const statusFlag = await checkStatusFlag(); // New function to check the status flag
 
 
-      //   // Send the payment data to the backend
-      //   const response = await fetch('/api/v1/users/payment', {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify({
-      //       userId,
-      //       consumerId: consumerId,
-      //       mobileNumber,
-      //       amount,
-      //       paymentMethod: selectedMethod,
-      //       remark,
-      //       consumerName: billDetails.consumerName,
-      //       divisionName: billDetails.divisionName,
-      //       subDivision: billDetails.subDivision,
-      //     }),
-      //   });
-  
-      //   const result = await response.json();
-  
-      //   if (response.ok && result.success) {
-      //     console.log('Payment successful:', result);
-      //     // Perform any additional success actions, e.g., navigating or showing a success message
-      //     // setPaymentSuccess(true);
-      //     // setShowPinModal(false);
-      //   } else {
-      //     throw new Error(result.message || 'Payment failed.');
-      //   }
-      // } catch (error) {
-      //   console.error('Payment error:', error);
-      //   setErrors(error.message || 'An error occurred while processing the payment.');
-      // }
-    };
+    //   // Send the payment data to the backend
+    //   const response = await fetch('/api/v1/users/payment', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       userId,
+    //       consumerId: consumerId,
+    //       mobileNumber,
+    //       amount,
+    //       paymentMethod: selectedMethod,
+    //       remark,
+    //       consumerName: billDetails.consumerName,
+    //       divisionName: billDetails.divisionName,
+    //       subDivision: billDetails.subDivision,
+    //     }),
+    //   });
+
+    //   const result = await response.json();
+
+    //   if (response.ok && result.success) {
+    //     console.log('Payment successful:', result);
+    //     // Perform any additional success actions, e.g., navigating or showing a success message
+    //     // setPaymentSuccess(true);
+    //     // setShowPinModal(false);
+    //   } else {
+    //     throw new Error(result.message || 'Payment failed.');
+    //   }
+    // } catch (error) {
+    //   console.error('Payment error:', error);
+    //   setErrors(error.message || 'An error occurred while processing the payment.');
+    // }
+  };
 
   const handleCloseModal = () => {
     setShowSuccessModal(false); // Close the modal
@@ -789,10 +794,10 @@ const companyCode =
     <CContainer
       className="d-flex justify-content-center align-items-center"
     // Centers the card vertically and horizontally
-    >   
-    <CCard style={{ width: '50%' }}>
-    <CCardHeader>
-          <h2 style={{color:"#f36c23"}}>Payment Information</h2>
+    >
+      <CCard style={{ width: '50%' }}>
+        <CCardHeader>
+          <h2 style={{ color: "#f36c23" }}>Payment Information</h2>
         </CCardHeader>
 
         <CCardBody>
@@ -820,7 +825,7 @@ const companyCode =
                 <CCol md={6}>
                   <CFormLabel htmlFor="consumerId">Consumer ID</CFormLabel>
                   <CFormInput
-                  style={{width:"200%"}}
+                    style={{ width: "200%" }}
                     type="text"
                     id="consumerId"
                     value={consumerId}
@@ -833,9 +838,24 @@ const companyCode =
                 </CCol>
               </CRow>
 
-              <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={handleFetchBill}>
+              {isLoading ? (
+                <div className="text-center mt-3">
+                  <CSpinner color="primary"  size="lg" /> {/* Loader while data is being fetched */}
+                </div>
+              ) : (
+                <CButton
+                  color="primary"
+                  style={{ backgroundColor: '#f36c23', border: 'none' }}
+                  onClick={handleFetchBill}
+                >
+                  Fetch Bill
+                </CButton>
+              )}
+
+
+              {/* <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={handleFetchBill}>
                 Fetch Bill
-              </CButton>
+              </CButton> */}
             </>
           )}
 
@@ -964,16 +984,16 @@ const companyCode =
                     value={formatAmount(amount)}
                     onChange={(e) => {
                       let input = e.target.value;
-              
+
                       // Remove leading zeros
                       input = input.replace(/^0+/, '');
-              
+
                       // Update the state
                       setAmount(input);
                     }}
                     placeholder="Enter amount"
                   />
-                   
+
                 </CCol>
               </CRow>
 

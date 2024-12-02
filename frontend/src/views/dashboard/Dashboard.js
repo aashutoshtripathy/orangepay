@@ -289,7 +289,7 @@ const Dashboard = () => {
       try {
         const userId = localStorage.getItem('userId');
         console.log('User ID:', userId); // Debugging line
-        const response = await axios.get(`/status/${userId}`); // Updated API endpoint
+        const response = await axios.get(`/api/v1/users/status/${userId}`); // Updated API endpoint
 
         if (response.data.hasChanged) {
           alert('Your account has been updated, logging you out.');
