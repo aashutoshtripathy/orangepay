@@ -156,7 +156,7 @@ cron.schedule('* * * * *', async () => {
 
 
         const xmlPayload = soapRequest(consumerId); // Generate the SOAP XML payload
-        // console.log(xmlPayload)
+        console.log(xmlPayload)
 
         if (!xmlPayload) {
           console.error("Failed to generate XML payload due to missing CANumber.");
