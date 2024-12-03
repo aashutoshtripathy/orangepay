@@ -22,8 +22,13 @@ const FundRequestDatails = () => {
   const [userData, setUserData] = useState(null); // State to hold user data
   const [reason, setReason] = useState('');
   const [isRejectModalVisible, setRejectModalVisible] = useState(false); // Modal visibility state
+  const [isImageModalVisible, setImageModalVisible] = useState(false); // Modal visibility for image
+  const [imageUrl, setImageUrl] = useState('');
+  const [selectedImage, setSelectedImage] = useState(''); // State to hold the selected image URL
   const { userId } = useParams();
   const navigate = useNavigate();
+
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -42,6 +47,14 @@ const FundRequestDatails = () => {
 
     fetchUserData();
   }, [userId]);
+
+
+  useEffect(() => {
+    if (userData && userData.txnId) {
+      // Construct the image URL based on txnId if it's available in userData
+      setImageUrl(`/api/v1/users/public/fundrequest/${userData.txnId}/${userData.txnId}.png`);
+    }
+  }, [userData]);
 
   const handleAccept = async () => {
     if (!userData) return; // Prevent actions if user data is not available
@@ -72,6 +85,21 @@ const FundRequestDatails = () => {
     }
   };
 
+
+
+  const openImageModal = (image) => {
+    setSelectedImage(image); // Set the selected image to display in the modal
+    setImageModalVisible(true); // Open the image modal
+  };
+
+  const closeImageModal = () => {
+    setImageModalVisible(false); // Close the image modal
+    setSelectedImage(''); // Clear the selected image
+  };
+
+
+
+
   // Handle case when no user data is found
   if (!userData) {
     return <div>No fund requests found for this user ID.</div>; // Fallback UI
@@ -99,6 +127,10 @@ const FundRequestDatails = () => {
           <CTableRow>
             <CTableHeaderCell scope="row">Date of Payment</CTableHeaderCell>
             <CTableDataCell>{userData.datePayment}</CTableDataCell>
+          </CTableRow> 
+          <CTableRow>
+            <CTableHeaderCell scope="row">Transaction Id</CTableHeaderCell>
+            <CTableDataCell>{userData.txnId}</CTableDataCell>
           </CTableRow>
           <CTableRow>
             <CTableHeaderCell scope="row">Bank Reference</CTableHeaderCell>
@@ -128,7 +160,7 @@ const FundRequestDatails = () => {
               hour12: true
             })}</CTableDataCell>
           </CTableRow>
-          <CTableRow>
+          {/* <CTableRow>
             <CTableHeaderCell scope="row">Updated At</CTableHeaderCell>
             <CTableDataCell>{new Date(userData.updatedAt).toLocaleString('en-US', {
               year: 'numeric',
@@ -139,7 +171,24 @@ const FundRequestDatails = () => {
               second: '2-digit',
               hour12: true
             })}</CTableDataCell>
-          </CTableRow>
+          </CTableRow> */}
+
+
+{imageUrl && (
+            <CTableRow>
+              <CTableHeaderCell scope="row">Image</CTableHeaderCell>
+              <CTableDataCell>
+                <img
+                  src={imageUrl}
+                  alt="Fund Request"
+                  style={{ maxWidth: '200px', maxHeight: '200px', cursor: 'pointer' }}
+                  onClick={() => openImageModal(imageUrl)} // Open modal when clicked
+                />
+              </CTableDataCell>
+            </CTableRow>
+          )}
+
+
           <CTableRow>
             <CTableHeaderCell scope="row">Actions</CTableHeaderCell>
             <CTableDataCell>
@@ -173,6 +222,23 @@ const FundRequestDatails = () => {
           >
             Reject
           </CButton>
+        </CModalFooter>
+      </CModal>
+
+      <CModal
+        visible={isImageModalVisible}
+        onClose={closeImageModal}
+      >
+        <CModalHeader>Fund Request Image</CModalHeader>
+        <CModalBody>
+          <img
+            src={selectedImage}
+            alt="Fund Request"
+            style={{ width: '100%', height: 'auto' }}
+          />
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={closeImageModal}>Close</CButton>
         </CModalFooter>
       </CModal>
     </CContainer>

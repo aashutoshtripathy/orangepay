@@ -38,6 +38,9 @@ const fundRequestSchema = new Schema(
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
+    photograph:{
+      type: String,
+    },
   },
   { timestamps: true }
 );

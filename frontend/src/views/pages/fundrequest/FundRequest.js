@@ -198,6 +198,7 @@ const DataTableComponent = ({userId}) => {
     { name: 'bankReference', selector: 'bankReference', sortable: true },
     { name: 'paymentMethod', selector: 'paymentMethod', sortable: true },
     { name: 'bankName', selector: 'bankName', sortable: true },
+    { name: 'Transaction Id', selector: 'txnId' },
     { name: 'Date of Payment', selector: 'datePayment', sortable: true }, 
     { name: 'status', selector: 'status', sortable: true },
     { name: 'createdAt', selector: 'createdAt', sortable: true },

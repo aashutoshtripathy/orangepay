@@ -2004,26 +2004,33 @@ const Register = () => {
 
                       <CRow className="d-flex">
 
+                        
+
+                      <CCol md={6}>
+
+<CInputGroup className="mb-3">
+  <CInputGroupText>Discom</CInputGroupText>
+  <CFormSelect
+    className="custom-input"
+    name="discom"
+    value={formData.discom}
+    onChange={handleDiscomChange}
+    onFocus={handleFocus}
+    onBlur={handleBlur}
+  >
+    <option value="">Select Discom</option>
+    <option value="NBSL">NBSL</option>
+    <option value="SBPDCL">SBSL</option>
+  </CFormSelect>
+</CInputGroup>
+{errors.discom && <p className="text-danger">{errors.discom}</p>}
 
 
-                        <CCol md={6}>
-                          <CInputGroup className="mb-3">
-                            <CInputGroupText>Pin Code</CInputGroupText>
-                            <CFormInput
-                              className="custom-input"
-                              name="pincode"
-                              placeholder="Pin Code"
-                              value={formData.pincode}
-                              onChange={handleChange}
-                              onFocus={handleFocus}
-                              onBlur={handleBlur}
 
-                              autoComplete="street-address"
-                            />
-                          </CInputGroup>
-                          {errors.pincode && (
-                            <p className="text-danger">{errors.pincode}</p>
-                          )}
+
+
+
+                     
 
 
                           <CInputGroup className="mb-3">
@@ -2056,27 +2063,30 @@ const Register = () => {
 
 
                         <CCol md={6}>
-
                           <CInputGroup className="mb-3">
-                            <CInputGroupText>Discom</CInputGroupText>
-                            <CFormSelect
+                            <CInputGroupText>Pin Code</CInputGroupText>
+                            <CFormInput
                               className="custom-input"
-                              name="discom"
-                              value={formData.discom}
-                              onChange={handleDiscomChange}
+                              name="pincode"
+                              placeholder="Pin Code"
+                              value={formData.pincode}
+                              onChange={handleChange}
                               onFocus={handleFocus}
                               onBlur={handleBlur}
-                            >
-                              <option value="">Select Discom</option>
-                              <option value="NBSL">NBSL</option>
-                              <option value="SBPDCL">SBSL</option>
-                            </CFormSelect>
+
+                              autoComplete="street-address"
+                            />
                           </CInputGroup>
-                          {errors.discom && <p className="text-danger">{errors.discom}</p>}
+                          {errors.pincode && (
+                            <p className="text-danger">{errors.pincode}</p>
+                          )}
+
+
+                          </CCol>
 
 
 
-                        </CCol>
+                       
                       </CRow>
 
 

@@ -47,6 +47,22 @@ app.use(session({
 }));
 
 
+// app.use('/proxy-bill', createProxyMiddleware({
+//   target: 'http://1.6.61.79/BiharService/BillInterface.asmx', // External SOAP service URL
+//   changeOrigin: true, // Ensures that the origin of the request is changed to the target
+//   pathRewrite: {
+//     '^/proxy-bill': '', // Remove /proxy-bill prefix from the request URL
+//   },
+//   onProxyReq: (proxyReq, req, res) => {
+//     // Modify the request if necessary (e.g., add headers, body, etc.)
+//     if (req.body) {
+//       proxyReq.setHeader('Content-Type', 'text/xml');
+//       proxyReq.setHeader('SOAPAction', 'http://tempuri.org/BillDetails');
+//     }
+//   },
+// }));
+
+
 app.post('/fetch-bill', async (req, res) => {
   const { consumerId } = req.body;
 

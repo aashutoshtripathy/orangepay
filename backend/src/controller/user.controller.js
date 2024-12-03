@@ -71,6 +71,30 @@ const upload = multer({ storage }).fields([
   
 ]);
 
+
+const fundStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const txnId = req.body.txnId; // ensure `aadharNumber` is part of the form
+    const dir = path.join('public/fundrequest', txnId);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    const txnId = req.body.txnId;  // Retrieve txnId from the form data
+    const fileExtension = path.extname(file.originalname);  // Get file extension
+    cb(null, `${txnId}${fileExtension}`);
+  }
+});
+
+// Create multer upload middleware for handling files
+const uploadImage = multer({ storage: fundStorage }).single('photograph');
+
+
+
+
+
 // User registration handler
 const registerUser = asyncHandler(async (req, res) => {
   upload(req, res, async (err) => {
@@ -567,46 +591,83 @@ const fetchWalletBalance = asyncHandler(async (req, res) => {
 
 
 
-
 const fundRequest = asyncHandler(async (req, res) => {
-  const { userId, fundAmount, bankReference, paymentMethod, datePayment, bankName } = req.body;
-
-  try {
-    // Validate required fields
-    if (!userId || !fundAmount || !paymentMethod) {
-      throw new Error('All fields are required');
+  // Middleware for handling file upload
+  uploadImage(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ success: false, message: "File upload failed: " + err.message });
     }
 
-    // Validate that the user exists in the Register table
-    const user = await Register.findById(userId); // Use findById to find the user by _id
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+    // If file uploaded, get the image path
+    const imagePath = req.file ? path.join('uploads', req.file.filename) : null;
+    const { userId, fundAmount, bankReference, paymentMethod, datePayment, bankName ,txnId } = req.body;
+
+    // Log for debugging
+    console.log(req.body);
+    console.log(req.file);
+
+    try {
+      // Validate required fields
+      if (!userId) {
+        return res.status(400).json({ success: false, message: "User ID is required" });
+      }
+      if (!fundAmount || isNaN(fundAmount) || fundAmount <= 0) {
+        return res.status(400).json({ success: false, message: "Fund amount must be a positive number" });
+      }
+      // if (!paymentMethod || !["upi", "bank", "cash"].includes(paymentMethod)) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: "Payment method must be one of 'upi', 'bank', or 'cash'",
+      //   });
+      // }
+      // if (paymentMethod !== "upi" && !bankReference) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: "Bank reference is required for non-UPI payment methods",
+      //   });
+      // }
+      // if (paymentMethod !== "upi" && !bankName) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: "Bank name is required for non-UPI payment methods",
+      //   });
+      // }
+      if (!datePayment || isNaN(Date.parse(datePayment))) {
+        return res.status(400).json({ success: false, message: "Invalid or missing payment date" });
+      }
+
+      // Check if the user exists
+      const user = await Register.findById(userId); // Use `findById` to validate the user exists
+      if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+
+      // Create the new fund request
+      const newFundRequest = new FundRequest({
+        userId: user._id,
+        uniqueId: user.userId,
+        txnId: txnId,
+        fundAmount,
+        bankReference,
+        paymentMethod,
+        bankName,
+        datePayment,
+        photograph: imagePath, // Save the image path in the database
+      });
+
+      // Save to database
+      const savedFundRequest = await newFundRequest.save();
+
+      // Respond with success
+      return res
+        .status(201)
+        .json({ success: true, data: savedFundRequest, message: "Fund request created successfully" });
+    } catch (error) {
+      // Handle unexpected errors
+      return res.status(500).json({ success: false, message: error.message });
     }
-
-    // Create a new fund request
-    const newFundRequest = new FundRequest({
-      // userId: user.userId, // Correctly set userId from the fetched user document
-      userId: user._id,
-      uniqueId: user.userId,
-      txnId: `OP${Date.now()}`,
-      fundAmount,
-      bankReference,
-      paymentMethod,
-      bankName,
-      datePayment,
-    });
-
-    // Save the document to the database
-    const savedFundRequest = await newFundRequest.save();
-
-    // Return the created transaction
-    return res.status(201).json({ success: true, data: savedFundRequest, message: 'Fund request created successfully' });
-  } catch (error) {
-    // Catch any errors and send error response
-    return res.status(400).json({ success: false, message: error.message });
-  }
+  });
 });
-
 
 // const fundRequest = asyncHandler(async (req, res) => {
 //     // Destructure the fields from the request body
@@ -1348,6 +1409,40 @@ const images = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+const fundimages = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.params.txnId; // Get the user ID from the request parameters
+    const imageFileName = req.params.txnId; // Get the image filename from the request parameters (e.g., 'aadharCard')
+
+    console.log('User ID:', userId);
+    console.log('Image File Name:', imageFileName);
+
+    // Construct the path to the image
+    const imagePath = path.join(__dirname, "../../public/fundrequest/", `${userId}/${imageFileName}.png`); // Adjust the pattern if needed
+    console.log('Image path:', imagePath);
+
+    // Use fs to check if the file exists before sending
+    fs.access(imagePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        console.error('File not found:', err);
+        return res.status(404).send('Image not found'); // Respond with 404 if file doesn't exist
+      }
+
+      // Send the image file
+      res.sendFile(imagePath, (err) => {
+        if (err) {
+          console.error('Error sending file:', err);
+          res.status(err.status || 500).end(); // Ensure a valid status code is used
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error sending image:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 
@@ -2444,5 +2539,5 @@ const fetchUserByIdd = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser,cancellationHistoryy,registerSAdmin,resendCredential, validateTpin,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+export { registerUser,cancellationHistoryy,fundimages,registerSAdmin,resendCredential, validateTpin,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 

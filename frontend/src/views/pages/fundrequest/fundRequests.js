@@ -201,6 +201,7 @@ const DataTableComponent = () => {
     columnsVisibility.userId && { name: 'User ID', selector: 'uniqueId', sortable: true },
     columnsVisibility.fundAmount && { name: 'Fund Amount', selector: 'fundAmount', sortable: true },
     columnsVisibility.paymentMethod && { name: 'Payment Method', selector: 'paymentMethod', sortable: true },
+    columnsVisibility.paymentMethod && { name: 'Transaction Id', selector: 'txnId', sortable: true },
     columnsVisibility.bankName && { name: 'Bank Name', selector: 'bankName', sortable: true },
     {
       name: 'Actions',
