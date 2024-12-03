@@ -50,6 +50,7 @@ const CancellationRequest = React.lazy(() => import('./views/pages/usermangement
 const CancellationDetailss = React.lazy(() => import('./views/pages/usermangement/CancellationDetailss.js'))
 const WalletReport = React.lazy(() => import('./views/pages/reports/WalletReportt.js'))
 const SuperAdminReport = React.lazy(() => import('./views/pages/reports/SuperAdmin.js'))
+const RepostingBill = React.lazy(() => import('./views/pages/reports/RepostingBill.js'))
 
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -156,6 +157,8 @@ const routes = [
   { path: '/paymentonline', name: 'Payment', element: PaymentOnline },
   { path: '/contact-us', name: 'Contact Us', element: ContactUs },
   { path: '/request-fund', name: 'Request Fund', element: RequestFundPage },
+  { path: '/re-posting-bill', name: 'Request Fund', element: RepostingBill },
+ 
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },

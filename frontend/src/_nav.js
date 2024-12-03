@@ -67,6 +67,7 @@ export const adminNavItems = [
       // { component: CNavItem, name: 'Manage Unclaimed Txn', to: '/manage-unclaimed-txn'  },
       { component: CNavItem, name: 'Rejected Agent',  to: '/reject-user' },
       { component: CNavItem, name: 'View Agent',  to: '/view-user' },
+      { component: CNavItem, name: 'Manage Re-Posting Bill',  to: '/re-posting-bill' },
       // { component: CNavItem, name: 'View Consumer Details', to: '/view-consumer-details' },
     ],
   },

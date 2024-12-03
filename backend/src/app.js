@@ -164,12 +164,25 @@ cron.schedule('* * * * *', async () => {
         }
 
         // Send SOAP request via Axios
-        const response = await axios.post(`http://1.6.61.79/BiharService/BillInterface.asmx`, xmlPayload, {
+        const response = await axios.post(`http://1.6.61.79/BiharService/BillInterface.asmx?op=BillDetails`, xmlPayload, {
           headers: {
             'Content-Type': 'text/xml; charset=utf-8',
             'Accept': 'application/xml, text/xml, application/json',
           },
         });
+        console.log("Response " , response)
+        
+        console.log("SOAP Response Status:", response.status);
+        console.log("SOAP Response Headers:", response.headers);
+        console.log("SOAP Response Body:", response.data);
+        
+        // Check the response for possible issues
+        if (response.status !== 200) {
+          console.error('Error: Received non-OK status code:', response.status);
+        } else {
+          // Continue parsing the XML response as needed
+        }
+        
       
         console.log("SOAP Response:", response.data);
         // Parse the XML response using DOMParser

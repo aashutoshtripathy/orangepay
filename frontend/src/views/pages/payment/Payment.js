@@ -27,7 +27,7 @@ const Payment = () => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [data, setData] = useState({});
   const [amount, setAmount] = useState(500);
-  const [defaultAmount, setDefaultAmount] = useState(500); // State for default amount
+  const [defaultAmount, setDefaultAmount] = useState(500); 
   const [selectedMethod, setSelectedMethod] = useState('wallet');
   const [remark, setRemark] = useState('');
   const [userId, setUserId] = useState('');
@@ -45,6 +45,7 @@ const Payment = () => {
   const [showPrintView, setShowPrintView] = useState(false);
   const printRef = useRef();
   const [consumerIdError, setConsumerIdError] = useState('');
+  
 
 
   const [showPinModal, setShowPinModal] = useState(false);
@@ -213,6 +214,13 @@ const validateConsumerId = (value) => {
 
 
     try {
+
+
+      const fetchedTransactionId = `OP${Date.now()}`;
+        setTransactionId(fetchedTransactionId);
+
+
+
       const response = await fetch('/api/v1/users/payment', {
         method: 'POST',
         headers: {
@@ -225,6 +233,7 @@ const validateConsumerId = (value) => {
           amount,
           paymentMethod: selectedMethod,
           remark,
+          transactionId: fetchedTransactionId,
           consumerName: billDetails.consumerName,
           divisionName: billDetails.divisionName,
           subDivision: billDetails.subDivision,
@@ -233,7 +242,7 @@ const validateConsumerId = (value) => {
 
       const result = await response.json();
       if (response.ok && result.success) {
-        setTransactionId(result.data.invoice?.transactionId || 'N/A');
+        setTransactionId(fetchedTransactionId);
         setData(result.data.invoice);
         setShowSuccessModal(true);
         // Reset form fields
