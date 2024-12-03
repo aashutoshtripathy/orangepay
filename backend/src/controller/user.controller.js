@@ -100,29 +100,32 @@ const registerUser = asyncHandler(async (req, res) => {
       $or: [{ mobileNumber }, { aadharNumber }]
     });
     if (existedUser) {
-      throw new ApiError(400, "Mobile number or Aadhar number already exists");
+      return res.status(400).json(new ApiError(400,{ error: "Mobile number or Aadhar number already exists"},["Mobile number or Aadhar number already exists"] ));
     }
 
+    try {
+      const user = await Register.create({
+        name, fatherOrHusbandName, dob, role, aadharNumber, panNumber, mobileNumber,
+        gender, maritalStatus, education, address, salaryBasis, email, division,
+        subDivision, section, sectionType, ifsc, district, pincode, bank, accountno, discom, consumerId,
+        photograph: req.files['photograph'] ? req.files['photograph'][0].path : null,
+        aadharCard: req.files['aadharCard'] ? req.files['aadharCard'][0].path : null,
+        panCard: req.files['panCard'] ? req.files['panCard'][0].path : null,
+        educationCertificate: req.files['educationCertificate'] ? req.files['educationCertificate'][0].path : null,
+        cheque: req.files['cheque'] ? req.files['cheque'][0].path : null,
+        signature: req.files['signature'] ? req.files['signature'][0].path : null
+      });
 
-    const user = await Register.create({
-      name, fatherOrHusbandName, dob, role, aadharNumber, panNumber, mobileNumber,
-      gender, maritalStatus, education, address, salaryBasis, email, division,
-      subDivision, section, sectionType, ifsc, district, pincode, bank, accountno, discom, consumerId,
-      photograph: req.files['photograph'] ? req.files['photograph'][0].path : null,
-      aadharCard: req.files['aadharCard'] ? req.files['aadharCard'][0].path : null,
-      panCard: req.files['panCard'] ? req.files['panCard'][0].path : null,
-      educationCertificate: req.files['educationCertificate'] ? req.files['educationCertificate'][0].path : null,
-      cheque: req.files['cheque'] ? req.files['cheque'][0].path : null,
-      signature: req.files['signature'] ? req.files['signature'][0].path : null
-    });
-    console.log(req.files)
-    // Send success response
-    return res.status(201).json(
-      new ApiResponse(201, user, "User Registered Successfully")
-    );
+      console.log(req.files); // Log files for debugging
+
+      // Send success response
+      return res.status(201).json(new ApiResponse(201, user, "User Registered Successfully",["User Registered Successfully"]));
+    } catch (error) {
+      console.error('Error during user creation:', error);
+      return res.status(500).json(new ApiError(500, "Internal server error"));
+    }
   });
 });
-
 
 
 
