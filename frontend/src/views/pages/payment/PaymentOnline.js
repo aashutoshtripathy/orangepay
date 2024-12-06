@@ -325,9 +325,9 @@ const PaymentOnline = () => {
             <strTransactionId>${transactionId}</strTransactionId>
             <strTransactionDateTime>${formatDateTime()}</strTransactionDateTime> <!-- Current timestamp -->
             <strReceiptNo>${transactionId}</strReceiptNo> <!-- Generated or passed dynamically -->
-            <strBankRefCode>${'BR1234567890'}</strBankRefCode> <!-- Can be dynamic -->
+            <strBankRefCode>${''}</strBankRefCode> <!-- Can be dynamic -->
             <strBankId></strBankId> 
-            <strPaymentMode>${selectedMethod || 'CreditCard'}</strPaymentMode>
+            <strPaymentMode>${selectedMethod || ''}</strPaymentMode>
             <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
             <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
             <strCkeckSum>${checksum}</strCkeckSum> <!-- Call checksum function here -->
@@ -440,6 +440,8 @@ const PaymentOnline = () => {
 
           // Set the parsed data in state
           setData(receiptData);
+
+          
 
         } catch (error) {
           console.error('Error fetching receipt:', error);
@@ -664,12 +666,14 @@ const PaymentOnline = () => {
             mobileNumber,
             brandCode: billData.companyName,
             amount,
-            receiptNo: billData.receiptNo,
+            receiptNo: data?.receiptData?.receiptNo,
             paymentMethod: selectedMethod,
             remark,
             consumerName: billData.consumerName,
             divisionName: billData.divisionName,
             subDivision: billData.subDivision,
+            billpoststatus: "Success",
+            receiptNo: data?.receiptNo,
           };
 
           const paymentResponse = await fetch('/api/v1/users/payment', {

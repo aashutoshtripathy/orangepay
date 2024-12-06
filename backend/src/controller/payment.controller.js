@@ -17,7 +17,7 @@ import { WalletOpeningClosing } from "../model/WalletOpeningClosing.model.js";
 
 const processPayment = asyncHandler(async (req, res) => {
   const {
-    userId, consumerId, amount, paymentMethod, divisionName, subDivision, consumerName ,invoiceNo,billMonth,brandCode,dueDate,receiptNo,paymentdate,remark,transactionId
+    userId, consumerId, amount, paymentMethod, billpoststatus, divisionName, subDivision, consumerName ,invoiceNo,billMonth,brandCode,dueDate,receiptNo,paymentdate,remark,transactionId
   } = req.body;
 
   // Log the request body for debugging
@@ -116,7 +116,7 @@ const processPayment = asyncHandler(async (req, res) => {
       paymentstatus: 'Success', 
       createdon: Date.now(),
       createdby: wallet.uniqueId, 
-      billpoststatus: 'Success', 
+      billpoststatus: billpoststatus, 
       paidamount: amount,
       reciptno: receiptNo, 
       billposton: paymentdate, 

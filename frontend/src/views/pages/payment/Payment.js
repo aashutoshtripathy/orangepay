@@ -237,6 +237,7 @@ const validateConsumerId = (value) => {
           consumerName: billDetails.consumerName,
           divisionName: billDetails.divisionName,
           subDivision: billDetails.subDivision,
+          billpoststatus: "Pending",
         }),
       });
 

@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 // import upload from "./middleware/filehandle.middleware.js";
@@ -8,9 +8,12 @@ import multer from "multer";
 import { fileURLToPath } from "url";
 import session from "express-session";
 import MongoStore from "connect-mongo"
-import createProxyMiddleware from "http-proxy-middleware"
+import { createProxyMiddleware } from "http-proxy-middleware";
 import cron from "node-cron";
 import axios from "axios";
+import { parseStringPromise} from 'xml2js';
+import xml2js from "xml2js"
+import { crc32 } from "crc";
 
 
 
@@ -47,52 +50,53 @@ app.use(session({
 }));
 
 
-// app.use('/proxy-bill', createProxyMiddleware({
-//   target: 'http://1.6.61.79/BiharService/BillInterface.asmx', // External SOAP service URL
-//   changeOrigin: true, // Ensures that the origin of the request is changed to the target
-//   pathRewrite: {
-//     '^/proxy-bill': '', // Remove /proxy-bill prefix from the request URL
-//   },
-//   onProxyReq: (proxyReq, req, res) => {
-//     // Modify the request if necessary (e.g., add headers, body, etc.)
-//     if (req.body) {
-//       proxyReq.setHeader('Content-Type', 'text/xml');
-//       proxyReq.setHeader('SOAPAction', 'http://tempuri.org/BillDetails');
-//     }
-//   },
-// }));
 
 
-app.post('/fetch-bill', async (req, res) => {
-  const { consumerId } = req.body;
+app.use('/biharpayment', createProxyMiddleware({
+  target: 'http://1.6.61.79/BiharService',
+  changeOrigin: true,
+  pathRewrite: {
+    '^/biharpayment': '',
+  },
+  logLevel: 'debug', // Enables detailed logging
+}));
 
-  const soapPayload = `
-  <?xml version="1.0" encoding="utf-8"?>
-  <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Body>
-      <BillDetails xmlns="http://tempuri.org/">
-        <strCANumber>${consumerId}</strCANumber>
-        <strDivision></strDivision>
-        <strSubDivision></strSubDivision>
-        <strLegacyNo></strLegacyNo>
-        <strMerchantCode>BSPDCL_RAPDRP_16</strMerchantCode>
-        <strMerchantPassword>OR1f5pJeM9q@G26TR9nPY</strMerchantPassword>
-      </BillDetails>
-    </soap:Body>
-  </soap:Envelope>`;
 
-  try {
-    const response = await axios.post('http://1.6.61.79/BiharService/BillInterface.asmx', soapPayload, {
-      headers: {
-        'Content-Type': 'text/xml',
-        'SOAPAction': 'http://tempuri.org/BillDetails',
-      },
-    });
-    res.send(response.data);
-  } catch (error) {
-    res.status(500).send({ message: 'Error fetching bill', error: error.message });
-  }
-});
+
+
+
+
+
+// app.post('/fetch-bill', async (req, res) => {
+//   const { consumerId } = req.body;
+
+//   const soapPayload = `
+//   <?xml version="1.0" encoding="utf-8"?>
+//   <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+//     <soap:Body>
+//       <BillDetails xmlns="http://tempuri.org/">
+//         <strCANumber>${consumerId}</strCANumber>
+//         <strDivision></strDivision>
+//         <strSubDivision></strSubDivision>
+//         <strLegacyNo></strLegacyNo>
+//         <strMerchantCode>BSPDCL_RAPDRP_16</strMerchantCode>
+//         <strMerchantPassword>OR1f5pJeM9q@G26TR9nPY</strMerchantPassword>
+//       </BillDetails>
+//     </soap:Body>
+//   </soap:Envelope>`;
+
+//   try {
+//     const response = await axios.post(`/api`, soapPayload, {
+//       headers: {
+//         'Content-Type': 'text/xml',
+//         'SOAPAction': 'http://tempuri.org/BillDetails',
+//       },
+//     });
+//     res.send(response.data);
+//   } catch (error) {
+//     res.status(500).send({ message: 'Error fetching bill', error: error.message });
+//   }
+// });
 
 
 
@@ -133,130 +137,261 @@ import { Payment } from "./model/Payment.model.js";
 // });
 
 
-cron.schedule('* * * * *', async () => {
+
+const formatDateTime = () => { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const day = String(now.getDate()).padStart(2, '0'); const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); const seconds = String(now.getSeconds()).padStart(2, '0'); return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`; };
+
+
+
+function generateChecksum(amount, privateKey) {
+  if (typeof amount !== "string") {
+    amount = amount.toString();
+  }
+  const data = amount + privateKey; // Concatenate the amount with the private key
+  const checksum = crc32(data); // Generate CRC32 checksum
+  return checksum.toString(10); // Return as a decimal string
+}
+
+const fetchBillDetails = async (consumerId) => {
+  const MERCHANT_CODE = "BSPDCL_RAPDRP_16";
+  const MERCHANT_PASSWORD = "OR1f5pJeM9q@G26TR9nPY";
+  const xmlPayload = `
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <BillDetails xmlns="http://tempuri.org/">
+          <strCANumber>${consumerId}</strCANumber>
+          <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+          <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+        </BillDetails>
+      </soap:Body>
+    </soap:Envelope>
+  `;
+
+
+  // console.log(xmlPayload)
+
   try {
-    console.log('Scheduler running: Checking pending billpoststatus every 2 hours');
+    const response = await axios.post(
+      "http://1.6.61.79/BiharService/BillInterface.asmx?op=BillDetails",
+      xmlPayload,
+      {
+        headers: {
+          "Content-Type": "text/xml; charset=utf-8",
+        },
+      }
+    );
 
-    // Fetch records where billpoststatus is 'pending'
-    const pendingPayments = await Payment.find({ billpoststatus: 'Pending' }).exec();
+    // console.log(response)
 
-    if (!pendingPayments || pendingPayments.length === 0) {
-      console.log('No pending payments found');
-      return;
-    }
+    const parsedResponse = await parseStringPromise(response.data);
+    const billDetails =
+      parsedResponse["soap:Envelope"]["soap:Body"][0]["BillDetailsResponse"][0][
+        "BillDetailsResult"
+      ][0];
 
-    console.log(`Found ${pendingPayments.length} pending payments`);
+    // Extract required details
+    return {
+      dueDate: billDetails["DueDate"]?.[0] || null,
+      invoiceNumber: billDetails["InvoiceNO"]?.[0] || null,
+      consumerName: billDetails["ConsumerName"]?.[0] || null,
+      division: billDetails["Division"]?.[0] || null,
+      subDivision: billDetails["SubDivision"]?.[0] || null,
+      billMonth: billDetails["BillMonth"]?.[0] || null,
+      amount: billDetails["Amount"]?.[0] || null,
+      companyName: billDetails["CompanyName"]?.[0] || null,
+    };
+  } catch (error) {
+    console.error("Error fetching bill details:", error.message);
+    throw new Error("Failed to fetch bill details");
+  }
+};
 
-    // Process each pending payment
-    for (const payment of pendingPayments) {
-      try {
-        console.log(`Processing payment ID: ${payment._id}`);
-        const consumerId = payment.canumber;
+// Process payment function
+const processPayment = async (payment, billDetails, amount) => {
+  const transactionId = payment.transactionId || `txn_${Date.now()}`;
+  const checksum = generateChecksum(amount, "d8bKEaX1XEtB");
+  const formattedDateTime = formatDateTime();
 
-        const MERCHANT_CODE = 'BSPDCL_RAPDRP_16';
-        const MERCHANT_PASSWORD = 'OR1f5pJeM9q@G26TR9nPY';
+  const paymentXmlPayload = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <PaymentDetails xmlns="http://tempuri.org/">
+      <strCANumber>${payment.canumber}</strCANumber>
+      <strInvoiceNo>${billDetails.invoiceNumber}</strInvoiceNo>
+      <strDueDate>${billDetails.dueDate}</strDueDate>
+      <strAmount>${payment.paidamount}</strAmount>
+      <strCompanyCode>SBPDCL</strCompanyCode>
+      <strTransactionId>${transactionId}</strTransactionId>
+      <strTransactionDateTime>${formattedDateTime}</strTransactionDateTime>
+      <strReceiptNo>${transactionId}</strReceiptNo>
+      <strBankRefCode></strBankRefCode>
+      <strBankId></strBankId>
+      <strPaymentMode>${payment.paymentmode}</strPaymentMode>
+      <strMerchantCode>BSPDCL_RAPDRP_16</strMerchantCode>
+      <strMerchantPassword>OR1f5pJeM9q@G26TR9nPY</strMerchantPassword>
+      <strCkeckSum>${checksum}</strCkeckSum>
+    </PaymentDetails>
+  </soap:Body>
+</soap:Envelope>
+  `;
 
 
-        const soapRequest = (consumerId) => `
-        <?xml version="1.0" encoding="utf-8"?>
-        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-          <soap:Body>
-            <BillDetails xmlns="http://tempuri.org/">
-              <strCANumber>${consumerId}</strCANumber>
-              <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
-              <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
-            </BillDetails>
-          </soap:Body>
-        </soap:Envelope>
-        `;
 
 
-        const xmlPayload = soapRequest(consumerId); // Generate the SOAP XML payload
-        console.log(xmlPayload)
 
-        if (!xmlPayload) {
-          console.error("Failed to generate XML payload due to missing CANumber.");
+
+  // console.log(paymentXmlPayload)
+
+  try {
+    const response = await axios.post(
+      "http://1.6.61.79/BiharService/BillInterface.asmx?op=PaymentDetails",
+      paymentXmlPayload,
+      { headers: { "Content-Type": "text/xml; charset=utf-8" } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in processPayment:", error.response?.data || error.message);
+    throw error;
+  }
+  
+};
+
+
+
+
+const processBill = async (transactionId) => {
+  const MERCHANT_CODE = "BSPDCL_RAPDRP_16";
+  const MERCHANT_PASSWORD = "OR1f5pJeM9q@G26TR9nPY";
+ 
+
+  const billXmlPayload = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <PaymentReceiptDetails xmlns="http://tempuri.org/">
+      <strTransactionId>${transactionId}</strTransactionId>
+      <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
+      <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
+    </PaymentReceiptDetails>
+  </soap:Body>
+</soap:Envelope>
+`.trim();
+
+
+
+
+
+
+
+  console.log(billXmlPayload)
+
+  try {
+    const response = await axios.post(
+      "http://1.6.61.79/BiharService/BillInterface.asmx?op=PaymentDetails",
+      billXmlPayload,
+      { headers: { "Content-Type": "text/xml; charset=utf-8" } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in processPayment:", error.response?.data || error.message);
+    throw error;
+  }
+
+
+  
+};
+
+
+
+
+
+// Cron job for processing payments
+cron.schedule("* * * * *", async () => {
+  console.log("Scheduler running: Checking pending payments");
+
+  const pendingPayments = await Payment.find({ billpoststatus: "Pending" }).exec();
+
+  if (!pendingPayments.length) {
+    console.log("No pending payments found");
+    return;
+  }
+
+  for (const payment of pendingPayments) {
+    try {
+      const billDetails = await fetchBillDetails(payment.canumber);
+      const result = await processPayment(payment, billDetails, payment.paidamount);
+  
+      xml2js.parseString(result, { trim: true }, async (err, parsedResult) => {
+        if (err) {
+          console.error(`Error parsing XML for payment ID ${payment._id}:`, err.message);
           return;
         }
+  
+        const statusFlag = parsedResult['soap:Envelope']['soap:Body'][0]['PaymentDetailsResponse'][0]['PaymentDetailsResult'][0]['StatusFlag'][0];
+  
+        if (statusFlag === "1") {
 
-        // Send SOAP request via Axios
-        const response = await axios.post(`http://1.6.61.79/BiharService/BillInterface.asmx?op=BillDetails`, xmlPayload, {
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Accept': 'application/xml, text/xml, application/json',
-          },
-        });
-        console.log("Response " , response)
+          const billData = await processBill(payment.transactionId);
+
+          let bspdclReceiptNo = null;
+          xml2js.parseString(billData, { trim: true }, (err, parsedBillData) => {
+            if (err) {
+              console.error(`Error parsing bill data for transaction ${payment.transactionId}:`, err.message);
+              return;
+            }
         
-        console.log("SOAP Response Status:", response.status);
-        console.log("SOAP Response Headers:", response.headers);
-        console.log("SOAP Response Body:", response.data);
+            console.log("Full billData response:", JSON.stringify(parsedBillData, null, 2));
         
-        // Check the response for possible issues
-        if (response.status !== 200) {
-          console.error('Error: Received non-OK status code:', response.status);
-        } else {
-          // Continue parsing the XML response as needed
-        }
+            // Correct path to access BSPDCL_Receipt_No
+            bspdclReceiptNo = parsedBillData?.['soap:Envelope']?.['soap:Body']?.[0]?.['PaymentReceiptDetailsResponse']?.[0]?.['PaymentReceiptDetailsResult']?.[0]?.['BSPDCL_Receipt_No']?.[0];
         
-      
-        console.log("SOAP Response:", response.data);
-        // Parse the XML response using DOMParser
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(response.data, "text/xml");
-        const namespaceURI = "http://tempuri.org/";
+            if (bspdclReceiptNo) {
+              console.log(`BSPDCL Receipt No: ${bspdclReceiptNo}`);
+            } else {
+              console.log("BSPDCL Receipt No not found in bill data.");
+            }
+        })
 
-        // Extract BillDetailsResult using the namespace
-        const billDetails = xmlDoc.getElementsByTagNameNS(namespaceURI, "BillDetailsResult")[0];
-        console.log(billDetails)
+         
 
-        if (billDetails) {
-          const statusFlag = billDetails.getElementsByTagName("StatusFlag")[0].textContent;
-          const message = billDetails.getElementsByTagName("Message")[0].textContent;
 
-          console.log("StatusFlag:", statusFlag);
-          console.log("Message:", message);
+          const invoiceNumber = billDetails.invoiceNumber
+          const dueDate = billDetails.dueDate
+          let companyName = billDetails.companyName || null;
 
-          if (statusFlag === '1') {
-            console.log('Transaction successful');
-          } else {
-            console.error('Transaction failed:', message);
+          if (companyName === "SOUTH BIHAR POWER DISTRIBUTION COMPANY LTD") {
+            companyName = "SBPDCL";
           }
-        } else {
-          console.error("BillDetailsResult not found in the response.");
-        }
-
-        // Hit the server API to verify/update the billpoststatus
-        // const response = await axios.post('http://your-server-api-url.com/endpoint', {
-        //   paymentId: payment._id,
-        //   amount: payment.amount,
-        //   otherDetails: payment.otherDetails, // Include other required fields
-        // });
-
-        if (response.data.success && response.data.updatedStatus === 'success') {
-          console.log(`Payment ID ${payment._id} updated successfully`);
-
-          // Update the status in the database
-          // payment.billpoststatus = 'success';
+          const billMonth = billDetails.billMonth
+  
+          console.log(`Invoice Number: ${invoiceNumber}`);
+          console.log(`Due Date: ${dueDate}`);
+          console.log(`Company Name: ${companyName}`);
+          console.log(`Bill Month: ${billMonth}`);
+          console.log(`BSPDCL Receipt No: ${bspdclReceiptNo}`);
+  
+          if (!billData) {
+            throw new Error("Bill data not found");
+          }
+          
+          // Log the entire billData to inspect its structure
+          console.log("Full Bill Data:", JSON.stringify(billData, null, 2));
+          payment.billpoststatus = "Success";
+          payment.invoicenumber = invoiceNumber;
+          payment.billmonth = billMonth;
+          payment.brandcode = companyName;
+          payment.duedate = dueDate;
+          payment.reciptno = bspdclReceiptNo;
           await payment.save();
+          console.log(`Payment ID ${payment._id} processed successfully`);
         } else {
-          console.log(
-            `Payment ID ${payment._id} not updated. Server response: `,
-            response.data
-          );
+          console.error(`Payment ID ${payment._id} failed`);
         }
-      } catch (apiError) {
-        console.error(
-          `Error updating payment ID ${payment._id}: `,
-          apiError.message
-        );
-      }
+      });
+    } catch (error) {
+      console.error(`Error processing payment ID ${payment._id}:`, error.message);
     }
-  } catch (error) {
-    console.error('Error running scheduler:', error);
   }
+  
 });
-
 
 
 
