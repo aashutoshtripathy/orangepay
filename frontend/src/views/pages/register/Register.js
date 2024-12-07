@@ -1505,6 +1505,7 @@ const Register = () => {
     setLoading(true);
 
     if (!validateForm()) {
+      setLoading(false);
       return;
     }
 
@@ -1534,6 +1535,7 @@ const Register = () => {
       setModalVisible(true);
     } catch (error) {
       console.error("Error in posting the data:", error);
+      setLoading(false);
     }
   };
 
