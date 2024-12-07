@@ -38,6 +38,7 @@ import CIcon from "@coreui/icons-react";
 //   cilImage,
 // } from "@coreui/icons";
 import { Link, useNavigate } from "react-router-dom";
+import { CSpinner } from "@coreui/react";
 
 const Register = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -45,6 +46,8 @@ const Register = () => {
   const [selectedDiscom, setSelectedDiscom] = useState('');
   const [divisionData, setDivisionData] = useState(null);
   const [sectionOptions, setSectionOptions] = useState(null);
+  const [loading, setLoading] = useState(false);
+
 
   const [districts, setDistricts] = useState([]);
   const [districtOptions, setDistrictOptions] = useState([]);
@@ -1499,6 +1502,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     if (!validateForm()) {
       return;
@@ -1526,6 +1530,7 @@ const Register = () => {
         },
       });
       console.log(response.data);
+      setLoading(false);
       setModalVisible(true);
     } catch (error) {
       console.error("Error in posting the data:", error);
@@ -1548,7 +1553,7 @@ const Register = () => {
           <CCol md={10} lg={8} xl={7}>
             <CCard className="shadow-lg">
               <CCardHeader className="text-center" style={{ backgroundColor: '#f36c23' }}>
-                <h2  style={{ color: '#fff' }}>Register</h2>
+                <h2 style={{ color: '#fff' }}>Register</h2>
                 <p className="text-muted">Fill in the details below</p>
               </CCardHeader>
               <CCardBody className="p-4">
@@ -2004,33 +2009,33 @@ const Register = () => {
 
                       <CRow className="d-flex">
 
-                        
-
-                      <CCol md={6}>
-
-<CInputGroup className="mb-3">
-  <CInputGroupText>Discom</CInputGroupText>
-  <CFormSelect
-    className="custom-input"
-    name="discom"
-    value={formData.discom}
-    onChange={handleDiscomChange}
-    onFocus={handleFocus}
-    onBlur={handleBlur}
-  >
-    <option value="">Select Discom</option>
-    <option value="NBSL">NBSL</option>
-    <option value="SBPDCL">SBSL</option>
-  </CFormSelect>
-</CInputGroup>
-{errors.discom && <p className="text-danger">{errors.discom}</p>}
 
 
+                        <CCol md={6}>
+
+                          <CInputGroup className="mb-3">
+                            <CInputGroupText>Discom</CInputGroupText>
+                            <CFormSelect
+                              className="custom-input"
+                              name="discom"
+                              value={formData.discom}
+                              onChange={handleDiscomChange}
+                              onFocus={handleFocus}
+                              onBlur={handleBlur}
+                            >
+                              <option value="">Select Discom</option>
+                              <option value="NBSL">NBSL</option>
+                              <option value="SBPDCL">SBSL</option>
+                            </CFormSelect>
+                          </CInputGroup>
+                          {errors.discom && <p className="text-danger">{errors.discom}</p>}
 
 
 
 
-                     
+
+
+
 
 
                           <CInputGroup className="mb-3">
@@ -2082,11 +2087,11 @@ const Register = () => {
                           )}
 
 
-                          </CCol>
+                        </CCol>
 
 
 
-                       
+
                       </CRow>
 
 
@@ -2443,8 +2448,24 @@ const Register = () => {
                   </CRow>
 
                   <div className="d-grid" style={{ width: '20%' }}>
-                    <CButton className="register-btn" type="submit" size="lg">
-                      Register
+                    <CButton
+                      className="register-btn"
+                      type="submit"
+                      size="lg"
+                      disabled={loading}
+                      onClick={handleSubmit}
+                    >
+                      {loading ? (
+                        <CSpinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        'Register'
+                      )}
                     </CButton>
                   </div>
                 </CForm>
