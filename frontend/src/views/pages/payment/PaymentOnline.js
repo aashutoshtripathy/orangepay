@@ -666,7 +666,7 @@ const PaymentOnline = () => {
             mobileNumber,
             brandCode: billData.companyName,
             amount,
-            receiptNo: data?.receiptData?.receiptNo,
+            receiptNo: data?.receiptData?.receiptNo || 'N/A',
             paymentMethod: selectedMethod,
             remark,
             consumerName: billData.consumerName,
