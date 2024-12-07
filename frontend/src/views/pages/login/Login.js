@@ -15,7 +15,8 @@ import {
   CRow,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
+import { cilLockLocked, cilLockUnlocked, cilUser } from '@coreui/icons';
+
 import axios from "axios"
 
 const Login = () => {
@@ -25,7 +26,15 @@ const Login = () => {
   const [passwordError, setPasswordError] = useState(null)
   const [generalError, setGeneralError] = useState(null)
   const [user, setUser] = useState(null);
+  const [showPassword, setShowPassword] = useState(false); // State for toggling visibility
 
+
+
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+  
 
   const navigate = useNavigate();
 
@@ -156,17 +165,20 @@ const Login = () => {
                     
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
-                        <CIcon icon={cilLockLocked} />
+                      <CIcon icon={showPassword ? cilLockUnlocked : cilLockLocked} onClick={togglePasswordVisibility} />
                       </CInputGroupText>
                       <CFormInput
                         className="custom-input"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         placeholder="Password"
                         autoComplete="current-password"
                         value={password}
                         onChange={handlePasswordChange}
                         onFocus={() => setPasswordError(null)} 
                       />
+                       {/* <CInputGroupText onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }}> */}
+                       {/* <CIcon icon={showPassword ? cilLockUnlocked : cilLockLocked} /> Toggle between eye and eye-slash icons */}
+      {/* </CInputGroupText> */}
                     </CInputGroup>
                     {passwordError && <p style={{ color: 'red', marginTop: '-15px' }}>{passwordError}</p>}
 

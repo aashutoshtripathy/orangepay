@@ -135,10 +135,28 @@ const downloadPDF = (data) => {
         setLoading(false);
       })
       .catch((error) => {
-        setError(error);
+        setData([]);
+        // setError(error);
         setLoading(false);
       });
   }, []);
+
+
+
+  const handleStartScheduler = async () => {
+    try {
+      // Sending a POST request to the backend to start the scheduler
+      const response = await axios.post('/api/v1/users/start-scheduler');
+      if (response.status === 200) {
+        alert('Scheduler started and payment processing initiated.');
+      } else {
+        alert('Failed to start the scheduler.');
+      }
+    } catch (error) {
+      console.error('Error starting the scheduler:', error.message);
+      alert('An error occurred while starting the scheduler.');
+    }
+  };
 
   const handleColumnVisibilityChange = (column) => {
     setColumnsVisibility(prevState => ({
@@ -268,36 +286,36 @@ const downloadPDF = (data) => {
   const filteredItems = data.filter((item) => item.billpoststatus === 'Pending');
 
   const columns = [
-    {
-      name: <input type="checkbox" onChange={handleSelectAll} />, // Master checkbox to select all
-      cell: (row) => (
-        <input 
-          type="checkbox" 
-          checked={selectedRows.includes(row.id)} 
-          onChange={(e) => handleRowSelect(row.id, e.target.checked)} 
-        />
-      ),
-      width: '50px',
-    },
+    // {
+    //   name: <input type="checkbox" onChange={handleSelectAll} />, // Master checkbox to select all
+    //   cell: (row) => (
+    //     <input 
+    //       type="checkbox" 
+    //       checked={selectedRows.includes(row.id)} 
+    //       onChange={(e) => handleRowSelect(row.id, e.target.checked)} 
+    //     />
+    //   ),
+    //   width: '50px',
+    // },
     columnsVisibility.userId && { name: 'User ID', selector: 'userId', sortable: true },
     columnsVisibility.fundAmount && { name: 'Consumer ID', selector: 'canumber', sortable: true },
     columnsVisibility.paymentMethod && { name: 'Transaction ID', selector: 'transactionId', sortable: true },
     columnsVisibility.bankName && { name: 'Payment Mode', selector: 'paymentmode', sortable: true },
     columnsVisibility.bankName && { name: 'Paid Amount', selector: 'paidamount', sortable: true },
     columnsVisibility.billpoststatus && { name: 'Bill Post Status', selector: 'billpoststatus', sortable: true },
-    {
-      name: 'Actions',
-      cell: (row) => (
-        <div className="actions-cell">
-          <button
-            className="button-search"
-            onClick={() => handleFetch(row)}
-          >
-            <FontAwesomeIcon icon={faCheckCircle} /> Re-Posting
-          </button>
-        </div>
-      ),
-    },
+    // {
+    //   name: 'Actions',
+    //   cell: (row) => (
+    //     <div className="actions-cell">
+    //       <button
+    //         className="button-search"
+    //         onClick={() => handleFetch(row)}
+    //       >
+    //         <FontAwesomeIcon icon={faCheckCircle} /> Re-Posting
+    //       </button>
+    //     </div>
+    //   ),
+    // },
   ].filter(Boolean);
 
   if (loading) {
@@ -345,6 +363,12 @@ const downloadPDF = (data) => {
           onClick={() => downloadExcel(data)}
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
+        </button>
+        <button
+          className="button-download-excel"
+          onClick={handleStartScheduler}
+        >
+          <FontAwesomeIcon icon={faFileExcel} /> Re-Post Selected Bills
         </button>
         <button
           className="button-bulk-action"

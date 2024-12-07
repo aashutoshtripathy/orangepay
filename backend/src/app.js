@@ -304,7 +304,7 @@ const processBill = async (transactionId) => {
 
 
 // Cron job for processing payments
-cron.schedule("* * * * *", async () => {
+let paymentScheduler = cron.schedule("0 */2 * * *", async () => {
   console.log("Scheduler running: Checking pending payments");
 
   const pendingPayments = await Payment.find({ billpoststatus: "Pending" }).exec();
@@ -392,6 +392,110 @@ cron.schedule("* * * * *", async () => {
   }
   
 });
+
+
+
+app.post('/api/v1/users/start-scheduler', async (req, res) => {
+  try {
+    // Start the cron scheduler
+    cron.schedule("* * * * *", async () => {
+      console.log("Scheduler running: Checking pending payments");
+
+      const pendingPayments = await Payment.find({ billpoststatus: "Pending" }).exec();
+
+      if (!pendingPayments.length) {
+        console.log("No pending payments found");
+        return;
+      }
+
+      for (const payment of pendingPayments) {
+        try {
+          const billDetails = await fetchBillDetails(payment.canumber);
+          const result = await processPayment(payment, billDetails, payment.paidamount);
+
+          xml2js.parseString(result, { trim: true }, async (err, parsedResult) => {
+            if (err) {
+              console.error(`Error parsing XML for payment ID ${payment._id}:`, err.message);
+              return;
+            }
+
+            const statusFlag = parsedResult['soap:Envelope']['soap:Body'][0]['PaymentDetailsResponse'][0]['PaymentDetailsResult'][0]['StatusFlag'][0];
+
+            if (statusFlag === "1") {
+              const billData = await processBill(payment.transactionId);
+
+              let bspdclReceiptNo = null;
+              xml2js.parseString(billData, { trim: true }, (err, parsedBillData) => {
+                if (err) {
+                  console.error(`Error parsing bill data for transaction ${payment.transactionId}:`, err.message);
+                  return;
+                }
+
+                console.log("Full billData response:", JSON.stringify(parsedBillData, null, 2));
+
+                // Correct path to access BSPDCL_Receipt_No
+                bspdclReceiptNo = parsedBillData?.['soap:Envelope']?.['soap:Body']?.[0]?.['PaymentReceiptDetailsResponse']?.[0]?.['PaymentReceiptDetailsResult']?.[0]?.['BSPDCL_Receipt_No']?.[0];
+
+                if (bspdclReceiptNo) {
+                  console.log(`BSPDCL Receipt No: ${bspdclReceiptNo}`);
+                } else {
+                  console.log("BSPDCL Receipt No not found in bill data.");
+                }
+              });
+
+              const invoiceNumber = billDetails.invoiceNumber;
+              const dueDate = billDetails.dueDate;
+              let companyName = billDetails.companyName || null;
+
+              if (companyName === "SOUTH BIHAR POWER DISTRIBUTION COMPANY LTD") {
+                companyName = "SBPDCL";
+              }
+              const billMonth = billDetails.billMonth;
+
+              console.log(`Invoice Number: ${invoiceNumber}`);
+              console.log(`Due Date: ${dueDate}`);
+              console.log(`Company Name: ${companyName}`);
+              console.log(`Bill Month: ${billMonth}`);
+              console.log(`BSPDCL Receipt No: ${bspdclReceiptNo}`);
+
+              if (!billData) {
+                throw new Error("Bill data not found");
+              }
+
+              payment.billpoststatus = "Success";
+              payment.invoicenumber = invoiceNumber;
+              payment.billmonth = billMonth;
+              payment.brandcode = companyName;
+              payment.duedate = dueDate;
+              payment.reciptno = bspdclReceiptNo;
+              await payment.save();
+              console.log(`Payment ID ${payment._id} processed successfully`);
+            } else {
+              console.error(`Payment ID ${payment._id} failed`);
+            }
+          });
+        } catch (error) {
+          console.error(`Error processing payment ID ${payment._id}:`, error.message);
+        }
+      }
+    });
+
+    console.log("Scheduler started manually");
+    res.status(200).json({ message: "Scheduler started successfully." });
+  } catch (error) {
+    console.error("Error starting scheduler:", error.message);
+    res.status(500).json({ message: "Error starting scheduler", error: error.message });
+  }
+// });
+
+
+  // Start the scheduler manually
+  // paymentScheduler.start();
+  // console.log("Scheduler started manually");
+  
+  // res.status(200).json({ message: 'Scheduler started manually.' });
+});
+
 
 
 
