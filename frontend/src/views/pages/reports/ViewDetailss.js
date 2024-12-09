@@ -40,7 +40,7 @@ const DataTableComponent = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('Approved');
   const [filterText, setFilterText] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -203,11 +203,11 @@ const DataTableComponent = () => {
   const filteredItems = data.filter(item => {
     // Check status filter
     const matchesStatus =
-      statusFilter === 'all' ||
+      // statusFilter === 'all' ||
       (statusFilter === 'Approved' && item.status === 'Approved') ||
       (statusFilter === 'Blocked' && item.status === 'Blocked') ||
-      (statusFilter === 'Rejected' && item.status === 'Rejected') ||
-      (statusFilter === 'Pending' && item.status === 'Pending');
+      (statusFilter === 'Rejected' && item.status === 'Rejected') ;
+      // (statusFilter === 'Pending' && item.status === 'Pending');
 
     const matchesUserId = filterText === '' || (item.userId && item.userId.toString().toLowerCase().includes(filterText.toLowerCase()));
 
@@ -425,12 +425,13 @@ const DataTableComponent = () => {
 
         <CDropdown >
           <CDropdownToggle color='primary' style={{backgroundColor: "#f36c23"}} className="button-download">
-            {statusFilter === 'all' ? 'All Users' :
+            {/* {statusFilter === 'all' ? 'All Users' : */}
+            {
               statusFilter === 'Approved' ? 'Active Users' :
                 statusFilter === 'Blocked' ? 'Blocked Users' : ''}
           </CDropdownToggle>
           <CDropdownMenu>
-            <CDropdownItem onClick={() => setStatusFilter('all')}>All Users</CDropdownItem>
+            {/* <CDropdownItem onClick={() => setStatusFilter('all')}>All Users</CDropdownItem> */}
             <CDropdownItem onClick={() => setStatusFilter('Approved')}>Active Users</CDropdownItem>
             <CDropdownItem onClick={() => setStatusFilter('Blocked')}>Blocked Users</CDropdownItem>
           </CDropdownMenu>
