@@ -49,7 +49,7 @@ const CancellationDetailss = () => {
       const response = await axios.patch(`/cancel/${row._id}/approve`);
       if (response.status === 200) {
         // Update status in the local state
-        setTableData((prevData) => 
+        setTableData((prevData) =>
           prevData.map((item) =>
             item._id === row._id ? { ...item, paymentStatus: 'Completed' } : item
           )
@@ -77,7 +77,7 @@ const CancellationDetailss = () => {
       const response = await axios.patch(`/cancel/${user._id}/reject`, { remarks });
       if (response.status === 200) {
         // Update status in the local state
-        setTableData((prevData) => 
+        setTableData((prevData) =>
           prevData.map((item) =>
             item._id === user._id ? { ...item, paymentStatus: 'Rejected' } : item
           )
@@ -92,7 +92,7 @@ const CancellationDetailss = () => {
 
   return (
     <CContainer fluid>
-      <CButton style={{ marginBottom:"2px" }} color="secondary" onClick={() => navigate(-1)}>Back</CButton>
+      <CButton style={{ marginBottom: "2px" }} color="secondary" onClick={() => navigate(-1)}>Back</CButton>
       <CTable striped hover bordered responsive>
         <CTableHead>
           <CTableRow>
@@ -142,13 +142,17 @@ const CancellationDetailss = () => {
               <CTableRow key={user._id + '-actions'}>
                 <CTableHeaderCell scope="row">Actions</CTableHeaderCell>
                 <CTableDataCell>
-                  <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
-                    <CButton color="success" onClick={() => handleAccept(user)}>Accept</CButton>
-                    <CButton color="danger" onClick={() => handleReject(user)}>Reject</CButton>
-                  </div>
+                  {user.paymentStatus !== 'Completed' ? (
+                    <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
+                      <CButton color="success" onClick={() => handleAccept(user)}>Accept</CButton>
+                      <CButton color="danger" onClick={() => handleReject(user)}>Reject</CButton>
+                    </div>
+                  ) : (
+                    <span style={{ color: 'gray' }}>No actions available</span> // Optional placeholder
+                  )}
                 </CTableDataCell>
               </CTableRow>
-                {/* <CTableRow key={user._id + '-billPhotograph'}>
+              {/* <CTableRow key={user._id + '-billPhotograph'}>
                 <CTableHeaderCell scope="row">Bill Photograph</CTableHeaderCell>
                 <CTableDataCell>
                   <img

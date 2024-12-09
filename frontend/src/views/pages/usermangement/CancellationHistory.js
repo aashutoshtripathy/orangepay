@@ -13,6 +13,9 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx'; 
 import '../../../scss/dataTable.scss';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const customStyles = {
   rows: {
@@ -177,6 +180,11 @@ const DataTableComponent = ({userId}) => {
 
 
 
+  const navigate = useNavigate();
+
+
+
+
 
   useEffect(() => {
     const fetchData = async () => { 
@@ -213,6 +221,7 @@ const DataTableComponent = ({userId}) => {
 
   const handleViewDetails = (row) => {
     console.log('Viewing details for:', row);
+    navigate(`/cancellation-details`, { state: { row } }); // Navigate to a dynamic route (e.g., `/details/1`).
   };
 
 
