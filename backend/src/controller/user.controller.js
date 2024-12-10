@@ -2107,10 +2107,10 @@ const fetchUserById = asyncHandler(async (req, res) => {
 
 
 
-const storagee = multer.diskStorage({
+const Cancellationstorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // const aadharNumber = req.body.aadharNumber;
-    const dir = path.join('public/images');
+    const aadharNumber = req.body.aadharNumber;
+    const dir = path.join('public/cancellation', aadharNumber);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -2122,16 +2122,19 @@ const storagee = multer.diskStorage({
 });
 
 // Initialize Multer upload middleware
-const uploads = multer({ storagee }).fields([
+const cancellationUpload = multer({ storage }).fields([
+  { name: 'photograph', maxCount: 1 },
+  { name: 'aadharCard', maxCount: 1 },
+  { name: 'panCard', maxCount: 1 },
+  { name: 'educationCertificate', maxCount: 1 },
+  { name: 'cheque', maxCount: 1 },
+  { name: 'signature', maxCount: 1 },
   
-  { name: 'input1', maxCount: 1 },
-  { name: 'input2', maxCount: 1 },
-  { name: 'input3', maxCount: 1 },
 ]);
 
 
 const cancellationDetails = asyncHandler(async (req, res) => {
-  uploads(req, res, async (err) => {
+  cancellationUpload(req, res, async (err) => {
     if (err) {
       return res.status(400).json(new ApiError(400, "File upload failed"));
     }
@@ -2155,12 +2158,9 @@ const cancellationDetails = asyncHandler(async (req, res) => {
     console.log(req.body);
 
     try {
-      const files = {
-        input1: req.files['input1'] ? req.files['input1'][0].path : null,
-        input2: req.files['input2'] ? req.files['input2'][0].path : null,
-        input3: req.files['input3'] ? req.files['input3'][0].path : null,
-      };
-      console.log(files);
+      const image1 = req.files['input1'] ? req.files['input1'][0].path : null;
+      const image2 = req.files['input2'] ? req.files['input2'][0].path : null;
+      const image3 = req.files['input3'] ? req.files['input3'][0].path : null;
 
       // Create cancellation detail with initial status "Pending"
       const cancellationDetail = new CancellationDetail({
@@ -2175,7 +2175,9 @@ const cancellationDetails = asyncHandler(async (req, res) => {
         paymentStatus: "Pending", // Set initial status to "Pending"
         createdOn,
         selectedOption,
-        files,
+        image1,
+        image2,
+        image3,
       });
 
       await cancellationDetail.save();

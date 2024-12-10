@@ -102,7 +102,7 @@ const CancellationDetails = () => {
 
     try {
       console.log("Sending data:", Array.from(formData.entries()));
-      const response = await axios.post('/cancellation-details', formData);
+      const response = await axios.post('/api/v1/users/cancellation-details', formData);
       console.log('Data sent successfully:', response.data);
       setShowSuccessModal(true);
     } catch (error) {
@@ -150,35 +150,38 @@ const CancellationDetails = () => {
           </CRow>
 
           <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormLabel htmlFor="inputField1">Input Field 1</CFormLabel>
-              <CFormInput
-                type="file"
-                id="inputField1"
-                onChange={(e) => handleFileChange(e, 'input1')}
-              />
+        <CCol md={6}>
+          <CFormLabel htmlFor="inputField1">Input Field 1</CFormLabel>
+          <CFormInput
+            type="file"
+            id="inputField1"
+            onChange={(e) => handleFileChange(e, 'input1')}
+          />
+          {errors.files.input1 && (
+            <CFormText className="text-danger">{errors.files.input1}</CFormText>
+          )}
+        </CCol>
+        <CCol md={6}>
+          <CFormLabel htmlFor="inputField2">Input Field 2</CFormLabel>
+          <CFormInput
+            type="file"
+            id="inputField2"
+            onChange={(e) => handleFileChange(e, 'input2')}
+          />
+          {errors.files.input2 && (
+            <CFormText className="text-danger">{errors.files.input2}</CFormText>
+          )}
+        </CCol>
+      </CRow>
 
-              {errors.files.input1 && <CFormText className="text-danger">{errors.files.input1}</CFormText>}
-            </CCol>
-            <CCol md={6}>
-              <CFormLabel htmlFor="inputField2">Input Field 2</CFormLabel>
-              <CFormInput
-                type="file"
-                id="inputField2"
-                onChange={(e) => handleFileChange(e, 'input2')}
-              />
-              {errors.files.input2 && <CFormText className="text-danger">{errors.files.input2}</CFormText>}
-            </CCol>
-          </CRow>
-
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormLabel htmlFor="inputField3">Input Field 3</CFormLabel>
-              <CFormInput
-                type="file"
-                id="inputField3"
-                onChange={(e) => handleFileChange(e, 'input3')}
-              />
+      <CRow className="mb-3">
+        <CCol md={6}>
+          <CFormLabel htmlFor="inputField3">Input Field 3</CFormLabel>
+          <CFormInput
+            type="file"
+            id="inputField3"
+            onChange={(e) => handleFileChange(e, 'input3')}
+          />
               {errors.files.input3 && <CFormText className="text-danger">{errors.files.input3}</CFormText>}
             </CCol>
           </CRow>
