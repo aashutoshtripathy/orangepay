@@ -74,7 +74,7 @@ const upload = multer({ storage }).fields([
 
 const fundStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const txnId = req.body.txnId; // ensure `aadharNumber` is part of the form
+    const txnId = req.body.txnId;
     const dir = path.join('public/fundrequest', txnId);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -2109,26 +2109,24 @@ const fetchUserById = asyncHandler(async (req, res) => {
 
 const Cancellationstorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const aadharNumber = req.body.aadharNumber;
-    const dir = path.join('public/cancellation', aadharNumber);
+    const txnId = req.body.transactionId;
+    const dir = path.join('public/cancellation', txnId);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
     cb(null, dir); // Destination folder for uploaded files
   },
   filename: function (req, file, cb) {
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`); // Unique filename with timestamp
+    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`); 
   }
 });
 
 // Initialize Multer upload middleware
-const cancellationUpload = multer({ storage }).fields([
-  { name: 'photograph', maxCount: 1 },
-  { name: 'aadharCard', maxCount: 1 },
-  { name: 'panCard', maxCount: 1 },
-  { name: 'educationCertificate', maxCount: 1 },
-  { name: 'cheque', maxCount: 1 },
-  { name: 'signature', maxCount: 1 },
+const cancellationUpload = multer({ Storage: Cancellationstorage }).fields([
+  { name: 'input1', maxCount: 1 },
+  { name: 'input2', maxCount: 1 },
+  { name: 'input3', maxCount: 1 },
+ 
   
 ]);
 
@@ -2156,11 +2154,18 @@ const cancellationDetails = asyncHandler(async (req, res) => {
 
     console.log(userId);
     console.log(req.body);
+    console.log(req.files)
 
     try {
-      const image1 = req.files['input1'] ? req.files['input1'][0].path : null;
-      const image2 = req.files['input2'] ? req.files['input2'][0].path : null;
-      const image3 = req.files['input3'] ? req.files['input3'][0].path : null;
+
+      const image1 = req.files && req.files['input1'] ? req.files['input1'][0].originalname : null;
+    const image2 = req.files && req.files['input2'] ? req.files['input2'][0].originalname : null;
+    const image3 = req.files && req.files['input3'] ? req.files['input3'][0].originalname : null;
+
+    if (!image1 || !image2 || !image3) {
+      return res.status(400).json({ message: "All file inputs must be provided." });
+    }
+      console.log(image1)
 
       // Create cancellation detail with initial status "Pending"
       const cancellationDetail = new CancellationDetail({

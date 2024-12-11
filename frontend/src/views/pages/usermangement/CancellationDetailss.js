@@ -139,6 +139,22 @@ const CancellationDetailss = () => {
                 <CTableHeaderCell scope="row">Reason</CTableHeaderCell>
                 <CTableDataCell>{user.selectedOption}</CTableDataCell>
               </CTableRow>
+              <CTableRow key={user._id + '-image1'}>
+             <CTableHeaderCell scope="row">Image 1</CTableHeaderCell>
+             <CTableDataCell>
+               {user.image1 ? (
+                 <img
+                 src={`data:image/png;base64,${user.image1}`}
+                 alt="Image 1"
+                   width="100"
+                   style={{ cursor: 'pointer' }}
+                   onClick={() => handleImageClick(user.image1)} 
+                 />
+               ) : (
+                 <span>No Image</span>
+               )}
+             </CTableDataCell>
+           </CTableRow>
               <CTableRow key={user._id + '-actions'}>
                 <CTableHeaderCell scope="row">Actions</CTableHeaderCell>
                 <CTableDataCell>
@@ -176,7 +192,8 @@ const CancellationDetailss = () => {
                   />
                 </CTableDataCell>
               </CTableRow> */}
-            </>
+            
+           </>
           ))}
         </CTableBody>
       </CTable>
