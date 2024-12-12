@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
-import { deleteUser, fetchData, fetchWalletBalance,fundimages, validateTpin, resendCredential ,sbData,cancellationDetails,cancelAccept,cancelReject,getCancellation,cancellationHistoryy,cancellationHistory,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd, changeTpin, verifyOtp, registerSAdmin } from "../controller/user.controller.js";
+import { deleteUser, fetchData, fetchWalletBalance,fundimages, validateTpin, resendCredential ,sbData,cancellationDetails,cancelAccept,cancelReject,getCancellation,cancellationHistoryy,cancellationHistory,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd, changeTpin, verifyOtp, registerSAdmin, cancellationImage } from "../controller/user.controller.js";
 import {processPayment, getPayment , getAllSbdata , insertBillDetails , getPayments , getDailyBalance , repostingBill , getPaymentss , fetchReward , BiharService , getTotalBalance, WalletReport, getTotalPayments} from "../controller/payment.controller.js"
 import { initiateEzetapPayment , createOrder } from "../controller/ezetap.controller.js";
 
@@ -58,6 +58,8 @@ router.route("/unblock/:userId").post(unblockUser)
 router.route("/fetch_data").get(fetchData)
 router.route("/images/:userId/:imageFileName").get(images)
 router.route("/public/fundrequest/:txnId/:txnId.png").get(fundimages)
+router.route("/public/cancellationImage").get(cancellationImage)
+
 
 router.route("/fetch-data/:userId").get(fetchDataa)
 router.route("/fetch_data_rejected").get(fetchData_reject)

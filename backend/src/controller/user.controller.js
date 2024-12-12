@@ -72,6 +72,26 @@ const upload = multer({ storage }).fields([
 ]);
 
 
+const storagees = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const transactionId = req.body.transactionId; // Temporarily hardcoded to test
+    console.log("Transaction ID:", transactionId);
+    const dir = path.join('public/cancellation', transactionId);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir); // Destination folder for uploaded files
+  },
+  filename: (req, file, cb) => {
+    const transactionId = req.body.transaction_id; // Same for filename
+    const fileExtension = path.extname(file.originalname); // Get the file extension
+    cb(null, `${transactionId}-${Date.now()}${fileExtension}`);
+  },
+});
+
+const uploadss = multer({ storage: storagees });
+
+
 const fundStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const txnId = req.body.txnId;
@@ -1445,6 +1465,40 @@ const fundimages = asyncHandler(async (req, res) => {
 });
 
 
+const cancellationImage = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get the user ID from the request parameters
+    const imageFileName = 'test'; // Get the image filename from the request parameters (e.g., 'aadharCard')
+
+    console.log('User ID:', userId);
+    console.log('Image File Name:', imageFileName);
+
+    // Construct the path to the image
+    const imagePath = path.join(__dirname, "../../public/cancellation/", `${`test`}/${filePath}.png`); // Adjust the pattern if needed
+    console.log('Image path:', imagePath);
+
+    // Use fs to check if the file exists before sending
+    fs.access(imagePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        console.error('File not found:', err);
+        return res.status(404).send('Image not found'); // Respond with 404 if file doesn't exist
+      }
+
+      // Send the image file
+      res.sendFile(imagePath, (err) => {
+        if (err) {
+          console.error('Error sending file:', err);
+          res.status(err.status || 500).end(); // Ensure a valid status code is used
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error sending image:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 
 
 const fetchDataa = asyncHandler(async (req, res) => {
@@ -2107,83 +2161,68 @@ const fetchUserById = asyncHandler(async (req, res) => {
 
 
 
-const Cancellationstorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const txnId = req.body.transactionId;
-    const dir = path.join('public/cancellation', txnId);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir); // Destination folder for uploaded files
-  },
-  filename: function (req, file, cb) {
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`); 
-  }
-});
-
-// Initialize Multer upload middleware
-const cancellationUpload = multer({ Storage: Cancellationstorage }).fields([
-  { name: 'input1', maxCount: 1 },
-  { name: 'input2', maxCount: 1 },
-  { name: 'input3', maxCount: 1 },
- 
-  
-]);
 
 
 const cancellationDetails = asyncHandler(async (req, res) => {
-  cancellationUpload(req, res, async (err) => {
+  const { transactionId, paymentStatus } = req.body;  // Ensure paymentStatus is destructured here
+
+  // Use the upload middleware for multiple files
+  uploadss.fields([
+    { name: 'file', maxCount: 1 },  // Main file
+    { name: 'photo1', maxCount: 1 }, // First photograph
+    { name: 'photo2', maxCount: 1 }, // Second photograph
+  ])(req, res, async (err) => {
     if (err) {
-      return res.status(400).json(new ApiError(400, "File upload failed"));
+      return res.status(400).json({ message: "File upload failed", error: err.message });
     }
 
-    const {
-      userId,
-      id,
-      transactionId,
-      consumerNumber,
-      consumerName,
-      paymentMode,
-      paymentAmount,
-      paymentStatus,
-      createdOn,
-      selectedOption,
-      tds,
-      netCommission,
-    } = req.body;
-
-    console.log(userId);
-    console.log(req.body);
-    console.log(req.files)
+    // Check if all files exist
+    if (!req.files['file'] || !req.files['photo1'] || !req.files['photo2']) {
+      return res.status(400).json({ message: "All files (main file and two photos) are required" });
+    }
 
     try {
+      // Validate request data
+      const {
+        transactionId, paymentStatus,
+        userId,
+        tds,
+        id,
+        commission,
+        netCommission,
+        consumerNumber,
+        consumerName,
+        paymentMode,
+        paymentAmount,
+        createdOn,
+        selectedOption,
+      } = req.body;
 
-      const image1 = req.files && req.files['input1'] ? req.files['input1'][0].originalname : null;
-    const image2 = req.files && req.files['input2'] ? req.files['input2'][0].originalname : null;
-    const image3 = req.files && req.files['input3'] ? req.files['input3'][0].originalname : null;
+      // Ensure paymentStatus is included
+      if (!paymentStatus) {
+        return res.status(400).json({ message: "Payment status is required" });
+      }
 
-    if (!image1 || !image2 || !image3) {
-      return res.status(400).json({ message: "All file inputs must be provided." });
-    }
-      console.log(image1)
-
-      // Create cancellation detail with initial status "Pending"
+      // Save the cancellation details in the database
       const cancellationDetail = new CancellationDetail({
         userId,
-        uniqueId: id,
+        tds,
+        id,
+        commission,
+        netCommission,
         transactionId,
         consumerNumber,
         consumerName,
         paymentMode,
-        netCommission,
+        paymentStatus: "Pending",  // Set the default as Pending if necessary
         paymentAmount,
-        paymentStatus: "Pending", // Set initial status to "Pending"
-        createdOn,
+        createdOn: new Date(createdOn),
         selectedOption,
-        image1,
-        image2,
-        image3,
+        filePath: req.files['file'][0].filename,  // Main file path
+        photo1Path: req.files['photo1'][0].filename,  // First photo path
+        photo2Path: req.files['photo2'][0].filename,  // Second photo path
       });
+
 
       await cancellationDetail.save();
 
@@ -2546,5 +2585,5 @@ const fetchUserByIdd = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser,cancellationHistoryy,fundimages,registerSAdmin,resendCredential, validateTpin,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
+export { registerUser,cancellationHistoryy,fundimages,registerSAdmin,resendCredential,cancellationImage, validateTpin,changeTpin,sbData,cancelAccept,cancelReject,verifyOtp, fetchWalletBalance,cancellationDetails,cancellationHistory, getCancellation, updateUserCommission, verifyAadhaar, changePassword, fetchUserByIdd, fetchFundRequestsById, blockUserList, statuss, updateUserPermissions, fetchUserListbyId, fetchDataa, images, registerTransaction, loginUser, reports, fetchData, updateUser, fetchIdData, deleteUser, registeredUser, fundRequest, fetchData_reject, fetchFundRequest, fetchFundRequests, approveFundRequest, rejectFundRequest, fetchUserList, approveUserRequest, rejectUserRequest, fetchUserById, downloadUserImages, updateProfile, unblockUser, blockUser, logoutUser };
 

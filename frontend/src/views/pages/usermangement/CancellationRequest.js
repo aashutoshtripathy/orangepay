@@ -162,7 +162,7 @@ const DataTableComponent = () => {
       try {
         const response = await axios.get(`/api/v1/users/cancellationHistoryy`);
         const result = response.data.data || []; // Ensure to get data array
-        setData(result); // Set the fetched data
+        setData(result);
       } catch (error) {
         setError(error);
       } finally {
@@ -172,6 +172,9 @@ const DataTableComponent = () => {
   
     fetchData();
   }, [username]);
+
+
+  
   
 
 
@@ -219,9 +222,14 @@ const DataTableComponent = () => {
   ];
 
   const filteredItems = data.filter(item => 
-    item.transactionId.toLowerCase().includes(filterText.toLowerCase()) || // Example filter by transactionId
-    item.consumerName.toLowerCase().includes(filterText.toLowerCase()) // Example filter by consumerName
+    item.transactionId?.toLowerCase().includes(filterText.toLowerCase()) || 
+    item.consumerName?.toLowerCase().includes(filterText.toLowerCase())
   );
+  
+  // const filteredData = data.filter(item => {
+  //   return item.name && item.name.toLowerCase && item.name.toLowerCase().includes(searchTerm.toLowerCase());
+  // });
+  
   
 
 

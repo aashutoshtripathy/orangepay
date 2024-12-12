@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
@@ -21,72 +21,76 @@ const CancellationDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { selectedItem } = location.state || {};
-  
-  // States for form data, file inputs, errors, and modal visibility
+
+  // States for form data, multiple file inputs, errors, and modal visibility
   const [option, setOption] = useState('');
-  const [files, setFiles] = useState({ input1: "", input2: "", input3: "" });
-  const [errors, setErrors] = useState({ option: '', files: { input1: '', input2: '', input3: '' } });
+  const [file, setFile] = useState(null);
+  const [photo1, setPhoto1] = useState(null);
+  const [photo2, setPhoto2] = useState(null);
+  const [errors, setErrors] = useState({ option: '', file: '', photo1: '', photo2: '' });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  // Handle file selection for dynamic fields
-  const handleFileChange = (e, field) => {
-    const file = e.target.files[0];
-    setFiles(prevFiles => ({
-      ...prevFiles,
-      [field]: file,
-    }));
+  // Handle file selection (generalized for multiple files)
+  const handleFileChange = (e, setPhotoFunction) => {
+    const selectedFile = e.target.files[0];
+    setPhotoFunction(selectedFile);
+    if (!selectedFile) {
+      setErrors((prevErrors) => ({ ...prevErrors, [e.target.name]: 'Please upload a file.' }));
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, [e.target.name]: '' }));
+    }
   };
 
   // Validate the selected option field
   const validateOption = () => {
     if (!option) {
-      setErrors(prevErrors => ({ ...prevErrors, option: 'Please select an option.' }));
+      setErrors((prevErrors) => ({ ...prevErrors, option: 'Please select an option.' }));
     } else {
-      setErrors(prevErrors => ({ ...prevErrors, option: '' }));
+      setErrors((prevErrors) => ({ ...prevErrors, option: '' }));
     }
   };
 
-  // Validate all file fields
+  // Validate all file inputs
   const validateFiles = () => {
-    const newErrors = { input1: '', input2: '', input3: '' };
-    Object.keys(files).forEach((key) => {
-      if (!files[key]) {
-        newErrors[key] = 'Please upload a file for this input.';
-      }
-    });
-    setErrors(prevErrors => ({ ...prevErrors, files: newErrors }));
-    return newErrors;
+    if (!file || !photo1 || !photo2) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        file: file ? '' : 'Please upload a file.',
+        photo1: photo1 ? '' : 'Please upload a photograph.',
+        photo2: photo2 ? '' : 'Please upload a photograph.',
+      }));
+      return false;
+    }
+    return true;
   };
 
   // Form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate Option and Files
-    const validationErrors = {}; 
-    if (!option) validationErrors.option = 'Please select an option.';
-    
-    const fileErrors = validateFiles(); // Check for file upload errors
-    if (Object.keys(validationErrors).length > 0 || Object.keys(fileErrors).length > 0) {
-      setErrors(prevErrors => ({ ...prevErrors, ...validationErrors }));
-      return; // If validation fails, stop the form submission
+    // Validate fields
+    const isOptionValid = !!option;
+    const areFilesValid = validateFiles();
+
+    if (!isOptionValid || !areFilesValid) {
+      if (!isOptionValid) {
+        setErrors((prevErrors) => ({ ...prevErrors, option: 'Please select an option.' }));
+      }
+      return; // Stop submission if validation fails
     }
 
     // Prepare form data
     const formData = new FormData();
-    Object.keys(files).forEach((key) => {
-      if (files[key]) {
-        formData.append(key, files[key]);
-      }
-    });
-
-    // Add selected options and other necessary fields
+    formData.append('file', file); // Append the main file
+    formData.append('photo1', photo1); // Append the first photograph
+    formData.append('photo2', photo2); // Append the second photograph
     formData.append('selectedOption', option);
     formData.append('userId', selectedItem.userId);
     formData.append('tds', selectedItem.tds);
     formData.append('id', selectedItem.id);
     formData.append('commission', selectedItem.commission);
     formData.append('netCommission', selectedItem.netCommission);
+    formData.append('paymentStatus', selectedItem.paymentStatus);
     formData.append('transactionId', selectedItem.transactionId);
     formData.append('consumerNumber', selectedItem.canumber);
     formData.append('consumerName', selectedItem.consumerName);
@@ -150,37 +154,44 @@ const CancellationDetails = () => {
             </CCol>
           </CRow>
 
-          {/* File Upload Inputs */}
+          {/* Main File Upload */}
           <CRow className="mb-3">
             <CCol md={6}>
-              <CFormLabel htmlFor="inputField1">Input Field 1</CFormLabel>
+              <CFormLabel htmlFor="fileInput">Upload File</CFormLabel>
               <CFormInput
                 type="file"
-                id="inputField1"
-                onChange={(e) => handleFileChange(e, 'input1')}
+                id="fileInput"
+                onChange={(e) => handleFileChange(e, setFile)}
               />
-              {errors.files.input1 && <CFormText className="text-danger">{errors.files.input1}</CFormText>}
-            </CCol>
-            <CCol md={6}>
-              <CFormLabel htmlFor="inputField2">Input Field 2</CFormLabel>
-              <CFormInput
-                type="file"
-                id="inputField2"
-                onChange={(e) => handleFileChange(e, 'input2')}
-              />
-              {errors.files.input2 && <CFormText className="text-danger">{errors.files.input2}</CFormText>}
+              {errors.file && <CFormText className="text-danger">{errors.file}</CFormText>}
             </CCol>
           </CRow>
 
+          {/* First Photograph */}
           <CRow className="mb-3">
             <CCol md={6}>
-              <CFormLabel htmlFor="inputField3">Input Field 3</CFormLabel>
+              <CFormLabel htmlFor="photo1Input">Upload Photograph 1</CFormLabel>
               <CFormInput
                 type="file"
-                id="inputField3"
-                onChange={(e) => handleFileChange(e, 'input3')}
+                id="photo1Input"
+                name="photo1"
+                onChange={(e) => handleFileChange(e, setPhoto1)}
               />
-              {errors.files.input3 && <CFormText className="text-danger">{errors.files.input3}</CFormText>}
+              {errors.photo1 && <CFormText className="text-danger">{errors.photo1}</CFormText>}
+            </CCol>
+          </CRow>
+
+          {/* Second Photograph */}
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel htmlFor="photo2Input">Upload Photograph 2</CFormLabel>
+              <CFormInput
+                type="file"
+                id="photo2Input"
+                name="photo2"
+                onChange={(e) => handleFileChange(e, setPhoto2)}
+              />
+              {errors.photo2 && <CFormText className="text-danger">{errors.photo2}</CFormText>}
             </CCol>
           </CRow>
 
@@ -194,11 +205,9 @@ const CancellationDetails = () => {
         <CModalHeader>
           <CModalTitle>Success</CModalTitle>
         </CModalHeader>
-        <CModalBody>
-          Cancellation has been successfully done.
-        </CModalBody>
+        <CModalBody>Your cancellation details were successfully submitted.</CModalBody>
         <CModalFooter>
-          <CButton color="primary" onClick={closeModal}>OK</CButton>
+          <CButton color="secondary" onClick={closeModal}>Close</CButton>
         </CModalFooter>
       </CModal>
     </CContainer>

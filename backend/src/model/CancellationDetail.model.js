@@ -51,11 +51,9 @@ const cancellationDetailSchema = new Schema({
     type: String,
     required: false, // Assuming selectedOption is a required field
   },
-  documents: {
-    image1: { type: String, default: null },
-    image2: { type: String, default: null },
-    image3: { type: String, default: null },
-  }
+  filePath: { type: String, required: false },
+  photo1Path: { type: String, required: false },
+  photo2Path: { type: String, required: false },
   });
 
 
