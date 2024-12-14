@@ -72,26 +72,6 @@ const upload = multer({ storage }).fields([
 ]);
 
 
-const storagees = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const transactionId = req.body.transactionId; // Temporarily hardcoded to test
-    console.log("Transaction ID:", transactionId);
-    const dir = path.join('public/cancellation', transactionId);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir); // Destination folder for uploaded files
-  },
-  filename: (req, file, cb) => {
-    const transactionId = req.body.transaction_id; // Same for filename
-    const fileExtension = path.extname(file.originalname); // Get the file extension
-    cb(null, `${transactionId}-${Date.now()}${fileExtension}`);
-  },
-});
-
-const uploadss = multer({ storage: storagees });
-
-
 const fundStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const txnId = req.body.txnId;
@@ -140,12 +120,12 @@ const registerUser = asyncHandler(async (req, res) => {
     // Create new user
 
 
-    const existedUser = await Register.findOne({
-      $or: [{ mobileNumber }, { aadharNumber }]
-    });
-    if (existedUser) {
-      return res.status(400).json(new ApiError(400,{ error: "Mobile number or Aadhar number already exists"},["Mobile number or Aadhar number already exists"] ));
-    }
+    // const existedUser = await Register.findOne({
+    //   $or: [{ mobileNumber }, { aadharNumber }]
+    // });
+    // if (existedUser) {
+    //   return res.status(400).json(new ApiError(400,{ error: "Mobile number or Aadhar number already exists"},["Mobile number or Aadhar number already exists"] ));
+    // }
 
     try {
       const user = await Register.create({
@@ -727,53 +707,72 @@ const generateRandomPin = () => {
 
 const approveUserRequest = asyncHandler(async (req, res) => {
   try {
-    const customId = generateRandomId()
-    const pin = generateRandomPin(); 
-    // Find the user by ID and update the status to "approved" along with generating userId and password
+    const customId = generateRandomId();
+    const pin = generateRandomPin();
+
+    // Fetch the user to determine their role before updating
+    const user = await Register.findById(req.params.id).exec();
+
+    // If the user request is not found, return a 404 error
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User request not found' });
+    }
+
+    // Determine the new status based on the user's role
+    let newStatus;
+    switch (user.role) {
+      case 'MANAGER':
+        newStatus = 'Access';
+        break;
+      case 'DISTRIBUTOR':
+        newStatus = 'Approve';
+        break;
+      case 'AGENT':
+        newStatus = 'Approved';
+        break;
+      case 'ADMIN':
+        newStatus = 'Active';
+        break;
+      default:
+        return res.status(400).json({ success: false, message: 'Invalid user role' });
+    }
+
+    // Update the user with the new status and other details
     const updatedUser = await Register.findByIdAndUpdate(
       req.params.id,
       {
-        status: 'Approved',
+        status: newStatus, // Set the status dynamically
         userId: customId, // Generate a random userId
         password: generateRandomPassword(12), // Generate a random password
         tpin: pin, // Store the generated PIN
-
       },
       { new: true } // Return the updated document
     ).exec();
 
-    // If the user request is not found, return a 404 error
-    if (!updatedUser) {
-      return res.status(404).json({ success: false, message: 'User request not found' });
-    }
-
-    // Create a wallet for the approved user
+    // Create a wallet for the approved/active user
     const wallet = new Wallet({
       userId: updatedUser._id, // Use the ID of the updated user
-      uniqueId: customId
+      uniqueId: customId,
     });
 
     // Save the new wallet
     await wallet.save();
-    
 
-    const smsMessage = `Welcome to ORANGEPAY Thank You for registration. Your login details username:${customId}, Password: ${updatedUser.password}/${pin} `;
+    // Prepare SMS message
+    const smsMessage = `Welcome to ORANGEPAY! Your role: ${user.role}. Login details: username: ${customId}, Password: ${updatedUser.password}/${pin}.`;
     const mobileNumber = updatedUser.mobileNumber;
-    const senderName = 'OrgPay'; 
-    const apiKey =  'e7d09e93-0dd3-4a00-9cfc-2c53854033f2'; 
-
+    const senderName = 'OrgPay';
     const smsUrl = `http://login.aquasms.com/sendSMS?username=7004142281&message=${smsMessage}&sendername=${senderName}&smstype=TRANS&numbers=${mobileNumber}&apikey=e7d09e93-0dd3-4a00-9cfc-2c53854033f2`;
-    
-    console.log("Sending SMS to URL:", smsUrl); // Log the complete URL
+
+    console.log("Sending SMS to URL:", smsUrl);
 
     const smsResponse = await axios.get(smsUrl);
     console.log("SMS API Response:", smsResponse.data);
-    console.log("Sending to mobile number:", mobileNumber);
-    
-    // Check for successful SMS sending based on responseCode
+
+    // Check for successful SMS sending
     if (Array.isArray(smsResponse.data) && smsResponse.data.length > 0) {
       const responseCode = smsResponse.data[0].responseCode;
-      
+
       if (responseCode === 'Message SuccessFully Submitted') {
         console.log("SMS sent successfully.");
       } else {
@@ -782,25 +781,11 @@ const approveUserRequest = asyncHandler(async (req, res) => {
     } else {
       console.error("Unexpected SMS API response format:", smsResponse.data);
     }
-    
-    // Add additional error handling/logging
-    if (smsResponse.status !== 200) {
-      console.error("Failed to communicate with SMS API:", smsResponse.statusText);
-    }
-    
-    
-    // Optionally, send an SMS or email with the new credentials
-    // const smsMessage = `Your account has been approved. User ID: ${updatedUser.userId}, Password: ${updatedUser.password}`;
-    // await twilioClient.messages.create({
-    //     body: smsMessage,
-    //     from: twilioPhoneNumber,
-    //     to: updatedUser.mobileNumber,
-    // });
 
     // Return the updated user and wallet creation confirmation
     return res.status(200).json({
       success: true,
-      message: 'User approved successfully',
+      message: `User Approved successfully`,
       user: {
         id: updatedUser._id,
         userId: updatedUser.userId,
@@ -813,6 +798,7 @@ const approveUserRequest = asyncHandler(async (req, res) => {
     return res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
   }
 });
+
 
 
 const changePassword = asyncHandler(async (req, res) => {
@@ -1748,7 +1734,7 @@ const loginUser = asyncHandler(async (req, res) => {
       throw new ApiError(400, "User does not exist");
     }
 
-    if (user.status !== "Approved" && user.status !== "Activated" || user.isBlocked) {
+    if (user.status !== "Approved" && user.status !== "Activated"  && user.status !== "Active"  && user.status !== "Access"  && user.status !== "Approve" || user.isBlocked) {
       throw new ApiError(400, "User account is Temporarily Blocked");
     }
 
@@ -2161,7 +2147,24 @@ const fetchUserById = asyncHandler(async (req, res) => {
 
 
 
+const storagees = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const transactionId = req.body.transactionId || "test"; // Temporarily hardcoded to test
+    console.log("Transaction ID:", transactionId);
+    const dir = path.join('public/cancellation', transactionId);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir); // Destination folder for uploaded files
+  },
+  filename: (req, file, cb) => {
+    const transactionId = req.body.transactionId || "test"; // Same for filename
+    const fileExtension = path.extname(file.originalname); // Get the file extension
+    cb(null, `${transactionId}-${Date.now()}${fileExtension}`);
+  },
+});
 
+const uploadss = multer({ storage: storagees });
 
 const cancellationDetails = asyncHandler(async (req, res) => {
   const { transactionId, paymentStatus } = req.body;  // Ensure paymentStatus is destructured here

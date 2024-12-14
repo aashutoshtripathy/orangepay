@@ -19,7 +19,7 @@ import { AppSidebarNav } from './AppSidebarNav'
 // import { sygnet } from 'src/assets/brand/sygnet'
 
 // sidebar nav config
-import navigation from '../_nav'
+import navigation, { managerNavItems } from '../_nav'
 // import { _nav as navigation } from '../_nav';
 import { adminNavItems, distributorNavItems, agentNavItems } from '../_nav'; // Adjust import as necessary
 import axios from 'axios'
@@ -33,8 +33,8 @@ import axios from 'axios'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
-    const unfoldable = useSelector((state) => state.sidebarUnfoldable)
-    const sidebarShow = useSelector((state) => state.sidebarShow)
+  const unfoldable = useSelector((state) => state.sidebarUnfoldable)
+  const sidebarShow = useSelector((state) => state.sidebarShow)
 
   // const [sidebarShow, setSidebarShow] = useState(true);
   // const [unfoldable, setUnfoldable] = useState(false);
@@ -70,7 +70,7 @@ const AppSidebar = () => {
       try {
         const response = await axios.get(`/api/v1/users/fetchUserList/${userId}`);
         const result = response.data.fetchUser || {};
-  
+
         // Store the permissions for sidebar visibility
         setPermissions({
           topup: result.topup || false,
@@ -83,7 +83,7 @@ const AppSidebar = () => {
         console.error('Error fetching permissions:', error);
       }
     };
-  
+
     fetchData();
   }, [userId]);
 
@@ -94,14 +94,23 @@ const AppSidebar = () => {
     case 'Activated':
       navItems = adminNavItems;
       break;
-    // case 'agent':
-    //   navItems = agentNavItems;
-    //   break;
+    case 'Approved':
+      navItems = distributorNavItems(permissions, userId);
+      break;
+    case 'Access':
+      navItems = managerNavItems(permissions, userId);
+      break;
+    case 'Approved':
+      navItems = distributorNavItems(permissions, userId);
+      break;
+    case 'Approved':
+      navItems = distributorNavItems(permissions, userId);
+      break;
     default:
-      navItems = distributorNavItems(permissions,userId); // Use the distributorNavItems function if it takes permissions
+      // navItems = distributorNavItems(permissions,userId);
       break;
   }
- 
+
 
   const filteredNavItems = navItems.filter(item => {
     // Example: check if the item needs certain permissions
@@ -120,7 +129,7 @@ const AppSidebar = () => {
     // Add other permission checks as needed
     return !item.hidden; // Filter out hidden items
   });
-  
+
 
   return (
     <CSidebar
@@ -136,18 +145,18 @@ const AppSidebar = () => {
       <CSidebarHeader className="border-bottom">
         {/* <CSidebarBrand to="/"> */}
         <h2
-              style={{
-                color: '#f36c23',
-                fontSize: '36px',
-                fontWeight: 'bold',
-                fontFamily: 'Cooper Black',
-                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
-              }}
-            >
-              OrangePay
-            </h2>
-          {/* <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} /> */}
-          {/* <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} /> */}
+          style={{
+            color: '#f36c23',
+            fontSize: '36px',
+            fontWeight: 'bold',
+            fontFamily: 'Cooper Black',
+            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+          }}
+        >
+          OrangePay
+        </h2>
+        {/* <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} /> */}
+        {/* <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} /> */}
         {/* </CSidebarBrand> */}
         <CCloseButton
           className="d-lg-none"

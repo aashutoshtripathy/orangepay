@@ -118,7 +118,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Retrieve the user role from localStorage
-    const role = localStorage.getItem('Status')
+    const role = localStorage.getItem('status')
     console.log(role)
     if (role) {
       setUserRole(role)
@@ -409,8 +409,140 @@ const Dashboard = () => {
 
 
   return (
-    <>
-      {userRole === 'Activated' && (
+
+
+      <>
+        {['Activated', 'Approved', 'Access', 'Approve'].includes(userRole) && (
+          <>
+            <WidgetsDropdown className="mb-4" />
+            <CCard className="mb-4">
+              <CCardBody>
+                <CRow>
+                  <CCol sm={5}>
+                    <h4 id="traffic" className="card-title mb-0">Charts</h4>
+                    <div className="small text-body-secondary">{dateRange}</div>
+                  </CCol>
+                  <CCol sm={7} className="d-none d-md-block">
+                    <CButton color="primary" className="float-end">
+                      <CIcon icon={cilCloudDownload} />
+                    </CButton>
+                    <CButtonGroup className="float-end me-3">
+                      {['day', 'month', 'year'].map((value) => (
+                        <CButton
+                          color="outline-secondary"
+                          key={value}
+                          className="mx-0"
+                          active={value === selectedInterval}
+                          onClick={() => handleIntervalChange(value)} // Set the interval on click
+                        >
+                          {value}
+                        </CButton>
+                      ))}
+                    </CButtonGroup>
+                  </CCol>
+                </CRow>
+                <MainChart selectedInterval={selectedInterval} status={status} />
+              </CCardBody>
+              <CCardFooter>
+                <CRow
+                  xs={{ cols: 1, gutter: 4 }}
+                  sm={{ cols: 2 }}
+                  lg={{ cols: 4 }}
+                  xl={{ cols: 5 }}
+                  className="mb-2 text-center"
+                >
+                  {progressExample.map((item, index, items) => (
+                    <CCol
+                      className={classNames({
+                        'd-none d-xl-block': index + 1 === items.length,
+                      })}
+                      key={index}
+                    >
+                      <div className="text-body-secondary">{item.title}</div>
+                      <div className="fw-semibold text-truncate">
+                        {item.value} ({item.percent}%)
+                      </div>
+                      <CProgress thin className="mt-2" color={item.color} value={item.percent} />
+                    </CCol>
+                  ))}
+                </CRow>
+              </CCardFooter>
+            </CCard>
+          </>
+        )}
+      </>
+  );
+    // <>
+    //   {userRole === 'Activated' && (
+    //     <>
+    //       <WidgetsDropdown className="mb-4" />
+    //       <CCard className="mb-4">
+    //         <CCardBody>
+    //           <CRow>
+    //             <CCol sm={5}>
+    //               <h4 id="traffic" className="card-title mb-0">
+    //                 Charts
+    //               </h4>
+    //               <div className="small text-body-secondary">{dateRange}</div>
+    //             </CCol>
+    //             <CCol sm={7} className="d-none d-md-block">
+    //               <CButton color="primary" className="float-end">
+    //                 <CIcon icon={cilCloudDownload} />
+    //               </CButton>
+    //               <CButtonGroup className="float-end me-3">
+    //                 {['day', 'month', 'year'].map((value) => (
+    //                   <CButton
+    //                     color="outline-secondary"
+    //                     key={value}
+    //                     className="mx-0"
+    //                     active={value === selectedInterval}
+    //                     onClick={() => handleIntervalChange(value)} // Set the interval on click
+    //                   >
+    //                     {value}
+    //                   </CButton>
+    //                 ))}
+    //               </CButtonGroup>
+
+    //             </CCol>
+    //           </CRow>
+    //           <MainChart selectedInterval={selectedInterval} />
+              
+
+
+    //         </CCardBody>
+    //         <CCardFooter>
+    //           <CRow
+    //             xs={{ cols: 1, gutter: 4 }}
+    //             sm={{ cols: 2 }}
+    //             lg={{ cols: 4 }}
+    //             xl={{ cols: 5 }}
+    //             className="mb-2 text-center"
+    //           >
+    //             {progressExample.map((item, index, items) => (
+    //               <CCol
+    //                 className={classNames({
+    //                   'd-none d-xl-block': index + 1 === items.length,
+    //                 })}
+    //                 key={index}
+    //               >
+    //                 <div className="text-body-secondary">{item.title}</div>
+    //                 <div className="fw-semibold text-truncate">
+    //                   {item.value} ({item.percent}%)
+    //                 </div>
+    //                 <CProgress thin className="mt-2" color={item.color} value={item.percent} />
+
+    //               </CCol>
+    //             ))}
+    //           </CRow>
+    //         </CCardFooter>
+    //       </CCard>
+    //     </>
+    //   )}
+
+
+
+
+      {/* {userRole !== 'Activated' && (
         <>
           <WidgetsDropdown className="mb-4" />
           <CCard className="mb-4">
@@ -442,10 +574,72 @@ const Dashboard = () => {
 
                 </CCol>
               </CRow>
-              <MainChart selectedInterval={selectedInterval} />
-              
+              <MainChart selectedInterval={selectedInterval} status={status} />
+            </CCardBody>
+            <CCardFooter>
+              <CRow
+                xs={{ cols: 1, gutter: 4 }}
+                sm={{ cols: 2 }}
+                lg={{ cols: 4 }}
+                xl={{ cols: 5 }}
+                className="mb-2 text-center"
+              >
+                {progressExample.map((item, index, items) => (
+                  <CCol
+                    className={classNames({
+                      'd-none d-xl-block': index + 1 === items.length,
+                    })}
+                    key={index}
+                  >
+                    <div className="text-body-secondary">{item.title}</div>
+                    <div className="fw-semibold text-truncate">
+                      {item.value} ({item.percent}%)
+                    </div>
+                    <CProgress thin className="mt-2" color={item.color} value={item.percent} />
+
+                  </CCol>
+                ))}
+              </CRow>
+            </CCardFooter>
+          </CCard>
+        </>
+      )} */}
 
 
+
+{/* {userRole === 'Approved' && (
+        <>
+          <WidgetsDropdown className="mb-4" />
+          <CCard className="mb-4">
+            <CCardBody>
+              <CRow>
+                <CCol sm={5}>
+                  <h4 id="traffic" className="card-title mb-0">
+                    Charts
+                  </h4>
+                  <div className="small text-body-secondary">{dateRange}</div>
+                </CCol>
+                <CCol sm={7} className="d-none d-md-block">
+                  <CButton color="primary" className="float-end">
+                    <CIcon icon={cilCloudDownload} />
+                  </CButton>
+                  <CButtonGroup className="float-end me-3">
+                    {['day', 'month', 'year'].map((value) => (
+                      <CButton
+                        color="outline-secondary"
+                        key={value}
+                        className="mx-0"
+                        active={value === selectedInterval}
+                        onClick={() => handleIntervalChange(value)} // Set the interval on click
+                      >
+                        {value}
+                      </CButton>
+                    ))}
+                  </CButtonGroup>
+
+                </CCol>
+              </CRow>
+              <MainChart selectedInterval={selectedInterval} status={status} />
             </CCardBody>
             <CCardFooter>
               <CRow
@@ -478,8 +672,137 @@ const Dashboard = () => {
 
 
 
+{userRole === 'Access' && (
+        <>
+          <WidgetsDropdown className="mb-4" />
+          <CCard className="mb-4">
+            <CCardBody>
+              <CRow>
+                <CCol sm={5}>
+                  <h4 id="traffic" className="card-title mb-0">
+                    Charts
+                  </h4>
+                  <div className="small text-body-secondary">{dateRange}</div>
+                </CCol>
+                <CCol sm={7} className="d-none d-md-block">
+                  <CButton color="primary" className="float-end">
+                    <CIcon icon={cilCloudDownload} />
+                  </CButton>
+                  <CButtonGroup className="float-end me-3">
+                    {['day', 'month', 'year'].map((value) => (
+                      <CButton
+                        color="outline-secondary"
+                        key={value}
+                        className="mx-0"
+                        active={value === selectedInterval}
+                        onClick={() => handleIntervalChange(value)} // Set the interval on click
+                      >
+                        {value}
+                      </CButton>
+                    ))}
+                  </CButtonGroup>
 
-      {userRole !== 'Activated' && (
+                </CCol>
+              </CRow>
+              <MainChart selectedInterval={selectedInterval} status={status} />
+            </CCardBody>
+            <CCardFooter>
+              <CRow
+                xs={{ cols: 1, gutter: 4 }}
+                sm={{ cols: 2 }}
+                lg={{ cols: 4 }}
+                xl={{ cols: 5 }}
+                className="mb-2 text-center"
+              >
+                {progressExample.map((item, index, items) => (
+                  <CCol
+                    className={classNames({
+                      'd-none d-xl-block': index + 1 === items.length,
+                    })}
+                    key={index}
+                  >
+                    <div className="text-body-secondary">{item.title}</div>
+                    <div className="fw-semibold text-truncate">
+                      {item.value} ({item.percent}%)
+                    </div>
+                    <CProgress thin className="mt-2" color={item.color} value={item.percent} />
+
+                  </CCol>
+                ))}
+              </CRow>
+            </CCardFooter>
+          </CCard>
+        </>
+      )}
+
+
+
+{userRole === 'Approve' && (
+        <>
+          <WidgetsDropdown className="mb-4" />
+          <CCard className="mb-4">
+            <CCardBody>
+              <CRow>
+                <CCol sm={5}>
+                  <h4 id="traffic" className="card-title mb-0">
+                    Charts
+                  </h4>
+                  <div className="small text-body-secondary">{dateRange}</div>
+                </CCol>
+                <CCol sm={7} className="d-none d-md-block">
+                  <CButton color="primary" className="float-end">
+                    <CIcon icon={cilCloudDownload} />
+                  </CButton>
+                  <CButtonGroup className="float-end me-3">
+                    {['day', 'month', 'year'].map((value) => (
+                      <CButton
+                        color="outline-secondary"
+                        key={value}
+                        className="mx-0"
+                        active={value === selectedInterval}
+                        onClick={() => handleIntervalChange(value)} // Set the interval on click
+                      >
+                        {value}
+                      </CButton>
+                    ))}
+                  </CButtonGroup>
+
+                </CCol>
+              </CRow>
+              <MainChart selectedInterval={selectedInterval} status={status} />
+            </CCardBody>
+            <CCardFooter>
+              <CRow
+                xs={{ cols: 1, gutter: 4 }}
+                sm={{ cols: 2 }}
+                lg={{ cols: 4 }}
+                xl={{ cols: 5 }}
+                className="mb-2 text-center"
+              >
+                {progressExample.map((item, index, items) => (
+                  <CCol
+                    className={classNames({
+                      'd-none d-xl-block': index + 1 === items.length,
+                    })}
+                    key={index}
+                  >
+                    <div className="text-body-secondary">{item.title}</div>
+                    <div className="fw-semibold text-truncate">
+                      {item.value} ({item.percent}%)
+                    </div>
+                    <CProgress thin className="mt-2" color={item.color} value={item.percent} />
+
+                  </CCol>
+                ))}
+              </CRow>
+            </CCardFooter>
+          </CCard>
+        </>
+      )}
+
+
+
+{userRole === 'Active' && (
         <>
           <WidgetsDropdown className="mb-4" />
           <CCard className="mb-4">
@@ -545,23 +868,25 @@ const Dashboard = () => {
 
 
 
+
+
       {userRole === 'distributor' && (
         <CCard className="mb-4">
           <CCardBody>
             <div>Distributor-specific content goes here</div>
             {/* Add content specific to distributor */}
-          </CCardBody>
+          {/* </CCardBody>
         </CCard>
-      )}
+      )}  */}
 
 
 
 
 
 
-    </>
+    // </>
 
-  )
+  // )
 }
 
 export default Dashboard

@@ -97,6 +97,7 @@ const AppHeader = () => {
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
+  
 
 
 
@@ -315,7 +316,7 @@ const AppHeader = () => {
           </CHeader>
         </>
       )}
-      {userRole !== 'Activated' && (
+      {userRole === 'Approved' && (
         <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
           <CContainer className="border-bottom px-4" fluid>
             <CHeaderToggler
@@ -342,6 +343,392 @@ const AppHeader = () => {
                 <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
                   <span className="font-weight-bold">Welcome, </span>
                   <span className="font-weight-bold">{user.name}</span>
+                  <span className="font-weight-bold"> Agent</span>
+
+                </CNavLink>
+              </CNavItem>
+              {/* <CNavItem>
+            <CNavLink >Agent</CNavLink>
+          </CNavItem> */}
+              {/* <CNavItem>
+            <CNavLink to='/requests' as={NavLink}>Requests</CNavLink>
+          </CNavItem> */}
+            </CHeaderNav>
+            <CHeaderNav className="ms-auto">
+              <CNavItem>
+                <CNavLink href="#">
+                  <CIcon icon={cilBell} size="lg" />
+                </CNavLink>
+              </CNavItem>
+              <CNavItem>
+                <CNavLink href="#">
+                  {/* <CIcon icon={cilDollar} size="lg" /> */}
+                  <span style={{ fontWeight: 'bold', color: balance === 0 ? 'red' : 'green' }}>
+                    <FontAwesomeIcon
+                      // icon={faRupeeSign}
+                      style={{
+                        color: balance === 0 ? 'red' : 'green',
+                        fontWeight: 'bold', // Make the icon bolder
+                        marginRight: '5px', // Add space to the right of the icon
+                      }}
+                    />
+                    <span style={{ fontWeight: 'bold' }}>
+                      {formatBalance(balance)}
+
+                    </span>
+                  </span>
+
+
+                </CNavLink>
+              </CNavItem>
+              <CNavItem>
+                <CNavLink href="#">
+                  <CIcon icon={cilEnvelopeOpen} size="lg" />
+                </CNavLink>
+              </CNavItem>
+            </CHeaderNav>
+            <CHeaderNav>
+              <li className="nav-item py-1">
+                <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+              </li>
+              <CDropdown variant="nav-item" placement="bottom-end">
+                <CDropdownToggle caret={false}>
+                  {colorMode === 'dark' ? (
+                    <CIcon icon={cilMoon} size="lg" />
+                  ) : colorMode === 'auto' ? (
+                    <CIcon icon={cilContrast} size="lg" />
+                  ) : (
+                    <CIcon icon={cilSun} size="lg" />
+                  )}
+                </CDropdownToggle>
+                <CDropdownMenu>
+                  <CDropdownItem
+                    active={colorMode === 'light'}
+                    className="d-flex align-items-center"
+                    as="button"
+                    type="button"
+                    onClick={() => setColorMode('light')}
+                  >
+                    <CIcon className="me-2" icon={cilSun} size="lg" /> Light
+                  </CDropdownItem>
+                  <CDropdownItem
+                    active={colorMode === 'dark'}
+                    className="d-flex align-items-center"
+                    as="button"
+                    type="button"
+                    onClick={() => setColorMode('dark')}
+                  >
+                    <CIcon className="me-2" icon={cilMoon} size="lg" /> Dark
+                  </CDropdownItem>
+                  <CDropdownItem
+                    active={colorMode === 'auto'}
+                    className="d-flex align-items-center"
+                    as="button"
+                    type="button"
+                    onClick={() => setColorMode('auto')}
+                  >
+                    <CIcon className="me-2" icon={cilContrast} size="lg" /> Auto
+                  </CDropdownItem>
+                </CDropdownMenu>
+              </CDropdown>
+              <li className="nav-item py-1">
+                <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+              </li>
+              <AppHeaderDropdown />
+            </CHeaderNav>
+          </CContainer>
+          <CContainer className="px-4" fluid>
+            <AppBreadcrumb />
+          </CContainer>
+        </CHeader>
+      )}
+
+
+{userRole === 'Access' && (
+        <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
+          <CContainer className="border-bottom px-4" fluid>
+            <CHeaderToggler
+              onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
+              style={{ marginInlineStart: '-14px' }}
+            >
+              <CIcon icon={cilMenu} size="lg" />
+            </CHeaderToggler>
+            <h2
+              style={{
+                color: '#f36c23',
+                fontSize: '36px',
+                fontWeight: 'bold',
+                fontFamily: 'Cooper Black',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+                flexShrink: 0, // Prevent shrinking when the sidebar is toggled
+                display: !sidebarShow ? 'block' : 'none', // Ensure it doesn't disappear
+              }}
+            >
+              OrangePay
+            </h2>
+            <CHeaderNav className="d-none d-md-flex">
+              <CNavItem>
+                <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
+                  <span className="font-weight-bold">Welcome, </span>
+                  <span className="font-weight-bold">{user.name}</span>
+                  <span className="font-weight-bold"> Manager</span>
+
+                </CNavLink>
+              </CNavItem>
+              {/* <CNavItem>
+            <CNavLink >Agent</CNavLink>
+          </CNavItem> */}
+              {/* <CNavItem>
+            <CNavLink to='/requests' as={NavLink}>Requests</CNavLink>
+          </CNavItem> */}
+            </CHeaderNav>
+            <CHeaderNav className="ms-auto">
+              <CNavItem>
+                <CNavLink href="#">
+                  <CIcon icon={cilBell} size="lg" />
+                </CNavLink>
+              </CNavItem>
+              <CNavItem>
+                <CNavLink href="#">
+                  {/* <CIcon icon={cilDollar} size="lg" /> */}
+                  <span style={{ fontWeight: 'bold', color: balance === 0 ? 'red' : 'green' }}>
+                    <FontAwesomeIcon
+                      // icon={faRupeeSign}
+                      style={{
+                        color: balance === 0 ? 'red' : 'green',
+                        fontWeight: 'bold', // Make the icon bolder
+                        marginRight: '5px', // Add space to the right of the icon
+                      }}
+                    />
+                    <span style={{ fontWeight: 'bold' }}>
+                      {formatBalance(balance)}
+
+                    </span>
+                  </span>
+
+
+                </CNavLink>
+              </CNavItem>
+              <CNavItem>
+                <CNavLink href="#">
+                  <CIcon icon={cilEnvelopeOpen} size="lg" />
+                </CNavLink>
+              </CNavItem>
+            </CHeaderNav>
+            <CHeaderNav>
+              <li className="nav-item py-1">
+                <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+              </li>
+              <CDropdown variant="nav-item" placement="bottom-end">
+                <CDropdownToggle caret={false}>
+                  {colorMode === 'dark' ? (
+                    <CIcon icon={cilMoon} size="lg" />
+                  ) : colorMode === 'auto' ? (
+                    <CIcon icon={cilContrast} size="lg" />
+                  ) : (
+                    <CIcon icon={cilSun} size="lg" />
+                  )}
+                </CDropdownToggle>
+                <CDropdownMenu>
+                  <CDropdownItem
+                    active={colorMode === 'light'}
+                    className="d-flex align-items-center"
+                    as="button"
+                    type="button"
+                    onClick={() => setColorMode('light')}
+                  >
+                    <CIcon className="me-2" icon={cilSun} size="lg" /> Light
+                  </CDropdownItem>
+                  <CDropdownItem
+                    active={colorMode === 'dark'}
+                    className="d-flex align-items-center"
+                    as="button"
+                    type="button"
+                    onClick={() => setColorMode('dark')}
+                  >
+                    <CIcon className="me-2" icon={cilMoon} size="lg" /> Dark
+                  </CDropdownItem>
+                  <CDropdownItem
+                    active={colorMode === 'auto'}
+                    className="d-flex align-items-center"
+                    as="button"
+                    type="button"
+                    onClick={() => setColorMode('auto')}
+                  >
+                    <CIcon className="me-2" icon={cilContrast} size="lg" /> Auto
+                  </CDropdownItem>
+                </CDropdownMenu>
+              </CDropdown>
+              <li className="nav-item py-1">
+                <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+              </li>
+              <AppHeaderDropdown />
+            </CHeaderNav>
+          </CContainer>
+          <CContainer className="px-4" fluid>
+            <AppBreadcrumb />
+          </CContainer>
+        </CHeader>
+      )}
+
+
+
+{userRole === 'Approve' && (
+        <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
+          <CContainer className="border-bottom px-4" fluid>
+            <CHeaderToggler
+              onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
+              style={{ marginInlineStart: '-14px' }}
+            >
+              <CIcon icon={cilMenu} size="lg" />
+            </CHeaderToggler>
+            <h2
+              style={{
+                color: '#f36c23',
+                fontSize: '36px',
+                fontWeight: 'bold',
+                fontFamily: 'Cooper Black',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+                flexShrink: 0, // Prevent shrinking when the sidebar is toggled
+                display: !sidebarShow ? 'block' : 'none', // Ensure it doesn't disappear
+              }}
+            >
+              OrangePay
+            </h2>
+            <CHeaderNav className="d-none d-md-flex">
+              <CNavItem>
+                <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
+                  <span className="font-weight-bold">Welcome, </span>
+                  <span className="font-weight-bold">{user.name}</span>
+                  <span className="font-weight-bold"> Distributor</span>
+                </CNavLink>
+              </CNavItem>
+              {/* <CNavItem>
+            <CNavLink >Agent</CNavLink>
+          </CNavItem> */}
+              {/* <CNavItem>
+            <CNavLink to='/requests' as={NavLink}>Requests</CNavLink>
+          </CNavItem> */}
+            </CHeaderNav>
+            <CHeaderNav className="ms-auto">
+              <CNavItem>
+                <CNavLink href="#">
+                  <CIcon icon={cilBell} size="lg" />
+                </CNavLink>
+              </CNavItem>
+              <CNavItem>
+                <CNavLink href="#">
+                  {/* <CIcon icon={cilDollar} size="lg" /> */}
+                  <span style={{ fontWeight: 'bold', color: balance === 0 ? 'red' : 'green' }}>
+                    <FontAwesomeIcon
+                      // icon={faRupeeSign}
+                      style={{
+                        color: balance === 0 ? 'red' : 'green',
+                        fontWeight: 'bold', // Make the icon bolder
+                        marginRight: '5px', // Add space to the right of the icon
+                      }}
+                    />
+                    <span style={{ fontWeight: 'bold' }}>
+                      {formatBalance(balance)}
+
+                    </span>
+                  </span>
+
+
+                </CNavLink>
+              </CNavItem>
+              <CNavItem>
+                <CNavLink href="#">
+                  <CIcon icon={cilEnvelopeOpen} size="lg" />
+                </CNavLink>
+              </CNavItem>
+            </CHeaderNav>
+            <CHeaderNav>
+              <li className="nav-item py-1">
+                <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+              </li>
+              <CDropdown variant="nav-item" placement="bottom-end">
+                <CDropdownToggle caret={false}>
+                  {colorMode === 'dark' ? (
+                    <CIcon icon={cilMoon} size="lg" />
+                  ) : colorMode === 'auto' ? (
+                    <CIcon icon={cilContrast} size="lg" />
+                  ) : (
+                    <CIcon icon={cilSun} size="lg" />
+                  )}
+                </CDropdownToggle>
+                <CDropdownMenu>
+                  <CDropdownItem
+                    active={colorMode === 'light'}
+                    className="d-flex align-items-center"
+                    as="button"
+                    type="button"
+                    onClick={() => setColorMode('light')}
+                  >
+                    <CIcon className="me-2" icon={cilSun} size="lg" /> Light
+                  </CDropdownItem>
+                  <CDropdownItem
+                    active={colorMode === 'dark'}
+                    className="d-flex align-items-center"
+                    as="button"
+                    type="button"
+                    onClick={() => setColorMode('dark')}
+                  >
+                    <CIcon className="me-2" icon={cilMoon} size="lg" /> Dark
+                  </CDropdownItem>
+                  <CDropdownItem
+                    active={colorMode === 'auto'}
+                    className="d-flex align-items-center"
+                    as="button"
+                    type="button"
+                    onClick={() => setColorMode('auto')}
+                  >
+                    <CIcon className="me-2" icon={cilContrast} size="lg" /> Auto
+                  </CDropdownItem>
+                </CDropdownMenu>
+              </CDropdown>
+              <li className="nav-item py-1">
+                <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+              </li>
+              <AppHeaderDropdown />
+            </CHeaderNav>
+          </CContainer>
+          <CContainer className="px-4" fluid>
+            <AppBreadcrumb />
+          </CContainer>
+        </CHeader>
+      )}
+
+
+{userRole === 'Active' && (
+        <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
+          <CContainer className="border-bottom px-4" fluid>
+            <CHeaderToggler
+              onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
+              style={{ marginInlineStart: '-14px' }}
+            >
+              <CIcon icon={cilMenu} size="lg" />
+            </CHeaderToggler>
+            <h2
+              style={{
+                color: '#f36c23',
+                fontSize: '36px',
+                fontWeight: 'bold',
+                fontFamily: 'Cooper Black',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+                flexShrink: 0, // Prevent shrinking when the sidebar is toggled
+                display: !sidebarShow ? 'block' : 'none', // Ensure it doesn't disappear
+              }}
+            >
+              OrangePay
+            </h2>
+            <CHeaderNav className="d-none d-md-flex">
+              <CNavItem>
+                <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
+                  <span className="font-weight-bold">Welcome, </span>
+                  <span className="font-weight-bold">{user.name}</span>
+                  <span className="font-weight-bold"> Admin</span>
+
                 </CNavLink>
               </CNavItem>
               {/* <CNavItem>

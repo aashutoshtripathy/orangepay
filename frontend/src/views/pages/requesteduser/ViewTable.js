@@ -163,6 +163,12 @@ const ViewTable = () => {
             ))}
           </CTableRow>
           <CTableRow>
+            <CTableHeaderCell scope="row">Role</CTableHeaderCell>
+            {tableData.map((user) => (
+              <CTableDataCell key={user.id}>{user.role}</CTableDataCell>
+            ))}
+          </CTableRow>
+          <CTableRow>
             <CTableHeaderCell scope="row">Aadhar Number</CTableHeaderCell>
             {tableData.map((user) => (
               <CTableDataCell key={user.id}>{user.aadharNumber}</CTableDataCell>

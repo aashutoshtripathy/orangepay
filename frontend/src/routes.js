@@ -49,6 +49,8 @@ const CancellationHistory = React.lazy(() => import('./views/pages/usermangement
 const CancellationRequest = React.lazy(() => import('./views/pages/usermangement/CancellationRequest.js'))
 const CancellationDetailss = React.lazy(() => import('./views/pages/usermangement/CancellationDetailss.js'))
 const WalletReport = React.lazy(() => import('./views/pages/reports/WalletReportt.js'))
+const TopupReport = React.lazy(() => import('./views/pages/reports/TopupReportt.js'))
+
 const SuperAdminReport = React.lazy(() => import('./views/pages/reports/SuperAdmin.js'))
 const RepostingBill = React.lazy(() => import('./views/pages/reports/RepostingBill.js'))
 
@@ -151,6 +153,7 @@ const routes = [
   { path: '/cancellationrequests', name: 'Cancellation Request', element: CancellationRequest },
   { path: '/cancellation-details', name: 'Cancellation Details', element: CancellationDetailss },
   { path: '/Wallet-details/:userId', name: 'Wallet Details', element: WalletReport },
+  { path: '/Topup-details/:userId', name: 'Wallet Details', element: TopupReport },
   { path: '/sbdata', name: 'Data', element: sbdata },
   { path: '/view-detailss', name: 'Agent Details', element: ViewDetailss },
   { path: '/reports/:userId', name: 'View Details', element: SuperAdminReport },

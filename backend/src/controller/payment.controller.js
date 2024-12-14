@@ -348,6 +348,65 @@ const WalletReport = asyncHandler(async (req, res) => {
 
 
 
+const TopupReport = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  // Validate userId format
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    console.error("Invalid userId format:", userId);
+    return res.status(400).json({ 
+      success: false, 
+      message: "Invalid userId format" 
+    });
+  }
+
+  try {
+    console.log("Valid userId:", userId);
+
+    // Fetch wallet transactions of type 'credit' for the user
+    const payments = await WalletTransaction.find({
+      userId, 
+      "transactions.type": "credit" // Filters transactions of type 'credit'
+    }).exec();
+
+    // Check if payments exist
+    if (!payments || payments.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "No credit transactions found for the user" 
+      });
+    }
+
+    console.log("Fetched credit transactions:", payments);
+
+    // Filter out only the credit transactions from the nested array
+    const creditTransactions = payments.map(payment => {
+      return {
+        ...payment.toObject(),
+        transactions: payment.transactions.filter(transaction => transaction.type === "credit")
+      };
+    });
+
+    // Respond with success and the filtered data
+    return res.status(200).json({ 
+      success: true, 
+      balance: creditTransactions 
+    });
+
+  } catch (error) {
+    console.error("Error fetching wallet transactions:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Internal Server Error" 
+    });
+  }
+});
+
+
+
+
+
+
 const getDailyBalance = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
@@ -645,5 +704,5 @@ const insertBillDetails = asyncHandler(async (req, res) => {
 
 
 
-export { processPayment, getPayment, repostingBill , getTotalPayments, WalletReport, getAllSbdata, getDailyBalance, BiharService, getPayments, getPaymentss, fetchReward, insertBillDetails, getTotalBalance };
+export { processPayment, getPayment, repostingBill , getTotalPayments, WalletReport,TopupReport, getAllSbdata, getDailyBalance, BiharService, getPayments, getPaymentss, fetchReward, insertBillDetails, getTotalBalance };
 

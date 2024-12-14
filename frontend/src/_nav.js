@@ -149,8 +149,79 @@ export const distributorNavItems = (permissions , userId) =>  [
       { component: CNavItem,  to: `/profile/${userId}` , name: 'View Profile',},
       { component: CNavItem,  to: `/passbook/${userId}` , name: 'Passbook',},
       { component: CNavItem,  to: `/Wallet-details/${userId}` , name: 'Wallet Report',},
+      { component: CNavItem,  to: `/Topup-details/${userId}` , name: 'Topup Report',},
       { component: CNavItem, name: 'Change Password' , to: '/change-password' },
       { component: CNavItem, name: 'Change TPIN' , to: '/change-tpin' },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Support Desk',
+    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+    items: [
+      { component: CNavItem, name: 'Query' , to: '/query'  },
+      { component: CNavItem, name: 'Call Me' , to: '/call-me'  },
+      { component: CNavItem, name: 'Contact Us' , to: '/contact-us'  },
+    ],
+  },
+];
+
+
+export const managerNavItems = (permissions , userId) =>  [
+  // Distributor-specific navigation items
+  {
+    component: CNavItem,
+    name: 'OrangePay',
+    to: `/dashboard/${userId}`,
+    //  to: '/dashboard',
+    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Distributor Management',
+  },
+  // {
+  //   component: CNavGroup,
+  //   name: 'Services',
+  //   to: '/base',
+  //   icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+  //   items: [
+  //     { component: CNavItem, name: 'Bill Payment', to: '/Payment' , hidden: !permissions.billPayment,},
+  //     { component: CNavItem, name: 'Bill Payment Online', to: '/paymentonline' , hidden: !permissions.billPayment,},
+  //     { component: CNavItem, name: 'Topup', to: '/topup' , hidden: !permissions.topup, },
+  //     { component: CNavItem, name: 'Get Prepaid Balance', to: '/prepaid-services' ,   hidden: !permissions.getPrepaidBalance, },
+  //     { component: CNavItem, name: 'Cancelation Request', to: '/request-cancelation' ,   hidden: !permissions.requestCancellation, },
+  //     { component: CNavItem, name: 'Fund Request', to: '/request-fund' ,    },
+  //   ],
+  // },
+  {
+    component: CNavGroup,
+    name: 'My Accounts',
+    to: '/buttons',
+    icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
+    items: [
+      // { component: CNavItem, name: 'Transactions Report-Ezetap', to: '/report-Ezetap' },
+      // { component: CNavItem, name: 'Transactions Report-OrangePay', to: '/report-OrangePay' },
+      // // { component: CNavItem, name: 'Fund Request', to: `/fundrequest/${userId}` },
+      // // { component: CNavItem, name: 'Fund Transfer', to: '/report-OrangePay' },
+      // { component: CNavItem, name: 'Fund Report', to: `/fundrequest/${userId}` },
+      // // { component: CNavItem, name: 'Reports', to: '/report-OrangePay' },
+      // // { component: CNavItem, name: 'Top-Up Report', to: '/report-OrangePay' },
+      // { component: CNavItem, name: 'Commission History',  to: '/transaction-history' },
+      // { component: CNavItem, name: 'Cancellattion History',  to: '/cancellattion-history' },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'My Profile',
+    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+    items: [
+      { component: CNavItem,  to: `/profile/${userId}` , name: 'View Profile',},
+      // { component: CNavItem,  to: `/passbook/${userId}` , name: 'Passbook',},
+      // { component: CNavItem,  to: `/Wallet-details/${userId}` , name: 'Wallet Report',},
+      // { component: CNavItem,  to: `/Topup-details/${userId}` , name: 'Topup Report',},
+      // { component: CNavItem, name: 'Change Password' , to: '/change-password' },
+      // { component: CNavItem, name: 'Change TPIN' , to: '/change-tpin' },
     ],
   },
   {
