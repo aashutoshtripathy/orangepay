@@ -22,11 +22,11 @@ const Topup = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
-  // Function to load the Razorpay script
-  const loadRazorpayScript = () => {
+  // Function to load the Ezetap script
+  const loadEzetapScript = () => {
     return new Promise((resolve) => {
       const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.src = 'https://ezetap.com/sdk.js'; // Replace with the actual Ezetap SDK URL
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
@@ -35,7 +35,7 @@ const Topup = () => {
 
   useEffect(() => {
     const loadScript = async () => {
-      const loaded = await loadRazorpayScript();
+      const loaded = await loadEzetapScript();
       setIsScriptLoaded(loaded);
     };
     loadScript();
@@ -51,58 +51,79 @@ const Topup = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // Create Razorpay order
-  const createRazorpayOrder = async () => {
+  // Create Ezetap order
+  const createEzetapOrder = async () => {
     if (!validate()) return;
 
     setLoading(true);
     const data = {
-      amount: Number(amount) * 100, // Razorpay requires amount in paise
+      amount: Number(amount), // Send amount as Ezetap expects
       currency: 'INR',
+      customerName: "544514634",
+      phone: "3451",
+      checksum: "44635354",
     };
 
     try {
       const response = await axios.post('/api/v1/users/createOrder', data);
-      if (response.data.id) {
-        handleRazorpayScreen(response.data.amount);
+      if (response.data && response.data.orderId) {
+        handleEzetapPayment(response.data); // Pass the order details to the payment handler
       } else {
-        alert('Failed to create Razorpay order.');
+        alert('Failed to create Ezetap order.');
       }
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error('Error creating Ezetap order:', error);
       alert('An error occurred while creating the order. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Open Razorpay payment screen
-  const handleRazorpayScreen = (amount) => {
+  // Handle Ezetap payment
+  const handleEzetapPayment = (orderData) => {
     if (!isScriptLoaded) {
-      alert('Razorpay SDK failed to load. Please refresh the page.');
+      alert('Ezetap SDK failed to load. Please refresh the page.');
       return;
     }
 
+    // Example payment options for Ezetap SDK
     const options = {
-      key: 'rzp_test_GcZZFDPP0jHtC4', // Replace with your Razorpay API key
-      amount: amount, // Amount in paise
-      currency: 'INR',
-      name: 'OrangePay',
-      description: 'Payment to OrangePay',
-      handler: (response) => {
-        setSuccessMessage('Payment successful! Transaction ID: ' + response.razorpay_payment_id);
+      orderId: orderData.orderId, // Use the order ID from the backend
+      amount: orderData.amount, // Amount in the appropriate format
+      customerName: 'OrangePay',
+      customerEmail: 'support@orangepay.com',
+      onSuccess: (response) => {
+        setSuccessMessage(`Payment successful! Transaction ID: ${response.transactionId}`);
+        confirmEzetapPayment(response); // Confirm payment with the backend
       },
-      prefill: {
-        name: 'OrangePay',
-        email: 'support@orangepay.com',
-      },
-      theme: {
-        color: '#F4C430',
+      onError: (error) => {
+        console.error('Payment failed:', error);
+        alert('Payment failed. Please try again.');
       },
     };
 
-    const paymentObject = new window.Razorpay(options);
-    paymentObject.open();
+    // Ensure the EzetapPaymentGateway is available before calling open method
+    if (window.EzetapPaymentGateway && window.EzetapPaymentGateway.open) {
+      window.EzetapPaymentGateway.open(options); // Replace with Ezetap's actual SDK method
+    } else {
+      console.error('EzetapPaymentGateway is not available.');
+      alert('EzetapPaymentGateway is not available. Please refresh the page.');
+    }
+  };
+
+  // Confirm payment with the backend
+  const confirmEzetapPayment = async (paymentResponse) => {
+    try {
+      const confirmation = await axios.post('/api/v1/ezetap/confirmPayment', paymentResponse); // Backend API for payment confirmation
+      if (confirmation.data && confirmation.data.success) {
+        alert('Payment confirmed successfully!');
+      } else {
+        alert('Payment confirmation failed.');
+      }
+    } catch (error) {
+      console.error('Error confirming payment:', error);
+      alert('An error occurred while confirming the payment.');
+    }
   };
 
   return (
@@ -127,7 +148,7 @@ const Topup = () => {
               <CButton
                 color="primary"
                 className="mt-3"
-                onClick={createRazorpayOrder}
+                onClick={createEzetapOrder}
                 disabled={loading}
               >
                 {loading ? <CSpinner size="sm" /> : 'Add Top-Up'}

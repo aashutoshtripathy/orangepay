@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticateToken } from "../middleware/authenticateToken.js";
 import { deleteUser, fetchData, fetchWalletBalance,fundimages, validateTpin, resendCredential ,sbData,cancellationDetails,cancelAccept,cancelReject,getCancellation,cancellationHistoryy,cancellationHistory,changePassword,verifyAadhaar,fetchUserListbyId,updateUserCommission,updateUserPermissions,statuss,blockUserList,fetchFundRequestsById,fetchData_reject,fetchDataa,images, registeredUser, reports , registerTransaction, fetchFundRequests, fetchIdData, loginUser, registerUser, fetchUserList, updateUser , fundRequest , fetchFundRequest ,  approveFundRequest , rejectFundRequest , approveUserRequest , rejectUserRequest , fetchUserById , downloadUserImages , updateProfile , unblockUser , blockUser , logoutUser, fetchUserByIdd, changeTpin, verifyOtp, registerSAdmin, cancellationImage } from "../controller/user.controller.js";
 import {processPayment, getPayment , getAllSbdata , insertBillDetails , getPayments , getDailyBalance , repostingBill , getPaymentss , fetchReward , BiharService , getTotalBalance, WalletReport, getTotalPayments, TopupReport} from "../controller/payment.controller.js"
-import { initiateEzetapPayment , createOrder } from "../controller/ezetap.controller.js";
+import { initiateEzetapPayment , createEzetapOrder } from "../controller/ezetap.controller.js";
 
 
 const router = Router();
@@ -71,7 +71,7 @@ router.route("/delete/:id").delete(deleteUser)
 router.route("/updateUserPermissions/:userId").put(updateUserPermissions)
 router.route("/updateCommission/:userId").put(updateUserCommission)
 router.route("/ezetap").post(initiateEzetapPayment)
-router.route("/createOrder").post(createOrder)
+router.route("/createOrder").post(createEzetapOrder)
 router.route("/cancel/:id/approve").patch(cancelAccept);
 router.route("/cancel/:id/reject").patch(cancelReject);
 
