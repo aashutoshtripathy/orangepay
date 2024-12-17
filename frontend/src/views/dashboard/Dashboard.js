@@ -412,7 +412,7 @@ const Dashboard = () => {
 
 
       <>
-        {['Activated', 'Approved', 'Access', 'Approve'].includes(userRole) && (
+        {['Activated', 'Approved', 'Access', 'Approve', 'Active'].includes(userRole) && (
           <>
             <WidgetsDropdown className="mb-4" />
             <CCard className="mb-4">

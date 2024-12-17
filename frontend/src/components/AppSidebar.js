@@ -19,7 +19,7 @@ import { AppSidebarNav } from './AppSidebarNav'
 // import { sygnet } from 'src/assets/brand/sygnet'
 
 // sidebar nav config
-import navigation, { managerNavItems } from '../_nav'
+import navigation, { adminsNavItems, distributorsNavItems, managerNavItems } from '../_nav'
 // import { _nav as navigation } from '../_nav';
 import { adminNavItems, distributorNavItems, agentNavItems } from '../_nav'; // Adjust import as necessary
 import axios from 'axios'
@@ -100,11 +100,11 @@ const AppSidebar = () => {
     case 'Access':
       navItems = managerNavItems(permissions, userId);
       break;
-    case 'Approved':
-      navItems = distributorNavItems(permissions, userId);
+    case 'Approve':
+      navItems = distributorsNavItems(permissions, userId);
       break;
-    case 'Approved':
-      navItems = distributorNavItems(permissions, userId);
+    case 'Active':
+      navItems = adminsNavItems(permissions, userId);
       break;
     default:
       // navItems = distributorNavItems(permissions,userId);
