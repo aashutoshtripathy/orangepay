@@ -747,7 +747,7 @@ const AppHeader = () => {
               OrangePay
             </h2>
             <CHeaderNav className="d-none d-md-flex">
-              <CNavItem>
+                <CNavItem className='d-flex align-items-center'>
                 <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
                   <span className="font-weight-bold">Welcome, </span>
                   <span className="font-weight-bold">{user.name}</span>
@@ -781,11 +781,11 @@ const AppHeader = () => {
                 </CNavItem>
                 <CNavItem>
                   {/* <CNavLink to='/requests' as={NavLink}>Agent Requests</CNavLink> */}
-                  <CNavLink to='/requests' as={NavLink} className="border p-2 m-1 rounded bg-transparent text-dark">
+                  {/* <CNavLink to='/requests' as={NavLink} className="border p-2 m-1 rounded bg-transparent text-dark">
                     <div className="d-flex flex-column">
-                      <span>Admin Requests</span>
+                      <span>Admin Requests</span> 
                     </div>
-                  </CNavLink>
+                  </CNavLink> */}
                 </CNavItem>
                 <CNavItem>
                   <CNavLink to='/fundrequests' as={NavLink}  className="border p-2 m-1 rounded bg-transparent text-dark">

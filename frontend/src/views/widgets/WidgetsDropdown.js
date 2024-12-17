@@ -27,6 +27,8 @@ const WidgetsDropdown = (props) => {
   const [totalPayments, setTotalPayments] = useState('');
   const [totalPaymentss, setTotalPaymentss] = useState('');
   const [userCount, setUserCount] = useState(0);
+  const [userCounts, setUserCounts] = useState(0);
+  const [userCountss, setUserCountss] = useState(0);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [totalBalance, setTotalBalance] = useState(0);
@@ -90,6 +92,8 @@ const WidgetsDropdown = (props) => {
         // Fetch balance data
         const balanceResponse = await axios.get(`/api/v1/users/fundrequests`);
         const initialBalance = balanceResponse.data.fundRequests || [];
+        setUserCountss(initialBalance.length)
+
 
 
         const balanceResponsee = await axios.get(`/api/v1/users/fund-request/${userId}`);
@@ -98,6 +102,7 @@ const WidgetsDropdown = (props) => {
         // Fetch payments data
         const paymentsResponse = await axios.get(`/api/v1/users/getTotalPayments`);
         const paymentsData = paymentsResponse.data.data || [];
+        setUserCounts(paymentsData.length)
         
 
         const paymentsResponseData = await axios.get(`/api/v1/users/getPayments/${userId}`);
@@ -196,8 +201,8 @@ const WidgetsDropdown = (props) => {
                     <CSpinner color="light" size="sm" /> Please wait...
                   </div>
                 ) : (
-                  <>₹ {validTotalPayments.toFixed(2)}</>
-                )
+                  <>₹ {validTotalPayments.toFixed(2)}  ({userCounts})</>       
+                  )
               }
                 title="Collection Amount"
                 action={
@@ -269,7 +274,7 @@ const WidgetsDropdown = (props) => {
                     <CSpinner color="light" size="sm" /> Please wait...
                   </div>
                 ) : (
-                  <>₹ {totalBalance.toFixed(2)}</>
+                  <>₹ {totalBalance.toFixed(2)}  ({userCountss})</>
                 )
               }
                 title="Fund Amount"
@@ -693,7 +698,522 @@ const WidgetsDropdown = (props) => {
         </>
       )}
 
-      {userRole !== 'Activated' && (
+
+
+
+{userRole === 'Active' && (
+        <>
+          <CRow className={props.className} xs={{ gutter: 4 }}>
+          <CCol sm={6} xl={4} xxl={3}>      
+          <CWidgetStatsA
+              color="warning"
+              value={
+                loading ? (
+                  <div>
+                    <CSpinner color="light" size="sm" /> Please wait...
+                  </div>
+                ) : (
+                  <>₹ {validTotalPayments.toFixed(2)}  ({userCounts})</>       
+                  )
+              }
+                title="Collection Amount"
+                action={
+                  <CDropdown alignment="end">
+                    <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                      <CIcon icon={cilOptions} />
+                    </CDropdownToggle>
+                    <CDropdownMenu>
+                    <CDropdownItem onClick={() => handleFilterChange('day')}>Day</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('month')}>Month</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('year')}>Year</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('total')}>Total</CDropdownItem>
+                    </CDropdownMenu>
+                  </CDropdown>
+                }
+                chart={
+                  <CChartLine
+                    className="mt-3"
+                    style={{ height: '70px' }}
+                    data={{
+                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                      datasets: [
+                        {
+                          label: 'My First dataset',
+                          backgroundColor: 'rgba(255,255,255,.2)',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          data: [78, 81, 80, 45, 34, 12, 40],
+                          fill: true,
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          display: false,
+                        },
+                        y: {
+                          display: false,
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 2,
+                          tension: 0.4,
+                        },
+                        point: {
+                          radius: 0,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }}
+                  />
+                }
+              />
+            </CCol>
+          <CCol sm={6} xl={4} xxl={3}>
+          <CWidgetStatsA
+              color="info"
+              value={
+                loading ? (
+                  <div>
+                    <CSpinner color="light" size="sm" /> Please wait...
+                  </div>
+                ) : (
+                  <>₹ {totalBalance.toFixed(2)}  ({userCountss})</>
+                )
+              }
+                title="Fund Amount"
+                action={
+                  <CDropdown alignment="end">
+                    <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                      <CIcon icon={cilOptions} />
+                    </CDropdownToggle>
+                    <CDropdownMenu>
+                    <CDropdownItem onClick={() => handleFilterChange('day')}>Day</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('month')}>Month</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('year')}>Year</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('total')}>Total</CDropdownItem>
+                    </CDropdownMenu>
+                  </CDropdown>
+                }
+                chart={
+                  <CChartLine
+                    ref={widgetChartRef2}
+                    className="mt-3 mx-3"
+                    style={{ height: '70px' }}
+                    data={{
+                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                      datasets: [
+                        {
+                          label: 'Recharge amount',
+                          backgroundColor: 'transparent',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          pointBackgroundColor: getStyle('--cui-info'),
+                          data: [1, 18, 9, 17, 34, 22, 11],
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          border: {
+                            display: false,
+                          },
+                          grid: {
+                            display: false,
+                            drawBorder: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                        y: {
+                          min: -9,
+                          max: 39,
+                          display: false,
+                          grid: {
+                            display: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 1,
+                        },
+                        point: {
+                          radius: 4,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }}
+                  />
+                }
+              />
+            </CCol>
+            <CCol sm={6} xl={4} xxl={3}>
+            <CWidgetStatsA
+              color="primary"
+              value={
+                loading ? (
+                  <div>
+                    <CSpinner color="light" size="sm" /> Please wait...
+                  </div>
+                ) : (
+                  <>{userCount}</>
+                )
+              }
+                title="Agent Management"
+                action={
+                  <CDropdown alignment="end">
+                    <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                      <CIcon icon={cilOptions} />
+                    </CDropdownToggle>
+                    <CDropdownMenu>
+                    <CDropdownItem onClick={() => handleFilterChange('day')}>Day</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('month')}>Month</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('year')}>Year</CDropdownItem>
+                    <CDropdownItem onClick={() => handleFilterChange('total')}>Total</CDropdownItem>
+                    </CDropdownMenu>
+                    </CDropdown>
+                 }
+                chart={
+                  <CChartLine
+                    ref={widgetChartRef1}
+                    className="mt-3 mx-3"
+                    style={{ height: '70px' }}
+                    data={{
+                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                      datasets: [
+                        {
+                          label: 'My First dataset',
+                          backgroundColor: 'transparent',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          pointBackgroundColor: getStyle('--cui-primary'),
+                          data: [65, 59, 84, 84, 51, 55, 40],
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          border: {
+                            display: false,
+                          },
+                          grid: {
+                            display: false,
+                            drawBorder: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                        y: {
+                          min: 30,
+                          max: 89,
+                          display: false,
+                          grid: {
+                            display: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 1,
+                          tension: 0.4,
+                        },
+                        point: {
+                          radius: 4,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }}
+                  />
+                }
+              />
+            </CCol>
+            {/* <CCol sm={6} xl={4} xxl={3}>
+              <CWidgetStatsA
+                color="info"
+                value={
+                  <>
+                    {totalBalance}{' '}
+                    <span className="fs-6 fw-normal">
+                      (<CIcon icon={cilArrowTop} />)
+                    </span>
+                  </>
+                }
+                title="Fund Management"
+                // action={
+                //   <CDropdown alignment="end">
+                //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                //       <CIcon icon={cilOptions} />
+                //     </CDropdownToggle>
+                //     <CDropdownMenu>
+                //       <CDropdownItem><Link to="/active" style={{textDecoration:"none"}}>Agent Management</Link></CDropdownItem>
+                //     </CDropdownMenu>
+                //   </CDropdown>
+                // }
+                chart={
+                  <CChartLine
+                    ref={widgetChartRef2}
+                    className="mt-3 mx-3"
+                    style={{ height: '70px' }}
+                    data={{
+                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                      datasets: [
+                        {
+                          label: 'Recharge amount',
+                          backgroundColor: 'transparent',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          pointBackgroundColor: getStyle('--cui-info'),
+                          data: [1, 18, 9, 17, 34, 22, 11],
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          border: {
+                            display: false,
+                          },
+                          grid: {
+                            display: false,
+                            drawBorder: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                        y: {
+                          min: -9,
+                          max: 39,
+                          display: false,
+                          grid: {
+                            display: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 1,
+                        },
+                        point: {
+                          radius: 4,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }}
+                  />
+                }
+              />
+            </CCol> */}
+            {/* <CCol sm={6} xl={4} xxl={3}>
+              <CWidgetStatsA
+                color="warning"
+                value={
+                  <>
+                    2.49%{' '}
+                    <span className="fs-6 fw-normal">
+                      (84.7% <CIcon icon={cilArrowTop} />)
+                    </span>
+                  </>
+                }
+                title="Database Management"
+                // action={
+                //   <CDropdown alignment="end">
+                //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                //       <CIcon icon={cilOptions} />
+                //     </CDropdownToggle>
+                //     <CDropdownMenu>
+                //     <CDropdownItem><Link to="/switch-database" style={{textDecoration:"none"}}>Switch Database</Link></CDropdownItem>
+                //     <CDropdownItem><Link to="/switch-getway" style={{textDecoration:"none"}}>Switch Getway</Link></CDropdownItem>
+                //     </CDropdownMenu>
+                //   </CDropdown>
+                // }
+                chart={
+                  <CChartLine
+                    className="mt-3"
+                    style={{ height: '70px' }}
+                    data={{
+                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                      datasets: [
+                        {
+                          label: 'My First dataset',
+                          backgroundColor: 'rgba(255,255,255,.2)',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          data: [78, 81, 80, 45, 34, 12, 40],
+                          fill: true,
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: {
+                          display: false,
+                        },
+                        y: {
+                          display: false,
+                        },
+                      },
+                      elements: {
+                        line: {
+                          borderWidth: 2,
+                          tension: 0.4,
+                        },
+                        point: {
+                          radius: 0,
+                          hitRadius: 10,
+                          hoverRadius: 4,
+                        },
+                      },
+                    }}
+                  />
+                }
+              />
+            </CCol> */}
+            <CCol sm={6} xl={4} xxl={3}>
+              <CWidgetStatsA
+                color="danger"
+                value={
+                  <>
+                    44K{' '}
+                    <span className="fs-6 fw-normal">
+                      (-23.6% <CIcon icon={cilArrowBottom} />)
+                    </span>
+                  </>
+                }
+                title="Reports"
+                // action={
+                //   <CDropdown alignment="end">
+                //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                //       <CIcon icon={cilOptions} />
+                //     </CDropdownToggle>
+                //     <CDropdownMenu>
+                //     <CDropdownItem><Link to="" style={{textDecoration:"none"}}>Reports</Link></CDropdownItem>
+                //     <CDropdownItem><Link to="/fund-report" style={{textDecoration:"none"}}></Link></CDropdownItem>
+                //     </CDropdownMenu>
+                //   </CDropdown>
+                // }
+                chart={
+                  <CChartBar
+                    className="mt-3 mx-3"
+                    style={{ height: '70px' }}
+                    data={{
+                      labels: [
+                        'January',
+                        'February',
+                        'March',
+                        'April',
+                        'May',
+                        'June',
+                        'July',
+                        'August',
+                        'September',
+                        'October',
+                        'November',
+                        'December',
+                        'January',
+                        'February',
+                        'March',
+                        'April',
+                      ],
+                      datasets: [
+                        {
+                          label: 'My First dataset',
+                          backgroundColor: 'rgba(255,255,255,.2)',
+                          borderColor: 'rgba(255,255,255,.55)',
+                          data: [78, 81, 80, 45, 34, 12, 40, 85, 65, 23, 12, 98, 34, 84, 67, 82],
+                          barPercentage: 0.6,
+                        },
+                      ],
+                    }}
+                    options={{
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                      scales: {
+                        x: {
+                          grid: {
+                            display: false,
+                            drawTicks: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                        y: {
+                          border: {
+                            display: false,
+                          },
+                          grid: {
+                            display: false,
+                            drawBorder: false,
+                            drawTicks: false,
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                      },
+                    }}
+                  />
+                }
+              />
+            </CCol>
+          </CRow>
+        </>
+      )}
+
+
+      
+
+      {userRole === 'Approved' && (
         <>
           <CRow className={props.className} xs={{ gutter: 4 }}>
             <CCol sm={6} xl={4} xxl={3}>
