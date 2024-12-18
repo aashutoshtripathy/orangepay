@@ -368,14 +368,15 @@ const downloadPDF = (data) => {
           className="button-download-excel"
           onClick={handleStartScheduler}
         >
-          <FontAwesomeIcon icon={faFileExcel} /> Re-Post Selected Bills
+          {/* <FontAwesomeIcon icon={faFileExcel} /> */}
+           Re-Post Selected Bills
         </button>
-        <button
+        {/* <button
           className="button-bulk-action"
           onClick={handleBulkAction}
         >
           Re-Post Selected Bills
-        </button>
+        </button> */}
         <div className="date-filter-container">
           <label>From Date:</label>
           <input

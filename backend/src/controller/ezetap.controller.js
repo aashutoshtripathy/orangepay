@@ -44,39 +44,58 @@ const safeStringifyError = (error) => {
 
 
 // Function to create Ezetap order
+const generateChecksums = (amount) => {
+    // Implement checksum generation logic (this could be a hash or specific format as per Ezetap API)
+    // Example: hashing amount and some secret key
+    const secretKey = 'your_secret_key'; // Replace with your actual secret key
+    return `${amount}_${secretKey}`; // Simple example, but ensure to follow the exact format Ezetap expects
+};
+
+// Function to create an Ezetap order
 const createEzetapOrder = async (amount, customerName, phone) => {
     const checksum = generateChecksum(amount); // Generate checksum for the amount
+
+    // Prepare the options to send in the request body
     const options = {
-        amount, // Amount in rupees
-        customerName, // Customer name
-        phone, // Customer phone number
-        checksum, // Generated checksum
+        amount: amount, // Amount in rupees
+        customerName: customerName, // Customer name
+        phone: phone, // Customer phone number
+        checksum: checksum, // Generated checksum
     };
 
     try {
-        // Send POST request to Ezetap API
-        const response = await axios.post(`https://demo.ezetap.com/api/initiatePayment`, options);
+        // Send POST request to initiate payment via Ezetap API
+        const response = await axios.post('https://demo.ezetap.com/api/2.0/merchant/upi/qrcode/generate', options);
 
-        // Return the response data from Ezetap
-        return response.data;
+        // Check if the API responds with QR Code data
+        if (response.data && response.data.qrCode) {
+            console.log("QR Code:", response.data.qrCode); // You can log or return the QR code string
+            return response.data; // Return the response containing QR code and order details
+        } else {
+            throw new Error("QR Code not generated in the response.");
+        }
     } catch (error) {
+        // Log error with specific details without causing circular reference
         console.error("Error during Ezetap order creation:");
 
-        // Handle response errors
         if (error.response) {
+            // Log the details of the response without trying to stringify the entire error object
             const { data, status } = error.response;
             console.error(`Ezetap API Error (${status}):`, data);
             const description = data?.error?.description || "Unknown API error";
             throw new Error(`Ezetap API error: ${description}`);
+        } else if (error.request) {
+            // If no response was received
+            console.error("No response received from Ezetap API:", error.request);
+            throw new Error("No response received from Ezetap API.");
+        } else {
+            // For other types of errors (like network issues or Axios configuration errors)
+            console.error("Error details:", error.message);
+            throw new Error("Error creating Ezetap order: " + error.message);
         }
-
-        // Handle circular structure in non-response errors
-        console.error("Error details:", safeStringifyError(error));
-
-        // Throw error with only the message to avoid circular references
-        throw new Error("Error creating Ezetap order: " + error.message);
     }
 };
+
 
 
 // Function to handle payment initiation (via Ezetap)

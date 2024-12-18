@@ -32,19 +32,6 @@ const customStyles = {
   },
 };
 
-
-
-const downloadPDF = () => {
-    console.log("Downloading PDF...");
-    // Add your PDF download logic here
-};
-
-const downloadExcel = () => {
-    console.log("Downloading Excel...");
-    // Add your Excel download logic here
-};
-
-
 // Format date for display
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -65,7 +52,7 @@ const formatDate = (dateString) => {
 const formatAmount = (amount) => parseFloat(amount).toFixed(2);
 
 const TopupReport = ({ userId }) => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([]); // Initial empty state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fromDate, setFromDate] = useState('');
@@ -76,23 +63,49 @@ const TopupReport = ({ userId }) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/api/v1/users/topupreport/${userId}`);
+
+        // Check if the API response indicates success
+        if (!response.data.success) {
+          console.warn(response.data.message || 'Unknown error from API');
+          setData([]); // Set data to an empty array
+          setError(response.data.message || 'No transactions available.');
+          return;
+        }
+
         const balance = response.data.balance || [];
-        
+        if (balance.length === 0) {
+          setData([]); // Set data to an empty array
+          setError('No data available.');
+          return;
+        }
+
         // Flatten transactions from all balances
-        const transactions = balance.flatMap((wallet) => wallet.transactions.map((txn) => ({
-          ...txn,
-          date: txn.date,
-          openingBalance: txn.openingBalance,
-          closingBalance: txn.closingBalance,
-        })));
+        const transactions = balance.flatMap((wallet) =>
+          wallet.transactions.map((txn) => ({
+            ...txn,
+            date: txn.date,
+            openingBalance: txn.openingBalance,
+            closingBalance: txn.closingBalance,
+          }))
+        );
+
+        if (transactions.length === 0) {
+          setData([]); // Set data to an empty array
+          setError('No transactions available.');
+          return;
+        }
 
         // Sort transactions by date (newest first)
-        const sortedData = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        const sortedData = transactions.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
 
         setData(sortedData);
+        setError(null); // Clear any previous error
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError(error.message);
+        setData([]); // Set data to an empty array
+        // setError(error.response?.data?.message || error.message || 'An error occurred.');
       } finally {
         setLoading(false);
       }
@@ -139,7 +152,17 @@ const TopupReport = ({ userId }) => {
     },
   ];
 
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="cspinner"></div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <div>
@@ -152,13 +175,13 @@ const TopupReport = ({ userId }) => {
         />
         <button
           className="button-download"
-          onClick={() => downloadPDF(filteredItems)}
+          onClick={() => console.log('Downloading PDF')}
         >
           <FontAwesomeIcon icon={faDownload} /> Download PDF
         </button>
         <button
           className="button-download-excel"
-          onClick={() => downloadExcel(filteredItems)}
+          onClick={() => console.log('Downloading Excel')}
         >
           <FontAwesomeIcon icon={faFileExcel} /> Download Excel
         </button>
@@ -184,13 +207,15 @@ const TopupReport = ({ userId }) => {
         </div>
       </div>
       <div className="data-table-container">
+        {error && <div className="error-message">Error: {error}</div>}
         <DataTable
-          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center' }}>Topup Report</h2>}
+          title={<h2 style={{ fontSize: '24px', color: '#f36c23', fontFamily: 'sans-serif', fontWeight: '800', textAlign: 'center', }}>TopUp Reports</h2>}
           columns={columns}
           data={filteredItems}
           pagination
           highlightOnHover
           progressPending={loading}
+          noDataComponent={<div>No records found.</div>} // Custom message for empty table
           customStyles={customStyles}
         />
       </div>

@@ -269,7 +269,7 @@ export const adminsNavItems = (permissions , userId) =>  [
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
-      { component: CNavItem, name: 'Add User' , to: '/add-user' },
+      { component: CNavItem, name: 'Add User' , to: '/add-user-admin' },
       { component: CNavItem, name: 'Fund Request', to: `/fundrequests` },
       { component: CNavItem, name: 'Cancellation Request', to: `/cancellationrequests` },
       // { component: CNavItem, name: 'Manage User', to: '/manage-user' },
@@ -326,20 +326,22 @@ export const distributorsNavItems = (permissions , userId) =>  [
     component: CNavTitle,
     name: 'Distributor Management',
   },
-  // {
-  //   component: CNavGroup,
-  //   name: 'Services',
-  //   to: '/base',
-  //   icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
-  //   items: [
+  {
+    component: CNavGroup,
+    name: 'Services',
+    to: '/base',
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+    items: [
+    { component: CNavItem, name: 'Add User' , to: '/add-user-distributor' },
+
   //     { component: CNavItem, name: 'Bill Payment', to: '/Payment' , hidden: !permissions.billPayment,},
   //     { component: CNavItem, name: 'Bill Payment Online', to: '/paymentonline' , hidden: !permissions.billPayment,},
   //     { component: CNavItem, name: 'Topup', to: '/topup' , hidden: !permissions.topup, },
   //     { component: CNavItem, name: 'Get Prepaid Balance', to: '/prepaid-services' ,   hidden: !permissions.getPrepaidBalance, },
   //     { component: CNavItem, name: 'Cancelation Request', to: '/request-cancelation' ,   hidden: !permissions.requestCancellation, },
   //     { component: CNavItem, name: 'Fund Request', to: '/request-fund' ,    },
-  //   ],
-  // },
+    ],
+  },
   {
     component: CNavGroup,
     name: 'My Accounts',

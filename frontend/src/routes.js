@@ -23,6 +23,9 @@ const SwitchGetway = React.lazy(() => import('./views/pages/databasemanagement/S
 const sbdata = React.lazy(() => import('./views/pages/databasemanagement/SbData.js'))
 const Reports = React.lazy(() => import('./views/pages/reports/Reports'))
 const AddUser = React.lazy(() => import('./views/pages/usermangement/AddUser'))
+const AddUserDistributor = React.lazy(() => import('./views/pages/usermangement/DistributorAdd.js'))
+const AddUserAdmin = React.lazy(() => import('./views/pages/usermangement/AdminAdd.js'))
+
 const ManageUser = React.lazy(() => import('./views/pages/usermangement/ManageUser'))
 const ConsumerDetails = React.lazy(() => import('./views/pages/usermangement/ConsumerDetails'))
 const ManageRePosting = React.lazy(() => import('./views/pages/usermangement/ManageRePosting'))
@@ -127,6 +130,8 @@ const routes = [
   { path: '/monthly-billing', name: 'Monthly Billing Master', element: MonthlyBill },
   { path: '/report', name: 'Report', element: Reports },
   { path: '/add-user', name: 'Add User', element: AddUser },
+  { path: '/add-user-distributor', name: 'Add User', element: AddUserDistributor },
+  { path: '/add-user-admin', name: 'Add User', element: AddUserAdmin },
   { path: '/manage-user', name: 'Manage User', element: ManageUser },
   { path: '/manage-user-service', name: 'Report', element: ManageUserService },
   { path: '/manage-reposting-bill', name: 'Report', element: ManageRePosting },

@@ -160,6 +160,9 @@ const PaymentOnline = () => {
 
 
   const API_URL = '/api/v1/biharpayment/BiharService/BillInterface.asmx';
+  const NEW_API_URL = '/api/v1/users/BiharService/BillInterface'
+
+  // const API_URL = '/api/v1/biharpayment/BiharService/BillInterface.asmx';
   // const SECONDARY_API_URL = '/BiharService/BillInterface'
   const SECONDARY_API_URL = '/api/v1/biharpayment/BiharService/BillInterface.asmx?op=PaymentDetails'
 
@@ -243,10 +246,40 @@ const PaymentOnline = () => {
       }
     } catch (error) {
       console.error('Error fetching bill details:', error);
+      try {
+        console.log('Attempting secondary API...');
+  
+        const response = await axios.post(NEW_API_URL, {
+          consumerId: consumerId, // Sending consumerId in the JSON body
+        });
+  
+        const consumerData = response.data; // Assuming this is the API response
+  
+        if (Array.isArray(consumerData) && consumerData.length > 0) {
+          const consumer = consumerData[0]; // Access the first consumer object
+        
+          // Extract and set the bill details
+          setBillData({
+            consumerId: consumer.ConsumeId || '',
+            consumerName: consumer.ConsumerName || 'N/A',
+            address: consumer.Address || 'N/A',
+            mobileNo: consumer.MobileNo || 'N/A',
+            divisionName: consumer.DivisionName || 'N/A',
+            subDivision: consumer.SubDivision || 'N/A',
+          });
+          setIsBillFetched(true);
+          setFetchBillSuccess(true);
+        } else {
+          setFetchBillSuccess(false);
+          setIsBillFetched(false);
+          setConsumerIdError('No records found for this consumer ID.');
+          console.error('No consumer data found.');
+        }
     } finally {
       setIsLoading(false);
     }
   };
+}
 
 
   const fetchWalletBalance = async (userId) => {
@@ -358,6 +391,7 @@ const PaymentOnline = () => {
       if (statusFlag === '1') {
         console.log('Transaction successful');
         setShowSuccessModal(true)
+        setIsLoading(false);
 
         // await handlePayment(); // Call handlePayment for backend API interaction
 
@@ -448,6 +482,40 @@ const PaymentOnline = () => {
         }
       } else {
         console.error('Transaction failed:', message);
+        const response = await fetch('/api/v1/users/payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId,
+            consumerId: consumerId,
+            mobileNumber,
+            amount,
+            paymentMethod: selectedMethod,
+            remark,
+            transactionId: transactionId,
+            consumerName: billDetails.consumerName,
+            divisionName: billDetails.divisionName,
+            subDivision: billDetails.subDivision,
+            billpoststatus: "Pending",
+          }),
+        });
+  
+        const result = await response.json();
+        if (response.ok && result.success) {
+          setTransactionId(transactionId);
+          setData(result.data.invoice);
+          setShowSuccessModal(true);
+          // Reset form fields
+          setConsumerId('');
+          setMobileNumber('');
+          setAmount(defaultAmount); // Reset to default amount
+          setRemark('');
+          setBillDetails({});
+          setIsBillFetched(false);
+          setErrors({});
+        }
       }
     } catch (error) {
       console.error('Error during payment or receipt fetch:', error);

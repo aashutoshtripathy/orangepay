@@ -237,7 +237,17 @@ const Passbook = ({userId}) => {
 
 
 
-  if (error) return <div>Error: {error.message}</div>;
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="cspinner"></div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <div>

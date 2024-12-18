@@ -9,6 +9,7 @@ import OrangePayReport from './OrangePayReport';
 import FundRequest from '../fundrequest/FundRequest';
 import TransactionHistory from '../usermangement/TransactionHistory';
 import CancellationHistory from '../usermangement/CancellationHistory';
+import TopupReport from './TopupReport';
 
 const SuperAdmin = () => {
   const location = useLocation();
@@ -29,6 +30,7 @@ const SuperAdmin = () => {
     orangepayReport: <OrangePayReport userId={userId} />,
     fundRequestReport: <FundRequest userId={userId} />,
     cancellationReport: <CancellationHistory userId={userId} />,
+    topupReport: <TopupReport userId={userId} />,
   };
 
   return (
@@ -71,6 +73,11 @@ const SuperAdmin = () => {
               </CButton>
             </CCol>
             <CCol md={2}>
+              <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={() => handleButtonClick('topupReport')}>
+                TopUp Report
+              </CButton>
+            </CCol>
+            <CCol md={2} style={{marginTop:"7px"}}>
               <CButton color="primary" style={{backgroundColor:"#f36c23", border:"none"}} onClick={() => handleButtonClick('cancellationReport')}>
                 Cancellation Report
               </CButton>

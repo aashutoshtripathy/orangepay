@@ -39,7 +39,7 @@ import CIcon from "@coreui/icons-react";
 // } from "@coreui/icons";
 import { Link, useNavigate } from "react-router-dom";
 
-const AddUser = () => {
+const AdminAdd = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
   const [selectedDiscom, setSelectedDiscom] = useState('');
@@ -1345,8 +1345,8 @@ const AddUser = () => {
                         onBlur={handleBlur}
                         aria-label="Select Role"
                       >
-                        <option value="">Select Role</option>
-                        <option value="admin" >Admin</option>
+                        <option value="" >Select Role</option>
+                        {/* <option value="admin" >Admin</option> */}
                         <option value="manager" >Manager</option>
                         <option value="distributor" >Distributor</option>
                         <option value="agent">Agent</option>
@@ -2169,6 +2169,6 @@ const AddUser = () => {
   );
 };
 
-export default AddUser;
+export default AdminAdd;
 
 

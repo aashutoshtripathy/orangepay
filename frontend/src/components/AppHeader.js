@@ -620,12 +620,50 @@ const AppHeader = () => {
               OrangePay
             </h2>
             <CHeaderNav className="d-none d-md-flex">
-              <CNavItem>
+            <CNavItem className='d-flex align-items-center'>
                 <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
                   <span className="font-weight-bold">Welcome, </span>
                   <span className="font-weight-bold">{user.name}</span>
                   <span className="font-weight-bold"> Distributor</span>
                 </CNavLink>
+              </CNavItem>
+              <CNavItem>
+              <CNavLink to='/requests' as={NavLink} className="border p-2 m-1 rounded bg-transparent text-dark">
+                    <div className="d-flex flex-column">
+                      <span>Agent Requests</span>
+                    </div>
+                  </CNavLink>
+                </CNavItem>
+                <CNavItem>
+                  {/* <CNavLink to='/requests' as={NavLink}>Agent Requests</CNavLink> */}
+                  {/* <CNavLink to='/requests' as={NavLink} className="border p-2 m-1 rounded bg-transparent text-dark">
+                    <div className="d-flex flex-column">
+                      <span>Manager Requests</span>
+                    </div>
+                  </CNavLink> */}
+                </CNavItem>
+                <CNavItem>
+                  {/* <CNavLink to='/requests' as={NavLink}>Agent Requests</CNavLink> */}
+                  {/* <CNavLink to='/requests' as={NavLink} className="border p-2 m-1 rounded bg-transparent text-dark">
+                    <div className="d-flex flex-column">
+                      <span>Distributor Requests</span>
+                    </div>
+                  </CNavLink> */}
+                </CNavItem>
+                <CNavItem>
+                  {/* <CNavLink to='/requests' as={NavLink}>Agent Requests</CNavLink> */}
+                  {/* <CNavLink to='/requests' as={NavLink} className="border p-2 m-1 rounded bg-transparent text-dark">
+                    <div className="d-flex flex-column">
+                      <span>Admin Requests</span>
+                    </div>
+                  </CNavLink> */}
+                </CNavItem>
+                <CNavItem>
+                  <CNavLink to='/fundrequests' as={NavLink}  className="border p-2 m-1 rounded bg-transparent text-dark">
+                  <div className="d-flex flex-column">
+                      <span>Fund Requests</span>
+                    </div>
+                  </CNavLink>
               </CNavItem>
               {/* <CNavItem>
             <CNavLink >Agent</CNavLink>
@@ -643,9 +681,8 @@ const AppHeader = () => {
               <CNavItem>
                 <CNavLink href="#">
                   {/* <CIcon icon={cilDollar} size="lg" /> */}
-                  <span style={{ fontWeight: 'bold', color: balance === 0 ? 'red' : 'green' }}>
+                  {/* <span style={{ fontWeight: 'bold', color: balance === 0 ? 'red' : 'green' }}>
                     <FontAwesomeIcon
-                      // icon={faRupeeSign}
                       style={{
                         color: balance === 0 ? 'red' : 'green',
                         fontWeight: 'bold', // Make the icon bolder
@@ -656,7 +693,7 @@ const AppHeader = () => {
                       {formatBalance(balance)}
 
                     </span>
-                  </span>
+                  </span> */}
 
 
                 </CNavLink>
@@ -747,7 +784,7 @@ const AppHeader = () => {
               OrangePay
             </h2>
             <CHeaderNav className="d-none d-md-flex">
-                <CNavItem className='d-flex align-items-center'>
+              <CNavItem>
                 <CNavLink to={`/dashboard/${userId}`} as={NavLink}>
                   <span className="font-weight-bold">Welcome, </span>
                   <span className="font-weight-bold">{user.name}</span>
@@ -783,7 +820,7 @@ const AppHeader = () => {
                   {/* <CNavLink to='/requests' as={NavLink}>Agent Requests</CNavLink> */}
                   {/* <CNavLink to='/requests' as={NavLink} className="border p-2 m-1 rounded bg-transparent text-dark">
                     <div className="d-flex flex-column">
-                      <span>Admin Requests</span> 
+                      <span>Admin Requests</span>
                     </div>
                   </CNavLink> */}
                 </CNavItem>

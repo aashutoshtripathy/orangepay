@@ -139,22 +139,7 @@ const validateConsumerId = (value) => {
   // const API_URL = 'http://1.6.61.79/BiharService/BillInterface.asmx';
   const API_URL = '/api/v1/users/BiharService/BillInterface'
 
-  const soapRequest = (consumerId, amount) => `
-  <?xml version="1.0" encoding="utf-8"?>
-  <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Body>
-      <BillDetails xmlns="http://tempuri.org/">
-        <strCANumber>${consumerId}</strCANumber>
-        <strDivision></strDivision>
-        <strSubDivision></strSubDivision>
-        <strLegacyNo></strLegacyNo>
-        <strMerchantCode>${MERCHANT_CODE}</strMerchantCode>
-        <strMerchantPassword>${MERCHANT_PASSWORD}</strMerchantPassword>
-        <Amount>${amount}</Amount>
-      </BillDetails>
-    </soap:Body>
-  </soap:Envelope>
-`;
+ 
 
 
   const handleFetchBill = async () => {
@@ -195,11 +180,16 @@ const validateConsumerId = (value) => {
           subDivision,
         });
         setFetchBillSuccess(true);
-      } else {
+        } else {
+          setFetchBillSuccess(false);
+          setIsBillFetched(false)
         console.error('No consumer data found.');
         // Handle case when no data is found
       }
     } catch (error) {
+      setFetchBillSuccess(false);
+      setIsBillFetched(false)
+      setConsumerIdError('No Records Found With This Consumer ID.')
       console.error('Error fetching bill:', error);
       // Handle error appropriately, e.g., show an alert
     }
@@ -479,7 +469,7 @@ const handleConsumerIdFocus = () => {
             </>
           )}
 
-          {isBillFetched && (
+          {fetchBillSuccess && (
             <>
               {/* {billDetails && (
                 <div className="mt-4">

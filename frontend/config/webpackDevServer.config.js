@@ -100,6 +100,15 @@ module.exports = function (proxy, allowedHost) {
         },
         secure: false,
       },
+      {
+        context: ['/eze'],
+        target: 'https://demo.ezetap.com',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/eze': '',  // Path rewriting rule
+        },
+        secure: false,
+      },
     ],
     setupMiddlewares: (middlewares, devServer) => {
       devServer.app.use(evalSourceMapMiddleware(devServer));
