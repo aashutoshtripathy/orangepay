@@ -39,6 +39,7 @@ const RejectedUser = React.lazy(() => import('./views/pages/usermangement/Reject
 const UpdateUser = React.lazy(() => import('./views/pages/profile/UpdateProfile.js'))
 const Payment = React.lazy(() => import('./views/pages/payment/Payment.js'))
 const PaymentOnline = React.lazy(() => import('./views/pages/payment/PaymentOnline.js'))
+const PaymentOn = React.lazy(() => import('./views/pages/payment/PaymentOn.js'))
 const Topup = React.lazy(() => import('./views/pages/payment/Topup.js'))
 const Prepaid = React.lazy(() => import('./views/pages/payment/Prepaid.js'))
 const Cancelation = React.lazy(() => import('./views/pages/payment/Cancelation.js'))
@@ -163,6 +164,7 @@ const routes = [
   { path: '/view-detailss', name: 'Agent Details', element: ViewDetailss },
   { path: '/reports/:userId', name: 'View Details', element: SuperAdminReport },
   { path: '/paymentonline', name: 'Payment', element: PaymentOnline },
+  { path: '/paymenton', name: 'Payment', element: PaymentOn },
   { path: '/contact-us', name: 'Contact Us', element: ContactUs },
   { path: '/request-fund', name: 'Request Fund', element: RequestFundPage },
   { path: '/re-posting-bill', name: 'Request Fund', element: RepostingBill },

@@ -104,38 +104,6 @@ import userRouter from "./routes/user.routes.js"
 import bodyParser from "body-parser";
 import { Payment } from "./model/Payment.model.js";
 
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, 'uploads/');
-//     },
-//     filename: function (req, file, cb) {
-//         cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
-//     }
-// });
-
-// // Initialize Multer upload
-// const multerUpload = multer({ storage: storage });
-
-// // Serve the "uploads" folder statically
-// app.use('/uploads', express.static('uploads'));
-
-// // Define route to handle file upload
-// app.post('/upload', multerUpload.single('photograph'), (req, res) => {
-//     try {
-//         if (!req.file) {
-//             return res.status(400).send('No file uploaded.');
-//         }
-
-//         res.status(200).json({
-//             message: 'File uploaded successfully',
-//             file: req.file
-//         });
-//     } catch (error) {
-//         res.status(500).send(error.message);
-//     }
-// });
-
-
 
 const formatDateTime = () => { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const day = String(now.getDate()).padStart(2, '0'); const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); const seconds = String(now.getSeconds()).padStart(2, '0'); return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`; };
 
@@ -187,15 +155,20 @@ const fetchBillDetails = async (consumerId) => {
         "BillDetailsResult"
       ][0];
 
+
+
     // Extract required details
     return {
+      caNumber: billDetails["CANumber"]?.[0] || null,
       dueDate: billDetails["DueDate"]?.[0] || null,
+      mobileNumber: billDetails["MobileNumber"]?.[0] || null,
       invoiceNumber: billDetails["InvoiceNO"]?.[0] || null,
       consumerName: billDetails["ConsumerName"]?.[0] || null,
       division: billDetails["Division"]?.[0] || null,
       subDivision: billDetails["SubDivision"]?.[0] || null,
       billMonth: billDetails["BillMonth"]?.[0] || null,
       amount: billDetails["Amount"]?.[0] || null,
+      address: billDetails["Address"]?.[0] || null,
       companyName: billDetails["CompanyName"]?.[0] || null,
     };
   } catch (error) {
@@ -203,6 +176,58 @@ const fetchBillDetails = async (consumerId) => {
     throw new Error("Failed to fetch bill details");
   }
 };
+
+
+// Process payment function
+const processPayments = async (paymentMethod, billDetails, amount) => {
+  // const transactionId = payment.transactionId || `txn_${Date.now()}`;
+  const checksum = generateChecksum(amount, "d8bKEaX1XEtB");
+  const formattedDateTime = formatDateTime();
+
+  const paymentXmlPayload = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <PaymentDetails xmlns="http://tempuri.org/">
+      <strCANumber>${String(billDetails.caNumber)}</strCANumber>
+      <strInvoiceNo>${billDetails.invoiceNumber}</strInvoiceNo>
+      <strDueDate>${billDetails.dueDate}</strDueDate>
+      <strAmount>${amount}</strAmount>
+      <strCompanyCode>SBPDCL</strCompanyCode>
+      <strTransactionId>${billDetails.transactionId}</strTransactionId>
+      <strTransactionDateTime>${formattedDateTime}</strTransactionDateTime>
+      <strReceiptNo>${billDetails.transactionId}</strReceiptNo>
+      <strBankRefCode></strBankRefCode>
+      <strBankId></strBankId>
+      <strPaymentMode>${paymentMethod}</strPaymentMode>
+      <strMerchantCode>BSPDCL_RAPDRP_16</strMerchantCode>
+      <strMerchantPassword>OR1f5pJeM9q@G26TR9nPY</strMerchantPassword>
+      <strCkeckSum>${checksum}</strCkeckSum>
+    </PaymentDetails>
+  </soap:Body>
+</soap:Envelope>
+  `;
+
+
+
+
+
+
+  // console.log(paymentXmlPayload)
+
+  try {
+    const response = await axios.post(
+      "http://1.6.61.79/BiharService/BillInterface.asmx?op=PaymentDetails",
+      paymentXmlPayload,
+      { headers: { "Content-Type": "text/xml; charset=utf-8" } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in processPayment:", error.response?.data || error.message);
+    throw error;
+  }
+  
+};
+
 
 // Process payment function
 const processPayment = async (payment, billDetails, amount) => {
@@ -409,7 +434,7 @@ app.post('/api/v1/users/start-scheduler', async (req, res) => {
 
 
 
-app.post('/api/bill-details', async (req, res) => {
+app.post('/api/v1/users/bill-details', async (req, res) => {
   const { consumerId } = req.body;
   try {
     const billDetails = await fetchBillDetails(consumerId);
@@ -418,6 +443,233 @@ app.post('/api/bill-details', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
+app.post('/api/v1/users/process-payment', async (req, res) => {
+  const {paymentMethod, billDetails, amount } = req.body;
+
+  // Validate input parameters
+  if (!billDetails || !amount) {
+    return res.status(400).json({ error: "Missing required fields: billDetails, amount" });
+  }
+
+  try {
+    // Call the processPayment function
+    const result = await processPayments(paymentMethod ,billDetails, amount);
+    
+    if (!result) {
+      return res.status(500).json({ error: "No response data from payment processing" });
+    }
+    
+    console.log("Raw response data:", result);  // Log the raw response data
+
+    // Parse the XML response
+    xml2js.parseString(result, { trim: true, explicitArray: false }, (err, parsedResult) => {
+      if (err) {
+        console.error("Error parsing XML response:", err.message);
+        return res.status(500).json({ error: "Failed to parse payment response" });
+      }
+
+      // Log the parsed result to verify structure
+      console.log("Parsed XML Result:", parsedResult);
+
+      // Safely access the properties using optional chaining
+      const statusFlag = parsedResult?.['soap:Envelope']?.['soap:Body']?.['PaymentDetailsResponse']?.['PaymentDetailsResult']?.StatusFlag;
+      const message = parsedResult?.['soap:Envelope']?.['soap:Body']?.['PaymentDetailsResponse']?.['PaymentDetailsResult']?.Message;
+
+      if (!statusFlag) {
+        console.error("StatusFlag is missing");
+        return res.status(500).json({ error: "Missing StatusFlag in response" });
+      }
+
+      if (!message) {
+        console.error("Message is missing");
+        return res.status(500).json({ error: "Missing Message in response" });
+      }
+
+      console.log("Status Flag:", statusFlag);  // Log Status Flag
+      console.log("Message:", message);  // Log Message
+
+      const transactionId = billDetails.transactionId;
+
+
+      if (statusFlag === "1") {
+        // Successful payment
+        return res.status(200).json({
+          success: true,
+          transactionId: transactionId, 
+          message: "Payment processed successfully",
+          data: parsedResult,
+        });
+      } else {
+        // Failed payment
+        return res.status(400).json({
+          success: false,
+          message: message || "Payment failed",
+          data: parsedResult,
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Error processing payment:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+app.post('/api/v1/users/process-bill', async (req, res) => {
+  const { transactionId } = req.body;
+
+  // Validate that transactionId is provided
+  if (!transactionId) {
+    return res.status(400).json({ error: "Missing required field: transactionId" });
+  }
+
+  try {
+    // Call the processBill function
+    const result = await processBill(transactionId);
+
+    // Parse the XML response
+    xml2js.parseString(result, { trim: true }, (err, parsedResult) => {
+      if (err) {
+        console.error("Error parsing XML response:", err.message);
+        return res.status(500).json({ error: "Failed to parse bill response" });
+      }
+    
+      console.log("Parsed XML response:", parsedResult);  // Log the parsed result to inspect the structure
+    
+      // Extract the relevant fields from the parsed XML response
+      const paymentResult = parsedResult?.['soap:Envelope']?.['soap:Body']?.[0]?.['PaymentReceiptDetailsResponse']?.[0]?.['PaymentReceiptDetailsResult']?.[0];
+      
+      if (!paymentResult) {
+        return res.status(500).json({ error: "Invalid response structure" });
+      }
+
+      // Extract specific fields from the response
+      const receiptNo = paymentResult['BSPDCL_Receipt_No']?.[0];
+      const transactionId = paymentResult['Transaction_Id']?.[0];
+      const consumerName = paymentResult['ConsumerName']?.[0];
+      const billNo = paymentResult['BillNo']?.[0];
+      const billDueDate = paymentResult['BillDueDate']?.[0];
+      const modePayment = paymentResult['ModePayment']?.[0];
+      const paymentDateTime = paymentResult['PaymentDateTime']?.[0];
+      const consumerId = paymentResult['CANumber']?.[0];
+      const amountPaid = paymentResult['AmountPaid']?.[0];
+      const errorMessage = paymentResult['ErrorMessage']?.[0]; // Default to failure if no errorMessage
+      
+
+      // If the errorMessage is empty, consider the bill processed successfully
+      if (errorMessage === "") {
+
+      // Update the transaction with receiptNo in the database
+     
+          // If transaction is updated successfully, send a success response
+          return res.status(200).json({
+            success: true,
+            message: "Bill processed successfully",
+            data: {
+              consumerId,
+              receiptNo,
+              transactionId,
+              consumerName,
+              amountPaid,
+              billNo,
+              billDueDate,
+              modePayment,
+              paymentDateTime,
+            },
+          });
+      
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: errorMessage,
+          data: {
+            receiptNo,
+            transactionId,
+            consumerName,
+            amountPaid
+          }
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Error processing bill:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+
+
+
+
+const fetchConsumerBalanceDetails = async (consumerId) => {
+  const USERNAME = "SMOR";
+  const PASSWORD = "Op#4321@$M";
+  const xmlPayload = `
+    <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+      <soap12:Header>
+        <UserCredentials xmlns="http://bsphcl.co.in/">
+          <username>${USERNAME}</username>
+          <password>${PASSWORD}</password>
+        </UserCredentials>
+      </soap12:Header>
+      <soap12:Body>
+        <GetConsumerBalanceDetails xmlns="http://bsphcl.co.in/">
+          <StrCANumber>${consumerId}</StrCANumber>
+        </GetConsumerBalanceDetails>
+      </soap12:Body>
+    </soap12:Envelope>
+  `;
+
+  try {
+    const response = await axios.post(
+      "http://hargharbijli.bsphcl.co.in/WebServiceExternal/WebServiceOPSM.asmx?op=GetConsumerBalanceDetails",
+      xmlPayload,
+      {
+        headers: {
+          "Content-Type": "application/soap+xml; charset=utf-8",
+        },
+      }
+    );
+
+    const parsedResponse = await parseStringPromise(response.data);
+    const balanceDetails = parsedResponse["soap12:Envelope"]["soap12:Body"][0]["GetConsumerBalanceDetailsResponse"][0]["GetConsumerBalanceDetailsResult"][0];
+
+    // Extract required details
+    return {
+      consumerId: balanceDetails["ConsumerId"]?.[0] || null,
+      balanceAmount: balanceDetails["BalanceAmount"]?.[0] || null,
+      dueAmount: balanceDetails["DueAmount"]?.[0] || null,
+      paymentStatus: balanceDetails["PaymentStatus"]?.[0] || null,
+    };
+  } catch (error) {
+    console.error("Error fetching consumer balance details:", error.message);
+    throw new Error("Failed to fetch consumer balance details");
+  }
+};
+
+
+
+
+
+
+
+app.post('/api/v1/users/consumer-balance-details', async (req, res) => {
+  const { consumerId } = req.body;
+  try {
+    const balanceDetails = await fetchConsumerBalanceDetails(consumerId);
+    res.status(200).json(balanceDetails);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 
 
 

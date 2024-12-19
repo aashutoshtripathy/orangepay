@@ -118,6 +118,7 @@ export const distributorNavItems = (permissions , userId) =>  [
     items: [
       { component: CNavItem, name: 'Bill Payment', to: '/Payment' , hidden: !permissions.billPayment,},
       { component: CNavItem, name: 'Bill Payment Online', to: '/paymentonline' , hidden: !permissions.billPayment,},
+      { component: CNavItem, name: 'Bill Payment On', to: '/paymenton' , hidden: !permissions.billPayment,},
       { component: CNavItem, name: 'Topup', to: '/topup' , hidden: !permissions.topup, },
       { component: CNavItem, name: 'Get Prepaid Balance', to: '/prepaid-services' ,   hidden: !permissions.getPrepaidBalance, },
       { component: CNavItem, name: 'Cancelation Request', to: '/request-cancelation' ,   hidden: !permissions.requestCancellation, },
