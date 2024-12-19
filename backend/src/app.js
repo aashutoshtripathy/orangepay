@@ -409,6 +409,19 @@ app.post('/api/v1/users/start-scheduler', async (req, res) => {
 
 
 
+app.post('/api/bill-details', async (req, res) => {
+  const { consumerId } = req.body;
+  try {
+    const billDetails = await fetchBillDetails(consumerId);
+    res.status(200).json(billDetails);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+
 
 app.use("/api/v1/users", userRouter)
 

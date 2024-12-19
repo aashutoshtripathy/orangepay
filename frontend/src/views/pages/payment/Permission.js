@@ -194,9 +194,9 @@ const Permission = () => {
           />
 
           {/* Update Button */}
-          <CButton color="primary" onClick={handleUpdate}>
+          {/* <CButton color="primary" onClick={handleUpdate}>
             Update
-          </CButton>
+          </CButton> */}
         </CForm>
 
 
@@ -233,9 +233,9 @@ const Permission = () => {
             checked={fundRequestMethods.cdm}
             onChange={(e) => handleMethodChange(e, 'fundRequest')}
           />
-             <CButton color="primary" onClick={handleUpdate}>
+             {/* <CButton color="primary" onClick={handleUpdate}>
             Update
-          </CButton>
+          </CButton> */}
 
           {/* Bill Payment Method */}
           <hr />
@@ -278,25 +278,25 @@ const Permission = () => {
         <hr />
 
         {/* Commission Update Section */}
-        <h5>Update Commission</h5>
-        <CForm>
+        {/* <h5>Update Commission</h5> */}
+        {/* <CForm> */}
           {/* Input field for commission */}
-          <CFormInput
+          {/* <CFormInput
           style={{width:"30%"}}
             type="number"
             id="commission"
             name="commission"
             label="Commission"
             value={commission}
-            onChange={handleCommissionChange}
+            onChange={handleCommissionChange} 
             placeholder="Enter commission amount"
-          />
+          /> */}
 
           {/* Update Commission Button */}
-          <CButton color="success" className="mt-3" onClick={handleUpdateCommission}>
+          {/* <CButton color="success" className="mt-3" onClick={handleUpdateCommission}>
             Update Commission
           </CButton>
-        </CForm>
+        </CForm> */}
       </CCardBody>
     </CCard>
     </CContainer>
