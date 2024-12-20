@@ -22,6 +22,8 @@ const SwitchDatabase = React.lazy(() => import('./views/pages/databasemanagement
 const SwitchGetway = React.lazy(() => import('./views/pages/databasemanagement/SwitchGetway'))
 const sbdata = React.lazy(() => import('./views/pages/databasemanagement/SbData.js'))
 const Reports = React.lazy(() => import('./views/pages/reports/Reports'))
+const DailyCollectionReports = React.lazy(() => import('./views/pages/reports/DailyCollection.js'))
+const DailyFundReports = React.lazy(() => import('./views/pages/reports/Reports'))
 const AddUser = React.lazy(() => import('./views/pages/usermangement/AddUser'))
 const AddUserDistributor = React.lazy(() => import('./views/pages/usermangement/DistributorAdd.js'))
 const AddUserAdmin = React.lazy(() => import('./views/pages/usermangement/AdminAdd.js'))
@@ -131,6 +133,8 @@ const routes = [
   { path: '/change-tpin', name: 'CHANGE TPIN', element: ChangeTpin },
   { path: '/monthly-billing', name: 'Monthly Billing Master', element: MonthlyBill },
   { path: '/report', name: 'Report', element: Reports },
+  { path: '/daily-collection-report', name: 'Report', element: DailyCollectionReports },
+  { path: '/daily-fund-report', name: 'Report', element: DailyFundReports },
   { path: '/add-user', name: 'Add User', element: AddUser },
   { path: '/add-user-distributor', name: 'Add User', element: AddUserDistributor },
   { path: '/add-user-admin', name: 'Add User', element: AddUserAdmin },

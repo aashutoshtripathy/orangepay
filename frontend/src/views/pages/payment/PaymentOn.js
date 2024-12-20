@@ -22,6 +22,8 @@ import axios from 'axios';
 import log from "../.././../assets/images/log (1).png";
 import nb from "../.././../assets/images/nb.png";
 import { sendSoapRequest, generateBillDetailsPayload, generatePaymentReceiptDetailsPayload, generatePaymentDetailsPayload } from './SoapApi';
+import './PaymentOn.css'; 
+
 
 
 const PaymentOn = () => {
@@ -29,6 +31,7 @@ const PaymentOn = () => {
   const [billDetails, setBillDetails] = useState({});
   const [mobileNumber, setMobileNumber] = useState('');
   const [data, setData] = useState({});
+  const [offData, setOffData] = useState({});
   const [amount, setAmount] = useState(500);
   const [defaultAmount, setDefaultAmount] = useState(500);
   const [selectedMethod, setSelectedMethod] = useState('wallet');
@@ -160,6 +163,7 @@ const PaymentOn = () => {
 
 
   const API_URL = '/api/v1/users/bill-details';
+  // const API_URL = '/api/v1/users/bill-detail';
   const NEW_API_URL = '/api/v1/users/BiharService/BillInterface'
 
 
@@ -218,18 +222,32 @@ const PaymentOn = () => {
       try {
         console.log('Attempting secondary API...');
         const secondaryResponse = await axios.post(NEW_API_URL, { consumerId: consumerId });
-        const consumerData = secondaryResponse.data;
+        const billDetails = secondaryResponse.data[0]; // Accessing the first object in the array
+        if (billDetails) {
+          const fetchedTransactionId = `OP${Date.now()}`;
+          setTransactionId(fetchedTransactionId);
+      
+          const companyCode = billDetails.ConsumerName === "SOUTH BIHAR POWER DISTRIBUTION COMPANY LTD" 
+            ? "SBPDCL" 
+            : billDetails.ConsumerName;
+      
+          const fetchedBillData = {
+            caNumber: billDetails.ConsumerId.trim(), // Removing trailing spaces
+            // dueDate: billDetails.dueDate,
+            mobileNumber: billDetails.mobileNumber || "N/A", // Assuming `mobileNumber` might be part of a future API update
+            // invoiceNumber: billDetails.invoiceNo,
+            consumerName: billDetails.ConsumerName,
+            division: billDetails.DivisionName,
+            subDivision: billDetails.SubDivision,
+            // billMonth: billDetails.billMonth,
+            // amount: billDetails.amount,
+            // address: billDetails.address || "N/A", // Assuming `address` is not in the current response but might be added
+            // companyName: companyCode,
+            // transactionId: fetchedTransactionId,
+          };
+      
+          setBillData(fetchedBillData);
   
-        if (Array.isArray(consumerData) && consumerData.length > 0) {
-          const consumer = consumerData[0];
-          setBillData({
-            consumerId: consumer.ConsumeId || '',
-            consumerName: consumer.ConsumerName || 'N/A',
-            address: consumer.Address || 'N/A',
-            mobileNo: consumer.MobileNo || 'N/A',
-            divisionName: consumer.DivisionName || 'N/A',
-            subDivision: consumer.SubDivision || 'N/A',
-          });
           setIsBillFetched(true);
           setFetchBillSuccess(true);
         } else {
@@ -290,9 +308,11 @@ const PaymentOn = () => {
             console.log('Bill processed successfully');
           } else {
             console.error('Failed to process bill:', billResponse.data.message || 'Unknown error');
+
           }
         } catch (billError) {
           console.error('Error processing bill:', billError.message || billError);
+          setShowSuccessModal(true)
         }
     
       } else {
@@ -301,6 +321,8 @@ const PaymentOn = () => {
       }
     } catch (error) {
       console.error('Error during payment or receipt fetch:', error.message || error);
+      setShowSuccessModal(true)
+
       setIsLoading(false);
     }
 }
@@ -453,7 +475,7 @@ const PaymentOn = () => {
             consumerName: billData.consumerName,
             divisionName: billData.division,
             subDivision: billData.subDivision,
-            billpoststatus: "Success",
+            billpoststatus: "Pending",
             receiptNo: data?.receiptNo,
           };
 
@@ -469,6 +491,7 @@ const PaymentOn = () => {
 
           if (paymentResponse.ok && result.success) {
             console.log('Payment successful:', result);
+            setOffData(result.data.invoice)
             setShowPinModal(false); // Close the PIN modal
             await handleProceedToPay(); // Proceed to handle payment
           } else {
@@ -776,19 +799,19 @@ const PaymentOn = () => {
           </div>
           <p>Your payment was processed successfully!</p>
 
-          <p><strong>Date/Time:</strong>  {formatKolkataTime(data.paymentDateTime) || "N/A"}</p>
+          <p><strong>Date/Time:</strong>  {formatKolkataTime(data.paymentDateTime) || formatKolkataTime(offData.paymentDateTime)}</p>
 
-          <p><strong>Receipt No.:</strong> {data.receiptNo || 'N/A'}</p>
+          <p><strong>Receipt No.:</strong> {data.receiptNo || offData.transactionId}</p>
 
-          <p><strong>Consumer No.:</strong> {data.consumerId || 'N/A'}</p>
+          <p><strong>Consumer No.:</strong> {data.consumerId || offData.canumber}</p>
 
-          <p><strong>Consumer Name:</strong> {data.consumerName || 'N/A'}</p>
+          <p><strong>Consumer Name:</strong> {data.consumerName || offData.consumerName}</p>
 
-          <p><strong>Payment Amt.:</strong> {data.amountPaid || 'N/A'}</p>
+          <p><strong>Payment Amt.:</strong> {data.amountPaid || offData.billamount}</p>
 
-          <p><strong>Payment Mode:</strong> {data.modePayment || 'N/A'}</p>
+          <p><strong>Payment Mode:</strong> {data.modePayment || offData.paymentmode}</p>
 
-          <p><strong>Transaction ID:</strong> {data.transactionId || 'N/A'}</p>
+          <p><strong>Transaction ID:</strong> {data.transactionId || offData.transactionId}</p>
 
           <p><strong>Payment Status:</strong> Transaction success</p>
 

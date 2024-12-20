@@ -530,6 +530,50 @@ const getTotalPayments = asyncHandler(async (req, res) => {
 });
 
 
+const getTotalPaymentss = asyncHandler(async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ success: false, message: 'Start Date and End Date are required.' });
+    }
+
+    const formattedStartDate = moment.tz(startDate, 'Asia/Kolkata').startOf('day').toDate();
+    const formattedEndDate = moment.tz(endDate, 'Asia/Kolkata').endOf('day').toDate();
+
+    // Debugging logs
+    console.log("Received Query Params:", { startDate, endDate });
+    console.log("Formatted Dates (UTC):", { formattedStartDate, formattedEndDate });
+
+    // Query the database
+    const query = {
+      paymentdate: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
+
+    console.log("Query:", query);
+
+
+    const payments = await Payment.find(query).exec();
+
+    if (!payments || payments.length === 0) {
+      return res.status(404).json({ success: false, message: 'No payments found for the selected dates.' });
+    }
+
+    console.log("Fetched payments:", payments);
+
+
+    return res.status(200).json({ success: true, data: payments });
+    
+  } catch (error) {
+    console.error("Error fetching payments:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
 
 
 
@@ -704,5 +748,5 @@ const insertBillDetails = asyncHandler(async (req, res) => {
 
 
 
-export { processPayment, getPayment, repostingBill , getTotalPayments, WalletReport,TopupReport, getAllSbdata, getDailyBalance, BiharService, getPayments, getPaymentss, fetchReward, insertBillDetails, getTotalBalance };
+export { processPayment, getPayment, repostingBill , getTotalPayments, getTotalPaymentss, WalletReport,TopupReport, getAllSbdata, getDailyBalance, BiharService, getPayments, getPaymentss, fetchReward, insertBillDetails, getTotalBalance };
 

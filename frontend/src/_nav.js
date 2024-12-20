@@ -91,6 +91,10 @@ export const adminNavItems = [
     name: 'Reports',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     items: [
+      { component: CNavItem, name: 'Daily Collection Reports' , to: '/daily-collection-report' },
+      { component: CNavItem, name: 'Daily fund Reports' , to: '/report' },
+      { component: CNavItem, name: 'Collection Reports' , to: '/report' },
+      { component: CNavItem, name: 'Collection Reports' , to: '/report' },
       { component: CNavItem, name: 'Collection Reports' , to: '/report' },
       { component: CNavItem, name: 'Fund Reports' , to: '/fund-report' },
     ],

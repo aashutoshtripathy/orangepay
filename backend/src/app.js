@@ -445,9 +445,8 @@ app.post('/api/v1/users/bill-details', async (req, res) => {
 });
 
 
-
 app.post('/api/v1/users/process-payment', async (req, res) => {
-  const {paymentMethod, billDetails, amount } = req.body;
+  const { paymentMethod, billDetails, amount } = req.body;
 
   // Validate input parameters
   if (!billDetails || !amount) {
@@ -456,61 +455,67 @@ app.post('/api/v1/users/process-payment', async (req, res) => {
 
   try {
     // Call the processPayment function
-    const result = await processPayments(paymentMethod ,billDetails, amount);
-    
+    const result = await processPayments(paymentMethod, billDetails, amount);
+
     if (!result) {
       return res.status(500).json({ error: "No response data from payment processing" });
     }
-    
+
     console.log("Raw response data:", result);  // Log the raw response data
 
-    // Parse the XML response
-    xml2js.parseString(result, { trim: true, explicitArray: false }, (err, parsedResult) => {
-      if (err) {
-        console.error("Error parsing XML response:", err.message);
-        return res.status(500).json({ error: "Failed to parse payment response" });
+    // Parse the XML response using promise-based API
+    const parsedResult = await xml2js.parseStringPromise(result, { trim: true, explicitArray: false });
+
+    // Log the parsed result to verify structure
+    console.log("Parsed XML Result:", parsedResult);
+
+    // Safely access the properties using optional chaining
+    const statusFlag = parsedResult?.['soap:Envelope']?.['soap:Body']?.['PaymentDetailsResponse']?.['PaymentDetailsResult']?.StatusFlag;
+    const message = parsedResult?.['soap:Envelope']?.['soap:Body']?.['PaymentDetailsResponse']?.['PaymentDetailsResult']?.Message;
+
+    if (!statusFlag) {
+      console.error("StatusFlag is missing");
+      return res.status(500).json({ error: "Missing StatusFlag in response" });
+    }
+
+    if (!message) {
+      console.error("Message is missing");
+      return res.status(500).json({ error: "Missing Message in response" });
+    }
+
+    console.log("Status Flag:", statusFlag);  // Log Status Flag
+    console.log("Message:", message);  // Log Message
+
+    const transactionId = billDetails.transactionId;
+
+    if (statusFlag === "1") {
+      const transactionUpdate = await Payment.findOne({ transactionId });
+
+      if (!transactionUpdate) {
+        return res.status(404).json({ error: "Transaction ID not found in the Payment table" });
       }
 
-      // Log the parsed result to verify structure
-      console.log("Parsed XML Result:", parsedResult);
+      // Update the receiptNo field
+      transactionUpdate.billpoststatus = "Success";
 
-      // Safely access the properties using optional chaining
-      const statusFlag = parsedResult?.['soap:Envelope']?.['soap:Body']?.['PaymentDetailsResponse']?.['PaymentDetailsResult']?.StatusFlag;
-      const message = parsedResult?.['soap:Envelope']?.['soap:Body']?.['PaymentDetailsResponse']?.['PaymentDetailsResult']?.Message;
+      // Save the updated document back to the database
+      await transactionUpdate.save();
 
-      if (!statusFlag) {
-        console.error("StatusFlag is missing");
-        return res.status(500).json({ error: "Missing StatusFlag in response" });
-      }
-
-      if (!message) {
-        console.error("Message is missing");
-        return res.status(500).json({ error: "Missing Message in response" });
-      }
-
-      console.log("Status Flag:", statusFlag);  // Log Status Flag
-      console.log("Message:", message);  // Log Message
-
-      const transactionId = billDetails.transactionId;
-
-
-      if (statusFlag === "1") {
-        // Successful payment
-        return res.status(200).json({
-          success: true,
-          transactionId: transactionId, 
-          message: "Payment processed successfully",
-          data: parsedResult,
-        });
-      } else {
-        // Failed payment
-        return res.status(400).json({
-          success: false,
-          message: message || "Payment failed",
-          data: parsedResult,
-        }); 
-      }
-    });
+      // Successful payment
+      return res.status(200).json({
+        success: true,
+        transactionId: transactionId,
+        message: "Payment processed successfully",
+        data: parsedResult,
+      });
+    } else {
+      // Failed payment
+      return res.status(400).json({
+        success: false,
+        message: message || "Payment failed",
+        data: parsedResult,
+      });
+    }
   } catch (error) {
     console.error("Error processing payment:", error.message);
     return res.status(500).json({ error: error.message });
@@ -573,7 +578,7 @@ app.post('/api/v1/users/process-bill', async (req, res) => {
         }
         
         // Update the receiptNo field
-        transactionUpdate.receiptno = receiptNo;
+        transactionUpdate.reciptno = receiptNo;
         
         // Save the updated document back to the database
         await transactionUpdate.save();
@@ -711,6 +716,53 @@ app.post('/api/v1/users/consumer-balance-details', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
+
+
+const generateChecksume = (amount) => {
+  // Implement checksum generation logic here
+  return `${secretKey}`;
+};
+
+
+app.post('api/v1/users/generate-qrcode', async (req, res) => {
+  const { amount, customerMobileNumber, customerName, externalRefNumber, username } = req.body;
+
+  // Check if required fields are present
+  if (!amount || !customerMobileNumber || !customerName || !externalRefNumber || !username) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Prepare the request body to send to the external API
+  const requestBody = {
+    amount: parseFloat(amount),
+    appKey: process.env.EZETAP_APP_KEY || '74820c5e-7ed9-401c-bfcd-9bd47d525ae6', // Your app key
+    customerMobileNumber,
+    customerName,
+    externalRefNumber,
+    username,
+    checksum: generateChecksume(amount), // Generate checksum
+  };
+
+  try {
+    // Make the request to the external API
+    const response = await axios.post(ezetapApiUrl, requestBody);
+
+    // Check if the response contains the qrCodeUri
+    if (response.data && response.data.qrCodeUri) {
+      return res.json({ qrCodeUri: response.data.qrCodeUri });
+    } else {
+      return res.status(500).json({ error: 'Failed to generate QR code' });
+    }
+  } catch (error) {
+    console.error('Error while generating QR code:', error);
+    return res.status(500).json({ error: 'An error occurred while generating the QR code' });
+  }
+});
+
+// Simple checksum generation (replace with the actual algorithm)
 
 
 

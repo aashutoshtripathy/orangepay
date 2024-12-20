@@ -118,7 +118,12 @@ const paymentSchema = new Schema({
   },
   paymentdate: {
     type: Date,
-    default: Date.now
+    default: () => {
+      const today = new Date();
+      // Set time to 00:00:00.000 to ensure only the date is stored
+      today.setHours(0, 0, 0, 0);
+      return today;
+    },
   },
   latitude: {
     type: Number,
