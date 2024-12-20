@@ -42,6 +42,7 @@ const PaymentOnline = React.lazy(() => import('./views/pages/payment/PaymentOnli
 const PaymentOn = React.lazy(() => import('./views/pages/payment/PaymentOn.js'))
 const Topup = React.lazy(() => import('./views/pages/payment/Topup.js'))
 const Prepaid = React.lazy(() => import('./views/pages/payment/Prepaid.js'))
+const PrepaidRecharge = React.lazy(() => import('./views/pages/payment/PrepaidRecharge.js'))
 const Cancelation = React.lazy(() => import('./views/pages/payment/Cancelation.js'))
 const CancellationDetails = React.lazy(() => import('./views/pages/payment/CancellationDetails.js'))
 const Permission = React.lazy(() => import('./views/pages/payment/Permission.js'))
@@ -149,6 +150,7 @@ const routes = [
   { path: '/permission/:userId', name: 'Payment', element: Permission },
   { path: '/topup', name: 'TopUp', element: Topup },
   { path: '/prepaid-services', name: 'Prepaid-Balance', element: Prepaid },
+  { path: '/prepaid-balance-services', name: 'Prepaid-Balance', element: PrepaidRecharge },
   { path: '/request-cancelation', name: 'Request-Cancelation', element: Cancelation },
   { path: '/request-cancelation-details', name: 'Cancelation-Details', element: CancellationDetails },
   { path: '/update-user/:userId', name: 'Update User', element: UpdateUser },

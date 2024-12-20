@@ -121,6 +121,7 @@ export const distributorNavItems = (permissions , userId) =>  [
       { component: CNavItem, name: 'Bill Payment On', to: '/paymenton' , hidden: !permissions.billPayment,},
       { component: CNavItem, name: 'Topup', to: '/topup' , hidden: !permissions.topup, },
       { component: CNavItem, name: 'Get Prepaid Balance', to: '/prepaid-services' ,   hidden: !permissions.getPrepaidBalance, },
+      { component: CNavItem, name: 'Get Prepaid Balance', to: '/prepaid-balance-services' ,    },
       { component: CNavItem, name: 'Cancelation Request', to: '/request-cancelation' ,   hidden: !permissions.requestCancellation, },
       { component: CNavItem, name: 'Fund Request', to: '/request-fund' ,    },
     ],

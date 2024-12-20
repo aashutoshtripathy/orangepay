@@ -508,7 +508,7 @@ app.post('/api/v1/users/process-payment', async (req, res) => {
           success: false,
           message: message || "Payment failed",
           data: parsedResult,
-        });
+        }); 
       }
     });
   } catch (error) {
@@ -528,18 +528,22 @@ app.post('/api/v1/users/process-bill', async (req, res) => {
   }
 
   try {
+    console.log("Received transaction ID:", transactionId);
+
     // Call the processBill function
     const result = await processBill(transactionId);
 
+    console.log("Raw XML Response:", result);
+
     // Parse the XML response
-    xml2js.parseString(result, { trim: true }, (err, parsedResult) => {
+    xml2js.parseString(result, { trim: true }, async (err, parsedResult) => {
       if (err) {
         console.error("Error parsing XML response:", err.message);
         return res.status(500).json({ error: "Failed to parse bill response" });
       }
-    
-      console.log("Parsed XML response:", parsedResult);  // Log the parsed result to inspect the structure
-    
+
+      console.log("Parsed XML Response:", JSON.stringify(parsedResult, null, 2));
+
       // Extract the relevant fields from the parsed XML response
       const paymentResult = parsedResult?.['soap:Envelope']?.['soap:Body']?.[0]?.['PaymentReceiptDetailsResponse']?.[0]?.['PaymentReceiptDetailsResult']?.[0];
       
@@ -549,7 +553,6 @@ app.post('/api/v1/users/process-bill', async (req, res) => {
 
       // Extract specific fields from the response
       const receiptNo = paymentResult['BSPDCL_Receipt_No']?.[0];
-      const transactionId = paymentResult['Transaction_Id']?.[0];
       const consumerName = paymentResult['ConsumerName']?.[0];
       const billNo = paymentResult['BillNo']?.[0];
       const billDueDate = paymentResult['BillDueDate']?.[0];
@@ -557,32 +560,49 @@ app.post('/api/v1/users/process-bill', async (req, res) => {
       const paymentDateTime = paymentResult['PaymentDateTime']?.[0];
       const consumerId = paymentResult['CANumber']?.[0];
       const amountPaid = paymentResult['AmountPaid']?.[0];
-      const errorMessage = paymentResult['ErrorMessage']?.[0]; // Default to failure if no errorMessage
-      
+      const errorMessage = paymentResult['ErrorMessage']?.[0] || ""; // Default to an empty string if undefined
 
-      // If the errorMessage is empty, consider the bill processed successfully
       if (errorMessage === "") {
+        console.log("Bill processed successfully. Updating database...");
 
-      // Update the transaction with receiptNo in the database
-     
-          // If transaction is updated successfully, send a success response
-          return res.status(200).json({
-            success: true,
-            message: "Bill processed successfully",
-            data: {
-              consumerId,
-              receiptNo,
-              transactionId,
-              consumerName,
-              amountPaid,
-              billNo,
-              billDueDate,
-              modePayment,
-              paymentDateTime,
-            },
-          });
-      
+        // Update the transaction with receiptNo in the Payment table
+        const transactionUpdate = await Payment.findOne({ transactionId });
+
+        if (!transactionUpdate) {
+          return res.status(404).json({ error: "Transaction ID not found in the Payment table" });
+        }
+        
+        // Update the receiptNo field
+        transactionUpdate.receiptno = receiptNo;
+        
+        // Save the updated document back to the database
+        await transactionUpdate.save();
+        
+        console.log("Transaction updated successfully:", transactionUpdate);
+
+        if (transactionUpdate.modifiedCount === 0) {
+          console.warn("Transaction ID not found in the database.");
+          return res.status(404).json({ error: "Transaction ID not found in the Payment table" });
+        }
+
+        // Send a success response
+        return res.status(200).json({
+          success: true,
+          message: "Bill processed successfully",
+          data: {
+            consumerId,
+            receiptNo,
+            transactionId,
+            consumerName,
+            amountPaid,
+            billNo,
+            billDueDate,
+            modePayment,
+            paymentDateTime,
+          },
+        });
       } else {
+        console.error("Error in bill processing:", errorMessage);
         return res.status(400).json({
           success: false,
           message: errorMessage,
@@ -590,8 +610,8 @@ app.post('/api/v1/users/process-bill', async (req, res) => {
             receiptNo,
             transactionId,
             consumerName,
-            amountPaid
-          }
+            amountPaid,
+          },
         });
       }
     });
@@ -637,15 +657,38 @@ const fetchConsumerBalanceDetails = async (consumerId) => {
       }
     );
 
-    const parsedResponse = await parseStringPromise(response.data);
-    const balanceDetails = parsedResponse["soap12:Envelope"]["soap12:Body"][0]["GetConsumerBalanceDetailsResponse"][0]["GetConsumerBalanceDetailsResult"][0];
+    console.log("Raw SOAP Response:", response.data);
 
-    // Extract required details
+    const parsedResponse = await parseStringPromise(response.data, {
+      explicitArray: false,
+      ignoreAttrs: true,
+    });
+
+    console.log("Parsed Response:", JSON.stringify(parsedResponse, null, 2));
+
+    // Accessing the correct nodes
+    const balanceDetailsJson =
+      parsedResponse["soap:Envelope"]?.["soap:Body"]?.["GetConsumerBalanceDetailsResponse"]?.["GetConsumerBalanceDetailsResult"];
+
+    if (!balanceDetailsJson) {
+      throw new Error("Invalid SOAP Response: Missing Balance Details");
+    }
+
+    // Parsing the embedded JSON string
+    const balanceDetails = JSON.parse(balanceDetailsJson);
+
+    console.log("Extracted Balance Details:", balanceDetails);
+
+    // Extract the required details
     return {
-      consumerId: balanceDetails["ConsumerId"]?.[0] || null,
-      balanceAmount: balanceDetails["BalanceAmount"]?.[0] || null,
-      dueAmount: balanceDetails["DueAmount"]?.[0] || null,
-      paymentStatus: balanceDetails["PaymentStatus"]?.[0] || null,
+      balance: balanceDetails.Balance || null,
+      consumerNumber: balanceDetails.Consumer_number || null,
+      responseDateTime: balanceDetails.responseDateTime || null,
+      status: balanceDetails.status || null,
+      meterNumber: balanceDetails.MeterNumber || null,
+      connectionStatus: balanceDetails.ConnectionStatus || null,
+      lastPaymentDate: balanceDetails.LastPayDt || null,
+      lastPaymentAmount: balanceDetails.LastPayAmt || null,
     };
   } catch (error) {
     console.error("Error fetching consumer balance details:", error.message);
