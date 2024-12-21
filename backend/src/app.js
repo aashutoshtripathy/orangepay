@@ -14,6 +14,8 @@ import axios from "axios";
 import { parseStringPromise} from 'xml2js';
 import xml2js from "xml2js"
 import { crc32 } from "crc";
+import crypto from 'crypto';
+
 
 
 
@@ -721,49 +723,52 @@ app.post('/api/v1/users/consumer-balance-details', async (req, res) => {
 
 
 
-const generateChecksume = (amount) => {
-  // Implement checksum generation logic here
-  return `${secretKey}`;
-};
+app.post('/api/v1/users/generate-qr', async (req, res) => {
+  const { amount, customerMobileNumber, customerName } = req.body;
 
-
-app.post('api/v1/users/generate-qrcode', async (req, res) => {
-  const { amount, customerMobileNumber, customerName, externalRefNumber, username } = req.body;
-
-  // Check if required fields are present
-  if (!amount || !customerMobileNumber || !customerName || !externalRefNumber || !username) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!amount || isNaN(amount) || amount <= 0) {
+    return res.status(400).json({ message: 'Invalid amount' });
   }
 
-  // Prepare the request body to send to the external API
+  const externalRefNumber = `OP${Date.now()}`; // Unique reference number
   const requestBody = {
     amount: parseFloat(amount),
-    appKey: process.env.EZETAP_APP_KEY || '74820c5e-7ed9-401c-bfcd-9bd47d525ae6', // Your app key
+    appKey: '74820c5e-7ed9-401c-bfcd-9bd47d525ae6',
     customerMobileNumber,
     customerName,
     externalRefNumber,
-    username,
-    checksum: generateChecksume(amount), // Generate checksum
+    username: 9810698100,
+    checksum: generateChecksume(amount), // Attach checksum
   };
 
   try {
-    // Make the request to the external API
-    const response = await axios.post(ezetapApiUrl, requestBody);
+    const response = await axios.post(
+      'https://demo.ezetap.com/api/2.0/merchant/upi/qrcode/generate',
+      requestBody
+    );
 
-    // Check if the response contains the qrCodeUri
     if (response.data && response.data.qrCodeUri) {
-      return res.json({ qrCodeUri: response.data.qrCodeUri });
+      return res.status(200).json({
+        qrCodeUri: response.data.qrCodeUri,
+        externalRefNumber,
+      });
     } else {
-      return res.status(500).json({ error: 'Failed to generate QR code' });
+      return res.status(500).json({ message: 'Failed to generate QR code' });
     }
   } catch (error) {
-    console.error('Error while generating QR code:', error);
-    return res.status(500).json({ error: 'An error occurred while generating the QR code' });
+    console.error('Error generating QR code:', error.message);
+    return res.status(500).json({
+      message: error.response?.data?.message || 'An error occurred',
+    });
   }
 });
 
-// Simple checksum generation (replace with the actual algorithm)
-
+// Checksum generation logic (adapt as per Ezetap's documentation)
+const generateChecksume = (amount) => {
+  const secretKey = process.env.EZETAP_SECRET_KEY || 'base64';
+  const payload = `${amount}${secretKey}`; // Example payload
+  return crypto.createHash('sha256').update(payload).digest('hex');
+};
 
 
 
