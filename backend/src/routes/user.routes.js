@@ -60,7 +60,7 @@ router.route("/unblock/:userId").post(unblockUser)
 router.route("/fetch_data").get(fetchData)
 router.route("/images/:userId/:imageFileName").get(images)
 router.route("/public/fundrequest/:txnId/:txnId.png").get(fundimages)
-router.route("/public/cancellationImage").get(cancellationImage)
+router.route("/cancellationImage/:userId/:transactionId").get(cancellationImage)
 
 
 router.route("/fetch-data/:userId").get(fetchDataa)

@@ -12,6 +12,7 @@ import {
   CModalBody,
   CModalHeader,
   CModalFooter,
+  CModalTitle
 } from '@coreui/react';
 import axios from 'axios';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -22,7 +23,7 @@ const CancellationDetailss = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
 
-  const [modal, setModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [remarks, setRemarks] = useState('');
@@ -38,15 +39,22 @@ const CancellationDetailss = () => {
     }
   }, [row]);
 
+
+
   const handleImageClick = (imagePath) => {
     setSelectedImage(imagePath);
-    setModal(true);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedImage('');
   };
 
   // Handle Accept Fund Request
   const handleAccept = async (row) => {
     try {
-      const response = await axios.patch(`/cancel/${row._id}/approve`);
+      const response = await axios.patch(`/api/v1/users/cancel/${row._id}/approve`);
       if (response.status === 200) {
         // Update status in the local state
         setTableData((prevData) =>
@@ -74,7 +82,7 @@ const CancellationDetailss = () => {
     }
 
     try {
-      const response = await axios.patch(`/cancel/${user._id}/reject`, { remarks });
+      const response = await axios.patch(`/api/v1/users/cancel/${user._id}/reject`, { remarks });
       if (response.status === 200) {
         // Update status in the local state
         setTableData((prevData) =>
@@ -142,49 +150,49 @@ const CancellationDetailss = () => {
               <CTableRow key={user._id + '-image1'}>
                 <CTableHeaderCell scope="row">Image 1</CTableHeaderCell>
                 <CTableDataCell>
-                  {user.filePath ? (
-                    <img
-                    src={`/api/v1/users/public/cancellationImage`} 
-                      alt="Image 1"
-                      width="100"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleImageClick(user.filePath)}
-                    />
-                  ) : (
-                    <span>No Image</span>
-                  )}
-                </CTableDataCell>
-              </CTableRow>
-              <CTableRow key={user._id + '-image2'}>
-                <CTableHeaderCell scope="row">Image 2</CTableHeaderCell>
-                <CTableDataCell>
-                  {user.image1 ? (
-                    <img
-                      src={`data:image/png;base64,${user.image1}`}
-                      alt="Image 1"
-                      width="100"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleImageClick(user.image1)}
-                    />
-                  ) : (
-                    <span>No Image</span>
-                  )}
-                </CTableDataCell>
-              </CTableRow>
-              <CTableRow key={user._id + '-image3'}>
-                <CTableHeaderCell scope="row">Image 3</CTableHeaderCell>
-                <CTableDataCell>
-                  {user.image1 ? (
-                    <img
-                      src={`data:image/png;base64,${user.image1}`}
-                      alt="Image 1"
-                      width="100"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleImageClick(user.image1)}
-                    />
-                  ) : (
-                    <span>No Image</span>
-                  )}
+                {user.filePath ? (
+            <img
+              src={`/api/v1/users/cancellationImage/${user.userId}/${user.transactionId}?imageType=file`}
+              alt="Image 1"
+              width="100"
+              style={{ cursor: 'pointer' }}
+              onClick={() => handleImageClick(`/api/v1/users/cancellationImage/${user.userId}/${user.transactionId}?imageType=file`)}
+            />
+          ) : (
+            <span>No Image</span>
+          )}
+        </CTableDataCell>
+      </CTableRow>
+      <CTableRow key={user._id + '-image2'}>
+        <CTableHeaderCell scope="row">Image 2</CTableHeaderCell>
+        <CTableDataCell>
+          {user.photo1Path ? (
+            <img
+              src={`/api/v1/users/cancellationImage/${user.userId}/${user.transactionId}?imageType=photo1`}
+              alt="Image 2"
+              width="100"
+              style={{ cursor: 'pointer' }}
+              onClick={() => handleImageClick(`/api/v1/users/cancellationImage/${user.userId}/${user.transactionId}?imageType=photo1`)}
+            />
+          ) : (
+            <span>No Image</span>
+          )}
+        </CTableDataCell>
+      </CTableRow>
+      <CTableRow key={user._id + '-image3'}>
+        <CTableHeaderCell scope="row">Image 3</CTableHeaderCell>
+        <CTableDataCell>
+          {user.photo2Path ? (
+            <img
+              src={`/api/v1/users/cancellationImage/${user.userId}/${user.transactionId}?imageType=photo2`}
+              alt="Image 3"
+              width="100"
+              style={{ cursor: 'pointer' }}
+              onClick={() => handleImageClick(`/api/v1/users/cancellationImage/${user.userId}/${user.transactionId}?imageType=photo2`)}
+            />
+          ) : (
+            <span>No Image</span>
+          )}
                 </CTableDataCell>
               </CTableRow>
               <CTableRow key={user._id + '-actions'}>
@@ -230,24 +238,15 @@ const CancellationDetailss = () => {
         </CTableBody>
       </CTable>
 
-      <CModal visible={showRejectModal} onClose={() => setShowRejectModal(false)}>
-        <CModalHeader onClose={() => setShowRejectModal(false)}>Add Remarks</CModalHeader>
+      <CModal visible={showModal} onClose={handleCloseModal}>
+        <CModalHeader>
+          <CModalTitle>Image Preview</CModalTitle>
+        </CModalHeader>
         <CModalBody>
-          <textarea
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            rows="4"
-            style={{ width: '100%' }}
-            placeholder="Enter your remarks here..."
-          />
-          {validationMessage && <div style={{ color: 'red' }}>{validationMessage}</div>}
+          <img src={selectedImage} alt="Selected" style={{ width: '100%' }} />
         </CModalBody>
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setShowRejectModal(false)}>Cancel</CButton>
-          <CButton color="danger" onClick={async () => {
-            await submitRejection(selectedUser, remarks);
-            // Do not close the modal here; handle it in submitRejection
-          }} >Submit</CButton>
+          <CButton color="secondary" onClick={handleCloseModal}>Close</CButton>
         </CModalFooter>
       </CModal>
     </CContainer>

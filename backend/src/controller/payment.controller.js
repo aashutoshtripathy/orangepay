@@ -538,14 +538,18 @@ const getTotalPaymentss = asyncHandler(async (req, res) => {
       return res.status(400).json({ success: false, message: 'Start Date and End Date are required.' });
     }
 
-    const formattedStartDate = moment.tz(startDate, 'Asia/Kolkata').startOf('day').toDate();
-    const formattedEndDate = moment.tz(endDate, 'Asia/Kolkata').endOf('day').toDate();
+    // Parse the dates
+    // let formattedStartDate, formattedEndDate;
+    // try {
+    //   formattedStartDate = moment.tz(startDate, 'DD-MM-YYYY', 'Asia/Kolkata').startOf('day').toDate();
+    //   formattedEndDate = moment.tz(endDate, 'DD-MM-YYYY', 'Asia/Kolkata').endOf('day').toDate();
+    // } catch (error) {
+    //   return res.status(400).json({ success: false, message: 'Invalid date format. Use DD-MM-YYYY.' });
+    // }
 
-    // Debugging logs
-    console.log("Received Query Params:", { startDate, endDate });
-    console.log("Formatted Dates (UTC):", { formattedStartDate, formattedEndDate });
+    // console.log("Formatted Dates:", { formattedStartDate, formattedEndDate });
 
-    // Query the database
+    // Build the query
     const query = {
       paymentdate: {
         $gte: startDate,
@@ -555,18 +559,16 @@ const getTotalPaymentss = asyncHandler(async (req, res) => {
 
     console.log("Query:", query);
 
-
+    // Execute the query
     const payments = await Payment.find(query).exec();
 
     if (!payments || payments.length === 0) {
       return res.status(404).json({ success: false, message: 'No payments found for the selected dates.' });
     }
 
-    console.log("Fetched payments:", payments);
-
+    console.log("Payments Found:", payments);
 
     return res.status(200).json({ success: true, data: payments });
-    
   } catch (error) {
     console.error("Error fetching payments:", error);
     return res.status(500).json({ success: false, message: 'Internal Server Error' });

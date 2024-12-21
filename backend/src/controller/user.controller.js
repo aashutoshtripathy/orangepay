@@ -1453,25 +1453,45 @@ const fundimages = asyncHandler(async (req, res) => {
 
 const cancellationImage = asyncHandler(async (req, res) => {
   try {
-    const userId = req.params.userId; // Get the user ID from the request parameters
-    const imageFileName = 'test'; // Get the image filename from the request parameters (e.g., 'aadharCard')
+    const { userId, transactionId } = req.params; // Get the user ID and transaction ID from the request parameters
+    const { imageType } = req.query; // Get the image type from the query parameters
 
     console.log('User ID:', userId);
-    console.log('Image File Name:', imageFileName);
+    console.log('Transaction ID:', transactionId);
+    console.log('Image Type:', imageType);
 
-    // Construct the path to the image
-    const imagePath = path.join(__dirname, "../../public/cancellation/", `${`test`}/${filePath}.png`); // Adjust the pattern if needed
-    console.log('Image path:', imagePath);
+    // Construct the directory path
+    const dirPath = path.join(__dirname, "../../public/cancellation/", transactionId);
+    console.log('Directory path:', dirPath);
 
-    // Use fs to check if the file exists before sending
-    fs.access(imagePath, fs.constants.F_OK, (err) => {
+    // Check if the directory exists
+    if (!fs.existsSync(dirPath)) {
+      console.error('Directory not found:', dirPath);
+      return res.status(404).send('Image not found');
+    }
+
+    // Read the directory to find the file
+    fs.readdir(dirPath, (err, files) => {
       if (err) {
-        console.error('File not found:', err);
-        return res.status(404).send('Image not found'); // Respond with 404 if file doesn't exist
+        console.error('Error reading directory:', err);
+        return res.status(500).send('Internal Server Error');
       }
 
+      // Find the file that matches the pattern
+      const filePattern = new RegExp(`${transactionId}-${imageType}-.*\\.(png|gif|jpg|jpeg)`);
+      const fileName = files.find(file => filePattern.test(file));
+
+      if (!fileName) {
+        console.error('File not found:', filePattern);
+        return res.status(404).send('Image not found');
+      }
+
+      // Construct the full file path
+      const filePath = path.join(dirPath, fileName);
+      console.log('File path:', filePath);
+
       // Send the image file
-      res.sendFile(imagePath, (err) => {
+      res.sendFile(filePath, (err) => {
         if (err) {
           console.error('Error sending file:', err);
           res.status(err.status || 500).end(); // Ensure a valid status code is used
@@ -1483,7 +1503,6 @@ const cancellationImage = asyncHandler(async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 
 
 
@@ -2145,36 +2164,38 @@ const fetchUserById = asyncHandler(async (req, res) => {
 });
 
 
+// const storagees = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     const transactionId = cancellationDetails.transactionId || "test"; // Get the transactionId from the request body
+//     console.log("Request Body:", req.body); // Log the request body
+//     console.log("Transaction ID:", transactionId);
+//     const dir = path.join('public/cancellation', transactionId);
+//     if (!fs.existsSync(dir)) {
+//       fs.mkdirSync(dir, { recursive: true });
+//     }
+//     cb(null, dir); // Destination folder for uploaded files
+//   },
+//   filename: (req, file, cb) => {
+//     const transactionId = req.body.transactionId || "test"; // Get the transactionId from the request body
+//     const fileExtension = path.extname(file.originalname); // Get the file extension
+//     cb(null, `${transactionId}-${Date.now()}${fileExtension}`);
+//   },
+// });
+
+// const uploadss = multer({ storage: storagees });
 
 
-const storagees = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const transactionId = req.body.transactionId || "test"; // Temporarily hardcoded to test
-    console.log("Transaction ID:", transactionId);
-    const dir = path.join('public/cancellation', transactionId);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir); // Destination folder for uploaded files
-  },
-  filename: (req, file, cb) => {
-    const transactionId = req.body.transactionId || "test"; // Same for filename
-    const fileExtension = path.extname(file.originalname); // Get the file extension
-    cb(null, `${transactionId}-${Date.now()}${fileExtension}`);
-  },
-});
+const storageees = multer.memoryStorage();
 
-const uploadss = multer({ storage: storagees });
+const uploadss = multer({ storage: storageees }).fields([
+  { name: 'file', maxCount: 1 },  // Main file
+  { name: 'photo1', maxCount: 1 }, // First photograph
+  { name: 'photo2', maxCount: 1 }, // Second photograph
+]);
 
 const cancellationDetails = asyncHandler(async (req, res) => {
-  const { transactionId, paymentStatus } = req.body;  // Ensure paymentStatus is destructured here
-
   // Use the upload middleware for multiple files
-  uploadss.fields([
-    { name: 'file', maxCount: 1 },  // Main file
-    { name: 'photo1', maxCount: 1 }, // First photograph
-    { name: 'photo2', maxCount: 1 }, // Second photograph
-  ])(req, res, async (err) => {
+  uploadss(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ message: "File upload failed", error: err.message });
     }
@@ -2200,11 +2221,28 @@ const cancellationDetails = asyncHandler(async (req, res) => {
         createdOn,
         selectedOption,
       } = req.body;
+      console.log('Request Body:', req.body);
 
       // Ensure paymentStatus is included
       if (!paymentStatus) {
         return res.status(400).json({ message: "Payment status is required" });
       }
+
+      // Save files to disk
+      const saveFile = (file, transactionId, fieldName) => {
+        const dir = path.join('public/cancellation', transactionId);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        const fileExtension = path.extname(file.originalname);
+        const filePath = path.join(dir, `${transactionId}-${fieldName}-${Date.now()}${fileExtension}`);
+        fs.writeFileSync(filePath, file.buffer);
+        return filePath;
+      };
+
+      const filePath = saveFile(req.files['file'][0], transactionId, 'file');
+      const photo1Path = saveFile(req.files['photo1'][0], transactionId, 'photo1');
+      const photo2Path = saveFile(req.files['photo2'][0], transactionId, 'photo2');
 
       // Save the cancellation details in the database
       const cancellationDetail = new CancellationDetail({
@@ -2221,15 +2259,14 @@ const cancellationDetails = asyncHandler(async (req, res) => {
         paymentAmount,
         createdOn: new Date(createdOn),
         selectedOption,
-        filePath: req.files['file'][0].filename,  // Main file path
-        photo1Path: req.files['photo1'][0].filename,  // First photo path
-        photo2Path: req.files['photo2'][0].filename,  // Second photo path
+        filePath,  // Main file path
+        photo1Path,  // First photo path
+        photo2Path,  // Second photo path
       });
-
 
       await cancellationDetail.save();
 
-      // Only update wallet balance if paymentStatus is "Accepted"
+      // Only update wallet balance if paymentStatus is "Completed"
       if (paymentStatus === "Completed") {
         const amountToAdd = parseFloat(paymentAmount); // Use parseFloat for amounts with decimals
         const tdsAmount = parseFloat(tds); // Ensure TDS can be in paise
@@ -2259,10 +2296,10 @@ const cancellationDetails = asyncHandler(async (req, res) => {
       }
 
       res.status(201).json({
-        message: 'Cancellation details saved successfully' + (paymentStatus === "Accepted" ? ', and money added back to the wallet' : ''),
+        message: 'Cancellation details saved successfully' + (paymentStatus === "Completed" ? ', and money added back to the wallet' : ''),
         data: {
           cancellationDetail,
-          walletBalance: paymentStatus === "Accepted" ? (await Wallet.findOne({ uniqueId: userId })).balance : null,
+          walletBalance: paymentStatus === "Completed" ? (await Wallet.findOne({ uniqueId: userId })).balance : null,
           deletedPayment: paymentRecord,
         },
       });
@@ -2271,7 +2308,6 @@ const cancellationDetails = asyncHandler(async (req, res) => {
     }
   });
 });
-
 
 
 const cancelAccept = asyncHandler(async (req, res) => {

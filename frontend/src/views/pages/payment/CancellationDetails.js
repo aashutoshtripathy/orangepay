@@ -97,10 +97,11 @@ const CancellationDetails = () => {
     formData.append('paymentMode', selectedItem.paymentmode);
     formData.append('paymentAmount', selectedItem.paidamount);
     formData.append('createdOn', new Date(selectedItem.createdon).toISOString());
+    const transactionId = selectedItem.transactionId;
 
     // Send the form data to the API
     try {
-      const response = await axios.post('/api/v1/users/cancellation-details', formData, {
+      const response = await axios.post('/api/v1/users/cancellation-details', formData,transactionId, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

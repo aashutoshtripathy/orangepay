@@ -1,143 +1,134 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import DataTable from 'react-data-table-component';
 import axios from 'axios';
-import moment from 'moment-timezone';
+import { Card, CardBody, CardHeader, Spinner, Input, Button, Row, Col } from 'reactstrap';
 import './DailyCollection.css';
 
-const initialColumnsVisibility = {
-  userId: true,
-  id: true,
-  canumber: true,
-  invoicenumber: true,
-  billmonth: true,
-  transactionId: true,
-  refrencenumber: true,
-  bankid: true,
-  paymentmode: true,
-  paymentstatus: true,
-  createdon: true,
-  createdby: true,
-  billpoststatus: true,
-  paidamount: true,
-  reciptno: true,
-  billposton: true,
-  getway: true,
-  cardtxntype: true,
-  terminalid: true,
-  mid: true,
-  nameoncard: true,
-  remarks: true,
-  loginid: true,
-  rrn: true,
-  vpa: true,
-  billamount: true,
-  paymentdate: true,
-  latitude: true,
-  longitude: true,
-  fetchtype: true,
-  consumermob: true,
-  ltht: true,
-  duedate: true,
-  brandcode: true,
-  division: true,
-  subdivision: true,
-  consumerName: true,
-  commission: true,
-  tds: true,
-  netCommission: true,
-  balanceAfterDeduction: true,
-  balanceAfterCommission: true,
-};
+const columns = [
+  { name: 'Paid Amount', selector: 'paidamount', sortable: true },
+  { name: 'Receipt No', selector: 'reciptno', sortable: true },
+  { name: 'Bill Post On', selector: 'billposton', sortable: true },
+  { name: 'Gateway', selector: 'getway', sortable: true },
+  { name: 'Card Txn Type', selector: 'cardtxntype', sortable: true },
+  { name: 'Terminal ID', selector: 'terminalid', sortable: true },
+  { name: 'MID', selector: 'mid', sortable: true },
+  { name: 'Name on Card', selector: 'nameoncard', sortable: true },
+  { name: 'Remarks', selector: 'remarks', sortable: true },
+  { name: 'Login ID', selector: 'loginid', sortable: true },
+  { name: 'RRN', selector: 'rrn', sortable: true },
+  { name: 'VPA', selector: 'vpa', sortable: true },
+  { name: 'Bill Amount', selector: 'billamount', sortable: true },
+  { name: 'Payment Date', selector: 'paymentdate', sortable: true },
+  { name: 'Latitude', selector: 'latitude', sortable: true },
+  { name: 'Longitude', selector: 'longitude', sortable: true },
+  { name: 'Fetch Type', selector: 'fetchtype', sortable: true },
+  { name: 'Consumer Mob', selector: 'consumermob', sortable: true },
+  { name: 'LTH/T', selector: 'ltht', sortable: true },
+  { name: 'Due Date', selector: 'duedate', sortable: true },
+  { name: 'Brand Code', selector: 'brandcode', sortable: true },
+  { name: 'Division', selector: 'division', sortable: true },
+  { name: 'Sub Division', selector: 'subdivision', sortable: true },
+  { name: 'Consumer Name', selector: 'consumerName', sortable: true },
+  { name: 'Commission', selector: 'commission', sortable: true },
+  { name: 'TDS', selector: 'tds', sortable: true },
+  { name: 'Net Commission', selector: 'netCommission', sortable: true },
+  { name: 'Balance After Deduction', selector: 'balanceAfterDeduction', sortable: true },
+  { name: 'Balance After Commission', selector: 'balanceAfterCommission', sortable: true },
+];
 
 const DailyCollection = () => {
+
+  const today = new Date().toISOString().split('T')[0];
+
+  
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-  const [columnsVisibility, setColumnsVisibility] = useState(initialColumnsVisibility);
+  const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(today);
 
-  const fetchData = async () => {
-    if (!fromDate || !toDate) {
-      setError('Please select both From Date and To Date.');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
+  const fetchData = async (startDate, endDate) => {
     try {
-        const formattedFromDate = new Date(fromDate).toISOString();
-        const formattedToDate = new Date(toDate).toISOString();
-    
-        const response = await axios.get('/api/v1/users/getTotalPayments', {
-          params: {
-            startDate: formattedFromDate,
-            endDate: formattedToDate,
-        },
+      const response = await axios.get('/api/v1/users/getTotalPaymentss', {
+        params: { startDate, endDate },
       });
-      const result = response.data.data || [];
-      setData(result.reverse());
+      setData(response.data.data);
+      setLoading(false);
     } catch (error) {
-      setError(error.response?.data?.message || 'Error fetching data.');
-    } finally {
+      console.error('Error fetching data:', error);
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleSearch = () => {
+    setLoading(true);
+    fetchData(startDate, endDate);
+  };
+
   return (
-    <div className="reports-container">
-      <h1>Daily Collection Report</h1>
-
-      <div className="date-filter">
-        <label>
-          From Date:
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-          />
-        </label>
-        <label>
-          To Date:
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-          />
-        </label>
-        <button onClick={fetchData}>Search</button>
-      </div>
-
-      {loading && <div className="loading-spinner">Loading...</div>}
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="table-responsive">
-        <table className="data-table">
-          <thead>
-            <tr>
-              {Object.keys(columnsVisibility).map(
-                (column) => columnsVisibility[column] && <th key={column}>{column}</th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item, index) => (
-              <tr key={index}>
-                {Object.keys(columnsVisibility).map(
-                  (column) =>
-                    columnsVisibility[column] && (
-                      <td key={column}>
-                        {column === 'createdon'
-                          ? moment(item[column]).tz('Asia/Kolkata').format('DD/MM/YYYY') // Adjust date format here
-                          : item[column]}
-                      </td>
-                    )
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="container mt-4">
+      <Card>
+        <CardHeader>
+          <h1>Daily Collection Report</h1>
+        </CardHeader>
+        <CardBody>
+          <Row className="mb-3">
+            <Col md={4}>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                placeholder="Start Date"
+              />
+            </Col>
+            <Col md={4}>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                placeholder="End Date"
+              />
+            </Col>
+            <Col md={2}>
+              <Input
+                type="select"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              >
+                <option value="" disabled>Select Type</option>
+                <option value="">Type</option>
+                <option value="">Type</option>
+                <option value="">Type</option>
+                <option value="">Type</option>
+                <option value="">Type</option>
+                <option value="">Type</option>
+                <option value="">Type</option>
+              </Input>
+            </Col>
+            <Col md={2}>
+              <Button color="primary" onClick={handleSearch}>
+                Search
+              </Button>
+            </Col>
+          </Row>
+          {loading ? (
+            <div className="text-center">
+              <Spinner color="primary" />
+            </div>
+          ) : (
+            <DataTable
+              columns={columns}
+              data={data}
+              pagination
+              highlightOnHover
+              striped
+            />
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
 };
