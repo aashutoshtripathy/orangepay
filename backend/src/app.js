@@ -14,13 +14,16 @@ import axios from "axios";
 import { parseStringPromise} from 'xml2js';
 import xml2js from "xml2js"
 import { crc32 } from "crc";
-import crypto from 'crypto';
+import http from "http";
+import {Server} from "socket.io";
 
 
 
 
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN,
@@ -49,6 +52,49 @@ app.use(session({
     maxAge: 60 * 60 * 1000 // Set cookie expiration time to 1 hour (in milliseconds)
   }
 }));
+
+
+
+
+
+
+
+
+let dbMode = 'online'; // Default mode
+
+// REST API to update database mode
+app.post('/update-db-mode', (req, res) => {
+    const { mode } = req.body;
+
+    if (!['online', 'offline'].includes(mode)) {
+        return res.status(400).json({ message: 'Invalid mode' });
+    }
+
+    dbMode = mode;
+    console.log(`Database mode updated to: ${dbMode}`);
+
+    // Notify all connected clients
+    io.emit('dbModeUpdated', dbMode);
+
+    res.json({ message: 'Database mode updated successfully', dbMode });
+});
+
+// REST API to get the current database mode
+app.get('/db-mode', (req, res) => {
+    res.json({ dbMode });
+});
+
+// Handle client connection
+io.on('connection', (socket) => {
+    console.log('A client connected:', socket.id);
+
+    // Send the current mode to the newly connected client
+    socket.emit('dbModeUpdated', dbMode);
+
+    socket.on('disconnect', () => {
+        console.log('A client disconnected:', socket.id);
+    });
+});
 
 
 
