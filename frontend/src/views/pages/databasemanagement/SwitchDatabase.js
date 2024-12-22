@@ -3,38 +3,41 @@ import { CCard, CCardBody, CCardHeader, CForm, CFormCheck, CFormLabel, CButton }
 import io from 'socket.io-client';
 import axios from 'axios';
 
-const socket = io('http://localhost:8000'); // Connect to the Socket.IO server
+// Initialize the socket connection outside the component to ensure it only happens once
+const socket = io('http://localhost:8000', {
+    transports: ['websocket', 'polling'], // Force WebSocket transport
+});
 
 const SwitchDatabase = () => {
     const [dbMode, setDbMode] = useState('online'); // Default to 'online'
+    const [isSocketConnected, setIsSocketConnected] = useState(false); // Track socket connection status
 
     // Fetch the current database mode when the component loads
     useEffect(() => {
-        axios.get('http://localhost:8000/db-mode')
-            .then((response) => {
-                setDbMode(response.data.dbMode);
-            })
-            .catch((error) => {
-                console.error('Error fetching database mode:', error);
-            });
-
-        // Listen for real-time updates
-        socket.on('dbModeUpdated', (mode) => {
-            console.log('Database mode updated:', mode);
-            setDbMode(mode);
+        // Listen for the initial connection to the socket
+        socket.on('connect', () => {
+            console.log('Connected to the socket server');
         });
 
+        // Listen for dbMode updates from the server
+        socket.on('dbModeUpdated', (mode) => {
+            console.log('Received dbMode update from server:', mode);
+            setDbMode(mode); // Update local state based on the received mode
+        });
+
+        // Clean up the listener when the component is unmounted
         return () => {
-            socket.off('dbModeUpdated'); // Cleanup the listener on component unmount
+            socket.off('dbModeUpdated'); // Clean up event listeners
         };
     }, []);
 
-    // Function to handle the form submission
+    // Function to handle the form submission and switch the database mode
     const handleUpdateDatabase = () => {
-        const newMode = dbMode === 'online' ? 'offline' : 'online'; // Toggle mode
+        const newMode = dbMode === 'online' ? 'offline' : 'online';
         axios.post('http://localhost:8000/update-db-mode', { mode: newMode })
             .then((response) => {
                 console.log(response.data.message);
+                setDbMode(newMode); // Optimistic UI update
             })
             .catch((error) => {
                 console.error('Error updating database mode:', error);
@@ -47,6 +50,7 @@ const SwitchDatabase = () => {
             <CCardBody>
                 <CForm>
                     <CFormLabel>Current Database Mode:</CFormLabel>
+                    <p>Status: {isSocketConnected ? 'Connected to Socket' : 'Not Connected to Socket'}</p>
                     {dbMode === 'online' && (
                         <div>
                             <CFormCheck

@@ -101,7 +101,7 @@ export const adminNavItems = [
   },
 ];
 
-export const distributorNavItems = (permissions , userId) =>  [
+export const distributorNavItems = (permissions ,dbMode, userId) =>  [
   // Distributor-specific navigation items
   {
     component: CNavItem,
@@ -120,8 +120,10 @@ export const distributorNavItems = (permissions , userId) =>  [
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
+      dbMode === 'offline' &&
       { component: CNavItem, name: 'Bill Payment', to: '/Payment' , hidden: !permissions.billPayment,},
       // { component: CNavItem, name: 'Bill Payment Online', to: '/paymentonline' , hidden: !permissions.billPayment,},
+      dbMode === 'online' && 
       { component: CNavItem, name: 'Bill Payment Online', to: '/paymenton' , hidden: !permissions.billPayment,},
       { component: CNavItem, name: 'Topup', to: '/topup' , hidden: !permissions.topup, },
       // { component: CNavItem, name: 'Get Prepaid Balance', to: '/prepaid-services' ,   hidden: !permissions.getPrepaidBalance, },
@@ -129,7 +131,7 @@ export const distributorNavItems = (permissions , userId) =>  [
       // { component: CNavItem, name: 'Get Prepaid Balance', to: '/prepaid-balance-services' ,    },
       { component: CNavItem, name: 'Cancelation Request', to: '/request-cancelation' ,   hidden: !permissions.requestCancellation, },
       { component: CNavItem, name: 'Fund Request', to: '/request-fund' ,    },
-    ],
+    ].filter(Boolean),
   },
   {
     component: CNavGroup,

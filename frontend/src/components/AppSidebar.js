@@ -23,6 +23,8 @@ import navigation, { adminsNavItems, distributorsNavItems, managerNavItems } fro
 // import { _nav as navigation } from '../_nav';
 import { adminNavItems, distributorNavItems, agentNavItems } from '../_nav'; // Adjust import as necessary
 import axios from 'axios'
+import { io } from 'socket.io-client';
+
 
 
 
@@ -40,7 +42,10 @@ const AppSidebar = () => {
   // const [unfoldable, setUnfoldable] = useState(false);
   const [role, setRole] = useState(null);
   const [permissions, setPermissions] = useState({}) // To store API response for permissions
+  const [dbMode, setDbMode] = useState('online');
   const userId = localStorage.getItem('userId')
+  const socket = io('http://localhost:8000');
+
 
 
 
@@ -87,6 +92,31 @@ const AppSidebar = () => {
     fetchData();
   }, [userId]);
 
+
+  useEffect(() => {
+    const fetchDbMode = async () => {
+      try {
+        console.log('Fetching DB mode...');
+        const response = await axios.get('http://localhost:8000/db-mode');
+        console.log('DB mode response:', response.data);
+        setDbMode(response.data.dbMode || 'online');
+      } catch (error) {
+        console.error('Error fetching database mode:', error);
+      }
+    };
+
+    fetchDbMode();
+
+    socket.on('dbModeUpdated', (mode) => {
+      console.log('DB mode updated:', mode);
+      setDbMode(mode);
+    });
+
+    return () => {
+      socket.off('dbModeUpdated');
+    };
+  }, [socket]);
+
   // const role = useSelector((state) => state.userRole); // Access the correct property
   let navItems = [];
 
@@ -95,7 +125,7 @@ const AppSidebar = () => {
       navItems = adminNavItems;
       break;
     case 'Approved':
-      navItems = distributorNavItems(permissions, userId);
+      navItems = distributorNavItems(permissions,dbMode, userId);
       break;
     case 'Access':
       navItems = managerNavItems(permissions, userId);

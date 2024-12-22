@@ -23,7 +23,7 @@ import {Server} from "socket.io";
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+// const io = new Server(server);
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN,
@@ -56,6 +56,14 @@ app.use(session({
 
 
 
+
+
+const io = new Server(server, {
+  cors: {
+      origin: '*', // Replace with your frontend URL
+      methods: ['GET', 'POST'],
+  },
+});
 
 
 

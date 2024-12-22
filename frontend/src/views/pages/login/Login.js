@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import '../../../scss/login.scss'
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import '../../../scss/login.scss';
 import {
   CButton,
   CCard,
@@ -13,49 +13,43 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilLockUnlocked, cilUser } from '@coreui/icons';
+import axios from 'axios';
+import io from 'socket.io-client';  // Import socket.io-client
 
-import axios from "axios"
+let socket = null;  // Declare socket outside component to make it reusable
 
 const Login = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [usernameError, setUsernameError] = useState(null)
-  const [passwordError, setPasswordError] = useState(null)
-  const [generalError, setGeneralError] = useState(null)
-  const [user, setUser] = useState(null);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [usernameError, setUsernameError] = useState(null);
+  const [passwordError, setPasswordError] = useState(null);
+  const [generalError, setGeneralError] = useState(null);
   const [showPassword, setShowPassword] = useState(false); // State for toggling visibility
-
-
-
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-  
-
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    
-    setUsernameError(null)
-    setPasswordError(null)
-    setGeneralError(null)
+    setUsernameError(null);
+    setPasswordError(null);
+    setGeneralError(null);
 
-    
     let valid = true;
 
     if (!username) {
-      setUsernameError("Username is required.")
+      setUsernameError('Username is required.');
       valid = false;
     }
 
     if (!password) {
-      setPasswordError("Password is required.")
+      setPasswordError('Password is required.');
       valid = false;
     }
 
@@ -65,71 +59,71 @@ const Login = () => {
       const response = await axios.post(`/api/v1/users/login`, {
         username,
         password,
-      }, { withCredentials: true })
+      }, { withCredentials: true });
 
-      // const { user } = response.data.data;
-      // const { id } = user;
-
-      const { token, user, session , encryptedSession } = response.data.data;
-
-
+      const { token, user, session, encryptedSession } = response.data.data;
       const expirationTime = new Date().getTime() + 60 * 60 * 1000; // 1 hour from now
 
-
-      // Save token and user data in localStorage
+      // Save token and user data in localStorage and sessionStorage
       localStorage.setItem('token', token);
-      // localStorage.setItem('session', JSON.stringify(data.session));
-      // console.log('Login Successful:', data);
-      // sessionStorage.setItem('session', JSON.stringify(session));
-      sessionStorage.setItem('session', session)
-      sessionStorage.setItem('encryptedSession', encryptedSession)
-      
-      
-      localStorage.setItem("user", JSON.stringify(user));
-
-
-
-      // localStorage.setItem('userId', user.id)
-
-      // Save user info in localStorage
+      sessionStorage.setItem('session', session);
+      sessionStorage.setItem('encryptedSession', encryptedSession);
+      localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('username', username);
       localStorage.setItem('userId', user.id);
       localStorage.setItem('status', user.status);
-
       localStorage.setItem('expirationTime', expirationTime);
 
+      // Establish socket connection after successful login
+      socket = io('http://localhost:8000');  // Set your socket server URL here
+      socket.on('connect', () => {
+        console.log('Connected to the socket server');
+      });
 
+    
       // Redirect to the dashboard
       navigate(`/dashboard/${user.id}`);
-      // navigate(`/dashboard/${id}`);
 
     } catch (err) {
-
       if (err.response && err.response.data && err.response.data.message) {
         setGeneralError(err.response.data.message);
       } else {
-        setGeneralError("Login failed: Username or Password Incorrect");
+        setGeneralError('Login failed: Username or Password Incorrect');
       }
     }
-  }
+  };
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
     if (e.target.value) {
       setUsernameError(null);
     }
-  }
+  };
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     if (e.target.value) {
       setPasswordError(null);
     }
-  }
+  };
 
   const handlePassword = () => {
-    navigate('/forgetpassword')
-  }
+    navigate('/forgetpassword');
+  };
+
+  // Cleanup socket connection when the component unmounts or on logout
+  const cleanupSocket = () => {
+    if (socket) {
+      socket.disconnect();
+      console.log('Disconnected from socket server');
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      cleanupSocket(); // Cleanup socket on component unmount
+    };
+  }, []);
 
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
@@ -143,10 +137,8 @@ const Login = () => {
                     <h1>Login</h1>
                     <p className="text-body-secondary">Sign In to your account</p>
 
-                    
                     {generalError && <p style={{ color: 'red' }}>{generalError}</p>}
 
-                    
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
@@ -162,29 +154,25 @@ const Login = () => {
                     </CInputGroup>
                     {usernameError && <p style={{ color: 'red', marginTop: '-15px' }}>{usernameError}</p>}
 
-                    
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
-                      <CIcon icon={showPassword ? cilLockUnlocked : cilLockLocked} onClick={togglePasswordVisibility} />
+                        <CIcon icon={showPassword ? cilLockUnlocked : cilLockLocked} onClick={togglePasswordVisibility} />
                       </CInputGroupText>
                       <CFormInput
                         className="custom-input"
-                        type={showPassword ? "text" : "password"}
+                        type={showPassword ? 'text' : 'password'}
                         placeholder="Password"
                         autoComplete="current-password"
                         value={password}
                         onChange={handlePasswordChange}
                         onFocus={() => setPasswordError(null)} 
                       />
-                       {/* <CInputGroupText onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }}> */}
-                       {/* <CIcon icon={showPassword ? cilLockUnlocked : cilLockLocked} /> Toggle between eye and eye-slash icons */}
-      {/* </CInputGroupText> */}
                     </CInputGroup>
                     {passwordError && <p style={{ color: 'red', marginTop: '-15px' }}>{passwordError}</p>}
 
                     <CRow>
                       <CCol xs={6}>
-                        <CButton className="login-btn" style={{ backgroundColor: 'orange', borderColor: 'orange' }} type="submit" >
+                        <CButton className="login-btn" style={{ backgroundColor: 'orange', borderColor: 'orange' }} type="submit">
                           Login
                         </CButton>
                       </CCol>
@@ -216,33 +204,19 @@ const Login = () => {
                       tempor incididunt ut labore et dolore magna aliqua.
                     </p>
                     <Link to="/register">
-                      <CButton className="register-btn"
-                        // style={{
-                        //   backgroundColor: 'orange',
-                        //   borderColor: 'orange',
-                        //   color: 'white',
-                        //   transition: 'all 0.3s ease', 
-                        //   position: 'relative', 
-                        //   overflow: 'hidden', 
-                        // }}
-                        
-                        active
-                        tabIndex={-1}
-                      >
+                      <CButton className="register-btn" active tabIndex={-1}>
                         Register Now!
                       </CButton>
                     </Link>
                   </div>
                 </CCardBody>
               </CCard>
-
-
             </CCardGroup>
           </CCol>
         </CRow>
       </CContainer>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

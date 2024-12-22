@@ -28,6 +28,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import avatar8 from './../../assets/images/avatars/8.jpg'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import io from 'socket.io-client';
+
 
 const AppHeaderDropdown = () => {
 
@@ -75,6 +77,7 @@ const AppHeaderDropdown = () => {
     }
   }, []);
 
+  let socket = io('http://localhost:8000');
 
 
 
@@ -132,6 +135,11 @@ const AppHeaderDropdown = () => {
       localStorage.removeItem('status');
       localStorage.removeItem('expirationTime');
       sessionStorage.clear();
+
+      if (socket) {
+        socket.disconnect();
+        console.log('Disconnected from socket server');
+      }
 
       // Redirect to the login page
       navigate('/login');
