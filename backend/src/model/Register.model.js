@@ -216,6 +216,14 @@ const registerSchema = new Schema({
     type: Boolean,
     default: true
   },
+  nbpdcl: {
+    type: Boolean,
+    default: true
+  },
+  sbpdcl: {
+    type: Boolean,
+    default: true
+  },
 
   loggedOut: {
     type: Boolean,

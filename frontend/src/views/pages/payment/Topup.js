@@ -8,9 +8,9 @@ const Topup = () => {
   const [qrCode, setQrCode] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [timer, setTimer] = useState(180); // Timer in seconds (180 seconds = 3 minutes)
+  const [timer, setTimer] = useState(180); // Timer in seconds (3 minutes)
   const [isTimerActive, setIsTimerActive] = useState(false);
-  const [showForm, setShowForm] = useState(true); // Controls visibility of form
+  const [showForm, setShowForm] = useState(true); // Controls visibility of the form
 
   // Handle amount input change
   const handleAmountChange = (e) => {
@@ -20,7 +20,6 @@ const Topup = () => {
   // Start the timer
   useEffect(() => {
     let interval;
-
     if (isTimerActive && timer > 0) {
       interval = setInterval(() => {
         setTimer((prevTime) => prevTime - 1);
@@ -29,7 +28,6 @@ const Topup = () => {
       clearInterval(interval);
       setError('Time has expired. Please try again.');
     }
-
     return () => clearInterval(interval);
   }, [isTimerActive, timer]);
 
@@ -42,43 +40,31 @@ const Topup = () => {
 
     setLoading(true);
     setError('');
-    setIsTimerActive(true); // Start the timer when the QR code generation starts
-    setShowForm(false); // Hide form elements after generating QR code
-
-    const requestBody = {
-      amount: parseFloat(amount),
-      appKey: process.env.REACT_APP_EZETAP_APP_KEY || '74820c5e-7ed9-401c-bfcd-9bd47d525ae6',
-      customerMobileNumber: '8879747530', // Replace with dynamic customer data if needed
-      customerName: 'Test', // Replace with dynamic customer name if needed
-      externalRefNumber: `OP${Date.now()}`, // Unique reference number
-      username: '9810698100',
-      checksum: generateChecksum(amount), // Attach checksum
-    };
+    setIsTimerActive(true); // Start the timer when QR code generation starts
+    setShowForm(false); // Hide form elements after generating the QR code
 
     try {
-      const response = await axios.post(  
-        'eze/api/2.0/merchant/upi/qrcode/generate', // Corrected API URL
-        requestBody
-      );
+      const requestBody = {
+        amount: parseFloat(amount),
+        customerMobileNumber: '8879747530', // Replace with dynamic data if needed
+        customerName: 'Test', // Replace with dynamic data if needed
+      };
+
+      const response = await axios.post('/api/v1/users/generate-qr', requestBody);
 
       if (response.data && response.data.qrCodeUri) {
-        setQrCode(response.data.qrCodeUri); // Set the qrCode to render the QR code
+        setQrCode(response.data.qrCodeUri); // Set the QR code to render it
       } else {
         setError('Failed to generate QR code.');
       }
     } catch (err) {
-      console.error("Error during QR code generation:", err); // Log full error
-      setError(`An error occurred: ${err.response?.data?.message || "Unknown error"}`);
+      console.error('Error during QR code generation:', err);
+      setError(
+        `An error occurred: ${err.response?.data?.message || 'Unknown error'}`
+      );
     } finally {
       setLoading(false); // Ensure the loading spinner stops
     }
-  };
-
-  // Simple checksum generation example (implement it based on Ezetap's documentation)
-  const generateChecksum = (amount) => {
-    const secretKey = 'base64'; // Use your secret key securely
-    // You might need to replace this with the actual algorithm (MD5, SHA256) based on Ezetap's requirements
-    return `${secretKey}`;
   };
 
   const formatTime = (seconds) => {
@@ -101,7 +87,6 @@ const Topup = () => {
     <div className="topup-container">
       <div className="form-container">
         <h1>Top-Up</h1>
-
         {/* Show form only if showForm is true */}
         {showForm && (
           <>
@@ -116,25 +101,26 @@ const Topup = () => {
                 className="input-field"
               />
             </div>
-
             {error && <div className="error-message">{error}</div>}
-
-            <button onClick={createEzetapOrder} disabled={loading} className="submit-btn">
+            <button
+              onClick={createEzetapOrder}
+              disabled={loading}
+              className="submit-btn"
+            >
               {loading ? 'Generating QR...' : 'Generate QR Code'}
             </button>
           </>
         )}
-
         {/* Display QR Code, Amount, and Timer when the QR Code is generated */}
         {!showForm && qrCode && (
           <div className="qr-code-container">
             <h3>Scan this QR Code to complete your payment:</h3>
             <QRCodeCanvas value={qrCode} />
-            <h4>Amount: ₹{amount}</h4> {/* Display the amount */}
+            <h4>Amount: ₹{amount}</h4>
+            {/* Display the amount */}
             <div className="timer-container">
               <h4>Time Remaining: {formatTime(timer)}</h4>
             </div>
-
             {/* Back button to return to the form */}
             <button onClick={handleBackClick} className="back-btn">
               Back

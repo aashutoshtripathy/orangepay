@@ -197,6 +197,7 @@ const PaymentOn = () => {
         const companyCode = billDetails.companyName === "SOUTH BIHAR POWER DISTRIBUTION COMPANY LTD" ? "SBPDCL" : billDetails.companyName;
   
         const fetchedBillData = {
+          userId: userId,
           caNumber: billDetails.caNumber,
           dueDate: billDetails.dueDate,
           mobileNumber: billDetails.mobileNumber || "N/A",

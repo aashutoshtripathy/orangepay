@@ -16,6 +16,8 @@ import xml2js from "xml2js"
 import { crc32 } from "crc";
 import http from "http";
 import {Server} from "socket.io";
+import crypto from "crypto";
+import { Register } from "./model/Register.model.js";
 
 
 
@@ -159,6 +161,7 @@ app.use('/biharpayment', createProxyMiddleware({
 import userRouter from "./routes/user.routes.js"
 import bodyParser from "body-parser";
 import { Payment } from "./model/Payment.model.js";
+import mongoose from "mongoose";
 
 
 const formatDateTime = () => { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const day = String(now.getDate()).padStart(2, '0'); const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); const seconds = String(now.getSeconds()).padStart(2, '0'); return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`; };
@@ -215,6 +218,7 @@ const fetchBillDetails = async (consumerId) => {
 
     // Extract required details
     return {
+      userId: billDetails["userId"]?.[0] || null,
       caNumber: billDetails["CANumber"]?.[0] || null,
       dueDate: billDetails["DueDate"]?.[0] || null,
       mobileNumber: billDetails["MobileNumber"]?.[0] || null,
@@ -236,11 +240,45 @@ const fetchBillDetails = async (consumerId) => {
 
 // Process payment function
 const processPayments = async (paymentMethod, billDetails, amount) => {
-  // const transactionId = payment.transactionId || `txn_${Date.now()}`;
-  const checksum = generateChecksum(amount, "d8bKEaX1XEtB");
-  const formattedDateTime = formatDateTime();
+  try {
+    // Validate company code against user's registered companies
+    console.log("Bill Details:", billDetails);
+   // Validate that userId is a valid ObjectId
+   const sanitizedUserId = billDetails.userId?.trim();
+   console.log("Received userId:", billDetails.userId); // Log the raw value
+console.log("Is valid ObjectId?:", mongoose.Types.ObjectId.isValid(billDetails.userId)); // Check if it's valid
 
-  const paymentXmlPayload = `<?xml version="1.0" encoding="utf-8"?>
+
+if (!mongoose.Types.ObjectId.isValid(sanitizedUserId)) {
+  throw new Error("Invalid userId format. Must be a valid ObjectId.");
+}
+
+// const userId = mongoose.Types.ObjectId(sanitizedUserId);
+  // Validate user registration in the Register collection
+  const registerRecord = await Register.findOne({ _id: sanitizedUserId });
+    if (!registerRecord) {
+      throw new Error("User not found in register table.");
+    }
+
+    const companyName = billDetails.companyName?.trim().toUpperCase();
+    console.log("Normalized Company Name:", companyName);
+
+    // Authorization checks
+    const isAuthorizedSBPDCL = !!registerRecord.sbpdcl;
+    const isAuthorizedNBPDCL = !!registerRecord.nbpdcl;
+    console.log("Authorized SBPDCL:", isAuthorizedSBPDCL, "Authorized NBPDCL:", isAuthorizedNBPDCL);
+
+    if (companyName === "SBPDCL" && !isAuthorizedSBPDCL) {
+      throw new Error("User is not authorized to make payments for SBPDCL.");
+    } else if (companyName === "NBPDCL" && !isAuthorizedNBPDCL) {
+      throw new Error("User is not authorized to make payments for NBPDCL.");
+    }
+
+    // Prepare payment payload
+    const checksum = generateChecksum(amount, "d8bKEaX1XEtB");
+    const formattedDateTime = formatDateTime();
+
+    const paymentXmlPayload = `<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
     <PaymentDetails xmlns="http://tempuri.org/">
@@ -261,27 +299,19 @@ const processPayments = async (paymentMethod, billDetails, amount) => {
     </PaymentDetails>
   </soap:Body>
 </soap:Envelope>
-  `;
+    `;
 
-
-
-
-
-
-  // console.log(paymentXmlPayload)
-
-  try {
     const response = await axios.post(
       "http://1.6.61.79/BiharService/BillInterface.asmx?op=PaymentDetails",
       paymentXmlPayload,
       { headers: { "Content-Type": "text/xml; charset=utf-8" } }
     );
+
     return response.data;
   } catch (error) {
     console.error("Error in processPayment:", error.response?.data || error.message);
     throw error;
   }
-  
 };
 
 
@@ -816,6 +846,50 @@ app.post('/api/v1/users/generate-qr', async (req, res) => {
     });
   }
 });
+
+
+app.post('/api/v1/users/payment-status', async (req, res) => {
+  const { externalRefNumber } = req.body;
+
+  if (!externalRefNumber) {
+    return res.status(400).json({ message: 'External reference number is required' });
+  }
+
+  const requestBody = {
+    appKey: '74820c5e-7ed9-401c-bfcd-9bd47d525ae6',
+    username: 9810698100,
+    externalRefNumber,
+    checksum: generateStatusChecksum(externalRefNumber), // Generate checksum for payment status
+  };
+
+  try {
+    const response = await axios.post(
+      'https://demo.ezetap.com/api/2.0/payment/status',
+      requestBody
+    );
+
+    if (response.data && response.data.paymentStatus) {
+      return res.status(200).json({
+        paymentStatus: response.data.paymentStatus, // Example: SUCCESS, FAILURE, PENDING
+        externalRefNumber,
+      });
+    } else {
+      return res.status(500).json({ message: 'Failed to retrieve payment status' });
+    }
+  } catch (error) {
+    console.error('Error fetching payment status:', error.message);
+    return res.status(500).json({
+      message: error.response?.data?.message || 'An error occurred',
+    });
+  }
+});
+
+// Checksum generation for payment status
+const generateStatusChecksum = (externalRefNumber) => {
+  const secretKey = process.env.EZETAP_SECRET_KEY || 'base64';
+  const payload = `${externalRefNumber}${secretKey}`;
+  return crypto.createHash('sha256').update(payload).digest('hex');
+};
 
 // Checksum generation logic (adapt as per Ezetap's documentation)
 const generateChecksume = (amount) => {

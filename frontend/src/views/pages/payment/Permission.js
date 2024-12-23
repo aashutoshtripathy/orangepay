@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CCard, CCardBody, CCardHeader, CContainer , CForm, CFormCheck, CFormInput, CButton } from '@coreui/react';
+import { CCard, CCardBody,CRow,CCol, CCardHeader, CContainer , CForm, CFormCheck, CFormInput, CButton } from '@coreui/react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -24,6 +24,12 @@ const Permission = () => {
     ezetap: false,
     upiQr: false,
     rrn: false,
+  });
+
+
+  const [discom, setDiscom] = useState({
+    nbpdcl: false,
+    sbpdcl: false,
   });
 
   const [commission, setCommission] = useState(''); // State for commission
@@ -64,6 +70,12 @@ const Permission = () => {
           rrn: result.rrn || false,
         });
 
+
+        setDiscom({
+          nbpdcl: result.nbpdcl || false,
+          sbpdcl: result.sbpdcl || false,
+        });
+
         
         setCommission(result.margin || '0');
       } catch (error) {
@@ -100,6 +112,11 @@ const Permission = () => {
         ...billPaymentMethods,
         [e.target.name]: e.target.checked,
       });
+    }else if (methodType === 'discom') {
+      setDiscom({
+        ...discom,
+        [e.target.name]: e.target.checked,
+      });
     }
   };
 
@@ -114,6 +131,7 @@ const Permission = () => {
         ...selectedOptions,
         ...fundRequestMethods,
         ...billPaymentMethods,
+        ...discom,
       };
       const response = await axios.put(`/api/v1/users/updateUserPermissions/${userId}`, updateData);
 
@@ -269,13 +287,40 @@ const Permission = () => {
             onChange={(e) => handleMethodChange(e, 'billPayment')}
           />
 
+
+          <hr />
+
+            <h5>Discom</h5>
+            <CRow>
+            <CCol md={6}>
+          <CFormCheck
+            id="nbpdcl"
+            name="nbpdcl"
+            label="NBPDCL"
+            checked={discom.nbpdcl}
+            onChange={(e) => handleMethodChange(e, 'discom')}
+          />
+          <CFormCheck
+            id="sbpdcl"
+            name="sbpdcl"
+            label="SBPDCL"
+            checked={discom.sbpdcl}
+            onChange={(e) => handleMethodChange(e, 'discom')}
+          />
+        </CCol>
+
+             
+            </CRow>
+            <hr />
+
+
           {/* Update Button */}
           <CButton color="primary" onClick={handleUpdate}>
             Update
           </CButton>
         </CForm>
 
-        <hr />
+        {/* <hr /> */}
 
         {/* Commission Update Section */}
         {/* <h5>Update Commission</h5> */}

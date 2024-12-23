@@ -2024,7 +2024,9 @@ const updateUserPermissions = asyncHandler(async (req, res) => {
     wallet,
     ezetap,
     upiQr,
-    rrn } = req.body;
+    rrn,
+    nbpdcl,
+    sbpdcl } = req.body;
   console.log(userId)
   console.log("user details:",req.body)
 
@@ -2045,6 +2047,8 @@ const updateUserPermissions = asyncHandler(async (req, res) => {
         ezetap,
         upiQr,
         rrn,
+        nbpdcl,
+        sbpdcl,
         loggedOut: true,
       },
       { new: true }
