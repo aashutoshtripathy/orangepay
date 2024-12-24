@@ -11,11 +11,11 @@ import MongoStore from "connect-mongo"
 import { createProxyMiddleware } from "http-proxy-middleware";
 import cron from "node-cron";
 import axios from "axios";
-import { parseStringPromise} from 'xml2js';
+import { parseStringPromise } from 'xml2js';
 import xml2js from "xml2js"
 import { crc32 } from "crc";
 import http from "http";
-import {Server} from "socket.io";
+import { Server } from "socket.io";
 import crypto from "crypto";
 import { Register } from "./model/Register.model.js";
 
@@ -62,8 +62,8 @@ app.use(session({
 
 const io = new Server(server, {
   cors: {
-      origin: '*', // Replace with your frontend URL
-      methods: ['GET', 'POST'],
+    origin: '*', // Replace with your frontend URL
+    methods: ['GET', 'POST'],
   },
 });
 
@@ -74,36 +74,36 @@ let dbMode = 'online'; // Default mode
 
 // REST API to update database mode
 app.post('/update-db-mode', (req, res) => {
-    const { mode } = req.body;
+  const { mode } = req.body;
 
-    if (!['online', 'offline'].includes(mode)) {
-        return res.status(400).json({ message: 'Invalid mode' });
-    }
+  if (!['online', 'offline'].includes(mode)) {
+    return res.status(400).json({ message: 'Invalid mode' });
+  }
 
-    dbMode = mode;
-    console.log(`Database mode updated to: ${dbMode}`);
+  dbMode = mode;
+  console.log(`Database mode updated to: ${dbMode}`);
 
-    // Notify all connected clients
-    io.emit('dbModeUpdated', dbMode);
+  // Notify all connected clients
+  io.emit('dbModeUpdated', dbMode);
 
-    res.json({ message: 'Database mode updated successfully', dbMode });
+  res.json({ message: 'Database mode updated successfully', dbMode });
 });
 
 // REST API to get the current database mode
 app.get('/db-mode', (req, res) => {
-    res.json({ dbMode });
+  res.json({ dbMode });
 });
 
 // Handle client connection
 io.on('connection', (socket) => {
-    console.log('A client connected:', socket.id);
+  console.log('A client connected:', socket.id);
 
-    // Send the current mode to the newly connected client
-    socket.emit('dbModeUpdated', dbMode);
+  // Send the current mode to the newly connected client
+  socket.emit('dbModeUpdated', dbMode);
 
-    socket.on('disconnect', () => {
-        console.log('A client disconnected:', socket.id);
-    });
+  socket.on('disconnect', () => {
+    console.log('A client disconnected:', socket.id);
+  });
 });
 
 
@@ -211,7 +211,7 @@ const fetchBillDetails = async (consumerId) => {
     const parsedResponse = await parseStringPromise(response.data);
     const billDetails =
       parsedResponse["soap:Envelope"]["soap:Body"][0]["BillDetailsResponse"][0][
-        "BillDetailsResult"
+      "BillDetailsResult"
       ][0];
 
 
@@ -243,25 +243,53 @@ const processPayments = async (paymentMethod, billDetails, amount) => {
   try {
     // Validate company code against user's registered companies
     console.log("Bill Details:", billDetails);
-   // Validate that userId is a valid ObjectId
-   const sanitizedUserId = billDetails.userId?.trim();
-   console.log("Received userId:", billDetails.userId); // Log the raw value
-console.log("Is valid ObjectId?:", mongoose.Types.ObjectId.isValid(billDetails.userId)); // Check if it's valid
+    // Validate that userId is a valid ObjectId
+    const sanitizedUserId = billDetails.userId?.trim();
+    console.log("Received userId:", billDetails.userId); // Log the raw value
+    console.log("Is valid ObjectId?:", mongoose.Types.ObjectId.isValid(billDetails.userId)); // Check if it's valid
 
 
-if (!mongoose.Types.ObjectId.isValid(sanitizedUserId)) {
-  throw new Error("Invalid userId format. Must be a valid ObjectId.");
-}
+    if (!mongoose.Types.ObjectId.isValid(sanitizedUserId)) {
+      throw new Error("Invalid userId format. Must be a valid ObjectId.");
+    }
 
-// const userId = mongoose.Types.ObjectId(sanitizedUserId);
-  // Validate user registration in the Register collection
-  const registerRecord = await Register.findOne({ _id: sanitizedUserId });
+    // const userId = mongoose.Types.ObjectId(sanitizedUserId);
+    // Validate user registration in the Register collection
+    const registerRecord = await Register.findOne({ _id: sanitizedUserId });
     if (!registerRecord) {
       throw new Error("User not found in register table.");
     }
 
-    const companyName = billDetails.companyName?.trim().toUpperCase();
+    const companyName = billDetails.division?.trim().toUpperCase();
     console.log("Normalized Company Name:", companyName);
+
+    const validDivisions = [
+      "SBPDCL", "NBPDCL", "ASHIYANA", "PATNACITY", "BANKIPUR", "RAJENDRANAGAR",
+      "KANKARBAGH1", "KANKARBAGH2", "GULZARBAGH", "NEWCAPITAL", "PATLIPUTRA",
+      "DAKBUNGLOW", "GARDANIBAGH", "DANAPUR", "BIHTA", "BARH", "FATUHA",
+      "MASAURHI", "PATNA", "ARRAH", "BUXAR", "BIHARSARIF", "RAJGIR", "EKANGARSARAI",
+      "NAWADA", "SASARAM", "DEHRIONSONE", "BHABUA", "BHOJPUR", "JEHANABAD"
+    ];
+
+    // Check if the division is valid
+    if (!validDivisions.includes(companyName)) {
+      throw new Error("Invalid division name provided.");
+    }
+
+    console.log("Valid Division Name:", companyName);
+
+    // Check if the user is authorized for the division
+    const isAuthorized = registerRecord[companyName];  // Access the dynamic property based on the division name
+
+    if (!isAuthorized) {
+      throw new Error(`User is not authorized to make payments for ${companyName}.`);
+    }
+
+    console.log(`User is authorized to make payments for ${companyName}.`);
+
+
+    console.log("Valid Division Name:", companyName);
+
 
     // Authorization checks
     const isAuthorizedSBPDCL = !!registerRecord.sbpdcl;
@@ -362,7 +390,7 @@ const processPayment = async (payment, billDetails, amount) => {
     console.error("Error in processPayment:", error.response?.data || error.message);
     throw error;
   }
-  
+
 };
 
 
@@ -371,7 +399,7 @@ const processPayment = async (payment, billDetails, amount) => {
 const processBill = async (transactionId) => {
   const MERCHANT_CODE = "BSPDCL_RAPDRP_16";
   const MERCHANT_PASSWORD = "OR1f5pJeM9q@G26TR9nPY";
- 
+
 
   const billXmlPayload = `<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -406,7 +434,7 @@ const processBill = async (transactionId) => {
   }
 
 
-  
+
 };
 
 
@@ -637,7 +665,7 @@ app.post('/api/v1/users/process-bill', async (req, res) => {
 
       // Extract the relevant fields from the parsed XML response
       const paymentResult = parsedResult?.['soap:Envelope']?.['soap:Body']?.[0]?.['PaymentReceiptDetailsResponse']?.[0]?.['PaymentReceiptDetailsResult']?.[0];
-      
+
       if (!paymentResult) {
         return res.status(500).json({ error: "Invalid response structure" });
       }
@@ -662,13 +690,13 @@ app.post('/api/v1/users/process-bill', async (req, res) => {
         if (!transactionUpdate) {
           return res.status(404).json({ error: "Transaction ID not found in the Payment table" });
         }
-        
+
         // Update the receiptNo field
         transactionUpdate.reciptno = receiptNo;
-        
+
         // Save the updated document back to the database
         await transactionUpdate.save();
-        
+
         console.log("Transaction updated successfully:", transactionUpdate);
 
         if (transactionUpdate.modifiedCount === 0) {
@@ -715,27 +743,23 @@ app.post('/api/v1/users/process-bill', async (req, res) => {
 
 
 
-
-
-
 const fetchConsumerBalanceDetails = async (consumerId) => {
-  const USERNAME = "SMOR";
-  const PASSWORD = "Op#4321@$M";
-  const xmlPayload = `
-    <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
-      <soap12:Header>
-        <UserCredentials xmlns="http://bsphcl.co.in/">
-          <username>${USERNAME}</username>
-          <password>${PASSWORD}</password>
-        </UserCredentials>
-      </soap12:Header>
-      <soap12:Body>
-        <GetConsumerBalanceDetails xmlns="http://bsphcl.co.in/">
-          <StrCANumber>${consumerId}</StrCANumber>
-        </GetConsumerBalanceDetails>
-      </soap12:Body>
-    </soap12:Envelope>
-  `;
+  const xmlPayload = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Header>
+    <UserCredentials xmlns="http://bsphcl.co.in/">
+      <username>SMOR</username>
+      <password>Op#4321@$M</password>
+    </UserCredentials>
+  </soap:Header>
+  <soap:Body>
+    <GetConsumerBalanceDetails xmlns="http://bsphcl.co.in/">
+      <StrCANumber>${consumerId}</StrCANumber>
+    </GetConsumerBalanceDetails>
+  </soap:Body>
+</soap:Envelope>`;
+
+  console.log("XML Payload:", xmlPayload);
 
   try {
     const response = await axios.post(
@@ -743,12 +767,17 @@ const fetchConsumerBalanceDetails = async (consumerId) => {
       xmlPayload,
       {
         headers: {
-          "Content-Type": "application/soap+xml; charset=utf-8",
+          'Content-Type': 'text/xml; charset=utf-8',
+          'SOAPAction': 'http://bsphcl.co.in/GetConsumerBalanceDetails',
         },
       }
     );
 
-    console.log("Raw SOAP Response:", response.data);
+    console.log("Response data:", response.data); // Log the raw response
+
+    if (!response.data) {
+      throw new Error("Received empty response from SOAP service.");
+    }
 
     const parsedResponse = await parseStringPromise(response.data, {
       explicitArray: false,
@@ -757,44 +786,40 @@ const fetchConsumerBalanceDetails = async (consumerId) => {
 
     console.log("Parsed Response:", JSON.stringify(parsedResponse, null, 2));
 
-    // Accessing the correct nodes
-    const balanceDetailsJson =
+    const balanceDetails =
       parsedResponse["soap:Envelope"]?.["soap:Body"]?.["GetConsumerBalanceDetailsResponse"]?.["GetConsumerBalanceDetailsResult"];
 
-    if (!balanceDetailsJson) {
+    if (!balanceDetails) {
       throw new Error("Invalid SOAP Response: Missing Balance Details");
     }
 
-    // Parsing the embedded JSON string
-    const balanceDetails = JSON.parse(balanceDetailsJson);
+    // Check if the balanceDetails result is a placeholder 'string' and handle accordingly
+    if (balanceDetails === "string") {
+      throw new Error("Invalid response: received placeholder 'string' for balance details");
+    }
 
-    console.log("Extracted Balance Details:", balanceDetails);
+    console.log("Balance Details:", balanceDetails);
 
-    // Extract the required details
     return {
-      balance: balanceDetails.Balance || null,
-      consumerNumber: balanceDetails.Consumer_number || null,
-      responseDateTime: balanceDetails.responseDateTime || null,
-      status: balanceDetails.status || null,
-      meterNumber: balanceDetails.MeterNumber || null,
-      connectionStatus: balanceDetails.ConnectionStatus || null,
-      lastPaymentDate: balanceDetails.LastPayDt || null,
-      lastPaymentAmount: balanceDetails.LastPayAmt || null,
+      balance: balanceDetails || null,
     };
   } catch (error) {
     console.error("Error fetching consumer balance details:", error.message);
+    console.error("Full error object:", error); // Log full error object for debugging
     throw new Error("Failed to fetch consumer balance details");
   }
 };
 
 
-
-
-
-
-
+// Express route for getting consumer balance details
 app.post('/api/v1/users/consumer-balance-details', async (req, res) => {
   const { consumerId } = req.body;
+
+  // Input validation
+  if (!consumerId) {
+    return res.status(400).json({ error: "Consumer ID is required." });
+  }
+
   try {
     const balanceDetails = await fetchConsumerBalanceDetails(consumerId);
     res.status(200).json(balanceDetails);
@@ -802,6 +827,29 @@ app.post('/api/v1/users/consumer-balance-details', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
+
+
+
+// // Express route for getting consumer balance details
+// app.post('/api/v1/users/consumer-balance-details', async (req, res) => {
+//   const { consumerId } = req.body;
+
+//   // Input validation
+//   if (!consumerId) {
+//     return res.status(400).json({ error: "Consumer ID is required." });
+//   }
+
+//   try {
+//     const balanceDetails = await fetchConsumerBalanceDetails(consumerId);
+//     res.status(200).json(balanceDetails);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
 
 
 
@@ -897,6 +945,102 @@ const generateChecksume = (amount) => {
   const payload = `${amount}${secretKey}`; // Example payload
   return crypto.createHash('sha256').update(payload).digest('hex');
 };
+
+
+
+
+
+
+
+
+// Define the SOAP endpoint
+
+const SOAP_URL = 'http://hargharbijli.bsphcl.co.in/WebServiceExternal/WebServiceOPSM.asmx';
+
+// Function to create the SOAP request XML
+const createSoapRequest = (consumerId) => `
+<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+                 xmlns:soap12="http://www.w3.org/2003/05/soap-envelope" 
+                 xmlns:bsphcl="http://bsphcl.co.in/">
+  <soap12:Header>
+    <bsphcl:UserCredentials>
+      <bsphcl:username>SMOR</bsphcl:username>
+      <bsphcl:password>Op#4321@$M</bsphcl:password>
+    </bsphcl:UserCredentials>
+  </soap12:Header>
+  <soap12:Body>
+    <bsphcl:GetConsumerBalanceDetails>
+      <bsphcl:StrCANumber>${consumerId}</bsphcl:StrCANumber>
+    </bsphcl:GetConsumerBalanceDetails>
+  </soap12:Envelope>
+`.trim();
+
+// API endpoint to fetch consumer balance details
+app.post('/api/v1/hargharbijlee/fetch-bill', async (req, res) => {
+  const { consumerId } = req.body;
+
+  // Validate input
+  if (!consumerId) {
+    return res.status(400).json({ error: 'Consumer ID is required.' });
+  }
+
+  const soapXml = createSoapRequest(consumerId);
+
+  try {
+    console.log('Sending SOAP Request...');
+
+    // Send the SOAP request
+    const axiosResponse = await axios.post(SOAP_URL, soapXml, {
+      headers: {
+        'Content-Type': 'application/soap+xml; charset=utf-8',
+        'SOAPAction': 'http://bsphcl.co.in/GetConsumerBalanceDetails'
+      },
+    });
+    console.log('Raw SOAP Response:', axiosResponse.data);
+
+    // Parse the SOAP response
+    const parser = new xml2js.Parser({ explicitArray: false });
+    parser.parseString(axiosResponse.data, (err, result) => {
+      if (err) {
+        console.error('Error parsing SOAP response:', err);
+        return res.status(500).json({ error: 'Error parsing SOAP response.' });
+      }
+
+      console.log('Parsed Response:', JSON.stringify(result, null, 2));
+
+      // Extract the result from the response structure
+      const getResult = result['soap:Envelope']?.['soap:Body']?.['GetConsumerBalanceDetailsResponse']?.['GetConsumerBalanceDetailsResult'];
+
+      if (!getResult) {
+        console.error('No valid response structure found.');
+        return res.status(500).json({ error: 'No valid response from SOAP service.' });
+      }
+
+      // Check if getResult is valid and parse it
+      const balanceDetails = getResult;
+
+      if (!balanceDetails) {
+        return res.status(500).json({ error: 'No balance details found.' });
+      }
+
+      // Return the consumer balance details
+      return res.json({
+        consumerId: balanceDetails.Consumer_number || 'N/A',
+        balance: balanceDetails.Balance || 'N/A',
+        lastPaymentDate: balanceDetails.LastPayDt || 'N/A',
+        lastPaymentAmount: balanceDetails.LastPayAmt || 'N/A',
+        meterNumber: balanceDetails.MeterNumber || 'N/A',
+        connectionStatus: balanceDetails.ConnectionStatus === 'Y' ? 'Active' : 'Inactive',
+      });
+    });
+  } catch (error) {
+    // Handle errors during the SOAP request
+    console.error('Error during SOAP request:', error);
+    return res.status(500).json({ error: 'Error during SOAP request.' });
+  }
+});
 
 
 

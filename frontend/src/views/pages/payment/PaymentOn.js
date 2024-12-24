@@ -191,6 +191,8 @@ const PaymentOn = () => {
       });
   
       const billDetails = response.data;
+
+      
       if (billDetails) {
         const fetchedTransactionId = `OP${Date.now()}`;
         setTransactionId(fetchedTransactionId)

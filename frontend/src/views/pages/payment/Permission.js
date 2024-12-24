@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CCard, CCardBody,CRow,CCol, CCardHeader, CContainer , CForm, CFormCheck, CFormInput, CButton } from '@coreui/react';
+import { CCard, CCardBody, CRow, CCol, CCardHeader, CContainer, CForm, CFormCheck, CFormInput, CButton } from '@coreui/react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -41,6 +41,170 @@ const Permission = () => {
   const { userId } = useParams(); // Get userId from URL using useParams
 
 
+
+
+
+  const southBiharDivision = {
+    "ASHIYANA": {
+      ASHIYANA: ["ASHIYANA"],
+      KHAJPURA: ["IGIMS", "KHAJPURA", "VIJAYNAGAR"],
+    },
+    "PATNACITY": {
+      CHOWK: ["CHOWK", "East Muzaffarpur", "West Muzaffarpur"],
+      KATRA: ["Sitamarhi Sadar", "Pupri"],
+      MAHRUFGANJ: ["Sheohar Sadar"],
+    },
+    "BANKIPUR": {
+      BANKIPUR: ["BANKIPUR(1)", "BANKIPUR(2)"],
+      UNIVERSITY: ["PMCH", "UNIVERSITY"],
+    },
+    "RAJENDRANAGAR": {
+      RAJENDRANAGAR: ["RAJENDRA NAGAR", "SAIDPUR", "Biraul"],
+      MACHHUATOLI: ["M.TOLI", "M.PUR", "Benipatti"],
+    },
+    "KANKARBAGH(1)": {
+      KARBIGAHIYA: ["KARBIGAHIYA(E)", "KARBIGAHIYA(W)", "ASHOK NAGAR"],
+      BAHADURPUR: ["BAHADURPUR", "KUMHRAR"],
+      KANKARBAGH: ["KANKARBAGH(E)", "KANKARBAGH(W)", "HANUMANNAGAR"],
+    },
+    "KANKARBAGH(2)": {
+      GOPALPUR: ["NAYA CHAK", "KHEMNI CHAK(W)", "Dhamdaha"],
+      RKNAGAR: ["KHEMNICHAK", "R.K.NAGAR"],
+    },
+    "GULZARBAGH": {
+      GAIGHAT: ["PATHAR KI MASJID", "GAIGHAT", "Naugachhia"],
+      MEENABAZAR: ["MEENABAZAR(1)", "MEENABAZAR(2)"],
+    },
+    "NEW CAPITAL": {
+      NEWCAPITAL: ["NEW CAPITAL", "BUDHA COLONY", "MLA FLAT"],
+      BOARDCOLONY: ["BOARD COLONY", "RAJABAZAAR"],
+      KHAJPURA: ["NO SUBDEVISION"],
+    },
+    "PATLIPUTRA": {
+      SADAKATASHRAM: ["SADAKAT ASHRAM", "RAJAPUR"],
+      PATLIPUTRA: ["P.P.COLONY", "INDUSTRIAL AREA"],
+      SKPURI: ["S.K.PURI", "A.N.COLLEGE"],
+    },
+    "DAKBUNGLOW": {
+      MAURYALOK: ["MAURYA LOK", "STATION ROAD"],
+      KADAMKUAN: ["KADAMKUAN", "EXHIBITION ROAD"],
+    },
+    "GARDANIBAGH": {
+      GARDANIBAGH: ["GARDANIBAGH", "ANISABAD", "BEUR"],
+      JAKKANPUR: ["JAKKANPUR", "MITHAPUR"],
+    },
+    "DANAPUR": {
+      DANAPUR: ["DANAPUR", "MES", "ANAND BAZAR"],
+      DIGHA: ["DIGHA", "GOLA ROAD"],
+    },
+    "BIHTA": {
+      BIHTA: ["BIHTA(1)", "BIHTA(2)", "PAREO"],
+      MANER: ["MANER", "SHERPUR"],
+      BIKRAM: ["BIKRAM", "LALA BHADSARA"],
+      PALIGANJ: ["PALI", "MAHABALIPUR"],
+    },
+    "BARH": {
+      BARH: ["BARH TOWN", "BARH(R)", "PANDARAK"],
+      BAKHTIYARPUR: ["BAKHTIYARPUR(U)", "BAKHTIYARPUR(R)", "ATHMALGOLA"],
+      MOKAMA: ["MOKAMA TOWN", "MOKAMA(R)", "GOSHWARI"],
+      Jamui: ["Jamui Sadar", "Jhajha", "Sono"],
+      Khagaria: ["Khagaria Sadar", "Gogri"],
+      Begusarai: ["Begusarai Sadar", "Bachhwara", "Bakhri"],
+    },
+    "FATUHA": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "MASAURHI": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "PATNA": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "ARRAH": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BUXAR": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BIHARSARIF": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "RAJGIR": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "EKANGARSARAI": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "NAWADA": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "SASARAM": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "DEHRIONSONE": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BHABUA": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    },
+    "BHOJPUR": {
+      Gaya: ["Gaya Sadar", "Tekari", "Sherghati"],
+      Nawada: ["Nawada Sadar", "Rajauli"],
+      Aurangabad: ["Aurangabad Sadar", "Daudnagar"],
+      Jehanabad: ["Jehanabad Sadar", "Makhdumpur"],
+      Arwal: ["Arwal Sadar", "Karpi"],
+    }
+  };
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,7 +226,7 @@ const Permission = () => {
           cash: result.cash || false,
           cdm: result.cdm || false,
         });
-  
+
         setBillPaymentMethods({
           wallet: result.wallet || false,
           ezetap: result.ezetap || false,
@@ -71,12 +235,27 @@ const Permission = () => {
         });
 
 
-        setDiscom({
-          nbpdcl: result.nbpdcl || false,
-          sbpdcl: result.sbpdcl || false,
-        });
+        const discomData = {};
 
-        
+      // Loop through discomFields and check if they are true in the result
+      const discomFields = [
+        'nbpdcl', 'sbpdcl', 'ASHIYANA', 'PATNACITY', 'BANKIPUR', 'RAJENDRANAGAR', 
+        'KANKARBAGH1', 'KANKARBAGH2', 'GULZARBAGH', 'NEWCAPITAL', 'PATLIPUTRA', 
+        'DAKBUNGLOW', 'GARDANIBAGH', 'DANAPUR', 'BIHTA', 'BARH', 'FATUHA', 
+        'MASAURHI', 'PATNA', 'ARRAH', 'BUXAR', 'BIHARSARIF', 'RAJGIR', 'EKANGARSARAI', 
+        'NAWADA', 'SASARAM', 'DEHRIONSONE', 'BHABUA', 'BHOJPUR'
+      ];
+
+      discomFields.forEach(field => {
+        if (result[field] === true) {
+          discomData[field] = true;
+        }
+      });
+
+      // Set the discom state with the populated discomData object
+      setDiscom(discomData);
+
+
         setCommission(result.margin || '0');
       } catch (error) {
         setError(error);
@@ -101,7 +280,7 @@ const Permission = () => {
 
 
 
-  const handleMethodChange = (e, methodType) => {
+  const handleMethodChange = (e, methodType , divisionName) => {
     if (methodType === 'fundRequest') {
       setFundRequestMethods({
         ...fundRequestMethods,
@@ -112,12 +291,22 @@ const Permission = () => {
         ...billPaymentMethods,
         [e.target.name]: e.target.checked,
       });
-    }else if (methodType === 'discom') {
+    } else if (methodType === 'discom') {
       setDiscom({
         ...discom,
         [e.target.name]: e.target.checked,
       });
-    }
+    }else if (methodType === 'division') {
+      setDiscom({
+        ...discom,
+        [divisionName]: e.target.checked,
+        // If the division is unchecked, uncheck all its subdivisions as well
+        ...(e.target.checked ? {} : Object.keys(southBiharDivision[divisionName]).reduce((acc, sub) => {
+          acc[sub] = false;
+          return acc;
+        }, {}))
+      });
+    } 
   };
 
 
@@ -153,7 +342,7 @@ const Permission = () => {
 
     try {
       const response = await axios.put(`/api/v1/users/updateCommission/${userId}`, updatedData);
-      
+
       if (response.data.success) {
         console.log('Commission updated successfully:', response.data.updatedUser);
         naviagte(`/view-user`);
@@ -168,163 +357,199 @@ const Permission = () => {
   return (
     <CContainer fluid>
 
-    <CCard className="mb-4">
-                
+      <CCard className="mb-4">
 
-      <CCardHeader><h5>Update Options</h5></CCardHeader>
-      <CCardBody>
-        <CForm>
-          {/* Checkbox Group */}
-          <CFormCheck
-            id="topup"
-            name="topup"
-            label="TopUp"
-            checked={selectedOptions.topup}
-            onChange={handleCheckboxChange}
-          />
-          <CFormCheck
-            id="billPayment"
-            name="billPayment"
-            label="Bill Payment"
-            checked={selectedOptions.billPayment}
-            onChange={handleCheckboxChange}
-          />
-          <CFormCheck
-            id="getPrepaidBalance"
-            name="getPrepaidBalance"
-            label="Prepaid Balance"
-            checked={selectedOptions.getPrepaidBalance}
-            onChange={handleCheckboxChange}
-          />
-          <CFormCheck
-            id="requestCancellation"
-            name="requestCancellation"
-            label="Request Cancellation"
-            checked={selectedOptions.requestCancellation}
-            onChange={handleCheckboxChange}
-          />
-          <CFormCheck
-            id="fundRequest"
-            name="fundRequest"
-            label="Fund Request"
-            checked={selectedOptions.fundRequest}
-            onChange={handleCheckboxChange}
-          />
 
-          {/* Update Button */}
-          {/* <CButton color="primary" onClick={handleUpdate}>
+        <CCardHeader><h5>Update Options</h5></CCardHeader>
+        <CCardBody>
+          <CForm>
+            {/* Checkbox Group */}
+            <CFormCheck
+              id="topup"
+              name="topup"
+              label="TopUp"
+              checked={selectedOptions.topup}
+              onChange={handleCheckboxChange}
+            />
+            <CFormCheck
+              id="billPayment"
+              name="billPayment"
+              label="Bill Payment"
+              checked={selectedOptions.billPayment}
+              onChange={handleCheckboxChange}
+            />
+            <CFormCheck
+              id="getPrepaidBalance"
+              name="getPrepaidBalance"
+              label="Prepaid Balance"
+              checked={selectedOptions.getPrepaidBalance}
+              onChange={handleCheckboxChange}
+            />
+            <CFormCheck
+              id="requestCancellation"
+              name="requestCancellation"
+              label="Request Cancellation"
+              checked={selectedOptions.requestCancellation}
+              onChange={handleCheckboxChange}
+            />
+            <CFormCheck
+              id="fundRequest"
+              name="fundRequest"
+              label="Fund Request"
+              checked={selectedOptions.fundRequest}
+              onChange={handleCheckboxChange}
+            />
+
+            {/* Update Button */}
+            {/* <CButton color="primary" onClick={handleUpdate}>
             Update
           </CButton> */}
-        </CForm>
+          </CForm>
 
 
-        <hr />
+          <hr />
 
           <h5>Fund Request Method</h5>
           <CForm>
 
-          <CFormCheck
-            id="bankTransfer"
-            name="bankTransfer"
-            label="Bank Transfer"
-            checked={fundRequestMethods.bankTransfer}
-            onChange={(e) => handleMethodChange(e, 'fundRequest')}
-          />
-          <CFormCheck
-            id="upi"
-            name="upi"
-            label="Upi"
-            checked={fundRequestMethods.upi}
-            onChange={(e) => handleMethodChange(e, 'fundRequest')}
-          />
-          <CFormCheck
-            id="cash"
-            name="cash"
-            label="Cash"
-            checked={fundRequestMethods.cash}
-            onChange={(e) => handleMethodChange(e, 'fundRequest')}
-          />
-          <CFormCheck
-            id="cdm"
-            name="cdm"
-            label="Cdm"
-            checked={fundRequestMethods.cdm}
-            onChange={(e) => handleMethodChange(e, 'fundRequest')}
-          />
-             {/* <CButton color="primary" onClick={handleUpdate}>
+            <CFormCheck
+              id="bankTransfer"
+              name="bankTransfer"
+              label="Bank Transfer"
+              checked={fundRequestMethods.bankTransfer}
+              onChange={(e) => handleMethodChange(e, 'fundRequest')}
+            />
+            <CFormCheck
+              id="upi"
+              name="upi"
+              label="Upi"
+              checked={fundRequestMethods.upi}
+              onChange={(e) => handleMethodChange(e, 'fundRequest')}
+            />
+            <CFormCheck
+              id="cash"
+              name="cash"
+              label="Cash"
+              checked={fundRequestMethods.cash}
+              onChange={(e) => handleMethodChange(e, 'fundRequest')}
+            />
+            <CFormCheck
+              id="cdm"
+              name="cdm"
+              label="Cdm"
+              checked={fundRequestMethods.cdm}
+              onChange={(e) => handleMethodChange(e, 'fundRequest')}
+            />
+            {/* <CButton color="primary" onClick={handleUpdate}>
             Update
           </CButton> */}
 
-          {/* Bill Payment Method */}
-          <hr />
-          <h5>Bill Payment Method</h5>
-          <CFormCheck
-            id="wallet"
-            name="wallet"
-            label="Wallet"
-            checked={billPaymentMethods.wallet}
-            onChange={(e) => handleMethodChange(e, 'billPayment')}
-          />
-          <CFormCheck
-            id="ezetap"
-            name="ezetap"
-            label="Ezetap"
-            checked={billPaymentMethods.ezetap}
-            onChange={(e) => handleMethodChange(e, 'billPayment')}
-          />
-          <CFormCheck
-            id="upiQr"
-            name="upiQr"
-            label="UPI-QR"
-            checked={billPaymentMethods.upiQr}
-            onChange={(e) => handleMethodChange(e, 'billPayment')}
-          />
-          <CFormCheck
-            id="rrn"
-            name="rrn"
-            label="RRN"
-            checked={billPaymentMethods.rrn}
-            onChange={(e) => handleMethodChange(e, 'billPayment')}
-          />
+            {/* Bill Payment Method */}
+            <hr />
+            <h5>Bill Payment Method</h5>
+            <CFormCheck
+              id="wallet"
+              name="wallet"
+              label="Wallet"
+              checked={billPaymentMethods.wallet}
+              onChange={(e) => handleMethodChange(e, 'billPayment')}
+            />
+            <CFormCheck
+              id="ezetap"
+              name="ezetap"
+              label="Ezetap"
+              checked={billPaymentMethods.ezetap}
+              onChange={(e) => handleMethodChange(e, 'billPayment')}
+            />
+            <CFormCheck
+              id="upiQr"
+              name="upiQr"
+              label="UPI-QR"
+              checked={billPaymentMethods.upiQr}
+              onChange={(e) => handleMethodChange(e, 'billPayment')}
+            />
+            <CFormCheck
+              id="rrn"
+              name="rrn"
+              label="RRN"
+              checked={billPaymentMethods.rrn}
+              onChange={(e) => handleMethodChange(e, 'billPayment')}
+            />
 
 
-          <hr />
+            <hr />
 
             <h5>Discom</h5>
-            <CRow>
-            <CCol md={6}>
-          <CFormCheck
-            id="nbpdcl"
-            name="nbpdcl"
-            label="NBPDCL"
-            checked={discom.nbpdcl}
-            onChange={(e) => handleMethodChange(e, 'discom')}
-          />
-          <CFormCheck
-            id="sbpdcl"
-            name="sbpdcl"
-            label="SBPDCL"
-            checked={discom.sbpdcl}
-            onChange={(e) => handleMethodChange(e, 'discom')}
-          />
-        </CCol>
+<CRow>
+<React.Fragment key="southBiharDivision">
+  {/* Box for Division */}
+  <CCol md={3} className="mx-3 border p-3 rounded" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            <h6>All Divisions</h6>
+            {Object.entries(southBiharDivision).map(([division, subdivisions]) => (
+              <div key={division} style={{ marginBottom: '1rem' }}>
+                <CFormCheck
+                  id={division.toLowerCase().replace(/\s+/g, '_')}
+                  name={division.toLowerCase().replace(/\s+/g, '_')}
+                  label={division}
+                  checked={discom[division] || false}  // Check the box if the division is set to true in discom
+                  onChange={(e) => handleMethodChange(e, 'division', division)}
+                />
+            {/* If there are subdivisions, display them */}
+            {/* {Object.values(subdivisions || {}).flat().map((subdivision) => (
+              <div key={subdivision} style={{ marginLeft: '20px' }}>
+                <CFormCheck
+                  id={subdivision.toLowerCase().replace(/\s+/g, '_')}
+                  name={subdivision.toLowerCase().replace(/\s+/g, '_')}
+                  label={subdivision}
+                  checked={discom[subdivision] || false}  // Check the box if the subdivision is set to true in discom
+                  onChange={(e) => handleMethodChange(e, 'subdivision')}
+                />
+              </div>
+            ))} */}
+          </div>
+        ))}
+      </CCol>
 
-             
+                  {/* Box for Sub-Division */}
+                  {/* <CCol md={3} className="border p-3 rounded" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+  <h6>All Sub-Divisions</h6>
+  {Object.entries(southBiharDivision).map(([division, subdivisions]) => (
+    <div key={division} style={{ marginBottom: '1rem' }}>
+      <h6 className="text-primary">{division}</h6>
+      {Object.keys(subdivisions).map((subDivision) => (
+        <div key={subDivision} style={{ marginLeft: '1rem' }}> */}
+          {/* Sub-Division Name with Checkbox */}
+          {/* <CFormCheck
+            key={subDivision}
+            id={subDivision.toLowerCase().replace(/\s+/g, '_')}
+            name={subDivision.toLowerCase().replace(/\s+/g, '_')}
+            label={subDivision}
+            onChange={(e) => handleMethodChange(e, 'subDivision')}
+          />
+        </div>
+      ))}
+    </div>
+  ))}
+</CCol>
+                </React.Fragment> */}
+              {/* ))} */}
+              </React.Fragment> 
+
             </CRow>
             <hr />
 
 
-          {/* Update Button */}
-          <CButton color="primary" onClick={handleUpdate}>
-            Update
-          </CButton>
-        </CForm>
+            {/* Update Button */}
+            <CButton color="primary" onClick={handleUpdate}>
+              Update
+            </CButton>
+          </CForm>
 
-        {/* <hr /> */}
+          {/* <hr /> */}
 
-        {/* Commission Update Section */}
-        {/* <h5>Update Commission</h5> */}
-        {/* <CForm> */}
+          {/* Commission Update Section */}
+          {/* <h5>Update Commission</h5> */}
+          {/* <CForm> */}
           {/* Input field for commission */}
           {/* <CFormInput
           style={{width:"30%"}}
@@ -342,8 +567,8 @@ const Permission = () => {
             Update Commission
           </CButton>
         </CForm> */}
-      </CCardBody>
-    </CCard>
+        </CCardBody>
+      </CCard>
     </CContainer>
   );
 };

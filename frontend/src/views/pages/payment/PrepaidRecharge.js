@@ -94,7 +94,7 @@ const handleFetchBill = async () => {
   setFetchBillSuccess(false);
 
   try {
-    const response = await axios.post('/api/v1/users/consumer-balance-details', { consumerId });
+    const response = await axios.post('/api/v1/hargharbijlee/fetch-bill', { consumerId });
   
     console.log("API Response:", response.data);
   
@@ -121,65 +121,7 @@ const handleFetchBill = async () => {
 
 
 
-  // const handleFetchBill = async () => {
-  //   if (!consumerId) {
-  //     alert("Consumer ID is required.");
-  //     return;
-  //   }
   
-  //   setFormSubmitted(true);
-  //   setIsBillFetched(true);
-  //   setFetchBillSuccess(false);
-  
-  //   try {
-  //     const soapXml = soapRequest(consumerId);
-  
-  //     console.log("SOAP Request:", soapXml);
-  
-  //     const response = await axios.post(`/api/v1/hargharbijli/WebServiceExternal/WebServiceOPSM.asmx`, soapXml, {
-  //       headers: {
-  //         'Content-Type': 'application/soap+xml; charset=utf-8',
-  //         'SOAPAction': 'http://bsphcl.co.in/GetConsumerBalanceDetails',
-  //       },
-  //     });
-  
-  //     console.log("SOAP Response:", response.data);
-  
-  //     const parser = new DOMParser();
-  //     const xmlDoc = parser.parseFromString(response.data, "text/xml");
-  
-  //     const fault = xmlDoc.getElementsByTagName('soap:Fault')[0];
-  //     if (fault) {
-  //       const faultCode = fault.getElementsByTagName('faultcode')[0]?.textContent;
-  //       const faultString = fault.getElementsByTagName('faultstring')[0]?.textContent;
-  //       alert(`Error: ${faultString || 'Unknown error'}`);
-  //       return;
-  //     }
-  
-  //     const resultJsonString = xmlDoc.getElementsByTagName('GetConsumerBalanceDetailsResult')[0]?.textContent || '{}';
-  //     const result = JSON.parse(resultJsonString);
-  
-  //       setBillDetails({
-  //         consumerId: result.Consumer_number || 'N/A',
-  //         balance: result.Balance || 'N/A',
-  //         lastPaymentDate: result.LastPayDt || 'N/A',
-  //         lastPaymentAmount: result.LastPayAmt || 'N/A',
-  //         meterNumber: result.MeterNumber || 'N/A',
-  //         connectionStatus: result.ConnectionStatus === 'Y' ? 'Active' : 'Inactive',
-  //         ResponseDateTime: result.responseDateTime,
-  //         Status: result.status,
-  //       });
-
-
-
-        
-  
-  //     setFetchBillSuccess(true);
-  //   } catch (error) {
-  //     console.error('Error fetching bill:', error);
-  //     alert('An error occurred while fetching the bill details.');
-  //   }
-  // };
     
 
   const handleProceedToPay = async () => {
